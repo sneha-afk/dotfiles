@@ -1,30 +1,81 @@
-" ===========================
+" ---------------------------------------
 " General Settings
-" ===========================
+" ---------------------------------------
+:set encoding=utf8           " Set text encoding as UTF-8
+:set wrap                    " Wrap overflowing lines
 
-" Set backspace in INSERT mode permanently
-:set backspace=indent,eol,start
+" ---------------------------------------
+" Indentation and Tabs
+" ---------------------------------------
+:set backspace=indent,eol,start   " Set backspace in INSERT mode permanently
+:set tabstop=4                    " Set tab to 4 spaces
+:set shiftwidth=4                 " Set indentation to 4 spaces
+:set softtabstop=0                " Ensure consistent indentation
+:set expandtab                   " Convert tabs to spaces
+:set smarttab                    " Use smart tabbing for indentation
+:filetype indent plugin on       " Enable filetype-specific indentation
+:set autoindent                  " Auto indentation
+:set smartindent                 " Smart indentation for C-like languages
+:set ff=unix                     " Use Unix file format
 
-" Make a tab 4 spaces, show a dot for spaces
-:set tabstop=4
-:set shiftwidth=4
-:set softtabstop=0
-:set expandtab
-:set smarttab
-:set matchpairs+=<:>
-:set scrolloff=3
+" Indentation rules for specific file types
+:autocmd FileType c set autoindent cindent    " C files autoindent and C-specific indentation
+:autocmd FileType make,go set noexpandtab     " Use hard tabs for Make, Go
 
-" Show all whitespace characters
-:set list
-:set listchars=tab:\\·,trail:·
-:match ErrorMsg '\s\+$'       " Highlight trailing whitespace in red
+" ---------------------------------------
+" Whitespace Display
+" ---------------------------------------
+:set list                       " Show whitespace characters
+:set listchars=tab:🡢\ ,trail:·  " Customize whitespace characters
+:set scrolloff=3                " Keep some context above/below cursor
 
-" Case-insensitive search, unless capital letters are used
-:set ignorecase
-:set smartcase
+" ---------------------------------------
+" Search Settings
+" ---------------------------------------
+:set ignorecase                " Ignore case in search
+:set smartcase                 " Use case-sensitive search when uppercase is used
 
-" Show line numbers
-:set number
+" ---------------------------------------
+" Line Numbers
+" ---------------------------------------
+:set number                    " Display line numbers
+
+" ---------------------------------------
+" Soft Line Breaks
+" ---------------------------------------
+:set breakindent                " Enable soft line breaks
+:set breakindentopt=shift:4     " Shift wrapped lines by 4 spaces
+
+" ---------------------------------------
+" Auto-Completion for Brackets
+" ---------------------------------------
+:inoremap { {}<Esc>ha
+:inoremap ( ()<Esc>ha
+:inoremap [ []<Esc>ha
+:inoremap " ""<Esc>ha
+:inoremap ' ''<Esc>ha
+:inoremap ` ``<Esc>ha
+
+" ---------------------------------------
+" Key Mappings
+" Save with Ctrl+S
+" Quit with Ctrl+Q
+" Save and quit with Ctrl+W
+" ---------------------------------------
+:nnoremap <C-s> :w<CR>         " Save with Ctrl+S
+:nnoremap <C-q> :q<CR>         " Quit with Ctrl+Q
+:nnoremap <C-w> :wq<CR>        " Save and quit with Ctrl+W
+
+" ---------------------------------------
+" Appearance and Colors
+" ---------------------------------------
+:set t_Co=256                  " Use 256 colors
+:colorscheme slate             " Set color scheme to slate
+:syntax on                     " Enable syntax highlighting
+:set cursorline                " Highlight the current line
+:hi clear CursorLine           " Clear CursorLine highlight
+:highlight CursorColumn cterm=NONE ctermbg=238  " Customize CursorColumn style
+:hi link CursorLine CursorColumn  " Link CursorLine and CursorColumn
 
 " ===========================
 " Status Line Configuration
@@ -39,78 +90,10 @@
 :set laststatus=2             " Always show status line
 :set statusline=Ln\ %l,\ Col\ %v\ %m\ %=%P,\ %Y
 
+" ---------------------------------------
+" Miscellaneous Settings
+" ---------------------------------------
+:set smartcase                 " Automatically switch to case-sensitive search if capital letters are used
 
-" ===========================
-" Indentation Settings
-" ===========================
+" >_ Customizations for the vim editor. Read more at https://github.com/dawsbot/vimrc-builder "
 
-" Enable file type-specific indentation and plugin support
-:filetype indent plugin on
-:set autoindent
-:set smartindent
-:set ff=unix
-
-" Indentation rules for specific file types
-:autocmd FileType python set autoindent expandtab shiftwidth=4 tabstop=4
-:autocmd FileType c,cpp set autoindent cindent shiftwidth=4 tabstop=4 expandtab
-:autocmd FileType make,go set noexpandtab shiftwidth=4 tabstop=4
-
-" ===========================
-" Line Wrapping
-" ===========================
-
-" Soft line breaks with wrapped lines
-:set breakindent
-:set breakindentopt=shift:4
-:set wrap			" Wrap overflowing lines
-
-" ===========================
-" Text Encoding
-" ===========================
-
-" Set text encoding as UTF-8
-:set encoding=utf8
-
-" ===========================
-" Colors & Syntax Highlighting
-" ===========================
-
-" Enable 256 colors and syntax highlighting
-:set t_Co=256
-:syntax enable
-:colorscheme slate
-
-:set colorcolumn=80           " Show a vertical line at column 80
-:hi ColorColumn ctermbg=234
-
-" Highlight the current cursor line
-:set cursorline
-:hi clear CursorLine
-:hi link CursorLine CursorColumn " Link the two styles
-
-" ===========================
-" Autocompletion Settings
-" ===========================
-
-" Autocomplete brackets
-:set showmatch                   " Highlight matching parenthesis
-inoremap { {}<Esc>ha
-inoremap ( ()<Esc>ha
-inoremap [ []<Esc>ha
-inoremap " ""<Esc>ha
-inoremap ' ''<Esc>ha
-inoremap ` ``<Esc>ha
-
-" ===========================
-" Search Settings
-" ===========================
-
-" Enable incremental search
-:set incsearch                   " Show matches while typing search
-:set hlsearch                    " Highlight search matches
-
-" ===========================
-" Extra
-" ===========================
-
-" >_ Customizations for the vim editor. Read more at https://github.com/dawsbot/vimrc-builder
