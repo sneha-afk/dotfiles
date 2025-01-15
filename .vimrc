@@ -7,17 +7,25 @@
 " ---------------------------------------
 " Appearance and Colors
 " ---------------------------------------
-:set background=dark         " Set background to dark
+:syntax on                   " Enable syntax highlighting
 :set number                  " Display line numbers
 :set t_Co=256                " Use 256 colors
+:set background=dark         " Set background to dark
 :colorscheme slate           " Set color scheme to slate
-:syntax on                   " Enable syntax highlighting
-:set showmatch               " Highlight matching brackets
-:set hlsearch                " Highlight all search results
 
 " Highlight the current line with a gray background
-:set cursorline              " Highlight the current line
+:set cursorline
 :highlight CursorLine cterm=NONE ctermbg=238
+
+" ---------------------------------------
+" File-type Specifics
+"   C files: autoindent and C-specific rules
+"   Use hard tabs for Make and Go files
+" ---------------------------------------
+:autocmd FileType c set autoindent cindent
+:autocmd FileType make,go set noexpandtab
+:autocmd FileType markdown,tex set spell wrap linebreak
+:autocmd FileType tex set nospell
 
 " ---------------------------------------
 " Indentation and Tabs
@@ -31,24 +39,30 @@
 :filetype indent plugin on        " Enable filetype-specific indentation
 :set autoindent                   " Auto indentation
 :set smartindent                  " Smart indentation for C-like languages
-:set ff=unix                      " Use Unix file format
+:set ff=unix                      " Use Unix file format (LF endings)
 
-" Indentation rules for specific file types
-:autocmd FileType c set autoindent cindent       " C files: autoindent and C-specific rules
-:autocmd FileType make,go set noexpandtab        " Use hard tabs for Make and Go files
+" ---------------------------------------
+" Status Line Configuration
+"
+" Show the current file, line and column numbers, modification flag, percent through file, and file type
+" ---------------------------------------
+:set laststatus=2               " Always show the status line
+:set statusline=[Ln\ %l,\ Col\ %c]\ \ \%m\ %=%P\ \ \ \ %f\ %y
+
 
 " ---------------------------------------
 " Whitespace Display
 " ---------------------------------------
 :set list                        " Show whitespace characters
 :set listchars=tab:>·,trail:·    " Customize whitespace display
-:set scrolloff=5                 " Keep 5 lines of context above/below the cursor
+:set scrolloff=5                 " Keep a number of lines of context above/below the cursor
 
 " ---------------------------------------
 " Search Settings
 " ---------------------------------------
 :set ignorecase                 " Ignore case in search
 :set smartcase                  " Case-sensitive search when uppercase is used
+:set hlsearch                   " Highlight all search results
 
 " ---------------------------------------
 " Soft Line Breaks
@@ -67,16 +81,7 @@
 :inoremap ` ``<Esc>ha
 
 " ---------------------------------------
-" Status Line Configuration
-"
-" Show the current file, line and column numbers, modification flag, percent through file, and file type
-" ---------------------------------------
-:set laststatus=2               " Always show the status line
-:set statusline=[LN\ %l,\ COL\ %c]\ \ \[%m]\ %=%f\ \ \ \%P,\ %Y
-
-
-" ---------------------------------------
 " Additional Optional Features
-" ---------------------------------------
 " Disable message prompts during file opening
+" ---------------------------------------
 :set shortmess+=I               " Skip intro message
