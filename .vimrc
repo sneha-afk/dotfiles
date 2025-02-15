@@ -11,7 +11,6 @@
 :syntax on                   " Enable syntax highlighting
 :set number                  " Display line numbers
 :set t_Co=256                " Use 256 colors
-:set background=dark         " Set background to dark
 
 " Color scheme
 :colorscheme slate
@@ -19,11 +18,6 @@
 " Highlight the current line with a gray background
 :set cursorline
 :highlight CursorLine cterm=NONE ctermbg=238
-
-" Check if terminal supports true color
-if has('termguicolors')
-    :set termguicolors
-endif
 
 " ---------------------------------------
 " File-type Specifics
