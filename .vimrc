@@ -11,16 +11,30 @@
 " Plugins
 " ---------------------------------------
 
+" Determine the plugin directory based on the operating system
+if has('win32') || has('win64')
+    let s:plugin_dir = expand('~/vimfiles/autoload')
+    let s:plugged_dir = expand('~/vimfiles/plugged')
+else
+    let s:plugin_dir = expand('~/.vim/autoload')
+    let s:plugged_dir = expand('~/.vim/plugged')
+endif
+
 " Automatically install vim-plug if not found
-if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+if empty(glob(s:plugin_dir . '/plug.vim'))
+    if has('win32') || has('win64')
+        silent execute '!powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim -OutFile ' . shellescape(s:plugin_dir . '/plug.vim') . '"'
+    else
+        silent execute '!curl -fLo ' . shellescape(s:plugin_dir . '/plug.vim') . ' --create-dirs '
+            \ . 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    endif
     :autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-:call plug#begin('~/.vim/plugged')
-    :Plug 'cocopon/iceberg.vim', { 'as': 'icebergtheme' }  " Iceberg color scheme
-:call plug#end()
+" Initialize plugin system with the correct directory
+call plug#begin(s:plugged_dir)
+    Plug 'cocopon/iceberg.vim', { 'as': 'icebergtheme' }  " Iceberg color scheme
+call plug#end()
 
 " Function to check if a plugin is available
 function! IsPluginAvailable(plugin)
