@@ -8,26 +8,6 @@
 :set scrolloff=5                  " Keep 5 lines of context above/below the cursor
 
 " ---------------------------------------
-" Plugins
-" ---------------------------------------
-
-" Automatically install vim-plug if not found
-if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    :autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
-:call plug#begin('~/.vim/plugged')
-    :Plug 'cocopon/iceberg.vim', { 'as': 'icebergtheme' }  " Iceberg color scheme
-:call plug#end()
-
-" Function to check if a plugin is available
-function! IsPluginAvailable(plugin)
-    return has_key(get(g:, 'plugs', {}), a:plugin)
-endfunction
-
-" ---------------------------------------
 " Appearance and Colors
 " ---------------------------------------
 :syntax on                        " Enable syntax highlighting
@@ -36,12 +16,8 @@ endfunction
 :set background=dark              " Use dark mode
 :set cursorline                   " Highlight the current line
 
-" Color scheme
-if IsPluginAvailable('icebergtheme')
-    :colorscheme iceberg          " Use iceberg theme if available
-else
-    :colorscheme slate            " Fallback to slate theme
-endif
+" Use the slate color scheme
+:colorscheme slate
 
 " ---------------------------------------
 " Indentation and Tabs
