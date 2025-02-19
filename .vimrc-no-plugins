@@ -3,13 +3,16 @@
 " ---------------------------------------
 :set encoding=utf-8               " Set encoding to UTF-8
 :set fileencoding=utf-8
-:set mouse=a                      " Enable mouse support for all modes
 :set ff=unix                      " Use Unix file format (LF endings)
 :set shortmess+=I                 " Skip intro message
 :set scrolloff=5                  " Keep 5 lines of context above/below the cursor
 :set splitright                   " Default vertical splits to the right side
 :set wrap                         " Wrap long lines
 :set linebreak                    " Do not break in the middle of words
+:set ttyfast                      " Optimize performance for fast terminals
+:set wildmenu                     " Enable enhanced command-line completion
+:set wildmode=list:longest,full   " Show possible matches like autocomplete
+:set completeopt=menu,menuone,noselect " Completion options for insert mode
 
 " ---------------------------------------
 " Appearance and Colors
@@ -17,7 +20,6 @@
 :syntax on                        " Enable syntax highlighting
 :set number                       " Display line numbers
 :set t_Co=256                     " Use 256 colors
-:set background=dark              " Use dark mode
 :set cursorline                   " Highlight the current line
 
 " Set true color if available
