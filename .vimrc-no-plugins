@@ -16,6 +16,11 @@
 :set background=dark              " Use dark mode
 :set cursorline                   " Highlight the current line
 
+" Set true color if available
+if has("termguicolors")
+    :set termguicolors
+endif
+
 " Use the slate color scheme
 :colorscheme slate
 

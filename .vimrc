@@ -50,6 +50,11 @@ endfunction
 :set background=dark              " Use dark mode
 :set cursorline                   " Highlight the current line
 
+" Set true color if available
+if has("termguicolors")
+    :set termguicolors
+endif
+
 " Color scheme
 if IsPluginAvailable('icebergtheme')
     :colorscheme iceberg          " Use iceberg theme if available
