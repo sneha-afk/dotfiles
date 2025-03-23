@@ -129,4 +129,5 @@ if has('win32') || has('win64')
 
     " Use :Term to open Powershell
     command! Term call SetPowerShell() | term
+    command! VTerm call SetPowerShell() | vertical terminal
 endif

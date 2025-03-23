@@ -18,9 +18,6 @@ set backspace=indent,eol,start   " Enable backspacing in INSERT mode
 " =======================================
 " Plugin Management
 " =======================================
-" Define where vim's files are depending on OS
-let s:vim_home = has('win32') || has('win64') ? '$HOME\vimfiles' : '~/.vim'
-
 " Set to 0 to disable having plugins
 let g:have_plugins = 1
 if g:have_plugins
@@ -32,15 +29,19 @@ if g:have_plugins
 
     if empty(glob(s:plug_file))
         execute 'silent !curl -fLo ' . shellescape(s:plug_file) . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-        autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
     endif
 
     " Initialize plugin system
     call plug#begin(s:plugged_dir)
     Plug 'itchyny/lightline.vim'
     Plug 'jiangmiao/auto-pairs'     " Auto-pair brackets, quotes, etc.
-    Plug 'rose-pine/vim', { 'as': 'rose-pine' }
+    Plug 'adrian5/oceanic-next-vim', { 'as': 'oceanic-next' }
     call plug#end()
+
+    " Run PlugInstall if there are missing plugins
+    autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+        \| PlugInstall --sync | source $MYVIMRC
+        \| endif
 endif
 
 " Function to check if a plugin is available
@@ -63,8 +64,8 @@ if has("termguicolors")
 endif
 
 " Color scheme
-if IsPluginAvailable('rose-pine')
-    colorscheme rosepine
+if IsPluginAvailable('oceanic-next')
+    colorscheme oceanicnext
 else
     colorscheme slate
 endif
@@ -116,7 +117,7 @@ set laststatus=2                 " Always show the status line
 if IsPluginAvailable('lightline.vim')
     set noshowmode      " Remove the extra mode at the bottom
     let g:lightline = {
-                \ 'colorscheme': 'rosepine',
+                \ 'colorscheme': 'oceanicnext',
                 \ 'active': {
                 \   'left': [ [ 'mode', 'paste' ],
                 \             [ 'filename', 'readonly', 'modified' ]
@@ -186,4 +187,5 @@ if has('win32') || has('win64')
 
     " Use :Term to open Powershell
     command! Term call SetPowerShell() | term
+    command! VTerm call SetPowerShell() | vertical terminal
 endif
