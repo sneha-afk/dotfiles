@@ -1,102 +1,132 @@
-" ---------------------------------------
+" =======================================
 " General Settings
-" ---------------------------------------
-:set encoding=utf-8               " Set encoding to UTF-8
-:set fileencoding=utf-8
-:set ff=unix                      " Use Unix file format (LF endings)
-:set shortmess+=I                 " Skip intro message
-:set scrolloff=5                  " Keep 5 lines of context above/below the cursor
-:set splitright                   " Default vertical splits to the right side
-:set wrap                         " Wrap long lines
-:set linebreak                    " Do not break in the middle of words
-:set ttyfast                      " Optimize performance for fast terminals
-:set wildmenu                     " Enable enhanced command-line completion
-:set wildmode=list:longest,full   " Show possible matches like autocomplete
-:set completeopt=menu,menuone,noselect " Completion options for insert mode
+" =======================================
+set encoding=utf-8               " Set encoding to UTF-8
+set fileencoding=utf-8
+set ff=unix                      " Use Unix file format (LF endings)
+set shortmess+=I                 " Skip intro message
+set scrolloff=5                  " Keep 5 lines of context above/below the cursor
+set splitright                   " Default vertical splits to the right side
+set wrap                         " Wrap long lines
+set linebreak                    " Do not break in the middle of words
+set ttyfast                      " Optimize performance for fast terminals
+set wildmenu                     " Enable enhanced command-line completion
+set wildmode=list:longest,full   " Show possible matches like autocomplete
+set completeopt=menu,menuone,noselect " Completion options for insert mode (Use Ctrl+n or Ctrl+p)
+set backspace=indent,eol,start   " Enable backspacing in INSERT mode
 
-" ---------------------------------------
+" =======================================
 " Appearance and Colors
-" ---------------------------------------
-:syntax on                        " Enable syntax highlighting
-:set number                       " Display line numbers
-:set t_Co=256                     " Use 256 colors
-:set cursorline                   " Highlight the current line
+" =======================================
+syntax on                        " Enable syntax highlighting
+set number                       " Display line numbers
+set t_Co=256                     " Use 256 colors
+set background=dark              " Use dark mode
+set cursorline                   " Highlight the current line
 
 " Set true color if available
 if has("termguicolors")
-    :set termguicolors
+    set termguicolors
 endif
 
-" Use the slate color scheme
-:colorscheme slate
+colorscheme slate
 
-" ---------------------------------------
+" =======================================
 " Indentation and Tabs
-" ---------------------------------------
-:set tabstop=4                    " Tab width: 4 spaces
-:set shiftwidth=4                 " Indentation width: 4 spaces
-:set softtabstop=4                " Soft tab width: 4 spaces
-:set expandtab                    " Convert tabs to spaces
-:set smarttab                     " Smart tabbing
-:set autoindent                   " Auto indentation
-:set smartindent                  " Smart indentation for C-like languages
-:filetype indent plugin on        " Enable filetype-specific indentation
+" =======================================
+filetype indent plugin on        " Enable filetype-specific indentation
+set tabstop=4                    " Tab width: 4 spaces
+set shiftwidth=4                 " Indentation width: 4 spaces
+set softtabstop=4                " Soft tab width: 4 spaces
+set expandtab                    " Convert tabs to spaces
+set smarttab                     " Smart tabbing
+set autoindent                   " Auto indentation
+set smartindent                  " Smart indentation for C-like languages
 
-" ---------------------------------------
-" Whitespace Display
-" ---------------------------------------
-:set list                         " Show whitespace characters
-:set listchars=tab:>·,trail:·     " Customize whitespace display
-
-" ---------------------------------------
-" Search Settings
-" ---------------------------------------
-:set ignorecase                   " Ignore case in search
-:set smartcase                    " Case-sensitive search when uppercase is used
-:set hlsearch                     " Highlight all search results
-
-" ---------------------------------------
-" Status Line Configuration
-" ---------------------------------------
-:set laststatus=2                 " Always show the status line
-
-" Status Line Format:
-" - [Ln %l, Col %c]: Current line and column numbers.
-" - %m: Modification flag (shows [+] if the file is modified).
-" - %P: Percentage through the file.
-" - %f: Short filename.
-" - %y: File type.
-:set statusline=[Ln\ %l,\ Col\ %c]\ \ \%m\ \ \ %=%P\ \ \ \ %f\ %y
-
-" ---------------------------------------
+" =======================================
 " File-type Specifics
-" ---------------------------------------
-" - C files: Enable autoindent and C-specific indentation rules.
-" - Make and Go files: Use hard tabs (noexpandtab).
-" - Markdown and TeX: Enable spell check, soft wrapping, and line breaks.
-" - TeX: Disable spell check.
-:autocmd FileType c set autoindent cindent
-:autocmd FileType make,go set noexpandtab
-:autocmd FileType markdown,tex set spell wrap linebreak
-:autocmd FileType tex set nospell
+" =======================================
+autocmd FileType c set autoindent cindent
+autocmd FileType make,go set noexpandtab
+autocmd FileType markdown,tex set spell wrap linebreak
+autocmd FileType tex set nospell
 
-" ---------------------------------------
-" Auto-Completion for Brackets
-" ---------------------------------------
-:inoremap { {}<Esc>ha
-:inoremap ( ()<Esc>ha
-:inoremap [ []<Esc>ha
-:inoremap " ""<Esc>ha
-:inoremap ' ''<Esc>ha
-:inoremap ` ``<Esc>ha
-
-" ---------------------------------------
+" =======================================
 " Soft Line Breaks
-" ---------------------------------------
-:set breakindent                  " Enable soft line breaks
-:set breakindentopt=shift:4       " Indent wrapped lines by 4 spaces
+" =======================================
+set breakindent                  " Enable soft line breaks
+set breakindentopt=shift:4       " Indent wrapped lines by 4 spaces
 
-" ---------------------------------------
-" Backspace Behavior
-" ---------------------------------------
-:set backspace=indent,eol,start   " Enable backspacing in INSERT mode
+" =======================================
+" Whitespace Display
+" =======================================
+set list                         " Show whitespace characters
+set listchars=tab:▸\ ,trail:·    " Customize whitespace display
+
+" =======================================
+" Search Settings
+" =======================================
+set ignorecase                   " Ignore case in search
+set smartcase                    " Case-sensitive search when uppercase is used
+set hlsearch                     " Highlight all search results
+
+" =======================================
+" Status Line Configuration
+" =======================================
+set laststatus=2                 " Always show the status line
+
+set statusline=
+set statusline+=[Ln\ %3l,\ Col\ %3c]      " Line:Column
+set statusline+=\ %{&modified?'[+]':''}   " Modified flag ([+] if modified)
+set statusline+=\ %{&readonly?'[RO]':''}  " Read-only flag ([RO] if read-only)
+set statusline+=%=                        " Right-align the rest
+set statusline+=\ (%3p%%)                 " Percent
+set statusline+=\ %t                      " Shorter filename
+set statusline+=\ [%{&filetype}]          " Filetype
+
+" =======================================
+" Auto-Completion for Brackets
+" =======================================
+inoremap { {}<Esc>ha
+inoremap ( ()<Esc>ha
+inoremap [ []<Esc>ha
+inoremap " ""<Esc>ha
+inoremap ' ''<Esc>ha
+inoremap ` ``<Esc>ha
+
+" =======================================
+" Windows: custom command for Powershell
+" Debug: if you need admin access, can do it one time with :!Start-Process powershell -Verb runAs
+" =======================================
+if has('win32') || has('win64')
+    " Default shell settings for normal operations
+    let g:default_shell = &shell
+    let g:default_shellcmdflag = &shellcmdflag
+    let g:default_shellquote = &shellquote
+    let g:default_shellxquote = &shellxquote
+    let g:default_shellpipe = &shellpipe
+    let g:default_shellredir = &shellredir
+
+    " Function to set to Vim's default desired shell
+    function! SetDefaultShell()
+        let &shell = g:default_shell
+        let &shellcmdflag = g:default_shellcmdflag
+        let &shellquote = g:default_shellquote
+        let &shellxquote = g:default_shellxquote
+        let &shellpipe = g:default_shellpipe
+        let &shellredir = g:default_shellredir
+    endfunction
+
+    " Function to use PowerShell
+    function! SetPowerShell()
+        set shell=powershell
+        set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
+        set shellquote=\"
+        set shellxquote=
+        set shellpipe=|
+        set shellredir=>
+    endfunction
+
+    " Use :Term to open Powershell
+    command! Term call SetPowerShell() | term
+endif

@@ -1,141 +1,189 @@
-" ---------------------------------------
+" =======================================
 " General Settings
-" ---------------------------------------
-:set encoding=utf-8               " Set encoding to UTF-8
-:set fileencoding=utf-8
-:set ff=unix                      " Use Unix file format (LF endings)
-:set shortmess+=I                 " Skip intro message
-:set scrolloff=5                  " Keep 5 lines of context above/below the cursor
-:set splitright                   " Default vertical splits to the right side
-:set wrap                         " Wrap long lines
-:set linebreak                    " Do not break in the middle of words
-:set ttyfast                      " Optimize performance for fast terminals
-:set wildmenu                     " Enable enhanced command-line completion
-:set wildmode=list:longest,full   " Show possible matches like autocomplete
-:set completeopt=menu,menuone,noselect " Completion options for insert mode (Use Ctrl+n or Ctrl+p)
+" =======================================
+set encoding=utf-8               " Set encoding to UTF-8
+set fileencoding=utf-8
+set ff=unix                      " Use Unix file format (LF endings)
+set shortmess+=I                 " Skip intro message
+set scrolloff=5                  " Keep 5 lines of context above/below the cursor
+set splitright                   " Default vertical splits to the right side
+set wrap                         " Wrap long lines
+set linebreak                    " Do not break in the middle of words
+set ttyfast                      " Optimize performance for fast terminals
+set wildmenu                     " Enable enhanced command-line completion
+set wildmode=list:longest,full   " Show possible matches like autocomplete
+set completeopt=menu,menuone,noselect " Completion options for insert mode (Use Ctrl+n or Ctrl+p)
+set backspace=indent,eol,start   " Enable backspacing in INSERT mode
 
-" ---------------------------------------
-" Plugins
-" ---------------------------------------
+" =======================================
+" Plugin Management
+" =======================================
+" Define where vim's files are depending on OS
+let s:vim_home = has('win32') || has('win64') ? '$HOME\vimfiles' : '~/.vim'
 
-" Determine the plugin directory based on the operating system
-if has('win32') || has('win64')
-    let s:plugin_dir = expand('~/vimfiles/autoload')
-    let s:plugged_dir = expand('~/vimfiles/plugged')
-else
-    let s:plugin_dir = expand('~/.vim/autoload')
-    let s:plugged_dir = expand('~/.vim/plugged')
-endif
+" Set to 0 to disable having plugins
+let g:have_plugins = 1
+if g:have_plugins
+    " Install vim-plug if not installed
+    let s:vim_home = has('win32') || has('win64') ? expand('$HOME/vimfiles') : expand('~/.vim')
+    let s:autoload_dir = expand(s:vim_home . '/autoload')
+    let s:plugged_dir = expand(s:vim_home . '/plugged')
+    let s:plug_file = expand(s:autoload_dir . '/plug.vim')
 
-" Automatically install vim-plug if not found
-if empty(glob(s:plugin_dir . '/plug.vim'))
-    if has('win32') || has('win64')
-        silent execute '!powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim -OutFile ' . shellescape(s:plugin_dir . '/plug.vim') . '"'
-    else
-        silent execute '!curl -fLo ' . shellescape(s:plugin_dir . '/plug.vim') . ' --create-dirs '
-            \ . 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    if empty(glob(s:plug_file))
+        execute 'silent !curl -fLo ' . shellescape(s:plug_file) . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+        autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
     endif
-    :autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
 
-" Initialize plugin system with the correct directory
-call plug#begin(s:plugged_dir)
-    Plug 'cocopon/iceberg.vim', { 'as': 'icebergtheme' }  " Iceberg color scheme
-call plug#end()
+    " Initialize plugin system
+    call plug#begin(s:plugged_dir)
+    Plug 'itchyny/lightline.vim'
+    Plug 'jiangmiao/auto-pairs'     " Auto-pair brackets, quotes, etc.
+    Plug 'rose-pine/vim', { 'as': 'rose-pine' }
+    call plug#end()
+endif
 
 " Function to check if a plugin is available
 function! IsPluginAvailable(plugin)
     return has_key(get(g:, 'plugs', {}), a:plugin)
 endfunction
 
-" ---------------------------------------
+" =======================================
 " Appearance and Colors
-" ---------------------------------------
-:syntax on                        " Enable syntax highlighting
-:set number                       " Display line numbers
-:set t_Co=256                     " Use 256 colors
-:set background=dark              " Use dark mode
-:set cursorline                   " Highlight the current line
+" =======================================
+syntax on                        " Enable syntax highlighting
+set number                       " Display line numbers
+set t_Co=256                     " Use 256 colors
+set background=dark              " Use dark mode
+set cursorline                   " Highlight the current line
 
 " Set true color if available
 if has("termguicolors")
-    :set termguicolors
+    set termguicolors
 endif
 
 " Color scheme
-if IsPluginAvailable('icebergtheme')
-    :colorscheme iceberg          " Use iceberg theme if available
+if IsPluginAvailable('rose-pine')
+    colorscheme rosepine
 else
-    :colorscheme slate            " Fallback to slate theme
+    colorscheme slate
 endif
 
-" ---------------------------------------
+" =======================================
 " Indentation and Tabs
-" ---------------------------------------
-:set tabstop=4                    " Tab width: 4 spaces
-:set shiftwidth=4                 " Indentation width: 4 spaces
-:set softtabstop=4                " Soft tab width: 4 spaces
-:set expandtab                    " Convert tabs to spaces
-:set smarttab                     " Smart tabbing
-:set autoindent                   " Auto indentation
-:set smartindent                  " Smart indentation for C-like languages
-:filetype indent plugin on        " Enable filetype-specific indentation
+" =======================================
+filetype indent plugin on        " Enable filetype-specific indentation
+set tabstop=4                    " Tab width: 4 spaces
+set shiftwidth=4                 " Indentation width: 4 spaces
+set softtabstop=4                " Soft tab width: 4 spaces
+set expandtab                    " Convert tabs to spaces
+set smarttab                     " Smart tabbing
+set autoindent                   " Auto indentation
+set smartindent                  " Smart indentation for C-like languages
 
-" ---------------------------------------
-" Whitespace Display
-" ---------------------------------------
-:set list                         " Show whitespace characters
-:set listchars=tab:>·,trail:·     " Customize whitespace display
-
-" ---------------------------------------
-" Search Settings
-" ---------------------------------------
-:set ignorecase                   " Ignore case in search
-:set smartcase                    " Case-sensitive search when uppercase is used
-:set hlsearch                     " Highlight all search results
-
-" ---------------------------------------
-" Status Line Configuration
-" ---------------------------------------
-:set laststatus=2                 " Always show the status line
-
-" Status Line Format:
-" - [Ln %l, Col %c]: Current line and column numbers.
-" - %m: Modification flag (shows [+] if the file is modified).
-" - %P: Percentage through the file.
-" - %f: Short filename.
-" - %y: File type.
-:set statusline=[Ln\ %l,\ Col\ %c]\ \ \%m\ \ \ %=%P\ \ \ \ %f\ %y
-
-" ---------------------------------------
+" =======================================
 " File-type Specifics
-" ---------------------------------------
-" - C files: Enable autoindent and C-specific indentation rules.
-" - Make and Go files: Use hard tabs (noexpandtab).
-" - Markdown and TeX: Enable spell check, soft wrapping, and line breaks.
-" - TeX: Disable spell check.
-:autocmd FileType c set autoindent cindent
-:autocmd FileType make,go set noexpandtab
-:autocmd FileType markdown,tex set spell wrap linebreak
-:autocmd FileType tex set nospell
+" =======================================
+autocmd FileType c set autoindent cindent
+autocmd FileType make,go set noexpandtab
+autocmd FileType markdown,tex set spell wrap linebreak
+autocmd FileType tex set nospell
 
-" ---------------------------------------
-" Auto-Completion for Brackets
-" ---------------------------------------
-:inoremap { {}<Esc>ha
-:inoremap ( ()<Esc>ha
-:inoremap [ []<Esc>ha
-:inoremap " ""<Esc>ha
-:inoremap ' ''<Esc>ha
-:inoremap ` ``<Esc>ha
-
-" ---------------------------------------
+" =======================================
 " Soft Line Breaks
-" ---------------------------------------
-:set breakindent                  " Enable soft line breaks
-:set breakindentopt=shift:4       " Indent wrapped lines by 4 spaces
+" =======================================
+set breakindent                  " Enable soft line breaks
+set breakindentopt=shift:4       " Indent wrapped lines by 4 spaces
 
-" ---------------------------------------
-" Backspace Behavior
-" ---------------------------------------
-:set backspace=indent,eol,start   " Enable backspacing in INSERT mode
+" =======================================
+" Whitespace Display
+" =======================================
+set list                         " Show whitespace characters
+set listchars=tab:▸\ ,trail:·    " Customize whitespace display
+
+" =======================================
+" Search Settings
+" =======================================
+set ignorecase                   " Ignore case in search
+set smartcase                    " Case-sensitive search when uppercase is used
+set hlsearch                     " Highlight all search results
+
+" =======================================
+" Status Line Configuration
+" =======================================
+set laststatus=2                 " Always show the status line
+
+if IsPluginAvailable('lightline.vim')
+    set noshowmode      " Remove the extra mode at the bottom
+    let g:lightline = {
+                \ 'colorscheme': 'rosepine',
+                \ 'active': {
+                \   'left': [ [ 'mode', 'paste' ],
+                \             [ 'filename', 'readonly', 'modified' ]
+                \           ],
+                \   'right': [ [ 'lineinfo' ],
+                \              [ 'percent' ],
+                \              [ 'filetype' ]
+                \            ]
+                \ },
+                \ }
+else
+    " Fallback statusline
+    set statusline=
+    set statusline+=[Ln\ %3l,\ Col\ %3c]      " Line:Column
+    set statusline+=\ %{&modified?'[+]':''}   " Modified flag ([+] if modified)
+    set statusline+=\ %{&readonly?'[RO]':''}  " Read-only flag ([RO] if read-only)
+    set statusline+=%=                        " Right-align the rest
+    set statusline+=\ (%3p%%)                 " Percent
+    set statusline+=\ %t                      " Shorter filename
+    set statusline+=\ [%{&filetype}]          " Filetype
+endif
+
+" =======================================
+" Auto-Completion for Brackets
+" =======================================
+if !IsPluginAvailable('auto-pairs')
+    inoremap { {}<Esc>ha
+    inoremap ( ()<Esc>ha
+    inoremap [ []<Esc>ha
+    inoremap " ""<Esc>ha
+    inoremap ' ''<Esc>ha
+    inoremap ` ``<Esc>ha
+endif
+
+" =======================================
+" Windows: custom command for Powershell
+" Debug: if you need admin access, can do it one time with :!Start-Process powershell -Verb runAs
+" =======================================
+if has('win32') || has('win64')
+    " Default shell settings for normal operations
+    let g:default_shell = &shell
+    let g:default_shellcmdflag = &shellcmdflag
+    let g:default_shellquote = &shellquote
+    let g:default_shellxquote = &shellxquote
+    let g:default_shellpipe = &shellpipe
+    let g:default_shellredir = &shellredir
+
+    " Function to set to Vim's default desired shell
+    function! SetDefaultShell()
+        let &shell = g:default_shell
+        let &shellcmdflag = g:default_shellcmdflag
+        let &shellquote = g:default_shellquote
+        let &shellxquote = g:default_shellxquote
+        let &shellpipe = g:default_shellpipe
+        let &shellredir = g:default_shellredir
+    endfunction
+
+    " Function to use PowerShell
+    function! SetPowerShell()
+        set shell=powershell
+        set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
+        set shellquote=\"
+        set shellxquote=
+        set shellpipe=|
+        set shellredir=>
+    endfunction
+
+    " Use :Term to open Powershell
+    command! Term call SetPowerShell() | term
+endif
