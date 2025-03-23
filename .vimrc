@@ -33,9 +33,9 @@ if g:have_plugins
 
     " Initialize plugin system
     call plug#begin(s:plugged_dir)
-    Plug 'itchyny/lightline.vim'
+    Plug 'itchyny/lightline.vim', { 'as': 'lightline' }
     Plug 'jiangmiao/auto-pairs'     " Auto-pair brackets, quotes, etc.
-    Plug 'adrian5/oceanic-next-vim', { 'as': 'oceanic-next' }
+    Plug 'cocopon/iceberg.vim', { 'as': 'iceberg'}
     call plug#end()
 
     " Run PlugInstall if there are missing plugins
@@ -64,8 +64,8 @@ if has("termguicolors")
 endif
 
 " Color scheme
-if IsPluginAvailable('oceanic-next')
-    colorscheme oceanicnext
+if IsPluginAvailable('iceberg')
+    colorscheme iceberg
 else
     colorscheme slate
 endif
@@ -114,10 +114,10 @@ set hlsearch                     " Highlight all search results
 " =======================================
 set laststatus=2                 " Always show the status line
 
-if IsPluginAvailable('lightline.vim')
+if IsPluginAvailable('lightline')
     set noshowmode      " Remove the extra mode at the bottom
     let g:lightline = {
-                \ 'colorscheme': 'oceanicnext',
+                \ 'colorscheme': 'one',
                 \ 'active': {
                 \   'left': [ [ 'mode', 'paste' ],
                 \             [ 'filename', 'readonly', 'modified' ]
@@ -128,6 +128,11 @@ if IsPluginAvailable('lightline.vim')
                 \            ]
                 \ },
                 \ }
+
+    " If the global colorscheme has support for lightline, use it, else defaults to what is set above
+    if exists('g:colors_name') && !empty(globpath(&rtp, 'autoload/lightline/colorscheme/' . tolower(g:colors_name) . '.vim'))
+        let g:lightline.colorscheme = tolower(g:colors_name)
+    endif
 else
     " Fallback statusline
     set statusline=
