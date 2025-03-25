@@ -36,6 +36,8 @@ if g:have_plugins
     Plug 'itchyny/lightline.vim', { 'as': 'lightline' }
     Plug 'jiangmiao/auto-pairs'     " Auto-pair brackets, quotes, etc.
     Plug 'cocopon/iceberg.vim', { 'as': 'iceberg'}
+    Plug 'tpope/vim-commentary'
+    Plug 'preservim/nerdtree'
     call plug#end()
 
     " Run PlugInstall if there are missing plugins
@@ -45,9 +47,34 @@ if g:have_plugins
 endif
 
 " Function to check if a plugin is available
-function! IsPluginAvailable(plugin)
-    return has_key(get(g:, 'plugs', {}), a:plugin)
+function! IsPluginAvailable(plugin) abort
+    return exists('g:plugs') && has_key(g:plugs, a:plugin)
 endfunction
+
+" =======================================
+" Leader key mappings
+" =======================================
+" Leader key set to , (comma)
+let mapleader = ","
+nnoremap <Leader> :echoerr "Unmapped leader key"<CR>
+
+if IsPluginAvailable('nerdtree')
+    nnoremap <leader>n :NERDTreeFocus<CR>
+endif
+
+if IsPluginAvailable('vim-commentary')
+    " Toggle current line (like 'gcc') - supports count [3,cc -> comment 3 lines]
+    nnoremap <Leader>cc :Commentary<CR>
+
+    " Alt for one line
+    nnoremap <Leader>// :Commentary<CR>
+
+    " Visual: select over lines
+    vnoremap <Leader>c :Commentary<CR>
+
+    " Comment a range (e.g., ,C 5,10 -> comment lines 5-10)
+    nnoremap <Leader>C :<C-u>Commentary<C-Left><C-Left>
+endif
 
 " =======================================
 " Appearance and Colors
@@ -81,6 +108,7 @@ set expandtab                    " Convert tabs to spaces
 set smarttab                     " Smart tabbing
 set autoindent                   " Auto indentation
 set smartindent                  " Smart indentation for C-like languages
+set shiftround                   " Shift to the next round tab stop
 
 " =======================================
 " File-type Specifics
@@ -189,6 +217,12 @@ if has('win32') || has('win64')
         set shellpipe=|
         set shellredir=>
     endfunction
+
+    " Enable true cursor shaping in Windows Terminal
+    if exists('$WT_SESSION')
+        let &t_SI = "\<Esc>[6 q"  " Vertical bar in Insert mode
+        let &t_EI = "\<Esc>[2 q"  " Block in Normal mode
+    endif
 
     " Use :Term to open Powershell
     command! Term call SetPowerShell() | term

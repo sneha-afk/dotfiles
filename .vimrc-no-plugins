@@ -16,6 +16,13 @@ set completeopt=menu,menuone,noselect " Completion options for insert mode (Use 
 set backspace=indent,eol,start   " Enable backspacing in INSERT mode
 
 " =======================================
+" Leader key mappings
+" =======================================
+" Leader key set to , (comma)
+let mapleader = ","
+nnoremap <Leader> :echoerr "Unmapped leader key"<CR>
+
+" =======================================
 " Appearance and Colors
 " =======================================
 syntax on                        " Enable syntax highlighting
@@ -42,6 +49,7 @@ set expandtab                    " Convert tabs to spaces
 set smarttab                     " Smart tabbing
 set autoindent                   " Auto indentation
 set smartindent                  " Smart indentation for C-like languages
+set shiftround                   " Shift to the next round tab stop
 
 " =======================================
 " File-type Specifics
@@ -126,6 +134,12 @@ if has('win32') || has('win64')
         set shellpipe=|
         set shellredir=>
     endfunction
+
+    " Enable true cursor shaping in Windows Terminal
+    if exists('$WT_SESSION')
+        let &t_SI = "\<Esc>[6 q"  " Vertical bar in Insert mode
+        let &t_EI = "\<Esc>[2 q"  " Block in Normal mode
+    endif
 
     " Use :Term to open Powershell
     command! Term call SetPowerShell() | term
