@@ -155,7 +155,6 @@ export GEM_HOME="$HOME/gems"
 for editor in nvim vim vi nano; do
     if command -v "$editor" &> /dev/null; then
         export EDITOR="$editor"
-        alias vim="$editor" 2> /dev/null
         break
     fi
 done
