@@ -1,52 +1,49 @@
+-- .config/nvim/lua/plugins/ui.lua
+-- UI configurations: plugin-managed colorschemes and status line
+
 return {
   -- Colorscheme
   {
     "vague2k/vague.nvim",
+    lazy = false,
     config = function()
       local status, _ = pcall(vim.cmd.colorscheme, "vague")
       if not status then
         vim.notify("Colorscheme not found! Falling back to default")
         vim.cmd.colorscheme("habamax")
       end
-    end
+    end,
   },
 
   -- Status Line
   {
     "nvim-lualine/lualine.nvim",
-    config = function()
-      require("lualine").setup({
-        options = {
-          theme = "auto",
-          icons_enabled = false,    -- Minimal look, only text
-          disabled_filetypes = {},
+    event = "VeryLazy",
+    opts = {
+      options = {
+        theme = "auto",
+        icons_enabled = false,
+        disabled_filetypes = { "starter" },
+      },
+      -- A, B, C are left; X, Y, Z are right
+      sections = {
+        lualine_a = { "mode" },
+        lualine_b = {
+          "filename",
+          { "readonly", separator = { left = "|" } },
         },
-        sections = {
-          lualine_a = {'mode'},                      -- Left: Mode (Normal/Insert)
-          lualine_b = {                              -- Left: Filename + RO flag
-            'filename',
-            { 'readonly', separator = { left = '|' }}
-          },
-          lualine_c = {
-            'branch',                                -- Git branch name
-            'diff',                                  -- Git changes (+,~,-)
-            'diagnostics'                            -- Optional: LSP errors/warnings
-          },
-          lualine_x = {'filetype'},                  -- Right: Filetype
-          lualine_y = {'progress'},                  -- Right: Percentage
-          lualine_z = {'location'}                   -- Right: Line:Column
+        lualine_c = {
+          "branch",
+          "diff", -- Git changes (+,~,-)
+          "diagnostics",
         },
-        -- Inactive windows: only show filename and location
-        inactive_sections = {
-          lualine_a = {},
-          lualine_b = {},
-          lualine_c = {'filename'},
-          lualine_x = {'location'},
-          lualine_y = {},
-          lualine_z = {}
-        },
-        extensions = { 'nvim-tree' }
-      })
-    end,
-  }
+        lualine_x = { "filetype" },
+        lualine_y = { "progress" },
+        lualine_z = { "location" },
+      },
+      -- Inactive windows default: only show filename and location
+      -- Supported extensions
+      extensions = { "oil", "mason", "lazy" },
+    },
+  },
 }

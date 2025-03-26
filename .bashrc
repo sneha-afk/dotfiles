@@ -133,6 +133,7 @@ path_entries=(
 
   # Language/runtime paths
   /usr/local/go/bin
+  $HOME/go/bin
   "$HOME/gems/bin"
   /usr/share/texlive
   /opt/nvim-linux-x86_64/bin
@@ -161,6 +162,9 @@ done
 export VISUAL="$EDITOR"
 git config --global core.editor "$EDITOR"
 
+export DISPLAY=:0
+export WAYLAND_DISPLAY=wayland-0
+
 # ========================================================
 # Aliases
 # ========================================================
@@ -185,58 +189,26 @@ alias gl='git log --oneline'
 # WSL-Specific Utilities
 # ========================================================
 if [[ $(uname -r) == *microsoft* ]]; then
-    # Open PDFs in Windows
-    openpdf() {
-        local file_path=$(wslpath -w "$1")
-        "/mnt/c/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe" "$file_path"
+    # Open Windows Explorer
+    explorer() {
+        local win_path
+        win_path=$(wslpath -w "${1:-$PWD}" 2>/dev/null) || { echo "Invalid path: ${1:-$PWD}"; return 1; }
+        cmd.exe /c "explorer.exe \"$win_path\"" 2>/dev/null
     }
 
-    # Open Explorer in Windows
-    explorer() {
-        local win_path=$([ -z "$1" ] && wslpath -w "$PWD" || wslpath -w "$1")
-        cmd.exe /c "explorer.exe $win_path" 2>/dev/null
-        echo "Opening $win_path"
+    # Open PDFs in Adobe Acrobat
+    openpdf() {
+        (( $# == 0 )) && { echo "Usage: openpdf <file.pdf>"; return 1; }
+        local file_path
+        file_path=$(wslpath -w "$1" 2>/dev/null) || { echo "Invalid path: $1"; return 1; }
+        "/mnt/c/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe" "$file_path" &>/dev/null &
+    }
+
+    # Open files/directories in Sublime Text
+    subl() {
+        ( "/mnt/c/Program Files/Sublime Text/sublime_text.exe" "$@" &>/dev/null & )
     }
 fi
-
-# ========================================================
-# Prompt Customization
-# ========================================================
-__git_status_for_prompt() {
-    local status=$(git status -s 2>/dev/null)
-    local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-
-    if [[ -n "$branch" ]]; then
-        if [[ -z "$status" ]]; then
-            echo " [${branch}]"   # Clean branch
-        else
-            echo " [${branch}*]"  # Dirty branch with changes
-        fi
-    fi
-}
-
-__set_prompt() {
-    local last_exit=$?
-    local reset='\[\033[0m\]'
-    local red='\[\033[31m\]'
-    local green='\[\033[32m\]'
-    local blue='\[\033[34m\]'
-    local yellow='\[\033[33m\]'
-    local cyan='\[\033[36m\]'
-
-    # Status indicator (green + for success, red - for failure)
-    local status_indicator=$([[ $last_exit -eq 0 ]] && echo "${green}+" || echo "${red}-")
-
-    # Construct prompt
-    PS1="\n"
-    PS1+="${green}\u@\h:"                       # Username and hostname
-    PS1+="${blue}\w"                            # Current working directory
-    PS1+="${yellow}$(__git_status_for_prompt)"  # Git branch and status
-    PS1+=" ${cyan}$(date +"%I:%M:%S %p")"     # Timestamp
-    PS1+="\n"
-    PS1+="${status_indicator}${reset} "         # Status and reset color
-}
-PROMPT_COMMAND=__set_prompt
 
 # ========================================================
 # Utilities
@@ -266,6 +238,54 @@ sysinfo() {
 genpass() {
     local length=${1:-16}
     < /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()_+' | head -c "$length"
-    echo  # add a newline
+    echo
 }
 
+neovim_reset() {
+    rm -rf ~/.local/share/nvim/lazy
+    rm -rf ~/.cache/nvim
+}
+
+# ========================================================
+# Prompt Customization
+# ========================================================
+__git_status_for_prompt() {
+    # Fast path: return immediately if not in a git repo
+    git rev-parse --is-inside-work-tree &>/dev/null || return
+
+    local branch
+    branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return
+
+    # Check repo status in a single git command
+    local status_flags
+    status_flags=$(git status --porcelain 2>/dev/null | head -n1)
+
+    local status=""
+    [[ -n $status_flags ]] && status="*"  # Dirty if any output
+
+    printf " [%s%s]" "$branch" "$status"
+}
+
+__set_prompt() {
+    local last_exit=$?
+    local reset='\[\033[0m\]'
+    local red='\[\033[31m\]'
+    local green='\[\033[32m\]'
+    local blue='\[\033[34m\]'
+    local yellow='\[\033[33m\]'
+    local cyan='\[\033[36m\]'
+
+    # Status indicator (green + for success, red - for failure)
+    local status_indicator=$([[ $last_exit -eq 0 ]] && echo "${green}+" || echo "${red}-")
+
+    # Construct prompt
+    PS1="\n"
+    PS1+="${green}\u@\h:"                       # Username and hostname
+    PS1+="${blue}\w"                            # Current working directory
+    PS1+="${yellow}$(__git_status_for_prompt)"  # Git branch and status
+    PS1+=" ${cyan}$(date +"%I:%M:%S %p")"       # Timestamp
+    PS1+="\n"
+    PS1+="${status_indicator}${reset} "         # Status and reset color
+}
+
+PROMPT_COMMAND=__set_prompt
