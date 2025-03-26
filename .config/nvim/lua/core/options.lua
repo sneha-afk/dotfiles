@@ -18,7 +18,6 @@ vim.opt.backspace = { 'indent', 'eol', 'start' } -- Full backspace functionality
 vim.opt.number = true                    -- Show line numbers
 vim.opt.termguicolors = true             -- Enable true color support
 vim.opt.cursorline = true                -- Highlight current line
-vim.opt.signcolumn = 'yes'               -- Always show sign column
 vim.opt.showmode = false                 -- Disable mode text (handled by lualine)
 
 -- ===================================================================

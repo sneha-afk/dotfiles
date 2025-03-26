@@ -3,7 +3,11 @@ return {
   {
     "vague2k/vague.nvim",
     config = function()
-      vim.cmd.colorscheme("vague")
+      local status, _ = pcall(vim.cmd.colorscheme, "vague")
+      if not status then
+        vim.notify("Colorscheme not found! Falling back to default")
+        vim.cmd.colorscheme("habamax")
+      end
     end
   },
 
@@ -15,10 +19,14 @@ return {
         options = {
           theme = "auto",
           icons_enabled = false,    -- Minimal look, only text
+          disabled_filetypes = {},
         },
         sections = {
           lualine_a = {'mode'},                      -- Left: Mode (Normal/Insert)
-          lualine_b = {'filename', 'readonly'},      -- Left: Filename + RO flag
+          lualine_b = {                              -- Left: Filename + RO flag
+            'filename',
+            { 'readonly', separator = { left = '|' }}
+          },
           lualine_c = {
             'branch',                                -- Git branch name
             'diff',                                  -- Git changes (+,~,-)
@@ -36,7 +44,8 @@ return {
           lualine_x = {'location'},
           lualine_y = {},
           lualine_z = {}
-        }
+        },
+        extensions = { 'nvim-tree' }
       })
     end,
   }

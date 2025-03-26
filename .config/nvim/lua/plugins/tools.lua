@@ -4,12 +4,20 @@ return {
     version = "*",
     config = function()
       require("nvim-tree").setup({
+        -- ======================
+        -- Window Layout & Appearance
+        -- ======================
         view = {
           width = 30,
           side = "left",
-          signcolumn = "no"
+          number = false,
+          signcolumn = "no",
+          relativenumber = false,
         },
 
+        -- ======================
+        -- File Display & Icons
+        -- ======================
         renderer = {
           indent_markers = {
             enable = true,
@@ -22,43 +30,55 @@ return {
               folder_arrow = false,
               git = false
             }
-          }
+          },
+
+          highlight_git = true,   -- Color files based on git status
+          add_trailing = false,   -- Remove trailing slashes on folders
         },
 
+        -- ======================
+        -- File Filtering
+        -- ======================
         filters = {
-          dotfiles = true,
-          custom = { "^.git$" },
-          exclude = { ".env" }
+          dotfiles = false,       -- Show hidden files
+          custom = { "^.git$" },  -- Except .git directory
         },
 
+        -- ======================
+        -- Behavior & Functionality
+        -- ======================
         actions = {
+          -- Upon opening a file
           open_file = {
             quit_on_open = false,
-            window_picker = { enable = false },
           },
+          -- Upon changing directory
           change_dir = {
-            enable = true,        -- Change tree root when changing directories
-            global = true,        -- Change root directory globally
+            enable = true,        -- Change Vim's CWD when changing tree root
+            global = true,        -- Change CWD globally (all windows)
           }
         },
 
-        -- This ensures the tree updates to show current file
         update_focused_file = {
-          enable = true,
-          update_root = true, 
-          update_cwd = true,
+          enable = true,          -- Auto-refresh tree when focusing files
+          update_root = true,     -- Update root when focusing files
+          update_cwd = true,      -- Update CWD when focusing files
         },
 
-        hijack_cursor = true,
+        hijack_cursor = true,     -- Move cursor to tree when opening
 
+        -- ======================
+        -- Integrations
+        -- ======================
         git = {
-          enable = false,
-          ignore = false,
-          timeout = 500
+          enable = false,         -- Disable git integration
+          ignore = true,          -- Show gitignored files
+          timeout = 500,          -- Git operation timeout (ms)
         },
+
         diagnostics = {
-          enable = false,
-          show_on_dirs = false
+          enable = false,         -- Disable LSP diagnostics
+          show_on_dirs = false,   -- Don't show diagnostics on directories
         }
       })
     end

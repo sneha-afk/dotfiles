@@ -16,12 +16,15 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  { import = 'plugins.ui' },      -- UI-related plugins
-  { import = 'plugins.editor' },  -- Editing plugins
-  { import = 'plugins.tools' },   -- Tool plugins
+  { import = 'plugins.ui' },
+  { import = 'plugins.editor' },
+  { import = 'plugins.tools' },
 }, {
   -- Automatically manage plugins
-  install = { missing = true },
+  install = {
+    missing = true,
+    colorscheme = { "habamax" },
+  },
   checker = { 
     enabled = true,
     notify = false
@@ -29,5 +32,23 @@ require('lazy').setup({
   change_detection = {
     enabled = true,
     notify = false
+  },
+  performance = {
+    cache = {
+      enabled = true,
+      path = vim.fn.stdpath("cache") .. "/lazy/cache",
+    },
+    rtp = {
+      disabled_plugins = {
+        "gzip",
+        -- "matchit",
+        -- "matchparen",
+        "netrwPlugin",
+        -- "tarPlugin",
+        -- "tohtml",
+        -- "tutor",
+        -- "zipPlugin",
+      },
+    },
   }
 })
