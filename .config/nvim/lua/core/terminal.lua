@@ -35,9 +35,6 @@ local function setup_terminal()
   for key, cmd in pairs(keymaps) do
     vim.keymap.set("t", key, cmd, { buffer = true, silent = true })
   end
-
-  -- Auto-insert mode when entering terminal
-  vim.cmd("startinsert")
 end
 
 vim.api.nvim_create_autocmd("TermOpen", {

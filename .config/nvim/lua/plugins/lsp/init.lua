@@ -16,16 +16,6 @@ return {
     },
   },
 
-  -- Mason-LSPConfig bridge
-  {
-    "williamboman/mason-lspconfig.nvim",
-    dependencies = { "williamboman/mason.nvim" },
-    opts = {
-      ensure_installed = servers,
-      automatic_installation = true,
-    },
-  },
-
   -- Autocompletion setup
   {
     "hrsh7th/nvim-cmp",
@@ -64,7 +54,7 @@ return {
     end,
   },
 
-  -- Main LSP configuration
+  -- LSP configurations
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },

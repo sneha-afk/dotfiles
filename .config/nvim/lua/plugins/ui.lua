@@ -25,6 +25,7 @@ return {
         icons_enabled = false,
         disabled_filetypes = { "starter" },
       },
+      extensions = { "oil", "fugitive", },
       -- A, B, C are left; X, Y, Z are right
       sections = {
         lualine_a = { "mode" },
@@ -42,8 +43,6 @@ return {
         lualine_z = { "location" },
       },
       -- Inactive windows default: only show filename and location
-      -- Supported extensions
-      extensions = { "oil", "mason", "lazy" },
     },
   },
 }

@@ -17,6 +17,7 @@ return {
       { "<leader>n", "<cmd>Oil --float<cr>", desc = "File browser" },
       { "-", "<cmd>Oil<cr>", desc = "Open parent directory" },
     },
+    cmd = { "Oil", "Oil --float" },
     opts = {
       constrain_cursor = "name",
       delete_to_trash = true, -- Go to system trash instead of permanently deleting

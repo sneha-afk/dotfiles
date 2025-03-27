@@ -3,49 +3,32 @@
 
 local lspconfig = require("lspconfig")
 local keymaps = require("plugins.lsp.keymaps")
-
--- Caching capabilities and keymap attachments
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
-local attach_keys = function(client, bufnr)
-  keymaps.set_keymaps(bufnr)
-end
-
--- Default configuration shared across all servers
-local default_config = {
-  on_attach = attach_keys,
-  capabilities = capabilities,
-  flags = {
-    debounce_text_changes = 150,
-    allow_incremental_sync = true,
-  },
-  handlers = {
-    ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
-    ["textDocument/signatureHelp"] = vim.lsp.with(
-      vim.lsp.handlers.signature_help,
-      { border = "rounded" }
-    ),
-  },
-  settings = {
-    telemetry = { enable = false },
-  },
-}
+local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
 -- Custom configurations to override from default nvim-lspconfig
 -- List all LSPs needed here, keep empty if default settings are fine
 local servers = {
-  pyright = {},
+  pyright = {
+    settings = {
+      pyright = {
+        typeCheckingMode = "basic",
+        useLibraryCodeForTypes = true,
+      },
+    },
+  },
 
   gopls = {
     settings = {
       gopls = {
         staticcheck = true,
+        usePlaceholders = true,
         completeUnimported = true,
         semanticTokens = true,
         analyses = {
           nilness = true,
           unusedwrite = true,
           unreachable = true,
-          useany = true, -- Check for interface{} usage
+          useany = true,
           unusedvariable = true,
           fillreturns = true,
         },
@@ -58,6 +41,7 @@ local servers = {
         codelenses = {
           generate = true,
           gc_details = true,
+          imports = true,
           test = true,
           tidy = true,
           upgrade_dependency = true,
@@ -85,6 +69,53 @@ local servers = {
     filetypes = { "c", "cpp", "h", "hpp" },
   },
 }
+
+-- Caching capabilities and keymap attachments
+local capabilities = cmp_nvim_lsp.default_capabilities()
+local attach_keys = function(client, bufnr)
+  keymaps.set_keymaps(bufnr)
+
+  -- Go-specific keymaps
+  if client.name == "gopls" then
+    vim.keymap.set("n", "<leader>ru", function()
+      vim.lsp.buf.code_action({
+        context = { only = { "source.organizeImports" } },
+        apply = true,
+      })
+    end, { buffer = bufnr, desc = "Remove unused imports (Go)" })
+  end
+end
+
+-- Default configuration shared across all servers
+local default_config = {
+  on_attach = attach_keys,
+  capabilities = capabilities,
+  flags = {
+    debounce_text_changes = 150,
+    allow_incremental_sync = true,
+  },
+  handlers = {},
+  settings = {
+    telemetry = { enable = false },
+  },
+}
+
+-- Apply unified settings to each handler's window
+local text_document_handlers = {
+  "hover",
+  "signatureHelp",
+  "definition",
+  "rename",
+}
+
+for _, handler in ipairs(text_document_handlers) do
+  default_config.handlers["textDocument/" .. handler] = vim.lsp.with(vim.lsp.handlers[handler], {
+    border = "rounded",
+    focusable = true,
+    padding = { 1, 2, 1, 2 },
+    wrap = true,
+  })
+end
 
 -- Apply configurations
 for server_name, config in pairs(servers) do

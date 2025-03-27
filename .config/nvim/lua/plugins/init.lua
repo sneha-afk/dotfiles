@@ -5,7 +5,8 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  local out =
+    vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
   if vim.v.shell_error ~= 0 then
     vim.api.nvim_echo({
       { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
@@ -18,13 +19,15 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require('lazy').setup({
-  { import = 'plugins.ui' },
-  { import = 'plugins.editor' },
-  { import = 'plugins.file_tree' },
-  { import = 'plugins.lsp.init' },
-  { import = 'plugins.misc' },
+require("lazy").setup({
+  { import = "plugins.startup" },
+  { import = "plugins.ui" },
+  { import = "plugins.editor" },
+  { import = "plugins.file_tree" },
+  { import = "plugins.lsp.init" },
+  { import = "plugins.misc" },
 }, {
+  -- stylua: ignore start
   ui = {
     icons = {
       cmd = "⌘ ", config = "🛠 ", event = "📅 ", ft = "📂 ",
@@ -43,8 +46,8 @@ require('lazy').setup({
     custom_keys = {
       ["<localleader>l"] = function(plugin)
         print("[!] Plugin info: " .. plugin.name)
-      end
-    }
+      end,
+    },
   },
   -- Installation settings: auto-install missing plugins
   install = {
@@ -56,9 +59,9 @@ require('lazy').setup({
       done = "[✓]",
       style = {
         header = "▔▔▔▔▔",
-        footer = "▁▁▁▁▁"
-      }
-    }
+        footer = "▁▁▁▁▁",
+      },
+    },
   },
   checker = {
     enabled = true,       -- Enable plugin version checking
@@ -92,4 +95,5 @@ require('lazy').setup({
       aggressive = false        -- Don't force full GC (avoids UI freezes)
     },
   },
+  -- stylua: ignore end
 })

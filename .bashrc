@@ -120,26 +120,26 @@ fi
 # PATH configuration
 # ========================================================
 path_entries=(
-  /usr/local/sbin
-  /usr/local/bin
-  /usr/sbin
-  /usr/bin
-  /sbin
-  /bin
+    /usr/local/sbin
+    /usr/local/bin
+    /usr/sbin
+    /usr/bin
+    /sbin
+    /bin
 
-  # User binaries
-  "$HOME/.local/bin"
-  "$HOME/scripts"
+    # User binaries
+    "$HOME/.local/bin"
+    "$HOME/scripts"
 
-  # Language/runtime paths
-  /usr/local/go/bin
-  $HOME/go/bin
-  "$HOME/gems/bin"
-  /usr/share/texlive
-  /opt/nvim-linux-x86_64/bin
+    # Language/runtime paths
+    /usr/local/go/bin
+    $HOME/go/bin
+    "$HOME/gems/bin"
+    /usr/share/texlive
+    /opt/nvim-linux-x86_64/bin
 
-  # WSL Windows paths (last to avoid conflicts + performance)
-  /mnt/c/Windows/System32
+    # WSL Windows paths (last to avoid conflicts + performance)
+    /mnt/c/Windows/System32
 )
 
 # Join entries and remove any duplicate entries
