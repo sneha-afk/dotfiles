@@ -191,9 +191,9 @@ alias gl='git log --oneline'
 if [[ $(uname -r) == *microsoft* ]]; then
     # Open Windows Explorer
     explorer() {
-        local win_path
-        win_path=$(wslpath -w "${1:-$PWD}" 2>/dev/null) || { echo "Invalid path: ${1:-$PWD}"; return 1; }
-        cmd.exe /c "explorer.exe \"$win_path\"" 2>/dev/null
+        local win_path=$([ -z "$1" ] && wslpath -w "$PWD" || wslpath -w "$1")
+        cmd.exe /c "explorer.exe $win_path" 2>/dev/null
+        echo "Opening $win_path"
     }
 
     # Open PDFs in Adobe Acrobat

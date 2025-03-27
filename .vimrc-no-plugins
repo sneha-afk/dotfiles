@@ -30,7 +30,7 @@ set number                       " Display line numbers
 set t_Co=256                     " Use 256 colors
 set background=dark              " Use dark mode
 set cursorline                   " Highlight the current line
-set signcolumn=yes:1             " Single width sign column
+set signcolumn=yes
 
 " Set true color if available
 if has("termguicolors")

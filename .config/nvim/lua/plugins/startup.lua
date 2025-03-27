@@ -45,17 +45,17 @@ return {
         username
       ),
       items = {
-        { section = "Actions", name = "New File", action = "ene | startinsert" },
-        { section = "Actions", name = "File Browser", action = "Oil" },
-        { section = "Actions", name = "Edit Config", action = "e $MYVIMRC" },
-        { section = "Actions", name = "Reload Config", action = "source $MYVIMRC" },
+        { section = "Actions", name = "New File",                  action = "ene | startinsert" },
+        { section = "Actions", name = "File Browser",              action = "Oil" },
+        { section = "Actions", name = "Edit Config",               action = "e $MYVIMRC" },
+        { section = "Actions", name = "Reload Config",             action = "source $MYVIMRC" },
         -- { section = "Actions", name = "Restore Session", action = "source Session.vim" },
         { section = "Actions", name = "Lazy.nvim: manage plugins", action = "Lazy" },
-        { section = "Actions", name = "Mason: manage LSPs", action = "Mason" },
-        { section = "Actions", name = "Quit", action = "qa" },
+        { section = "Actions", name = "Mason: manage LSPs",        action = "Mason" },
+        { section = "Actions", name = "Quit",                      action = "qa" },
 
         starter.sections.recent_files(5, false), -- Recent files from current directory
-        starter.sections.recent_files(5, true), -- Recent files from all directories
+        starter.sections.recent_files(5, true),  -- Recent files from all directories
       },
       content_hooks = {
         starter.gen_hook.aligning("center", "center"),

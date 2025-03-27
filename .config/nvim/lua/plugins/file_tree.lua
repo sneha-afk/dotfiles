@@ -2,12 +2,12 @@
 
 local function ignore_files(name)
   return name == ".git"
-    or name == "node_modules"
-    or name:match("%.lock$")
-    or name:match("^%..*%.swp$")
-    or name == ".DS_Store"
-    or name:match("^__pycache__$")
-    or name:match("%.py[co]$")
+      or name == "node_modules"
+      or name:match("%.lock$")
+      or name:match("^%..*%.swp$")
+      or name == ".DS_Store"
+      or name:match("^__pycache__$")
+      or name:match("%.py[co]$")
 end
 
 return {
@@ -15,12 +15,14 @@ return {
     "stevearc/oil.nvim",
     keys = {
       { "<leader>n", "<cmd>Oil --float<cr>", desc = "File browser" },
-      { "-", "<cmd>Oil<cr>", desc = "Open parent directory" },
+      { "-",         "<cmd>Oil<cr>",         desc = "Open parent directory" },
     },
     cmd = { "Oil", "Oil --float" },
     opts = {
       constrain_cursor = "name",
-      delete_to_trash = true, -- Go to system trash instead of permanently deleting
+
+      -- System trash instead of permanently deleting
+      delete_to_trash = true,
 
       -- Unified filtering across all features
       view_options = {

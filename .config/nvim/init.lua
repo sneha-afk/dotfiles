@@ -31,13 +31,13 @@ vim.g.mapleader = ","
 vim.g.maplocalleader = "\\"
 
 -- Load core configurations
-require("core.options") -- Load first as it affects other modules
-require("core.filetypes").setup() -- Filetype detection and settings
-require("core.keymaps") -- Key mappings
-require("core.terminal") -- Terminal integration
+require "core.options"            -- Load first as it affects other modules
+require "core.filetypes".setup()  -- Filetype detection and settings
+require "core.keymaps"            -- Key mappings
+require "core.terminal"           -- Terminal integration
 
 -- Ask if plugins should be installed if not already
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
   vim.api.nvim_echo({
     { "Lazy.nvim not installed.\n", "WarningMsg" },
@@ -47,7 +47,7 @@ if not vim.uv.fs_stat(lazypath) then
   local input = vim.fn.getcharstr()
   if input:lower() ~= "y" then
     vim.api.nvim_echo({
-      { "Plugin system disabled.\n", "WarningMsg" },
+      { "Plugin system disabled.\n",            "WarningMsg" },
       { "Run :Lazy bootstrap to enable later.", "MoreMsg" },
     }, true, {})
     return
@@ -55,7 +55,7 @@ if not vim.uv.fs_stat(lazypath) then
 end
 
 -- Initialize plugin system
-require("plugins.init")
+require "plugins.init"
 
 -- Optional: Print loaded message for debugging
 -- vim.notify("Neovim configuration loaded", vim.log.levels.INFO)

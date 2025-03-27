@@ -68,6 +68,41 @@ local servers = {
     },
     filetypes = { "c", "cpp", "h", "hpp" },
   },
+
+  lua_ls = {
+    settings = {
+      Lua = {
+        runtime = {
+          version = "LuaJIT",
+
+        },
+        diagnostics = {
+          globals = { "vim" },
+        },
+        workspace = {
+          checkThirdParty = false,
+          library = {
+            vim.env.VIMRUNTIME,
+            vim.fn.stdpath("config"),
+          },
+        },
+        format = {
+          enable = true,
+          defaultConfig = {
+            indent_style = "space",
+            indent_size = 2,
+            quote_style = "double",
+            max_line_length = 120,
+            align_call_args = true,
+            space_around_assign = true,
+            space_around_arithmetic = true,
+            trailing_table_separator = "smart",
+          },
+        },
+        semantic = { enable = true, },
+      },
+    },
+  },
 }
 
 -- Caching capabilities and keymap attachments
@@ -105,7 +140,13 @@ local text_document_handlers = {
   "hover",
   "signatureHelp",
   "definition",
+  "typeDefinition",
+  "references",
   "rename",
+  "codeAction",
+  "implementation",
+  "documentHighlight",
+  "documentSymbol",
 }
 
 for _, handler in ipairs(text_document_handlers) do

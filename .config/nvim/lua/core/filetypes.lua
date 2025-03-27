@@ -3,7 +3,7 @@
 
 local M = {}
 
--- Filetype groups with shared settings
+-- Define groups of settings that can be mapped to multiple filetypes
 local filetype_groups = {
   -- Tab-indented files
   no_expand_tab = {
@@ -25,11 +25,20 @@ local filetype_groups = {
   },
 
   c_indent = {
-    ft = { "c", "cpp" },
+    ft = { "c", "cpp", "h", "hpp" },
     opts = {
       cindent = true,
     },
   },
+
+  smaller_tabs = {
+    ft = { "lua", },
+    opts = {
+      tabstop = 2,
+      softtabstop = 2,
+      shiftwidth = 2,
+    }
+  }
 }
 
 function M.setup()
