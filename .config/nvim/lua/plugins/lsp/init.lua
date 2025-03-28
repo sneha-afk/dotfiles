@@ -70,13 +70,8 @@ return {
         float = { border = "rounded" },
       })
 
-      -- Unified handler UI settings
-      vim.lsp.handlers.common = {
-        border = "rounded",
-        focusable = true,
-        padding = { 1, 2, 1, 2 },
-        max_width = 80
-      }
+      -- Setup handlers' UI
+      require('plugins.lsp.handlers').setup()
 
       -- Extend from defaults in lspconfig
       for server_name, config_overrides in pairs(server_overrides) do

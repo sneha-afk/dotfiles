@@ -31,7 +31,9 @@ return {
           assignVariableTypes = true,
           compositeLiteralFields = true,
           constantValues = true,
+          functionTypeParameters = true,
           parameterNames = true,
+          rangeVariableTypes = true,
         },
         codelenses = {
           generate = true,
@@ -74,6 +76,7 @@ return {
             align_call_args = true,
             space_around_assign = true,
             trailing_table_separator = "smart",
+            insert_final_newline = false,
           },
         },
       },
