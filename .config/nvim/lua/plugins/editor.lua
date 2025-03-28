@@ -17,10 +17,9 @@ return {
     "mcauley-penney/tidy.nvim",
     event = "BufWritePre",
     opts = {
-      filetype_exclude = { "markdown", "diff", },
-      buftype_exclude = { "nofile", "terminal" },
+      filetype_exclude = { "markdown", "diff", "gitcommit", },
+      buftype_exclude = { "nofile", "terminal", "prompt", },
     },
-    config = true,
   },
 
 
@@ -30,8 +29,8 @@ return {
     keys = {
       { "<leader>cc", desc = "Toggle line comment" },
       { "<leader>bc", desc = "Toggle block comment" },
-      { "<leader>c",  mode = "v",                   desc = "Comment selection (linewise)" },
-      { "<leader>b",  mode = "v",                   desc = "Comment selection (blockwise)" },
+      { "<leader>c",  desc = "Comment selection (linewise)",  mode = "v", },
+      { "<leader>b",  desc = "Comment selection (blockwise)", mode = "v", },
     },
     opts = {
       padding = true, -- Adds space after comment symbol
@@ -51,13 +50,13 @@ return {
   {
     "tpope/vim-fugitive",
     cmd = { "Git" },
-    init = function()
-      vim.keymap.set("n", "<leader>gs", "<cmd>Git<CR>", { desc = "Git status" })
-      vim.keymap.set("n", "<leader>gc", "<cmd>Git commit<CR>", { desc = "Git commit" })
-      vim.keymap.set("n", "<leader>gl", "<cmd>Git log<CR>", { desc = "Git log" })
-      vim.keymap.set("n", "<leader>gd", "<cmd>Git diff<CR>", { desc = "Git diff" })
-      vim.keymap.set("n", "<leader>gb", "<cmd>Git blame<CR>", { desc = "Git blame" })
-    end,
+    keys = {
+      { "<leader>gs", "<cmd>Git<CR>",        desc = "Git status" },
+      { "<leader>gc", "<cmd>Git commit<CR>", desc = "Git commit" },
+      { "<leader>gl", "<cmd>Git log<CR>",    desc = "Git log" },
+      { "<leader>gd", "<cmd>Git diff<CR>",   desc = "Git diff" },
+      { "<leader>gb", "<cmd>Git blame<CR>",  desc = "Git blame" },
+    },
   },
 
   -- whichkey: yes pls
@@ -73,9 +72,6 @@ return {
       icons = {
         mappings = false,
         rules = false,
-        breadcrumb = ">",
-        separator = ">",
-        ellipsis = ".",
         keys = {
           Up = "^ ",
           Down = "v ",

@@ -33,7 +33,7 @@ vim.g.maplocalleader = "\\"
 -- Load core configurations
 require "core.options"           -- Load first as it affects other modules
 require "core.filetypes".setup() -- Filetype detection and settings
-require "core.keymaps"           -- Key mappings
+require "core.keymaps".setup()   -- Key mappings
 require "core.terminal"          -- Terminal integration
 
 -- Ask if plugins should be installed if not already

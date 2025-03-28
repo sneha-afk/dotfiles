@@ -17,10 +17,8 @@ return {
   config = function()
     local starter = require("mini.starter")
 
-    -- Get system username
     local username = os.getenv("USER") or os.getenv("USERNAME") or "User"
 
-    -- Dynamic greeting based on time
     local hour = tonumber(os.date("%H"))
     local greeting
     if hour < 12 then
@@ -52,7 +50,6 @@ return {
         { section = "Actions", name = "File Browser",              action = "Oil" },
         { section = "Actions", name = "Edit Config",               action = "e $MYVIMRC" },
         { section = "Actions", name = "Reload Config",             action = "source $MYVIMRC" },
-        -- { section = "Actions", name = "Restore Session", action = "source Session.vim" },
         { section = "Actions", name = "Lazy.nvim: manage plugins", action = "Lazy" },
         { section = "Actions", name = "Mason: manage LSPs",        action = "Mason" },
         { section = "Actions", name = "Quit",                      action = "qa" },

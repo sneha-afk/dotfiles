@@ -19,10 +19,7 @@ M.float_handlers = {
 M.setup = function()
   -- Style standard floating handlers
   for _, handler in ipairs(M.float_handlers) do
-    local lsp_handler = vim.lsp.handlers[handler]
-    if lsp_handler then
-      vim.lsp.handlers["textDocument/" .. handler] = vim.lsp.with(lsp_handler, M.common_ui)
-    end
+    vim.lsp.handlers["textDocument/" .. handler] = vim.lsp.with(vim.lsp.handlers[handler], M.common_ui)
   end
 
   vim.diagnostic.config({ float = M.common_ui })

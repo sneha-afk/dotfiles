@@ -6,10 +6,30 @@ local luasnip = require("luasnip")
 
 luasnip.config.setup({
   history = true,
-  region_check_events = "InsertEnter",
-  update_events = "TextChanged,TextChangedI",
+  region_check_events = 'InsertEnter',
+  update_events = 'TextChanged,TextChangedI',
+  delete_check_events = 'TextChanged',
 })
-require("luasnip.loaders.from_vscode").lazy_load()
+
+-- Load snippets
+require('luasnip.loaders.from_vscode').lazy_load({
+  paths = {
+    -- 1. Load built-in vscode-style snippets
+    vim.fn.stdpath("data") .. "/lazy/friendly-snippets",
+
+    -- 2. Load personal nippets
+    vim.fn.stdpath('config') .. '/snippets',
+
+    -- 3. Load project-specific snippets
+    vim.loop.cwd() .. '/.nvim/snippets'
+  }
+})
+
+local cmp_select = { behavior = cmp.SelectBehavior.Select }
+local cmp_confirm = {
+  select = true,
+  behavior = cmp.ConfirmBehavior.Replace
+}
 
 return {
   snippet = {
@@ -21,44 +41,39 @@ return {
     completeopt = "menu,menuone,noselect",
   },
   mapping = cmp.mapping.preset.insert({
-    ["<C-Space>"] = cmp.mapping.complete(),  -- Manual trigger
-    ["<C-e>"] = cmp.mapping.abort(),         -- Close menu
-    ["<CR>"] = cmp.mapping.confirm({         -- Confirm selection
-      select = true,                         -- Auto-select if none chosen
-      behavior = cmp.ConfirmBehavior.Replace -- Overwrite text on confirm
-    }),
-    ["<Tab>"] = cmp.mapping(function(fallback)
+    ["<C-Space>"] = cmp.mapping.complete(), -- Manual trigger
+    ["<C-e>"] = cmp.mapping.abort(),        -- Close menu
+    ["<CR>"] = cmp.mapping.confirm(cmp_confirm),
+    ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
       else
-        fallback()
+        fallback() -- Fall back to default behavior when not doing completions
       end
-    end, { "i", "s" }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
+    end, { 'i', 's' }),
+
+    ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
       else
         fallback()
       end
-    end, { "i", "s" }),
+    end, { 'i', 's' }),
   }),
   sources = cmp.config.sources({
-    { name = "nvim_lsp" }, -- Language Server completions
-    { name = "luasnip" },  -- Snippets
-    { name = "buffer" },   -- Current buffer words
-    { name = "path" },     -- Filesystem paths
+    { name = 'nvim_lsp', priority = 1000 },
+    { name = 'luasnip',  priority = 900 },
+    { name = 'buffer',   priority = 500, keyword_length = 3 },
+    { name = 'path',     priority = 250 },
   }),
   sorting = {
+    priority_weight = 2.0,
     comparators = {
       cmp.config.compare.offset,
       cmp.config.compare.exact,
       cmp.config.compare.score,
       cmp.config.compare.recently_used,
-      cmp.config.compare.kind, -- Group by completion type
+      cmp.config.compare.kind,
       cmp.config.compare.sort_text,
       cmp.config.compare.length,
     }
@@ -72,4 +87,9 @@ return {
       hl_group = "Comment", -- Style for inline suggestions
     },
   },
+  performance = {
+    debounce = 60,
+    throttle = 30,
+    fetching_timeout = 200,
+  }
 }

@@ -9,17 +9,16 @@ return {
     config = function()
       local status, _ = pcall(vim.cmd.colorscheme, "vague")
       if not status then
-        vim.notify("Colorscheme not found! Falling back to default")
+        vim.notify("Colorscheme not found! Falling back to default", vim.log.levels.ERROR)
         vim.cmd.colorscheme("habamax")
       end
     end,
   },
 
-    -- Git markers in the status column
+  -- Git markers in the status column
   {
     "lewis6991/gitsigns.nvim",
     event = { "BufReadPre", "BufNewFile" },
-    opts = {},
   },
 
   -- Status Line
@@ -31,24 +30,18 @@ return {
         theme = "auto",
         icons_enabled = false,
         disabled_filetypes = { "starter", "ministarter" },
+        always_show_tabline = false,
       },
       extensions = { "oil", "fugitive", },
       -- A, B, C are left; X, Y, Z are right
       sections = {
         lualine_a = { "mode" },
-        lualine_b = {
-          "filename",
-          { "readonly", separator = { left = "|" } },
-        },
-        lualine_c = {
-          "branch",
-          "diff", -- Git changes (+,~,-)
-          "diagnostics",
-        },
+        lualine_b = { "filename", },
+        lualine_c = { "branch", "diff", "diagnostics", },
         lualine_x = {
           {
-            'lsp_status',
-            icon = '',
+            "lsp_status",
+            icon = "",
             symbols = {
               -- Standard unicode symbols to cycle through for LSP progress:
               spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
@@ -63,6 +56,11 @@ return {
         lualine_z = { "location" },
       },
       -- Inactive windows default: only show filename and location
+      tabline = {
+        lualine_a = { 'buffers' },
+        lualine_z = { 'tabs' }
+      },
+
     },
   },
 

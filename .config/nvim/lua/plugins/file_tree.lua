@@ -48,7 +48,6 @@ return {
       win_options = {
         cursorline = true,
         winblend = 5,
-        list = false,
       },
 
       -- Float window

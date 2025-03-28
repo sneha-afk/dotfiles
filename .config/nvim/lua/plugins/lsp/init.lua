@@ -36,11 +36,9 @@ return {
     "hrsh7th/nvim-cmp",
     event = "InsertEnter",
     dependencies = {
-      "hrsh7th/cmp-nvim-lsp", -- LSP completions
-      {
-        "L3MON4D3/LuaSnip",   -- Snippet engine
-        dependencies = { "rafamadriz/friendly-snippets", },
-      },
+      "hrsh7th/cmp-nvim-lsp",     -- LSP completions
+      "L3MON4D3/LuaSnip",         -- Snippet engine
+      "rafamadriz/friendly-snippets",
       "saadparwaiz1/cmp_luasnip", -- Snippet completions
       "hrsh7th/cmp-buffer",       -- Buffer words
       "hrsh7th/cmp-path",         -- File paths
@@ -78,7 +76,7 @@ return {
         require("lspconfig")[server_name].setup(
           vim.tbl_deep_extend("force",
             shared_configs.default_config, -- Shared configuration
-            config_overrides or {}         -- Server-specific overrides
+            config_overrides               -- Server-specific overrides
           )
         )
       end

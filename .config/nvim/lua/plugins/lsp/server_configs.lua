@@ -72,6 +72,7 @@ return {
         format = {
           enable = true,
           defaultConfig = {
+            indent_style = "space",
             quote_style = "double",
             align_call_args = true,
             space_around_assign = true,
