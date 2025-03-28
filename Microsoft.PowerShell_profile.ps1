@@ -12,27 +12,25 @@ Set-Alias which Get-Command
 # Custom Prompt
 # ==============================
 function prompt {
-    # Get the current directory (compacted path)
-    $currentDir = (Get-Item -Path .).Name
+    $dir = (Get-Item -Path .).Name
+    $branch = git branch --show-current 2>$null
 
-    # Get the git branch (if in a git repository)
-    try {
-        $gitBranch = git rev-parse --abbrev-ref HEAD 2>$null
-    } catch {
-        $gitBranch = $null
-    }
+    $Reset  = "$([char]0x1b)[0m"
+    $Bold   = "$([char]0x1b)[1m"
+    $Blue   = "$([char]0x1b)[34m"
+    $Green  = "$([char]0x1b)[32m"
+    $Yellow = "$([char]0x1b)[33m"
+    $Gray   = "$([char]0x1b)[90m"
 
-    # Set the prompt text
-    Write-Host "$env:USERNAME@$env:COMPUTERNAME " -NoNewline -ForegroundColor DarkBlue
-    Write-Host "[" -NoNewline -ForegroundColor Gray
-    Write-Host "$currentDir" -NoNewline -ForegroundColor Green
-    if ($gitBranch) {
-        Write-Host " (" -NoNewline -ForegroundColor Gray
-        Write-Host "$gitBranch" -NoNewline -ForegroundColor Cyan
-        Write-Host ")" -NoNewline -ForegroundColor Gray
+    $user_host = "$Blue$env:USERNAME@$env:COMPUTERNAME$Reset"
+    $dir_part = "$Gray[$Green$dir$Gray"
+
+    if ($branch) {
+        $dir_part += " $Gray($Yellow$branch$Gray)"
     }
-    Write-Host "] " -NoNewline -ForegroundColor Gray
-    return "> "
+    $dir_part += "]$Reset"
+
+    "$Bold$user_host $dir_part`nPS $ $Reset"
 }
 
 # ==============================
@@ -41,7 +39,6 @@ function prompt {
 function home {
     Set-Location $HOME
 }
-
 
 function Reload-Profile {
     . $PROFILE
@@ -53,39 +50,27 @@ function Reload-Profile {
 # https://github.com/PowerShell/PSReadLine
 # ==============================
 if (Get-Module -ListAvailable PSReadLine) {
-    # Import the PSReadLine module
     Import-Module PSReadLine
 
+    # Predictive typing: stores history
     Set-PSReadLineOption -PredictionSource History
-    Set-PSReadLineOption -PredictionViewStyle ListView
-    Set-PSReadLineOption -EditMode Windows
-    Set-PSReadLineKeyHandler -Key Tab -Function Complete
-
-    Set-PSReadLineOption -Colors @{
-        "Command" = "Green"
-        "Parameter" = "Blue"
-        "String" = "Yellow"
-        "Number" = "Magenta"
-        "Operator" = "Cyan"
-        "Variable" = "DarkCyan"
-        "Member" = "DarkGray"
-    }
-
-    # Enable menu-style tab completion
-    Set-PSReadLineOption -ShowToolTips
-    Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
-
-    # Bind Ctrl+l to clear the screen (Unix-like behavior)
-    Set-PSReadLineKeyHandler -Key Ctrl+l -Function ClearScreen
-
-    # Enable persistent command history
     Set-PSReadLineOption -HistorySavePath "$HOME/.psreadline_history"
 
-    # Enable reverse history search (Ctrl+r)
-    Set-PSReadLineKeyHandler -Key Ctrl+r -Function ReverseSearchHistory
+    # Tab to cycle through options
+    Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 
-    # Enable multi-line editing with a continuation prompt
-    Set-PSReadLineOption -ContinuationPrompt ">> "
+    # Unix-like shortcuts
+    Set-PSReadLineKeyHandler -Key Ctrl+l -Function ClearScreen
+    Set-PSReadLineKeyHandler -Key Ctrl+a -Function BeginningOfLine
+    Set-PSReadLineKeyHandler -Key Ctrl+e -Function EndOfLine
+    Set-PSReadLineKeyHandler -Key Ctrl+u -Function BackwardDeleteLine
+
+    Set-PSReadLineOption -Colors @{
+        Command   = 'Green'
+        Parameter = 'Blue'
+        String    = 'Yellow'
+        Number    = 'Magenta'
+    }
 }
 else {
     Write-Host "PSReadLine is not installed. Skipping PSReadLine configurations." -ForegroundColor Yellow

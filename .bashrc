@@ -244,6 +244,52 @@ genpass() {
 neovim_reset() {
     rm -rf ~/.local/share/nvim/lazy
     rm -rf ~/.cache/nvim
+    echo "Neovim has been reset."
+}
+
+neovim_config_size() {
+    # Define paths
+    local config_dir=~/.config/nvim/
+    local lazy_dir=~/.local/share/nvim/lazy/
+    local mason_dir=~/.local/share/nvim/mason/
+    local cache_dir=~/.cache/nvim/
+
+    # Get human-readable sizes
+    local config_size=$(du -sh "$config_dir" 2>/dev/null | cut -f1)
+    local lazy_size=$(du -sh "$lazy_dir" 2>/dev/null | cut -f1)
+    local mason_size=$(du -sh "$mason_dir" 2>/dev/null | cut -f1)
+    local cache_size=$(du -sh "$cache_dir" 2>/dev/null | cut -f1)
+
+    # Count plugins and LSPs
+    local plugin_count=0
+    local lsp_count=0
+    [ -d "$lazy_dir" ] && plugin_count=$(ls -1 "$lazy_dir" | wc -l)
+    [ -d "$mason_dir/packages/" ] && lsp_count=$(ls -1 "$mason_dir/packages/" | wc -l)
+
+    # Calculate total size
+    local total_size=$(($(du -sk "$config_dir" 2>/dev/null | cut -f1) + \
+                        $(du -sk "$lazy_dir" 2>/dev/null | cut -f1) + \
+                        $(du -sk "$mason_dir" 2>/dev/null | cut -f1) + \
+                        $(du -sk "$cache_dir" 2>/dev/null | cut -f1)))
+    local human_total=$(numfmt --to=iec-i --suffix=B --format="%.1f" $((total_size * 1024)))
+
+    # Determine column widths
+    local left_width=$(( $(printf "LSP Servers" | wc -c) + 2 ))
+    local right_width=$(( $(printf "%s (%d)" "$mason_size" "$lsp_count" | wc -c) + 2 ))
+
+    # Print header
+    echo "NEOVIM CONFIGURATION SIZE"
+    printf "%-${left_width}s %${right_width}s\n" "ITEM" "USAGE"
+    printf "%-${left_width}s %${right_width}s\n" "──────────────" "──────────"
+
+    # Print items
+    printf "%-${left_width}s %${right_width}s\n" "Configuration:" "$config_size"
+    printf "%-${left_width}s %${right_width}s\n" "Plugins:" "$lazy_size ($plugin_count)"
+    printf "%-${left_width}s %${right_width}s\n" "LSP Servers:" "$mason_size ($lsp_count)"
+    printf "%-${left_width}s %${right_width}s\n" "Cache:" "$cache_size"
+
+    # Print total
+    printf "\n%-${left_width}s %${right_width}s\n" "Total:" "$human_total"
 }
 
 # ========================================================
