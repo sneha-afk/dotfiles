@@ -6,10 +6,7 @@ return {
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
-    opts = {
-      enable_check_bracket_line = false,
-      ignored_next_char = "[%w%.]", -- Don't pair after letters/numbers
-    },
+    config = true
   },
 
   -- Remove whitespace and blank lines at EOF on save
@@ -18,10 +15,9 @@ return {
     event = "BufWritePre",
     opts = {
       filetype_exclude = { "markdown", "diff", "gitcommit", },
-      buftype_exclude = { "nofile", "terminal", "prompt", },
+      buftype_exclude  = { "nofile", "terminal", "prompt", },
     },
   },
-
 
   -- Commenting
   {

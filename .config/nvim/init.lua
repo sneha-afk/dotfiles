@@ -6,25 +6,25 @@
     Windows:     ~/AppData/Local/nvim/init.lua
 
   ~/.config/nvim/
-  ├── init.lua              - Main configuration entry point
+  ├── init.lua              - Main entry point: loads in core/ and plugins/ if desired
   └── lua/
-      ├── core/             - Core Neovim settings
-      │   ├── filetypes.lua - Filetype detection
-      │   ├── keymaps.lua   - Key mappings
-      │   ├── options.lua   - Editor settings
-      │   └── terminal.lua  - Terminal integration
-      └── plugins/          - Plugin configurations
-          ├── editor.lua    - Editing enhancements
+      ├── core/
+      │   ├── filetypes.lua - Filetype-specific settings
+      │   ├── keymaps.lua   - Global keymaps
+      │   ├── lazy.lua      - Sets up lazy.nvim
+      │   ├── options.lua   - Neovim options (set vim.opt)
+      │   └── terminal.lua  - Terminal configurations
+      └── plugins/
+          ├── editor.lua    - Text editing plugins (surround, comments, etc.)
           ├── file_tree.lua - File navigation
-          ├── init.lua      - Plugin manager setup
-          ├── lsp/          - Language Server Protocol
-          │   ├── completions.lua - Completion settings
-          │   ├── config.lua      - Common LSP configurations
+          ├── lsp/                - Language Server Protocol
+          │   ├── completions.lua - Completion and snippets settings
+          │   ├── config.lua      - Global shared LSP configurations
           │   ├── init.lua        - Core LSP configuration
           │   ├── keymaps.lua     - LSP keybindings
           │   └── server_configs.lua - Language-specific setups
-          ├── startup.lua   - Startup screen or initial configurations
-          └── ui.lua        - Interface customization
+          ├── startup.lua   - Dashboard/startup screen
+          └── ui.lua        - Interface customization (statusline, colorscheme, etc.)
 --]]
 
 vim.g.mapleader = ","
@@ -55,4 +55,4 @@ if not vim.uv.fs_stat(lazypath) then
 end
 
 -- Initialize plugin system
-require "plugins.init"
+require "core.lazy"

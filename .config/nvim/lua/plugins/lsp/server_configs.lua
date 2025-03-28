@@ -1,7 +1,8 @@
 -- .config/nvim/lua/plugins/lsp/server_configs.lua
--- Define any overrides from the default neovim-lspconfig, and map keymaps for each server
+-- List of all servers to use and specific configurations
 
--- Custom configurations to override from default nvim-lspconfig
+-- Server name = { table of configurations }, or empty if using defaults
+-- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
 return {
   pyright = {
     settings = {
@@ -45,7 +46,6 @@ return {
   },
 
   clangd = {
-    cmd = { "clangd" },
     args = {
       "--clang-tidy",
       "--background-index",
@@ -64,6 +64,7 @@ return {
       Lua = {
         diagnostics = { globals = { "vim" }, },
         workspace = {
+          checkThirdParty = false,
           library = {
             vim.env.VIMRUNTIME,
             vim.fn.stdpath("config"),

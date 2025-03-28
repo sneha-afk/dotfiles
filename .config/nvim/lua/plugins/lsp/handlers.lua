@@ -6,7 +6,9 @@ M.common_ui = {
   border = "rounded",
   focusable = true,
   padding = { 1, 2, 1, 2 },
-  max_width = 80
+  trim_empty_lines = true,
+  max_width = 80,
+  max_view_entries = 7,
 }
 
 -- textDocument handlers that are floats

@@ -9,6 +9,9 @@ return {
     "williamboman/mason.nvim",
     cmd = "Mason",
     build = ":MasonUpdate",
+    keys = {
+      { "<leader>lm", "<cmd>Mason<cr>", desc = "Open Mason LSP manager" },
+    },
     opts = {
       ui = {
         border = "rounded",
@@ -48,7 +51,7 @@ return {
     end,
   },
 
-  -- LSP configurations
+  -- LSP configurations: both externally installed and from Mason
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
@@ -71,12 +74,11 @@ return {
       -- Setup handlers' UI
       require('plugins.lsp.handlers').setup()
 
-      -- Extend from defaults in lspconfig
-      for server_name, config_overrides in pairs(server_overrides) do
+      for server_name, overrides in pairs(server_overrides) do
         require("lspconfig")[server_name].setup(
           vim.tbl_deep_extend("force",
-            shared_configs.default_config, -- Shared configuration
-            config_overrides               -- Server-specific overrides
+            shared_configs, -- Shared configuration
+            overrides       -- Server-specific overrides
           )
         )
       end

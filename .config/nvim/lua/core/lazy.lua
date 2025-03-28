@@ -1,5 +1,8 @@
--- .config/nvim/lua/plugins/init.lua
+-- .config/nvim/lua/core/lazy.lua
 -- Initialization of the plugin system
+
+if vim.g.lazy_nvim_loaded then return end
+vim.g.lazy_nvim_loaded = true
 
 -- Bootstrap lazy.nvim plugin manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -16,15 +19,16 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
     os.exit(1)
   end
 end
+
 vim.opt.rtp:prepend(lazypath)
 
+
+-- Grabs all setup files in plugins
+vim.keymap.set("n", "<leader>ll", "<cmd>Lazy<cr>", { desc = "Open Lazy plugin manager" })
 require("lazy").setup({
-  { import = "plugins.startup" },
-  { import = "plugins.ui" },
-  { import = "plugins.editor" },
-  { import = "plugins.file_tree" },
-  { import = "plugins.lsp.init" },
-}, {
+  spec = {
+    { import = "plugins" },
+  },
   ui = {
     icons = {
       cmd = "⌘ ",
@@ -35,51 +39,24 @@ require("lazy").setup({
       keys = "🔑 ",
       plugin = "🔌 ",
       runtime = "💻 ",
+      require = "🌙 ",
       source = "📄 ",
       start = "🚀 ",
       task = "📌 ",
       lazy = "💤 ",
-      list = { "●", "➜", "★", "-" }
     },
     border = "rounded",
     title = " lazy.nvim ",
     backdrop = 100,
-    browser = {
-      tf = "🌐 ", -- Browser title prefix
-      open = "🖥️ " -- Open in browser icon
-    },
-    -- Progress indicators
-    throttle = 10,
-    custom_keys = {
-      ["<localleader>l"] = function(plugin)
-        print("[!] Plugin info: " .. plugin.name)
-      end,
-    },
-  },
-  -- Installation settings: auto-install missing plugins
-  install = {
-    missing = true,
-    colorscheme = { "habamax", "slate" },
-    -- Progress styling
-    progress = {
-      title = "[INSTALLING]",
-      done = "[✓]",
-      style = {
-        header = "▔▔▔▔▔",
-        footer = "▁▁▁▁▁",
-      },
-    },
   },
   checker = {
-    enabled = true,      -- Enable plugin version checking
-    frequency = 86400,   -- Check every 86,400 seconds (24 hours)
-    check_pinned = true, -- Verify even pinned plugins (version-locked)
-    concurrency = 5      -- Max parallel update checks
+    enabled = true,    -- Enable plugin version checking
+    frequency = 86400, -- Check every 86,400 seconds (24 hours)
+    concurrency = 5    -- Max parallel update checks
   },
   change_detection = {
     enabled = true, -- Monitor plugin files for changes
     notify = false, -- Disable "plugins modified" alerts
-    debounce = 1000 -- Wait 1 second after last file change
   },
   performance = {
     cache = {
@@ -96,10 +73,6 @@ require("lazy").setup({
         "zipPlugin",   -- Archive handling
         "rplugin"      -- Legacy remote plugin system
       },
-    },
-    gc = {
-      threshold = 1024 * 1024, -- Trigger GC when memory grows beyond 1MB
-      aggressive = false       -- Don't force full GC (avoids UI freezes)
     },
   },
 })

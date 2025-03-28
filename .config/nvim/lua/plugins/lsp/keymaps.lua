@@ -28,8 +28,8 @@ M.keymaps = {
     action = vim.lsp.buf.format,
     desc = "[F]ormat code"
   },
-  { mode = "n", key = "<leader>dd", action = vim.diagnostic.open_float, desc = "[D]iagnostic [D]etails" },
-  { mode = "n", key = "<leader>df", action = vim.diagnostic.setqflist,  desc = "[D]iagnostic [F]ix" },
+  { mode = "n", key = "<leader>dl", action = vim.diagnostic.open_float, desc = "[D]iagnostic detai[l]s" },
+  { mode = "n", key = "<leader>df", action = vim.diagnostic.setqflist,  desc = "[D]iagnostic [F]ixes list" },
   { mode = "n", key = "[d",         action = vim.diagnostic.goto_prev,  desc = "Previous diagnostic" },
   { mode = "n", key = "]d",         action = vim.diagnostic.goto_next,  desc = "Next diagnostic" },
 }

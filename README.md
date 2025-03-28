@@ -26,25 +26,25 @@ Upon opening with a new configuration, it will ask you whether plugins should be
 
 ```
 ~/.config/nvim/
-├── init.lua              - Main configuration entry point
+├── init.lua              - Main entry point: loads in core/ and plugins/ if desired
 └── lua/
-    ├── core/             - Core Neovim settings
-    │   ├── filetypes.lua - Filetype detection
-    │   ├── keymaps.lua   - Key mappings
-    │   ├── options.lua   - Editor settings
-    │   └── terminal.lua  - Terminal integration
-    └── plugins/          - Plugin configurations
-        ├── editor.lua    - Editing enhancements
+    ├── core/
+    │   ├── filetypes.lua - Filetype-specific settings
+    │   ├── keymaps.lua   - Global keymaps
+    │   ├── lazy.lua      - Sets up lazy.nvim
+    │   ├── options.lua   - Neovim options (set vim.opt)
+    │   └── terminal.lua  - Terminal configurations
+    └── plugins/
+        ├── editor.lua    - Text editing plugins (surround, comments, etc.)
         ├── file_tree.lua - File navigation
-        ├── init.lua      - Plugin manager setup
-        ├── lsp/          - Language Server Protocol
-        │   ├── completions.lua - Completion settings
-        │   ├── config.lua      - Common LSP configurations
+        ├── lsp/                - Language Server Protocol
+        │   ├── completions.lua - Completion and snippets settings
+        │   ├── config.lua      - Global shared LSP configurations
         │   ├── init.lua        - Core LSP configuration
         │   ├── keymaps.lua     - LSP keybindings
         │   └── server_configs.lua - Language-specific setups
-        ├── startup.lua   - Startup screen or initial configurations
-        └── ui.lua        - Interface customization
+        ├── startup.lua   - Dashboard/startup screen
+        └── ui.lua        - Interface customization (statusline, colorscheme, etc.)
 ```
 
 ### Modifying
@@ -63,10 +63,12 @@ Upon opening with a new configuration, it will ask you whether plugins should be
 | `lua/plugins/startup.lua` | Welcome screen |
 
 #### LSP Configuration
+For *every* server used, list in `server_configs.lua` with at least `name = {}` to use default configurations provided by `nvim-lspconfig`.
+
 | File | Purpose |
 |------|---------|
-| `lua/plugins/lsp/init.lua` | Main LSP setup (add new servers at top) |
 | `lua/plugins/lsp/config.lua` | Common LSP configurations shared across all |
 | `lua/plugins/lsp/completions.lua` | Completion and snippet configurations |
 | `lua/plugins/lsp/keymaps.lua` | Keymaps for interacting with LSPs |
-| `lua/plugins/lsp/server_configs.lua` | Server-specific overrides |
+| `lua/plugins/lsp/server_configs.lua` | Set up servers and optionally override settings |
+
