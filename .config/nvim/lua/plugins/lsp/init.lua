@@ -59,15 +59,34 @@ return {
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
-      require("plugins.lsp.keymaps")
-      require("plugins.lsp.server_configs")
+      local shared_configs = require("plugins.lsp.config")
+      local server_overrides = require("plugins.lsp.server_configs")
 
+      -- Setup diagnostics
       vim.diagnostic.config({
         update_in_insert = true,
         virtual_text = { prefix = "●" },
         severity_sort = true,
         float = { border = "rounded" },
       })
-    end,
+
+      -- Unified handler UI settings
+      vim.lsp.handlers.common = {
+        border = "rounded",
+        focusable = true,
+        padding = { 1, 2, 1, 2 },
+        max_width = 80
+      }
+
+      -- Extend from defaults in lspconfig
+      for server_name, config_overrides in pairs(server_overrides) do
+        require("lspconfig")[server_name].setup(
+          vim.tbl_deep_extend("force",
+            shared_configs.default_config, -- Shared configuration
+            config_overrides or {}         -- Server-specific overrides
+          )
+        )
+      end
+    end
   },
 }

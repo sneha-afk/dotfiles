@@ -3,26 +3,55 @@
 
 local M = {}
 
--- List of key mappings
 M.key_mappings = {
-  { key = "f",          action = "vim.lsp.buf.format()",          desc = "Format code" },
-  { key = "<leader>k",  action = "vim.lsp.buf.hover()",           desc = "Show documentation" },
-  { key = "gd",         action = "vim.lsp.buf.definition()",      desc = "Go to definition" },
-  { key = "gi",         action = "vim.lsp.buf.implementation()",  desc = "Go to implementation" },
-  { key = "<leader>rn", action = "vim.lsp.buf.rename()",          desc = "Rename symbol" },
-  { key = "<leader>ca", action = "vim.lsp.buf.code_action()",     desc = "Show code actions" },
-  { key = "<leader>gr", action = "vim.lsp.buf.references()",      desc = "Show references" },
-  { key = "<leader>gt", action = "vim.lsp.buf.type_definition()", desc = "Go to type definition" },
-  { key = "<leader>dl", action = "vim.diagnostic.open_float()",   desc = "Show line diagnostics" },
-  { key = "[d",         action = "vim.diagnostic.goto_prev()",    desc = "Go to previous diagnostic" },
-  { key = "]d",         action = "vim.diagnostic.goto_next()",    desc = "Go to next diagnostic" },
+  -- Code navigation
+  { key = "gd",         action = "vim.lsp.buf.definition()",      desc = "[G]oto [D]efinition" },
+  { key = "gi",         action = "vim.lsp.buf.implementation()",  desc = "[G]oto [I]mplementation" },
+  { key = "<leader>gt", action = "vim.lsp.buf.type_definition()", desc = "[G]oto [T]ype Definition" },
+  { key = "<leader>gr", action = "vim.lsp.buf.references()",      desc = "[G]oto [R]eferences" },
+
+  -- Documentation
+  { key = "K",          action = "vim.lsp.buf.hover()",           desc = "Show documentation" },
+
+  -- Code actions
+  { key = "<leader>ca", action = "vim.lsp.buf.code_action()",     desc = "[C]ode [A]ctions" },
+  { key = "<leader>rn", action = "vim.lsp.buf.rename()",          desc = "[R]e[n]ame symbol" },
+
+  -- Formatting
+  { key = "<leader>f",  action = "vim.lsp.buf.format()",          desc = "[F]ormat code" },
+
+  -- Diagnostics
+  { key = "<leader>dl", action = "vim.diagnostic.open_float()",   desc = "[D]iagnostic [L]ine" },
+  { key = "[d",         action = "vim.diagnostic.goto_prev()",    desc = "Previous diagnostic" },
+  { key = "]d",         action = "vim.diagnostic.goto_next()",    desc = "Next diagnostic" },
 }
 
-M.set_keymaps = function(bufnr)
-  local opts = { noremap = true, silent = true }
+--- Set up LSP keymaps for a buffer
+function M.on_attach(client, bufnr)
+  local opts = {
+    buffer = bufnr,
+    noremap = true,
+    silent = true,
+  }
+
+  -- Set each key mapping
   for _, mapping in ipairs(M.key_mappings) do
-    vim.api.nvim_buf_set_keymap(bufnr, "n", mapping.key, "<Cmd>lua " .. mapping.action .. "<CR>",
-      vim.tbl_extend("force", opts, { desc = mapping.desc }))
+    vim.keymap.set(
+      "n",
+      mapping.key,
+      function() vim.cmd.lua(mapping.action) end,
+      vim.tbl_extend("force", opts, { desc = mapping.desc })
+    )
+  end
+
+  -- Client-specific keymaps
+  if client.name == "gopls" then
+    vim.keymap.set("n", "<leader>ru", function()
+      vim.lsp.buf.code_action({
+        context = { only = { "source.organizeImports" } },
+        apply = true,
+      })
+    end, vim.tbl_extend("force", opts, { desc = "[R]emove [U]nused imports (Go)" }))
   end
 end
 

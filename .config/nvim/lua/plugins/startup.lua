@@ -1,3 +1,6 @@
+-- .config/nvim/plugins/starter.lua
+-- Minimal startup dashboard when no files are specifically opened
+
 return {
   "echasnovski/mini.starter",
   version = "*",

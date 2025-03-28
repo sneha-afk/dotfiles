@@ -12,6 +12,18 @@ return {
     },
   },
 
+  -- Remove whitespace and blank lines at EOF on save
+  {
+    "mcauley-penney/tidy.nvim",
+    event = "BufWritePre",
+    opts = {
+      filetype_exclude = { "markdown", "diff", },
+      buftype_exclude = { "nofile", "terminal" },
+    },
+    config = true,
+  },
+
+
   -- Commenting
   {
     "numToStr/Comment.nvim",
@@ -40,7 +52,6 @@ return {
     "tpope/vim-fugitive",
     cmd = { "Git" },
     init = function()
-      -- Set keymaps in init (will work whenever plugin loads)
       vim.keymap.set("n", "<leader>gs", "<cmd>Git<CR>", { desc = "Git status" })
       vim.keymap.set("n", "<leader>gc", "<cmd>Git commit<CR>", { desc = "Git commit" })
       vim.keymap.set("n", "<leader>gl", "<cmd>Git log<CR>", { desc = "Git log" })

@@ -64,9 +64,7 @@ return {
     }
   },
   window = {
-    completion = cmp.config.window.bordered({
-      winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual",
-    }),
+    completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),
   },
   experimental = {

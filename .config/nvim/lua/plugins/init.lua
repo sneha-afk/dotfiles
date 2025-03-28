@@ -24,7 +24,6 @@ require("lazy").setup({
   { import = "plugins.editor" },
   { import = "plugins.file_tree" },
   { import = "plugins.lsp.init" },
-  { import = "plugins.misc" },
 }, {
   ui = {
     icons = {
