@@ -4,6 +4,8 @@
 -- Server name = { table of configurations }, or empty if using defaults
 -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
 return {
+  vimls = {},
+
   pyright = {
     settings = {
       pyright = {

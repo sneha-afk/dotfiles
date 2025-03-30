@@ -57,12 +57,11 @@ return {
       end
     end, { "i", "s" }),
   }),
-  -- Keyword length: how many before querying that source
   sources = cmp.config.sources({
-    { name = "path" },                         -- File system paths (files, directories)
-    { name = "nvim_lsp", keyword_length = 1 }, -- LSP suggestions
-    { name = "buffer",   keyword_length = 3 }, -- Buffer words
-    { name = "luasnip",  keyword_length = 2 }  -- Snippet suggestions
+    { name = "nvim_lsp", priority = 1000 },                    -- LSP suggestions
+    { name = "luasnip",  priority = 750 },                     -- Snippet suggestions
+    { name = "buffer",   priority = 500 },                     -- Buffer words
+    { name = "path",     priority = 250, keyword_length = 3 }, -- File system paths (files, directories)
   }),
   formatting = {
     fields = { "menu", "abbr", "kind" },
@@ -99,8 +98,6 @@ return {
     },
   },
   performance = {
-    debounce = 60,
-    throttle = 30,
-    fetching_timeout = 200,
+    max_view_entries = 20,
   }
 }

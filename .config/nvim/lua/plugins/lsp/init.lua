@@ -1,7 +1,11 @@
 -- .config/nvim/lua/plugins/lsp/init.lua
--- Initialization of the LSP configuration with Mason, completes, and neovim-lspconfig
+-- Initialization of the LSP configuration with Mason, completes, and nvim-lspconfig
 
-local default_servers = { "lua_ls" }
+-- What to install through Mason
+local servers_to_install = { "lua_ls", "vimls" }
+
+-- Language files that LSPs should be enabled for (reduces startup for non-LSP configured files)
+local lsp_languages = { "lua", "vim", "c", "cpp", "h", "hpp", "python", "go" }
 
 return {
   -- Mason configuration (LSP installer)
@@ -27,10 +31,14 @@ return {
   -- Mason-LSPConfig bridge
   {
     "williamboman/mason-lspconfig.nvim",
+    ft = lsp_languages,
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      ensure_installed = default_servers or {},
-      automatic_installation = true,
+      -- Servers to be installed through Mason, see top of file
+      ensure_installed = servers_to_install or {},
+
+      -- Will not automatically install configured servers to allow using global installs
+      automatic_installation = false,
     },
   },
 
@@ -54,10 +62,9 @@ return {
   -- LSP configurations: both externally installed and from Mason
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
+    ft = lsp_languages,
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
-      "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
       local shared_configs = require("plugins.lsp.config")
@@ -82,6 +89,24 @@ return {
           )
         )
       end
+
+      -- Auto-clear LSP logs after 10MB
+      vim.api.nvim_create_autocmd({ "VimEnter", "BufEnter" }, {
+        callback = function()
+          local log_path = vim.fn.stdpath("log") .. "/lsp.log"
+          local max_size = 10 * 1024 * 1024
+
+          local ok, stats = pcall(vim.loop.fs_stat, log_path)
+          if ok and stats and stats.size > max_size then
+            local file = io.open(log_path, "w")
+            if file then
+              file:close()
+              vim.notify("Cleared LSP log (>10MB)", vim.log.levels.INFO)
+            end
+          end
+        end,
+        desc = "Clear oversized LSP logs"
+      })
     end
   },
 }

@@ -14,18 +14,9 @@ return {
       end
     end,
   },
-
-  -- Git markers in the status column
-  {
-    "lewis6991/gitsigns.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    opts = {},
-  },
-
-  -- Status Line
   {
     "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     opts = {
       options = {
         theme = "auto",
@@ -44,12 +35,10 @@ return {
             "lsp_status",
             icon = "",
             symbols = {
-              -- Standard unicode symbols to cycle through for LSP progress:
-              spinner = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' },
-              done = '✓',
-              separator = ' ',
+              spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" },
+              done = "✓",
+              separator = " ",
             },
-            -- List of LSP names to ignore (e.g., `null-ls`):
             ignore_lsp = {},
           },
           "filetype" },
@@ -58,23 +47,26 @@ return {
       },
       -- Inactive windows default: only show filename and location
       tabline = {
-        lualine_a = { 'buffers' },
-        lualine_z = { 'tabs' }
+        lualine_a = { "buffers" },
+        lualine_z = { "tabs" }
       },
-
     },
   },
 
   -- Snacks!
   {
     "folke/snacks.nvim",
-    event = { "BufReadPre", "BufNewFile" },
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "echasnovski/mini.diff", },
     opts = {
       indent = {
         enabled = true,
         animate = { enabled = false },
       },
-      statuscolumn = { enabled = true },
+      statuscolumn = {
+        enabled = true,
+        fold = { open = true },
+      },
     },
   },
 }

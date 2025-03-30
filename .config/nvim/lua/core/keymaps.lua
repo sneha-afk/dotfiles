@@ -29,21 +29,21 @@ M.keymaps = {
   { mode = "n", key = "<C-j>",      action = "<C-w>j",                  desc = "Move to below window" },
   { mode = "n", key = "<C-k>",      action = "<C-w>k",                  desc = "Move to above window" },
   { mode = "n", key = "<C-l>",      action = "<C-w>l",                  desc = "Move to right window" },
-  { mode = "n", key = "<leader>wv", action = "<cmd>vsplit<cr>",         desc = "[W]indow [V]ertical split" },
-  { mode = "n", key = "<leader>wh", action = "<cmd>split<cr>",          desc = "[W]indow [H]orizontal split" },
-  { mode = "n", key = "<leader>wd", action = "<cmd>split<cr>",          desc = "[W]indow [D]elete" },
+  { mode = "n", key = "<leader>vs", action = "<cmd>vsplit<cr>",         desc = "[V]ertical [S]plit" },
+  { mode = "n", key = "<leader>hs", action = "<cmd>split<cr>",          desc = "[H]orizontal [S]plit" },
 
   -- Buffer operations:
-  { mode = "n", key = "<leader>bn", action = "<cmd>bnext<cr>",          desc = "[B]uffer [N]ext" },
-  { mode = "n", key = "<leader>bp", action = "<cmd>bprev<cr>",          desc = "[B]uffer [P]revious" },
+  { mode = "n", key = "<leader>]",  action = "<cmd>bnext<cr>",          desc = "[B]uffer [N]ext" },
+  { mode = "n", key = "<leader>[",  action = "<cmd>bprev<cr>",          desc = "[B]uffer [P]revious" },
   { mode = "n", key = "<leader>bd", action = "<cmd>bdelete<cr>",        desc = "[B]uffer [D]elete" },
+  { mode = "n", key = "<leader>bD", action = "<cmd>bd!<cr>",            desc = "[B]uffer [D]elete (force)" },
 
   -- Tab operations
   { mode = "n", key = "<leader>tn", action = ":tabnew<CR>",             desc = "Open new tab" },
   { mode = "n", key = "<leader>tc", action = ":tabclose<CR>",           desc = "Close current tab" },
   { mode = "n", key = "<leader>to", action = ":tabonly<CR>",            desc = "Close all other tabs" },
-  { mode = "n", key = "<leader>tl", action = ":tabnext<CR>",            desc = "Go to next tab" },
-  { mode = "n", key = "<leader>th", action = ":tabprevious<CR>",        desc = "Go to previous tab" },
+  { mode = "n", key = "<leader>t]", action = ":tabnext<CR>",            desc = "Go to next tab" },
+  { mode = "n", key = "<leader>t[", action = ":tabprevious<CR>",        desc = "Go to previous tab" },
   { mode = "n", key = "<leader>tm", action = ":tabmove<CR>",            desc = "Move current tab to last" },
   { mode = "n", key = "<leader>t1", action = "1gt",                     desc = "Go to tab 1" },
   { mode = "n", key = "<leader>t2", action = "2gt",                     desc = "Go to tab 2" },
@@ -52,15 +52,9 @@ M.keymaps = {
   { mode = "n", key = "<leader>tp", action = ":tablast<CR>",            desc = "Jump to last open tab" },
 
   -- Utilities
-  {
-    mode = "n",
-    key = "<leader>ur",
-    desc = "[U]I Toggle [R]elative line numbers",
-    action = function()
-      vim.opt.relativenumber = not vim.opt.relativenumber._value
-    end,
-
-  },
+  { mode = "n", key = "<leader>un", action = "<cmd>set nu!<cr>",        desc = "[U]I Toggle line [N]umbers" },
+  { mode = "n", key = "<leader>ur", action = "<cmd>set rnu!<cr>",       desc = "[U]I Toggle [R]elative line numbers", },
+  { mode = "n", key = "<leader>uw", action = "<cmd>set wrap!<cr>",      desc = "[U]I Toggle line [W]rap" },
 }
 
 function M.setup()

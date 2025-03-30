@@ -1,21 +1,52 @@
 -- .config/nvim/lua/plugins/file_tree.lua
 
 local function ignore_files(name)
-  return name == ".git"
-      or name == "node_modules"
-      or name:match("%.lock$")
-      or name:match("^%..*%.swp$")
-      or name == ".DS_Store"
-      or name:match("^__pycache__$")
-      or name:match("%.py[co]$")
+  -- Hash table to quickly return true
+  local static_ignores = {
+    [".git"] = true,
+    ["node_modules"] = true,
+    ["__pycache__"] = true,
+    [".DS_Store"] = true,
+    ["package-lock.json"] = true,
+    ["yarn.lock"] = true,
+    ["Cargo.lock"] = true,
+  }
+
+  -- Dynamic patterns (compiled once)
+  local pattern_ignores = {
+    "%.lock$",
+    "^%..*%.swp$",
+    "%.py[co]$",
+    "^[dD]ebug$",
+    "^[rR]elease$",
+    "^target$",
+    "^dist$",
+    "^build$",
+    "^venv$",
+    "^%.venv$",
+    "^%.cache$",
+  }
+
+  -- O(1) lookup -> fast path
+  if static_ignores[name] then
+    return true
+  end
+
+  for _, pattern in ipairs(pattern_ignores) do
+    if name:match(pattern) then
+      return true
+    end
+  end
+
+  return false
 end
 
 return {
   {
     "stevearc/oil.nvim",
     keys = {
-      { "<leader>n", "<cmd>Oil --float<cr>", desc = "File browser" },
-      { "-",         "<cmd>Oil<cr>",         desc = "Open parent directory" },
+      { "<leader>n", "<cmd>Oil --float<cr>", desc = "File browser (float)" },
+      { "-",         "<cmd>Oil<cr>",         desc = "File browser" },
     },
     cmd = { "Oil", "Oil --float" },
     opts = {
@@ -41,7 +72,11 @@ return {
           "size",
           highlight = "Number",
         },
-        "icon",
+        {
+          "mtime",
+          format = "%Y-%m-%d %H:%M",
+          highlight = "Define",
+        },
       },
 
       -- Window styling (applies filter to all views)
@@ -54,7 +89,7 @@ return {
       float = {
         padding = 2,
         max_width = 0.95,
-        max_height = 0.75,
+        max_height = 0.70,
       },
     },
   },

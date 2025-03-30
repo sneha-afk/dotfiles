@@ -137,6 +137,7 @@ path_entries=(
     "$HOME/gems/bin"
     /usr/share/texlive
     /opt/nvim-linux-x86_64/bin
+    $HOME/.local/share/nvim/mason/bin
 
     # WSL Windows paths (last to avoid conflicts + performance)
     /mnt/c/Windows/System32
@@ -234,6 +235,36 @@ sysinfo() {
     free -h
 }
 
+# Extract multiple types of archive files
+extract() {
+    if [ -z "$1" ]; then
+        echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>"
+        return 1
+    fi
+
+    if [ ! -f "$1" ]; then
+        echo "'$1' - file doesn't exist"
+        return 1
+    fi
+
+    case "$1" in
+        *.tar.bz2)   tar xjf "$1"     ;;
+        *.tar.gz)    tar xzf "$1"     ;;
+        *.tar.xz)    tar xJf "$1"     ;;
+        *.bz2)       bunzip2 "$1"     ;;
+        *.rar)       unrar x "$1"     ;;
+        *.gz)        gunzip "$1"      ;;
+        *.tar)       tar xf "$1"      ;;
+        *.tbz2)      tar xjf "$1"     ;;
+        *.tgz)       tar xzf "$1"     ;;
+        *.zip)       unzip "$1"       ;;
+        *.Z)         uncompress "$1"  ;;
+        *.7z)        7z x "$1"        ;;
+        *.xz)        unxz "$1"        ;;
+        *)           echo "'$1' cannot be extracted via extract()" ;;
+    esac
+}
+
 # Generate a random password
 genpass() {
     local length=${1:-16}
@@ -242,8 +273,10 @@ genpass() {
 }
 
 neovim_reset() {
-    rm -rf ~/.local/share/nvim/lazy
+    rm -rf ~/.local/share/nvim/
+    rm -rf ~/.local/state/nvim/
     rm -rf ~/.cache/nvim
+    [ -f ~/.config/nvim/lazy-lock.json ] && rm -f ~/.config/nvim/lazy-lock.json
     echo "Neovim has been reset."
 }
 

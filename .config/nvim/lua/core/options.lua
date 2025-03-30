@@ -23,8 +23,8 @@ vim.opt.pumblend = 10        -- Popup menu transparency
 -- ===================================================================
 -- Window and Buffer Management
 -- ===================================================================
-vim.opt.splitright = true -- Vertical splits right
-vim.opt.splitbelow = true -- Horizontal splits below
+vim.opt.splitright = true -- Default split rightwards
+vim.opt.splitbelow = true -- Default split downwards
 vim.opt.scrolloff = 5     -- Context lines when scrolling
 vim.opt.winwidth = 30     -- Minimum window width
 vim.opt.winminwidth = 10  -- Minimum inactive window width
@@ -49,9 +49,9 @@ vim.opt.smartindent = true -- Context-aware indents
 vim.opt.shiftround = true  -- Round indents to multiples
 
 -- ===================================================================
--- Whitespace Visualization
+-- Character lists
 -- ===================================================================
-vim.opt.list = true -- Show invisible chars
+vim.opt.list = true
 vim.opt.listchars = { tab = "▸ ", trail = "·", nbsp = "␣", }
 
 -- ===================================================================
@@ -73,4 +73,4 @@ vim.opt.completeopt = { "menu", "menuone", "noselect" } -- Completion options
 -- Performance Optimizations
 -- ===================================================================
 vim.opt.lazyredraw = true -- Faster macro execution
-vim.opt.synmaxcol = 300   -- Limit syntax highlighting
+vim.opt.synmaxcol = 300   -- Limit syntax highlighting after some columns

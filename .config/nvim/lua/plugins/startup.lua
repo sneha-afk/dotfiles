@@ -24,11 +24,9 @@ end
 
 return {
   "echasnovski/mini.starter",
-  version = "*",
   pin = true,
-  event = "VimEnter",
-  enabled = function()
-    return vim.fn.argc() == 0
+  event = function()
+    return vim.fn.argc() == 0 and "VimEnter" or nil
   end,
   dependencies = {
     "folke/lazy.nvim",
@@ -56,6 +54,7 @@ return {
         { section = "Tools",   name = "Lazy.nvim: manage plugins", action = "Lazy" },
         { section = "Tools",   name = "Mason: manage LSPs",        action = "Mason" },
         { section = "Tools",   name = "WhichKey: browse keymaps",  action = "WhichKey" },
+        { section = "Tools",   name = "Check Health",              action = "checkhealth" },
 
         starter.sections.recent_files(5, true),   -- Files from current directory
         starter.sections.recent_files(10, false), -- Files from anywhere

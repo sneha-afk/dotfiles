@@ -29,6 +29,10 @@ require("lazy").setup({
   spec = {
     { import = "plugins" },
   },
+  defaults = {
+    lazy = true,
+    version = false,
+  },
   ui = {
     icons = {
       cmd = "⌘ ",

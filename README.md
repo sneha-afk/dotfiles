@@ -35,8 +35,10 @@ Upon opening with a new configuration, it will ask you whether plugins should be
     │   ├── options.lua   - Neovim options (set vim.opt)
     │   └── terminal.lua  - Terminal configurations
     └── plugins/
-        ├── editor.lua    - Text editing plugins (surround, comments, etc.)
-        ├── file_tree.lua - File navigation
+        ├── editor.lua          - Text editing plugins (surround, comments, etc.)
+        ├── file_tree.lua       - File navigation
+        ├── git_plugins.lua     - Plugins for managing Git operations
+        ├── helpers.lua         - Helpful plugins otherwise uncategorizable
         ├── lsp/                - Language Server Protocol
         │   ├── completions.lua - Completion and snippets settings
         │   ├── config.lua      - Global shared LSP configurations

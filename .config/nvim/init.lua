@@ -1,9 +1,12 @@
 --[[
   NEOVIM CONFIGURATION
   ------------------------------------
-  File Locations:
+  Where to store these files:
     Linux/macOS: ~/.config/nvim/init.lua
     Windows:     ~/AppData/Local/nvim/init.lua
+
+  To install more LSPs, either globally install or add to the list at the top of plugins/lsp/init.lua,
+  then configure at minimum a blank settings table {} in plugins/lsp/server_configs.lua
 
   ~/.config/nvim/
   ├── init.lua              - Main entry point: loads in core/ and plugins/ if desired
@@ -15,8 +18,10 @@
       │   ├── options.lua   - Neovim options (set vim.opt)
       │   └── terminal.lua  - Terminal configurations
       └── plugins/
-          ├── editor.lua    - Text editing plugins (surround, comments, etc.)
-          ├── file_tree.lua - File navigation
+          ├── editor.lua          - Text editing plugins (surround, comments, etc.)
+          ├── file_tree.lua       - File navigation
+          ├── git_plugins.lua     - Plugins for managing Git operations
+          ├── helpers.lua         - Helpful plugins otherwise uncategorizable
           ├── lsp/                - Language Server Protocol
           │   ├── completions.lua - Completion and snippets settings
           │   ├── config.lua      - Global shared LSP configurations
