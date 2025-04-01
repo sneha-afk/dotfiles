@@ -2,7 +2,7 @@
 " General Settings
 " =======================================
 set encoding=utf-8               " Set encoding to UTF-8
-set ff=unix,dos                  " Use Unix file format (LF endings)
+set fileformats=unix,dos         " File format preference order
 set shortmess+=I                 " Skip intro message
 set scrolloff=5                  " Keep 5 lines of context above/below the cursor
 set splitright                   " Default vertical splits to the right side
@@ -14,13 +14,98 @@ set wildmode=list:longest,full   " Show possible matches like autocomplete
 set completeopt=menu,menuone,noselect " Completion options for insert mode (Use Ctrl+n or Ctrl+p)
 set backspace=indent,eol,start   " Enable backspacing in INSERT mode
 set clipboard+=unnamedplus       " Use the system clipboard
+set signcolumn=yes               " Always show sign column
 
 " =======================================
-" Leader key mappings
+" Keymappings
 " =======================================
 " Leader key set to , (comma)
 let mapleader = ","
 nnoremap <Leader> :echoerr "Unmapped leader key"<CR>
+
+" SHORTCUTS
+nnoremap <leader>q :q<CR>
+nnoremap <leader>w :w<CR>
+nnoremap <leader>x :wq<CR>
+
+" FILE EXPLORER
+nnoremap <leader>n :Lexplore<CR>        " Open file explorer (netrw)
+nnoremap <leader>N :Lexplore %:p:h<CR>  " Directory of current file
+
+" COMMENTING
+function! CommentToggle() range
+    let comment_chars = {
+        \ 'vim': '"',
+        \ 'python': '#', 'sh': '#', 'bash': '#', 'ruby': '#', 'perl': '#',
+        \ 'c': '//', 'cpp': '//', 'java': '//', 'javascript': '//', 'js': '//',
+        \ 'go': '//', 'php': '//', 'typescript': '//',
+        \ 'html': '<!--', 'xml': '<!--', 'css': '/*', 'scss': '/*', 'less': '/*'
+        \ }
+
+    let comment_ends = {
+        \ 'html': '-->', 'xml': '-->',
+        \ 'css': '*/', 'scss': '*/', 'less': '*/'
+        \ }
+
+    let ft = &filetype
+    if !has_key(comment_chars, ft)
+        echo "No comment syntax for filetype: " . ft
+        return
+    endif
+
+    let [cstart, cend] = [comment_chars[ft], get(comment_ends, ft, '')]
+    let escaped_cstart = escape(cstart, '/*')
+
+    for lnum in range(a:firstline, a:lastline)
+        let line = getline(lnum)
+        let is_commented = 0
+
+        " Check if line starts with comment marker (with optional space after)
+        if line =~ '^\s*' . escaped_cstart . '\s\?'
+            let is_commented = 1
+            " For languages with end markers, check if they exist
+            if cend != '' && line !~ escape(cend, '/*') . '\s*$'
+                let is_commented = 0
+            endif
+        endif
+
+        if is_commented
+            " Uncomment the line
+            let line = substitute(line, '^\(\s*\)' . escaped_cstart . '\s\?', '\1', '')
+            if cend != ''
+                let line = substitute(line, '\s\?' . escape(cend, '/*') . '\s*$', '', '')
+            endif
+        else
+            " Comment the line
+            let line = substitute(line, '^\(\s*\)', '\1' . cstart . ' ', '')
+            if cend != ''
+                let line = substitute(line, '\s*$', ' ' . cend, '')
+            endif
+        endif
+
+        call setline(lnum, line)
+    endfor
+endfunction
+
+nnoremap <leader>cc :call CommentToggle()<CR>
+vnoremap <leader>cc :call CommentToggle()<CR>
+nnoremap <leader>// :call CommentToggle()<CR>
+vnoremap <leader>// :call CommentToggle()<CR>
+
+
+" BUFFER NAVIGATION
+" List buffers and prompt for selection
+nnoremap <leader>bl :buffers<CR>:buffer<Space>
+
+nnoremap <leader>bn :bnext<CR>      " Next buffer
+nnoremap <leader>bp :bprevious<CR>  " Previous buffer
+nnoremap <leader>bd :bdelete<CR>    " Delete current buffer
+nnoremap <leader>ba :ball<CR>       " Open all buffers in splits
+
+" Quick jump to buffer by number (e.g., <leader>1 for buffer 1)
+for i in range(1, 9)
+  execute 'nnoremap <leader>' . i . ' :' . i . 'buffer<CR>'
+endfor
 
 " =======================================
 " Appearance and Colors
@@ -30,7 +115,6 @@ set number                       " Display line numbers
 set t_Co=256                     " Use 256 colors
 set background=dark              " Use dark mode
 set cursorline                   " Highlight the current line
-set signcolumn=yes
 
 " Set true color if available
 if has("termguicolors")
@@ -40,7 +124,7 @@ endif
 colorscheme slate
 
 " =======================================
-" Indentation and Tabs
+" Indentation, Tabs, and Whitespace
 " =======================================
 filetype indent plugin on        " Enable filetype-specific indentation
 set tabstop=4                    " Tab width: 4 spaces
@@ -52,24 +136,23 @@ set autoindent                   " Auto indentation
 set smartindent                  " Smart indentation for C-like languages
 set shiftround                   " Shift to the next round tab stop
 
-" =======================================
-" File-type Specifics
-" =======================================
-autocmd FileType c set autoindent cindent
-autocmd FileType make,go set noexpandtab
-autocmd FileType markdown,tex set spell wrap linebreak
-
-" =======================================
-" Soft Line Breaks
-" =======================================
+" Soft line breaks
 set breakindent                  " Enable soft line breaks
 set breakindentopt=shift:4       " Indent wrapped lines by 4 spaces
 
-" =======================================
-" Whitespace Display
-" =======================================
+" Whitespace display
 set list                         " Show whitespace characters
 set listchars=tab:▸\ ,trail:·    " Customize whitespace display
+
+" =======================================
+" File-type Specifics
+" =======================================
+augroup FileTypeSpecific
+    autocmd!
+    autocmd FileType c set autoindent cindent
+    autocmd FileType make,go set noexpandtab
+    autocmd FileType markdown,tex set spell wrap linebreak
+augroup END
 
 " =======================================
 " Search Settings

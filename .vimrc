@@ -2,7 +2,7 @@
 " General Settings
 " =======================================
 set encoding=utf-8               " Set encoding to UTF-8
-set fileformats=unix,dos
+set fileformats=unix,dos         " File format preference order
 set shortmess+=I                 " Skip intro message
 set scrolloff=5                  " Keep 5 lines of context above/below the cursor
 set splitright                   " Default vertical splits to the right side
@@ -14,6 +14,7 @@ set wildmode=list:longest,full   " Show possible matches like autocomplete
 set completeopt=menu,menuone,noselect " Completion options for insert mode (Use Ctrl+n or Ctrl+p)
 set backspace=indent,eol,start   " Enable backspacing in INSERT mode
 set clipboard+=unnamedplus       " Use the system clipboard
+set signcolumn=yes               " Always show sign column
 
 " =======================================
 " Plugin Management
@@ -33,11 +34,16 @@ if g:have_plugins
 
     " Initialize plugin system
     call plug#begin(s:plugged_dir)
+    " Status line
     Plug 'itchyny/lightline.vim', { 'as': 'lightline' }
+
+    " Editor enhancements
     Plug 'jiangmiao/auto-pairs'     " Auto-pair brackets, quotes, etc.
-    Plug 'cocopon/iceberg.vim', { 'as': 'iceberg'}
-    Plug 'tpope/vim-commentary'
-    Plug 'preservim/nerdtree'
+    Plug 'tpope/vim-commentary'     " Comment code easily
+    Plug 'preservim/nerdtree'       " File explorer
+
+    " Color scheme
+    Plug 'ghifarit53/tokyonight-vim', { 'as': 'tokyonight' }
     call plug#end()
 
     " Run PlugInstall if there are missing plugins
@@ -58,8 +64,28 @@ endfunction
 let mapleader = ","
 nnoremap <Leader> :echoerr "Unmapped leader key"<CR>
 
+" SHORTCUTS
+nnoremap <leader>q :q<CR>
+nnoremap <leader>w :w<CR>
+nnoremap <leader>x :wq<CR>
+
+" BUFFER NAVIGATION
+" List buffers and prompt for selection
+nnoremap <leader>bl :buffers<CR>:buffer<Space>
+
+nnoremap <leader>bn :bnext<CR>      " Next buffer
+nnoremap <leader>bp :bprevious<CR>  " Previous buffer
+nnoremap <leader>bd :bdelete<CR>    " Delete current buffer
+nnoremap <leader>ba :ball<CR>       " Open all buffers in splits
+
+" Quick jump to buffer by number (e.g., <leader>1 for buffer 1)
+for i in range(1, 9)
+  execute 'nnoremap <leader>' . i . ' :' . i . 'buffer<CR>'
+endfor
+
 if IsPluginAvailable('nerdtree')
-    nnoremap <leader>n :NERDTreeFocus<CR>
+    nnoremap <leader>n :NERDTreeToggle<CR>
+    nnoremap <leader>N :NERDTreeFind<CR>
 endif
 
 if IsPluginAvailable('vim-commentary')
@@ -84,7 +110,6 @@ set number                       " Display line numbers
 set t_Co=256                     " Use 256 colors
 set background=dark              " Use dark mode
 set cursorline                   " Highlight the current line
-set signcolumn=yes
 
 " Set true color if available
 if has("termguicolors")
@@ -92,14 +117,16 @@ if has("termguicolors")
 endif
 
 " Color scheme
-if IsPluginAvailable('iceberg')
-    colorscheme iceberg
+if IsPluginAvailable('tokyonight')
+    let g:tokyonight_style = 'night' " available: night, storm
+    let g:tokyonight_enable_italic = 1
+    colorscheme tokyonight
 else
     colorscheme slate
 endif
 
 " =======================================
-" Indentation and Tabs
+" Indentation, Tabs, and Whitespace
 " =======================================
 filetype indent plugin on        " Enable filetype-specific indentation
 set tabstop=4                    " Tab width: 4 spaces
@@ -111,24 +138,23 @@ set autoindent                   " Auto indentation
 set smartindent                  " Smart indentation for C-like languages
 set shiftround                   " Shift to the next round tab stop
 
-" =======================================
-" File-type Specifics
-" =======================================
-autocmd FileType c set autoindent cindent
-autocmd FileType make,go set noexpandtab
-autocmd FileType markdown,tex set spell wrap linebreak
-
-" =======================================
-" Soft Line Breaks
-" =======================================
+" Soft line breaks
 set breakindent                  " Enable soft line breaks
 set breakindentopt=shift:4       " Indent wrapped lines by 4 spaces
 
-" =======================================
-" Whitespace Display
-" =======================================
+" Whitespace display
 set list                         " Show whitespace characters
 set listchars=tab:▸\ ,trail:·    " Customize whitespace display
+
+" =======================================
+" File-type Specifics
+" =======================================
+augroup FileTypeSpecific
+    autocmd!
+    autocmd FileType c set autoindent cindent
+    autocmd FileType make,go set noexpandtab
+    autocmd FileType markdown,tex set spell wrap linebreak
+augroup END
 
 " =======================================
 " Search Settings
