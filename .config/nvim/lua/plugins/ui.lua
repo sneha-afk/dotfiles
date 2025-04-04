@@ -52,7 +52,18 @@ return {
       },
     },
   },
-
+  -- Display diff signs in gutter
+  {
+    "echasnovski/mini.diff",
+    version = false,
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {
+      view = {
+        style = "sign",
+        signs = { add = "+", change = "~", delete = "-" }
+      },
+    },
+  },
   -- Snacks!
   {
     "folke/snacks.nvim",

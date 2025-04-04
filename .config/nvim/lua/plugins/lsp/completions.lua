@@ -41,27 +41,46 @@ return {
   mapping = cmp.mapping.preset.insert({
     ["<C-Space>"] = cmp.mapping.complete(), -- Manual trigger
     ["<C-e>"] = cmp.mapping.abort(),        -- Close menu
+    ["<Esc>"] = cmp.mapping.abort(),
     ["<CR>"] = cmp.mapping.confirm(cmp_confirm),
-    ["<Tab>"] = cmp.mapping(function(fallback)
+    ["<Tab>"] = cmp.mapping(function(fallback) -- Either go to next item in menu, or next placeholder
       if cmp.visible() then
         cmp.select_next_item()
+      elseif luasnip.expand_or_jumpable() then
+        luasnip.expand_or_jump()
       else
-        fallback() -- Fall back to default behavior when not doing completions
+        fallback()
       end
     end, { "i", "s" }),
     ["<S-Tab>"] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
+      elseif luasnip.jumpable(-1) then
+        luasnip.jump(-1)
       else
         fallback()
       end
     end, { "i", "s" }),
+    ["<C-n>"] = cmp.mapping(function()
+      if cmp.visible() then
+        cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
+      else
+        cmp.complete()
+      end
+    end),
+    ["<C-p>"] = cmp.mapping(function()
+      if cmp.visible() then
+        cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
+      end
+    end),
+    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+    ["<C-f>"] = cmp.mapping.scroll_docs(4),
   }),
   sources = cmp.config.sources({
     { name = "nvim_lsp", priority = 1000 },                    -- LSP suggestions
     { name = "luasnip",  priority = 750 },                     -- Snippet suggestions
     { name = "buffer",   priority = 500 },                     -- Buffer words
-    { name = "path",     priority = 250, keyword_length = 3 }, -- File system paths (files, directories)
+    { name = "path",     priority = 250, keyword_length = 3 }, -- File system paths
   }),
   formatting = {
     fields = { "menu", "abbr", "kind" },

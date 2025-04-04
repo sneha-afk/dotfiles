@@ -2,6 +2,7 @@
 -- Helpful utilities
 
 return {
+  { "ThePrimeagen/vim-be-good", cmd = "VimBeGood" },
   -- whichkey: yes pls
   {
     "folke/which-key.nvim",

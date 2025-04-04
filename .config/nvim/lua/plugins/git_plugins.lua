@@ -1,18 +1,6 @@
 -- .config/nvim/lua/plugins/git_integration.lu
 
 return {
-  -- Display diff signs in gutter
-  {
-    "echasnovski/mini.diff",
-    version = false,
-    event = { "BufReadPost", "BufNewFile" },
-    opts = {
-      view = {
-        style = "sign",
-        signs = { add = "+", change = "~", delete = "-" }
-      },
-    },
-  },
   -- Picker for git operations
   {
     "echasnovski/mini.pick",

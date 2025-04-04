@@ -33,17 +33,18 @@ require("lazy").setup({
     lazy = true,
     version = false,
   },
+  rocks = { enabled = false },
   ui = {
     icons = {
       cmd = "⌘ ",
-      config = "🛠 ",
+      config = "⚙️ ",
       event = "📅 ",
       ft = "📂 ",
-      init = "⚙ ",
+      init = "🌱 ",
       keys = "🔑 ",
-      plugin = "🔌 ",
-      runtime = "💻 ",
-      require = "🌙 ",
+      plugin = "🧩 ",
+      runtime = "⚡",
+      require = "📦 ",
       source = "📄 ",
       start = "🚀 ",
       task = "📌 ",
@@ -52,6 +53,7 @@ require("lazy").setup({
     border = "rounded",
     title = " lazy.nvim ",
     backdrop = 100,
+    size = { width = 0.9, height = 0.9, },
   },
   checker = {
     enabled = true,    -- Enable plugin version checking
@@ -74,6 +76,7 @@ require("lazy").setup({
         "netrwPlugin", -- Replaced by using other plugins
         "tarPlugin",   -- Rarely used archive handling
         "tohtml",      -- HTML export (security risk)
+        "tutor",
         "zipPlugin",   -- Archive handling
         "rplugin"      -- Legacy remote plugin system
       },

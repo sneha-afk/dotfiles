@@ -6,6 +6,8 @@
 return {
   vimls = {},
 
+  bashls = {},
+
   pyright = {
     settings = {
       pyright = {
