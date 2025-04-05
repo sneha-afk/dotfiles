@@ -1,121 +1,110 @@
 -- .config/nvim/lua/plugins/lsp/keymaps.lua
 -- Define keymaps for interacting with the LSPs
 
+local lsp = vim.lsp
+local diagnostic = vim.diagnostic
+
+local float_ui = {
+  border = "rounded",
+  focusable = true,
+  padding = { 2, 2, 2, 2 },
+  trim_empty_lines = true,
+  max_width = 100,
+  title = " LSP Info ",
+  title_pos = "center",
+}
+
 local M = {}
 
 -- Format for keymaps: { mode = "n", key="", action=, desc=}
--- Action can be a function reference, function reference, or string
+-- Action can be a Lua function, function reference, or string
 -- Some of these are already defaults, but overwritten to change their description
 M.keymaps = {
   -- Navigation
-  { mode = "n", key = "gd",         action = vim.lsp.buf.definition,              desc = "[G]oto [D]efinition" },
-  { mode = "n", key = "gD",         action = vim.lsp.buf.declaration,             desc = "[G]oto [D]eclaration" },
-  { mode = "n", key = "gi",         action = vim.lsp.buf.implementation,          desc = "[G]oto [I]mplementation" },
-  { mode = "n", key = "gy",         action = vim.lsp.buf.type_definition,         desc = "[G]oto t[y]pe definition" },
-  { mode = "n", key = "gr",         action = vim.lsp.buf.references,              desc = "[G]oto [R]eferences" },
-  { mode = "n", key = "gI",         action = vim.lsp.buf.incoming_calls,          desc = "[G]oto [I]ncoming calls" },
-  { mode = "n", key = "gO",         action = vim.lsp.buf.outgoing_calls,          desc = "[G]oto [O]utgoing calls" },
+  { "n", "gd",         lsp.buf.definition,                                         "[G]oto [D]efinition" },
+  { "n", "gD",         lsp.buf.declaration,                                        "[G]oto [D]eclaration" },
+  { "n", "gi",         lsp.buf.implementation,                                     "[G]oto [I]mplementation" },
+  { "n", "gy",         lsp.buf.type_definition,                                    "[G]oto t[y]pe definition" },
+  { "n", "gr",         lsp.buf.references,                                         "[G]oto [R]eferences" },
+  { "n", "gI",         lsp.buf.incoming_calls,                                     "[G]oto [I]ncoming calls" },
+  { "n", "gO",         lsp.buf.outgoing_calls,                                     "[G]oto [O]utgoing calls" },
 
   -- Documentation
-  { mode = "n", key = "K",          action = vim.lsp.buf.hover,                   desc = "Hover Documentation" },
-  { mode = "i", key = "<C-k>",      action = vim.lsp.buf.signature_help,          desc = "[S]ignature [H]elp" },
-  { mode = "n", key = "<leader>sh", action = vim.lsp.buf.signature_help,          desc = "[S]ignature [H]elp (normal mode)" },
+  { "n", "K",          function() lsp.buf.hover(float_ui) end,                     "Hover Documentation" },
+  { "i", "<C-k>",      function() lsp.buf.signature_help(float_ui) end,            "[S]ignature [H]elp" },
+  { "n", "<C-k>",      function() lsp.buf.signature_help(float_ui) end,            "[S]ignature [H]elp (normal mode)" },
 
   -- Workspace
-  { mode = "n", key = "<leader>wa", action = vim.lsp.buf.add_workspace_folder,    desc = "[W]orkspace [A]dd Folder" },
-  { mode = "n", key = "<leader>wr", action = vim.lsp.buf.remove_workspace_folder, desc = "[W]orkspace [R]emove Folder" },
-  {
-    mode = "n",
-    key = "<leader>wl",
-    action = function()
-      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-    end,
-    desc = "[W]orkspace [L]ist Folders"
-  },
+  { "n", "<leader>wa", lsp.buf.add_workspace_folder,                               "[W]orkspace [A]dd Folder" },
+  { "n", "<leader>wr", lsp.buf.remove_workspace_folder,                            "[W]orkspace [R]emove Folder" },
+  { "n", "<leader>wl", function() vim.print(lsp.buf.list_workspace_folders()) end, "[W]orkspace [L]ist Folders" },
 
   -- Code Actions
-  { mode = "n", key = "<leader>rn", action = vim.lsp.buf.rename,      desc = "[R]e[n]ame Symbol" },
-  { mode = "n", key = "<leader>fc", action = vim.lsp.buf.format,      desc = "[F]ormat [C]ode" },
-  { mode = "n", key = "<leader>ca", action = vim.lsp.buf.code_action, desc = "[C]ode [A]ctions" },
-  {
-    mode = "v",
-    key = "<leader>ca",
-    action = function()
-      vim.lsp.buf.code_action({
-        diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
-        only = { "quickfix", "refactor", "source" }
-      })
-    end,
-    desc = "Range [C]ode [A]ctions"
-  },
-  {
-    mode = "n",
-    key = "<leader>oi",
-    action = function()
-      vim.lsp.buf.code_action({
-        diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
-        only = { "quickfix", "refactor", "source" }
-      })
-    end,
-    desc = "[O]rganize [I]mports"
-  },
+  { "n", "<leader>rn", lsp.buf.rename,                                             "[R]e[n]ame Symbol" },
+  { "n", "<leader>cf", lsp.buf.format,                                             "[C]ode [F]ormat" },
+  { "n", "<leader>ca", lsp.buf.code_action,                                        "[C]ode [A]ctions" },
+  { "v", "<leader>ca", function()
+    lsp.buf.code_action({
+      diagnostics = lsp.diagnostic.get_line_diagnostics(),
+      only = { "quickfix", "refactor", "source" }
+    })
+  end, "Range [C]ode [A]ctions" },
 
   -- Symbols
-  { mode = "n", key = "<leader>ds", action = vim.lsp.buf.document_symbol,  desc = "[D]ocument [S]ymbols" },
-  { mode = "n", key = "<leader>ws", action = vim.lsp.buf.workspace_symbol, desc = "[W]orkspace [S]ymbols" },
+  { "n", "<leader>ds", lsp.buf.document_symbol,                       "[D]ocument [S]ymbols" },
+  { "n", "<leader>ws", lsp.buf.workspace_symbol,                      "[W]orkspace [S]ymbols" },
 
   -- Diagnostics
-  { mode = "n", key = "<leader>dl", action = vim.diagnostic.open_float,    desc = "Open [D]iagnostic [L]ist" },
-  { mode = "n", key = "[d",         action = vim.diagnostic.goto_prev,     desc = "Previous diagnostic" },
-  { mode = "n", key = "]d",         action = vim.diagnostic.goto_next,     desc = "Next diagnostic" },
-  { mode = "n", key = "<leader>df", action = vim.diagnostic.setloclist,    desc = "[D]iagnostics: [f]ile-local list" },
-  {
-    mode = "n",
-    key = "<leader>dt",
-    action = function()
-      vim.diagnostic.config({ virtual_text = not vim.diagnostic.config().virtual_text })
-    end,
-    desc = "[D]iagnostic [T]oggle"
-  },
-  {
-    mode = "n",
-    key = "<leader>da",
-    action = function()
-      vim.diagnostic.setqflist({ open = true })
-    end,
-    desc = "[D]iagnostics : see [A]ll project-wide"
-  },
+  { "n", "<leader>dl", diagnostic.open_float,                         "Open [D]iagnostic [L]ist" },
+  { "n", "<leader>df", diagnostic.setloclist,                         "[D]iagnostics: [f]ile-local list" },
+  { "n", "[d",         function() diagnostic.jump { count = -1 } end, "Previous diagnostic" },
+  { "n", "]d",         function() diagnostic.jump { count = 1 } end,  "Next diagnostic" },
+  { "n", "<leader>dt", function()
+    diagnostic.config({ virtual_text = not diagnostic.config().virtual_text })
+  end, "[D]iagnostic [T]oggle" },
+  { "n", "<leader>da", function() diagnostic.setqflist({ open = true }) end, "[D]iagnostics: see [A]ll project-wide" },
 
   -- Management
-  { mode = "n", key = "<leader>li", action = "<cmd>LspInfo<cr>",    desc = "[L]SP [I]nfo" },
-  { mode = "n", key = "<leader>lr", action = "<cmd>LspRestart<cr>", desc = "[L]SP [R]estart" },
-  { mode = "n", key = "<leader>cl", action = vim.lsp.codelens.run,  desc = "[C]ode[L]ens Run" },
+  { "n", "<leader>li", "<cmd>LspInfo<cr>",                                   "[L]SP [I]nfo" },
+  { "n", "<leader>lr", "<cmd>LspRestart<cr>",                                "[L]SP [R]estart" },
+  { "n", "<leader>cl", lsp.codelens.run,                                     "[C]ode[L]ens Run" },
 }
 
-local function create_keymap(mode, key, action, bufnr, desc)
-  vim.keymap.set(mode, key, action, {
-    buffer = bufnr,
-    noremap = true,
-    silent = true,
-    desc = desc,
-  })
-end
-
-function M.on_attach(client, bufnr)
-  for _, km in ipairs(M.keymaps) do
-    create_keymap(km.mode, km.key, km.action, bufnr, km.desc)
-  end
-
-  -- Client-specific keymaps
-  if client.name == "gopls" then
-    create_keymap("n", "<leader>ru", function()
-      vim.lsp.buf.code_action({
+M.client_specific = {
+  gopls = {
+    { "n", "<leader>ru", function()
+      lsp.buf.code_action({
         context = {
-          diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
+          diagnostics = lsp.diagnostic.get_line_diagnostics(),
           only = { "source.organizeImports" }
         }
       })
-    end, bufnr, "[R]emove [U]nused imports (Go)")
+    end, "[R]emove [U]nused imports (Go)" }
+  }
+}
+
+function M.on_attach(client, bufnr)
+  -- General keymaps applied to all LSPs
+  for _, km in ipairs(M.keymaps) do
+    vim.keymap.set(km[1], km[2], km[3], {
+      buffer = bufnr,
+      desc = km[4],
+      noremap = true,
+      silent = true,
+    })
+  end
+
+  -- Set any client-specific keymaps
+  local client_keymaps = M.client_specific[client.name]
+  if client_keymaps then
+    for _, km in ipairs(client_keymaps) do
+      vim.keymap.set(km[1], km[2], km[3], {
+        buffer = bufnr,
+        desc = km[4],
+        noremap = true,
+        silent = true,
+      })
+    end
   end
 end
 

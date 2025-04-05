@@ -1,4 +1,4 @@
--- .config/nvim/lua/plugins/file_tree.lua
+-- .config/nvim/lua/plugins/oil.lua
 
 local function ignore_files(name)
   -- Hash table to quickly return true

@@ -1,8 +1,6 @@
 -- ~/.config/nvim/lua/core/filetypes.lua
 -- Filetype-specific settings
 
-local M = {}
-
 -- Define groups of settings that can be mapped to multiple filetypes
 local filetype_groups = {
   -- Tab-indented files
@@ -41,18 +39,14 @@ local filetype_groups = {
   }
 }
 
-function M.setup()
-  for group, config in pairs(filetype_groups) do
-    vim.api.nvim_create_autocmd("FileType", {
-      pattern = config.ft,
-      callback = function()
-        for opt, value in pairs(config.opts) do
-          vim.opt_local[opt] = value
-        end
-      end,
-      group = vim.api.nvim_create_augroup("FileType_" .. group, { clear = true }),
-    })
-  end
+for group, config in pairs(filetype_groups) do
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = config.ft,
+    callback = function()
+      for opt, value in pairs(config.opts) do
+        vim.opt_local[opt] = value
+      end
+    end,
+    group = vim.api.nvim_create_augroup("FileType_" .. group, { clear = true }),
+  })
 end
-
-return M

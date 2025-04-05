@@ -3,64 +3,62 @@
 
 -- Format for keymaps: { mode = "n", key="", action=, desc=}
 -- Action can be a function reference, function reference, or string
-local M = {}
-
-M.keymaps = {
+local keymaps = {
   -- Terminal operations
-  { mode = "n", key = "<leader>ht", action = "<cmd>split | term<cr>i",  desc = "Open horizontal terminal" },
-  { mode = "n", key = "<leader>vt", action = "<cmd>vsplit | term<cr>i", desc = "Open vertical terminal" },
-  { mode = "t", key = "<Esc>",      action = "<C-\\><C-n>",             desc = "Exit terminal mode" },
-  { mode = "t", key = "<C-w>h",     action = "<C-\\><C-n><C-w>h",       desc = "Move left from terminal" },
-  { mode = "t", key = "<C-w>j",     action = "<C-\\><C-n><C-w>j",       desc = "Move down from terminal" },
-  { mode = "t", key = "<C-w>k",     action = "<C-\\><C-n><C-w>k",       desc = "Move up from terminal" },
-  { mode = "t", key = "<C-w>l",     action = "<C-\\><C-n><C-w>l",       desc = "Move right from terminal" },
-  { mode = "t", key = "<C-w>q",     action = "<C-\\><C-n>:q<CR>",       desc = "Close terminal" },
-  { mode = "t", key = "<C-u>",      action = "<C-\\><C-n><C-u>",        desc = "Half page up" },
-  { mode = "t", key = "<C-d>",      action = "<C-\\><C-n><C-d>",        desc = "Half page down" },
+  { "n", "<leader>ht", "<cmd>split | term<cr>i",  "Open horizontal terminal" },
+  { "n", "<leader>vt", "<cmd>vsplit | term<cr>i", "Open vertical terminal" },
+  { "t", "<Esc>",      "<C-\\><C-n>",             "Exit terminal mode" },
+  { "t", "<C-w>h",     "<C-\\><C-n><C-w>h",       "Move left from terminal" },
+  { "t", "<C-w>j",     "<C-\\><C-n><C-w>j",       "Move down from terminal" },
+  { "t", "<C-w>k",     "<C-\\><C-n><C-w>k",       "Move up from terminal" },
+  { "t", "<C-w>l",     "<C-\\><C-n><C-w>l",       "Move right from terminal" },
+  { "t", "<C-w>q",     "<C-\\><C-n>:q<CR>",       "Close terminal" },
+  { "t", "<C-u>",      "<C-\\><C-n><C-u>",        "Half page up" },
+  { "t", "<C-d>",      "<C-\\><C-n><C-d>",        "Half page down" },
 
   -- File operations
-  { mode = "n", key = "<leader>w",  action = "<cmd>w<cr>",              desc = "Save file" },
-  { mode = "n", key = "<leader>q",  action = "<cmd>q<cr>",              desc = "Quit window" },
-  { mode = "n", key = "<leader>x",  action = "<cmd>wq<cr>",             desc = "Save & quit" },
-  { mode = "n", key = "<leader>Q",  action = "<cmd>qa<cr>",             desc = "Quit all windows" },
+  { "n", "<leader>w",  "<cmd>w<cr>",              "Save file" },
+  { "n", "<leader>q",  "<cmd>q<cr>",              "Quit window" },
+  { "n", "<leader>x",  "<cmd>wq<cr>",             "Save & quit" },
+  { "n", "<leader>Q",  "<cmd>qa<cr>",             "Quit all windows" },
 
   -- Window management
-  { mode = "n", key = "<C-h>",      action = "<C-w>h",                  desc = "Move to left window" },
-  { mode = "n", key = "<C-j>",      action = "<C-w>j",                  desc = "Move to below window" },
-  { mode = "n", key = "<C-k>",      action = "<C-w>k",                  desc = "Move to above window" },
-  { mode = "n", key = "<C-l>",      action = "<C-w>l",                  desc = "Move to right window" },
-  { mode = "n", key = "<leader>vs", action = "<cmd>vsplit<cr>",         desc = "[V]ertical [S]plit" },
-  { mode = "n", key = "<leader>hs", action = "<cmd>split<cr>",          desc = "[H]orizontal [S]plit" },
+  { "n", "<C-h>",      "<C-w>h",                  "Move to left window" },
+  { "n", "<C-j>",      "<C-w>j",                  "Move to below window" },
+  { "n", "<C-k>",      "<C-w>k",                  "Move to above window" },
+  { "n", "<C-l>",      "<C-w>l",                  "Move to right window" },
+  { "n", "<leader>vs", "<cmd>vsplit<cr>",         "[V]ertical [S]plit" },
+  { "n", "<leader>hs", "<cmd>split<cr>",          "[H]orizontal [S]plit" },
 
   -- Buffer operations:
-  { mode = "n", key = "<leader>]",  action = "<cmd>bnext<cr>",          desc = "[B]uffer [N]ext" },
-  { mode = "n", key = "<leader>[",  action = "<cmd>bprev<cr>",          desc = "[B]uffer [P]revious" },
-  { mode = "n", key = "<leader>bd", action = "<cmd>bdelete<cr>",        desc = "[B]uffer [D]elete" },
-  { mode = "n", key = "<leader>bD", action = "<cmd>bd!<cr>",            desc = "[B]uffer [D]elete (force)" },
+  { "n", "<leader>]",  "<cmd>bnext<cr>",          "[B]uffer [N]ext" },
+  { "n", "<leader>[",  "<cmd>bprev<cr>",          "[B]uffer [P]revious" },
+  { "n", "<leader>bd", "<cmd>bdelete<cr>",        "[B]uffer [D]elete" },
+  { "n", "<leader>bD", "<cmd>bd!<cr>",            "[B]uffer [D]elete (force)" },
 
   -- Tab operations
-  { mode = "n", key = "<leader>tn", action = ":tabnew<CR>",             desc = "Open new tab" },
-  { mode = "n", key = "<leader>tc", action = ":tabclose<CR>",           desc = "Close current tab" },
-  { mode = "n", key = "<leader>to", action = ":tabonly<CR>",            desc = "Close all other tabs" },
-  { mode = "n", key = "<leader>t]", action = ":tabnext<CR>",            desc = "Go to next tab" },
-  { mode = "n", key = "<leader>t[", action = ":tabprevious<CR>",        desc = "Go to previous tab" },
-  { mode = "n", key = "<leader>tm", action = ":tabmove<CR>",            desc = "Move current tab to last" },
-  { mode = "n", key = "<leader>t1", action = "1gt",                     desc = "Go to tab 1" },
-  { mode = "n", key = "<leader>t2", action = "2gt",                     desc = "Go to tab 2" },
-  { mode = "n", key = "<leader>t3", action = "3gt",                     desc = "Go to tab 3" },
-  { mode = "n", key = "<leader>t4", action = "4gt",                     desc = "Go to tab 4" },
-  { mode = "n", key = "<leader>tp", action = ":tablast<CR>",            desc = "Jump to last open tab" },
+  { "n", "<leader>tn", ":tabnew<CR>",             "Open new tab" },
+  { "n", "<leader>tc", ":tabclose<CR>",           "Close current tab" },
+  { "n", "<leader>to", ":tabonly<CR>",            "Close all other tabs" },
+  { "n", "<leader>t]", ":tabnext<CR>",            "Go to next tab" },
+  { "n", "<leader>t[", ":tabprevious<CR>",        "Go to previous tab" },
+  { "n", "<leader>tm", ":tabmove<CR>",            "Move current tab to last" },
+  { "n", "<leader>t1", "1gt",                     "Go to tab 1" },
+  { "n", "<leader>t2", "2gt",                     "Go to tab 2" },
+  { "n", "<leader>t3", "3gt",                     "Go to tab 3" },
+  { "n", "<leader>t4", "4gt",                     "Go to tab 4" },
+  { "n", "<leader>tp", ":tablast<CR>",            "Jump to last open tab" },
 
   -- Utilities
-  { mode = "n", key = "<leader>un", action = "<cmd>set nu!<cr>",        desc = "[U]I Toggle line [N]umbers" },
-  { mode = "n", key = "<leader>ur", action = "<cmd>set rnu!<cr>",       desc = "[U]I Toggle [R]elative line numbers", },
-  { mode = "n", key = "<leader>uw", action = "<cmd>set wrap!<cr>",      desc = "[U]I Toggle line [W]rap" },
+  { "n", "<leader>un", "<cmd>set nu!<cr>",        "[U]I Toggle line [N]umbers" },
+  { "n", "<leader>ur", "<cmd>set rnu!<cr>",       "[U]I Toggle [R]elative line numbers" },
+  { "n", "<leader>uw", "<cmd>set wrap!<cr>",      "[U]I Toggle line [W]rap" },
 }
 
-function M.setup()
-  for _, map in ipairs(M.keymaps) do
-    vim.keymap.set(map.mode, map.key, map.action, { noremap = true, silent = true, desc = map.desc })
-  end
+for _, km in ipairs(keymaps) do
+  vim.keymap.set(km[1], km[2], km[3], {
+    desc = km[4],
+    noremap = true,
+    silent = true,
+  })
 end
-
-return M

@@ -2,7 +2,6 @@
 -- Minimal startup dashboard when no files are specifically opened
 
 local HEADER_ART = [[
-
 ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
 ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
 ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
@@ -13,13 +12,20 @@ local HEADER_ART = [[
 
 local function get_greeting()
   local hour = tonumber(os.date("%H"))
-  if hour < 12 then
-    return "Good morning"
-  elseif hour < 18 then
-    return "Good afternoon"
-  else
-    return "Good evening"
+  local greetings = {
+    { max = 5, msg = "Sleep well", emoji = "🌙" },
+    { max = 12, msg = "Good morning", emoji = "🌅" },
+    { max = 18, msg = "Good afternoon", emoji = "🌞" },
+    { max = 22, msg = "Good evening", emoji = "🌆" },
+    { max = 24, msg = "Good night", emoji = "✨" },
+  }
+
+  for _, greeting in ipairs(greetings) do
+    if hour < greeting.max then
+      return greeting.emoji .. " " .. greeting.msg
+    end
   end
+  return "Hello"
 end
 
 
@@ -32,8 +38,6 @@ return {
   dependencies = {
     "folke/lazy.nvim",
     "stevearc/oil.nvim",
-    "williamboman/mason.nvim",
-    "folke/which-key.nvim",
   },
   config = function()
     local starter = require("mini.starter")
@@ -48,11 +52,10 @@ return {
       items = {
         { section = "Actions", name = "New File",                  action = "ene | startinsert" },
         { section = "Actions", name = "File Browser",              action = "Oil" },
-        { section = "Actions", name = "Edit Config",               action = "e $MYVIMRC" },
         { section = "Actions", name = "Quit",                      action = "qa" },
 
+        { section = "Tools",   name = "Edit Config",               action = "e $MYVIMRC" },
         { section = "Tools",   name = "Lazy.nvim: manage plugins", action = "Lazy" },
-        { section = "Tools",   name = "Mason: manage LSPs",        action = "Mason" },
         { section = "Tools",   name = "Check Health",              action = "checkhealth" },
 
         starter.sections.recent_files(5, true),  -- Files from current directory
@@ -60,7 +63,7 @@ return {
       },
       content_hooks = {
         starter.gen_hook.aligning("center", "center"),
-        starter.gen_hook.adding_bullet("🡪 "),
+        starter.gen_hook.adding_bullet("🡒 "),
       },
       footer = function()
         local version = vim.version()
@@ -84,6 +87,7 @@ return {
       MiniStarterItemPrefix = { link = "Conceal", bold = true },
       MiniStarterSection = { link = "MsgSeparator", bold = true },
       MiniStarterQuery = { link = "Keyword" },
+      MiniStarterCurrent = { link = "CursorLine" },
     }) do
       vim.api.nvim_set_hl(0, hl, def)
     end

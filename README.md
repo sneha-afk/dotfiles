@@ -26,27 +26,28 @@ Upon opening with a new configuration, it will ask you whether plugins should be
 
 ```
 ~/.config/nvim/
-├── init.lua              - Main entry point: loads in core/ and plugins/ if desired
+├── init.lua
 └── lua/
     ├── core/
-    │   ├── filetypes.lua - Filetype-specific settings
-    │   ├── keymaps.lua   - Global keymaps
-    │   ├── lazy.lua      - Sets up lazy.nvim
-    │   ├── options.lua   - Neovim options (set vim.opt)
-    │   └── terminal.lua  - Terminal configurations
+    │   ├── autocmds.lua        - Autocommands to enable globally
+    │   ├── filetypes.lua       - Filetype-specific settings
+    │   ├── keymaps.lua         - Global keymaps
+    │   ├── lazy.lua            - Sets up lazy.nvim plugin manager
+    │   ├── options.lua         - Neovim options (vim.opt settings)
+    │   └── terminal.lua        - Terminal configurations
     └── plugins/
-        ├── editor.lua          - Text editing plugins (surround, comments, etc.)
-        ├── file_tree.lua       - File navigation
-        ├── git_plugins.lua     - Plugins for managing Git operations
-        ├── helpers.lua         - Helpful plugins otherwise uncategorizable
-        ├── lsp/                - Language Server Protocol
-        │   ├── completions.lua - Completion and snippets settings
-        │   ├── config.lua      - Global shared LSP configurations
-        │   ├── init.lua        - Core LSP configuration
-        │   ├── keymaps.lua     - LSP keybindings
-        │   └── server_configs.lua - Language-specific setups
-        ├── startup.lua   - Dashboard/startup screen
-        └── ui.lua        - Interface customization (statusline, colorscheme, etc.)
+        ├── git_plugins.lua     - Git-related plugins
+        ├── helpers.lua         - Utility plugins (commenting, surround, etc.)
+        ├── lsp/
+        │   ├── completions.lua - Completion engine (nvim-cmp) and snippets
+        │   ├── config.lua      - Global LSP configurations
+        │   ├── init.lua        - Core LSP setup and initialization
+        │   ├── keymaps.lua     - LSP-specific keybindings
+        │   └── server_configs.lua - Language-specific server setups
+        ├── oil.lua             - File navigation with oil.nvim
+        ├── startup.lua         - Dashboard/startup screen configuration
+        ├── telescope.lua       - Fuzzy finder configuration
+        └── ui.lua              - UI customization (statusline, colorscheme, etc.)
 ```
 
 ### Modifying
@@ -54,23 +55,23 @@ Upon opening with a new configuration, it will ask you whether plugins should be
 
 | File | Purpose |
 |------|---------|
-| `lua/core/options.lua` | Basic Neovim settings (tabs, line numbers, etc.) |
-| `lua/core/keymaps.lua` | Global keybindings and mappings |
+| `core/options.lua` | Basic Neovim settings (tabs, line numbers, etc.) |
+| `core/keymaps.lua` | Global keybindings and mappings |
 
 #### Plugin Configuration
 | File | Purpose |
 |------|---------|
-| `lua/plugins/editor.lua` | Text editing enhancements and utilities |
-| `lua/plugins/ui.lua` | Visual appearance (theme, statusline, etc.) |
-| `lua/plugins/startup.lua` | Welcome screen |
+| `plugins/helpers.lua` | Utility plugins |
+| `plugins/ui.lua` | Visual appearance (theme, statusline, etc.) |
+| `plugins/startup.lua` | Welcome screen |
 
 #### LSP Configuration
 For *every* server used, list in `server_configs.lua` with at least `name = {}` to use default configurations provided by `nvim-lspconfig`.
 
 | File | Purpose |
 |------|---------|
-| `lua/plugins/lsp/config.lua` | Common LSP configurations shared across all |
-| `lua/plugins/lsp/completions.lua` | Completion and snippet configurations |
-| `lua/plugins/lsp/keymaps.lua` | Keymaps for interacting with LSPs |
-| `lua/plugins/lsp/server_configs.lua` | Set up servers and optionally override settings |
+| `plugins/lsp/config.lua` | Common LSP configurations shared across all |
+| `plugins/lsp/completions.lua` | Completion and snippet configurations |
+| `plugins/lsp/keymaps.lua` | Keymaps for interacting with LSPs |
+| `plugins/lsp/server_configs.lua` | Set up servers and optionally override settings |
 

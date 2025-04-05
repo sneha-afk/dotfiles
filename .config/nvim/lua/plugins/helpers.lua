@@ -3,10 +3,16 @@
 
 return {
   { "ThePrimeagen/vim-be-good", cmd = "VimBeGood" },
+  -- Auto-pairs
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = true
+  },
   -- whichkey: yes pls
   {
     "folke/which-key.nvim",
-    event = { "VimEnter" },
+    event = "VeryLazy",
     opts = {
       preset = "modern",
       win = {

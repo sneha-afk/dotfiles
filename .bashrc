@@ -177,8 +177,6 @@ alias ...='cd ../..'
 alias df='df -h'                # Human-readable sizes
 alias du='du -h'                # Human-readable sizes
 
-# alias vim=nvim                  # Make vim -> neovim?
-
 # Git Aliases
 alias gs='git status'
 alias ga='git add'
@@ -214,6 +212,10 @@ fi
 # ========================================================
 # Utilities
 # ========================================================
+
+mkcd() {
+    mkdir -p "$1" && cd "$1" || return 1
+}
 
 # Find files quickly
 ff() {
@@ -281,48 +283,37 @@ neovim_reset() {
 }
 
 neovim_config_size() {
-    # Define paths
     local config_dir=~/.config/nvim/
     local lazy_dir=~/.local/share/nvim/lazy/
     local mason_dir=~/.local/share/nvim/mason/
     local cache_dir=~/.cache/nvim/
 
-    # Get human-readable sizes
-    local config_size=$(du -sh "$config_dir" 2>/dev/null | cut -f1)
-    local lazy_size=$(du -sh "$lazy_dir" 2>/dev/null | cut -f1)
-    local mason_size=$(du -sh "$mason_dir" 2>/dev/null | cut -f1)
-    local cache_size=$(du -sh "$cache_dir" 2>/dev/null | cut -f1)
+    # Calculate sizes in parallel for better performance
+    local sizes=($(
+        du -sk "$config_dir" 2>/dev/null | cut -f1
+        du -sk "$lazy_dir" 2>/dev/null | cut -f1
+        du -sk "$mason_dir" 2>/dev/null | cut -f1
+        du -sk "$cache_dir" 2>/dev/null | cut -f1
+    ))
 
     # Count plugins and LSPs
-    local plugin_count=0
-    local lsp_count=0
-    [ -d "$lazy_dir" ] && plugin_count=$(ls -1 "$lazy_dir" | wc -l)
-    [ -d "$mason_dir/packages/" ] && lsp_count=$(ls -1 "$mason_dir/packages/" | wc -l)
+    local plugin_count=0 lsp_count=0
+    [[ -d "$lazy_dir" ]] && plugin_count=$(find "$lazy_dir" -maxdepth 1 -type d | wc -l)
+    [[ -d "$mason_dir/packages/" ]] && lsp_count=$(find "$mason_dir/packages/" -maxdepth 1 -type d | wc -l)
 
     # Calculate total size
-    local total_size=$(($(du -sk "$config_dir" 2>/dev/null | cut -f1) + \
-                        $(du -sk "$lazy_dir" 2>/dev/null | cut -f1) + \
-                        $(du -sk "$mason_dir" 2>/dev/null | cut -f1) + \
-                        $(du -sk "$cache_dir" 2>/dev/null | cut -f1)))
+    local total_size=$(( sizes[0] + sizes[1] + sizes[2] + sizes[3] ))
     local human_total=$(numfmt --to=iec-i --suffix=B --format="%.1f" $((total_size * 1024)))
 
-    # Determine column widths
-    local left_width=$(( $(printf "LSP Servers" | wc -c) + 2 ))
-    local right_width=$(( $(printf "%s (%d)" "$mason_size" "$lsp_count" | wc -c) + 2 ))
-
-    # Print header
-    echo "NEOVIM CONFIGURATION SIZE"
-    printf "%-${left_width}s %${right_width}s\n" "ITEM" "USAGE"
-    printf "%-${left_width}s %${right_width}s\n" "──────────────" "──────────"
-
-    # Print items
-    printf "%-${left_width}s %${right_width}s\n" "Configuration:" "$config_size"
-    printf "%-${left_width}s %${right_width}s\n" "Plugins:" "$lazy_size ($plugin_count)"
-    printf "%-${left_width}s %${right_width}s\n" "LSP Servers:" "$mason_size ($lsp_count)"
-    printf "%-${left_width}s %${right_width}s\n" "Cache:" "$cache_size"
-
-    # Print total
-    printf "\n%-${left_width}s %${right_width}s\n" "Total:" "$human_total"
+    echo -e "\033[1mNEOVIM CONFIGURATION SIZE\033[0m"
+    echo "┌──────────────────────┬─────────────────┐"
+    printf "│ %-20s │ %15s │\n" "Configuration" "$(numfmt --to=iec-i --suffix=B --format="%.1f" $((sizes[0] * 1024)))"
+    printf "│ %-20s │ %15s │\n" "Plugins" "$(numfmt --to=iec-i --suffix=B --format="%.1f" $((sizes[1] * 1024))) ($plugin_count)"
+    printf "│ %-20s │ %15s │\n" "LSP Servers" "$(numfmt --to=iec-i --suffix=B --format="%.1f" $((sizes[2] * 1024))) ($lsp_count)"
+    printf "│ %-20s │ %15s │\n" "Cache" "$(numfmt --to=iec-i --suffix=B --format="%.1f" $((sizes[3] * 1024)))"
+    echo "├──────────────────────┼─────────────────┤"
+    printf "│ %-20s │ \033[1m%15s\033[0m │\n" "Total" "$human_total"
+    echo "└──────────────────────┴─────────────────┘"
 }
 
 # ========================================================

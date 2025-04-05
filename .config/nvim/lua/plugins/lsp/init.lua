@@ -11,7 +11,7 @@ return {
   -- Mason configuration (LSP installer)
   {
     "williamboman/mason.nvim",
-    cmd = "Mason",
+    cmd = { "Mason", "MasonInstall", "MasonUpdate" },
     build = ":MasonUpdate",
     keys = {
       { "<leader>lm", "<cmd>Mason<cr>", desc = "Open Mason LSP manager" },
@@ -63,6 +63,7 @@ return {
   {
     "neovim/nvim-lspconfig",
     ft = lsp_languages,
+    cmd = { "LspInfo" },
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
     },
@@ -73,7 +74,6 @@ return {
       -- Setup diagnostics
       vim.diagnostic.config({
         update_in_insert = true,
-        virtual_lines = true,
         virtual_text = {
           spacing = 4,
           source = "if_many",
@@ -86,9 +86,6 @@ return {
           title = " Diagnostics "
         },
       })
-
-      -- Setup handlers' UI
-      require('plugins.lsp.handlers').setup()
 
       for server_name, overrides in pairs(server_overrides) do
         require("lspconfig")[server_name].setup(
@@ -105,7 +102,7 @@ return {
           local log_path = vim.fn.stdpath("log") .. "/lsp.log"
           local max_size = 10 * 1024 * 1024
 
-          local ok, stats = pcall(vim.loop.fs_stat, log_path)
+          local ok, stats = pcall((vim.uv or vim.loop).fs_stat, log_path)
           if ok and stats and stats.size > max_size then
             local file = io.open(log_path, "w")
             if file then

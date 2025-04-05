@@ -1,49 +1,51 @@
 --[[
-  NEOVIM CONFIGURATION
-  ------------------------------------
-  Where to store these files:
-    Linux/macOS: ~/.config/nvim/init.lua
-    Windows:     ~/AppData/Local/nvim/init.lua
+NEOVIM CONFIGURATION
+------------------------------------
+Where to store these files:
+  Linux/macOS: ~/.config/nvim/init.lua
+  Windows:     ~/AppData/Local/nvim/init.lua
 
-  To install more LSPs, either globally install or add to the list at the top of plugins/lsp/init.lua,
-  then configure at minimum a blank settings table {} in plugins/lsp/server_configs.lua
+To register a new LSP, configure at minimum a blank settings table {} in
+  plugins/lsp/server_configs.lua, i.e gopls = {}. Defaults are taken from nvim-lspconfig.
+Either globally install the LSP (ensure it is in PATH), or use Mason (can also add to the
+  list at the top of plugins/lsp/init.lua)
 
-  ~/.config/nvim/
-  ├── init.lua              - Main entry point: loads in core/ and plugins/ if desired
-  └── lua/
-      ├── core/
-      │   ├── filetypes.lua - Filetype-specific settings
-      │   ├── keymaps.lua   - Global keymaps
-      │   ├── lazy.lua      - Sets up lazy.nvim
-      │   ├── options.lua   - Neovim options (set vim.opt)
-      │   └── terminal.lua  - Terminal configurations
-      └── plugins/
-          ├── editor.lua          - Text editing plugins (surround, comments, etc.)
-          ├── file_tree.lua       - File navigation
-          ├── git_plugins.lua     - Plugins for managing Git operations
-          ├── helpers.lua         - Helpful plugins otherwise uncategorizable
-          ├── lsp/                - Language Server Protocol
-          │   ├── completions.lua - Completion and snippets settings
-          │   ├── config.lua      - Global shared LSP configurations
-          │   ├── init.lua        - Core LSP configuration
-          │   ├── keymaps.lua     - LSP keybindings
-          │   └── server_configs.lua - Language-specific setups
-          ├── startup.lua   - Dashboard/startup screen
-          └── ui.lua        - Interface customization (statusline, colorscheme, etc.)
+~/.config/nvim/
+├── init.lua
+└── lua/
+    ├── core/
+    │   ├── autocmds.lua        - Autocommands to enable globally
+    │   ├── filetypes.lua       - Filetype-specific settings
+    │   ├── keymaps.lua         - Global keymaps
+    │   ├── lazy.lua            - Sets up lazy.nvim plugin manager
+    │   ├── options.lua         - Neovim options (vim.opt settings)
+    │   └── terminal.lua        - Terminal configurations
+    └── plugins/
+        ├── git_plugins.lua     - Git-related plugins
+        ├── helpers.lua         - Utility plugins (commenting, surround, etc.)
+        ├── lsp/
+        │   ├── completions.lua - Completion engine (nvim-cmp) and snippets
+        │   ├── config.lua      - Global LSP configurations
+        │   ├── init.lua        - Core LSP setup and initialization
+        │   ├── keymaps.lua     - LSP-specific keybindings
+        │   └── server_configs.lua - Language-specific server setups
+        ├── oil.lua             - File navigation with oil.nvim
+        ├── startup.lua         - Dashboard/startup screen configuration
+        ├── telescope.lua       - Fuzzy finder configuration
+        └── ui.lua              - UI customization (statusline, colorscheme, etc.)
 --]]
 
 vim.g.mapleader = ","
 vim.g.maplocalleader = "\\"
 
--- Load core configurations
-require "core.options"           -- Load first as it affects other modules
-require "core.filetypes".setup() -- Filetype detection and settings
-require "core.keymaps".setup()   -- Key mappings
-require "core.terminal"          -- Terminal integration
+-- Load core configurations in this order
+for _, mod in ipairs({ "options", "filetypes", "autocmds", "keymaps", "terminal" }) do
+  require("core." .. mod)
+end
 
 -- Ask if plugins should be installed if not already
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
-if not vim.uv.fs_stat(lazypath) then
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
   vim.api.nvim_echo({
     { "Lazy.nvim not installed.\n", "WarningMsg" },
     { "Load plugin system? [y/N] ", "Question" },

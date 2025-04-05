@@ -1,14 +1,6 @@
--- .config/nvim/lua/plugins/git_integration.lu
+-- .config/nvim/lua/plugins/git_plugins.lua
 
 return {
-  -- Picker for git operations
-  {
-    "echasnovski/mini.pick",
-    lazy = true,
-    version = false,
-    dependencies = { "echasnovski/mini.extra" },
-    opts = {},
-  },
   {
     "NeogitOrg/neogit",
     dependencies = {

@@ -9,6 +9,7 @@ vim.opt.shortmess:append("I")                    -- Disable intro message
 vim.opt.autoread = true                          -- Reload changed files
 vim.opt.backspace = { "indent", "eol", "start" } -- Full backspace
 vim.opt.clipboard:append("unnamedplus")          -- System clipboard integration
+vim.opt.autoread = true                          -- Auto-reload when files externally changed
 
 -- ===================================================================
 -- User Interface
