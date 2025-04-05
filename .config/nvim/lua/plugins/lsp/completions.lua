@@ -22,8 +22,6 @@ require("luasnip.loaders.from_vscode").lazy_load({
 
 -- Completion setup
 local cmp = require("cmp")
-local cmp_confirm = { select = true, behavior = cmp.ConfirmBehavior.Replace }
-
 return {
   snippet = {
     expand = function(args)
@@ -42,7 +40,7 @@ return {
     ["<C-Space>"] = cmp.mapping.complete(), -- Manual trigger
     ["<C-e>"] = cmp.mapping.abort(),        -- Close menu
     ["<Esc>"] = cmp.mapping.abort(),
-    ["<CR>"] = cmp.mapping.confirm(cmp_confirm),
+    ["<CR>"] = cmp.mapping.confirm({ select = true, behavior = cmp.ConfirmBehavior.Replace }),
     ["<Tab>"] = cmp.mapping(function(fallback) -- Either go to next item in menu, or next placeholder
       if cmp.visible() then
         cmp.select_next_item()
@@ -61,18 +59,8 @@ return {
         fallback()
       end
     end, { "i", "s" }),
-    ["<C-n>"] = cmp.mapping(function()
-      if cmp.visible() then
-        cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-      else
-        cmp.complete()
-      end
-    end),
-    ["<C-p>"] = cmp.mapping(function()
-      if cmp.visible() then
-        cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
-      end
-    end),
+    ["<C-n>"] = cmp.mapping(function() cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert }) end),
+    ["<C-p>"] = cmp.mapping(function() cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert }) end),
     ["<C-d>"] = cmp.mapping.scroll_docs(-4),
     ["<C-f>"] = cmp.mapping.scroll_docs(4),
   }),

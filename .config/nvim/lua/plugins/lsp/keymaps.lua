@@ -18,7 +18,8 @@ M.keymaps = {
 
   -- Documentation
   { mode = "n", key = "K",          action = vim.lsp.buf.hover,                   desc = "Hover Documentation" },
-  { mode = "i", key = "<C-k>",      action = vim.lsp.buf.signature_help,          desc = "Signature Documentation" },
+  { mode = "i", key = "<C-k>",      action = vim.lsp.buf.signature_help,          desc = "[S]ignature [H]elp" },
+  { mode = "n", key = "<leader>sh", action = vim.lsp.buf.signature_help,          desc = "[S]ignature [H]elp (normal mode)" },
 
   -- Workspace
   { mode = "n", key = "<leader>wa", action = vim.lsp.buf.add_workspace_folder,    desc = "[W]orkspace [A]dd Folder" },
@@ -33,41 +34,62 @@ M.keymaps = {
   },
 
   -- Code Actions
-  { mode = "n", key = "<leader>ca", action = vim.lsp.buf.code_action,      desc = "[C]ode [A]ction" },
+  { mode = "n", key = "<leader>rn", action = vim.lsp.buf.rename,      desc = "[R]e[n]ame Symbol" },
+  { mode = "n", key = "<leader>fc", action = vim.lsp.buf.format,      desc = "[F]ormat [C]ode" },
+  { mode = "n", key = "<leader>ca", action = vim.lsp.buf.code_action, desc = "[C]ode [A]ctions" },
   {
     mode = "v",
     key = "<leader>ca",
     action = function()
-      vim.lsp.buf.code_action({ context = { only = { "quickfix", "refactor", "source" } } })
+      vim.lsp.buf.code_action({
+        diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
+        only = { "quickfix", "refactor", "source" }
+      })
     end,
     desc = "Range [C]ode [A]ctions"
+  },
+  {
+    mode = "n",
+    key = "<leader>oi",
+    action = function()
+      vim.lsp.buf.code_action({
+        diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
+        only = { "quickfix", "refactor", "source" }
+      })
+    end,
+    desc = "[O]rganize [I]mports"
   },
 
   -- Symbols
   { mode = "n", key = "<leader>ds", action = vim.lsp.buf.document_symbol,  desc = "[D]ocument [S]ymbols" },
   { mode = "n", key = "<leader>ws", action = vim.lsp.buf.workspace_symbol, desc = "[W]orkspace [S]ymbols" },
 
-  -- Refactoring
-  { mode = "n", key = "<leader>rn", action = vim.lsp.buf.rename,           desc = "[R]e[n]ame" },
-  { mode = "n", key = "<leader>fc", action = vim.lsp.buf.format,           desc = "[F]ormat [C]ode" },
-
   -- Diagnostics
   { mode = "n", key = "<leader>dl", action = vim.diagnostic.open_float,    desc = "Open [D]iagnostic [L]ist" },
   { mode = "n", key = "[d",         action = vim.diagnostic.goto_prev,     desc = "Previous diagnostic" },
   { mode = "n", key = "]d",         action = vim.diagnostic.goto_next,     desc = "Next diagnostic" },
-  { mode = "n", key = "<leader>df", action = vim.diagnostic.setloclist,    desc = "[D]iagnostics to quick[f]ix" },
+  { mode = "n", key = "<leader>df", action = vim.diagnostic.setloclist,    desc = "[D]iagnostics: [f]ile-local list" },
   {
     mode = "n",
     key = "<leader>dt",
     action = function()
-      vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+      vim.diagnostic.config({ virtual_text = not vim.diagnostic.config().virtual_text })
     end,
-    desc = "[D]iagonstic [T]oggle"
+    desc = "[D]iagnostic [T]oggle"
+  },
+  {
+    mode = "n",
+    key = "<leader>da",
+    action = function()
+      vim.diagnostic.setqflist({ open = true })
+    end,
+    desc = "[D]iagnostics : see [A]ll project-wide"
   },
 
   -- Management
   { mode = "n", key = "<leader>li", action = "<cmd>LspInfo<cr>",    desc = "[L]SP [I]nfo" },
   { mode = "n", key = "<leader>lr", action = "<cmd>LspRestart<cr>", desc = "[L]SP [R]estart" },
+  { mode = "n", key = "<leader>cl", action = vim.lsp.codelens.run,  desc = "[C]ode[L]ens Run" },
 }
 
 local function create_keymap(mode, key, action, bufnr, desc)
@@ -87,7 +109,12 @@ function M.on_attach(client, bufnr)
   -- Client-specific keymaps
   if client.name == "gopls" then
     create_keymap("n", "<leader>ru", function()
-      vim.lsp.buf.code_action({ context = { only = { "source.organizeImports" } } })
+      vim.lsp.buf.code_action({
+        context = {
+          diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
+          only = { "source.organizeImports" }
+        }
+      })
     end, bufnr, "[R]emove [U]nused imports (Go)")
   end
 end

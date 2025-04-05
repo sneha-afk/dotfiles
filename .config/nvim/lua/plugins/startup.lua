@@ -68,8 +68,9 @@ return {
         local curr_working_dir = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
 
         return string.format(
-          "%s\n%s",
+          "%s • %s\n%s",
           os.date("%A, %B %d %Y • %I:%M %p"),
+          nvim_version,
           curr_working_dir
         )
       end,

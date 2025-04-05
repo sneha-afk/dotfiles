@@ -53,7 +53,7 @@ require("lazy").setup({
     border = "rounded",
     title = " lazy.nvim ",
     backdrop = 100,
-    size = { width = 0.9, height = 0.9, },
+    size = { width = 0.9, height = 0.85, },
   },
   checker = {
     enabled = true,    -- Enable plugin version checking

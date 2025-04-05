@@ -24,7 +24,7 @@ return {
         disabled_filetypes = { "starter", "ministarter" },
         always_show_tabline = false,
       },
-      extensions = { "oil", "fugitive", },
+      extensions = { "oil", },
       -- A, B, C are left; X, Y, Z are right
       sections = {
         lualine_a = { "mode" },
