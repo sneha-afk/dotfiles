@@ -7,16 +7,12 @@ return {
     "vague2k/vague.nvim",
     lazy = false,
     config = function()
-      local status, _ = pcall(vim.cmd.colorscheme, "vague")
-      if not status then
-        vim.notify("Colorscheme not found! Falling back to default", vim.log.levels.ERROR)
-        vim.cmd.colorscheme("habamax")
-      end
+      vim.cmd.colorscheme("vague")
     end,
   },
   {
     "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     opts = {
       options = {
         theme = "auto",
@@ -24,7 +20,6 @@ return {
         disabled_filetypes = { "starter", "ministarter" },
         always_show_tabline = false,
       },
-      extensions = { "oil", },
       -- A, B, C are left; X, Y, Z are right
       sections = {
         lualine_a = { "mode" },
@@ -56,13 +51,30 @@ return {
   {
     "echasnovski/mini.diff",
     version = false,
-    event = { "BufReadPost", "BufNewFile" },
+    event = { "BufReadPost", "BufWritePost" },
+    keys = {
+      { "<leader>gd", function() require("mini.diff").toggle_overlay() end, desc = "[G]it [D]iff Overlay" },
+    },
     opts = {
       view = {
         style = "sign",
-        signs = { add = "+", change = "~", delete = "-" }
+        signs = { add = "┃", change = "┇", delete = "━" },
       },
     },
+    config = function(_, opts)
+      require("mini.diff").setup(opts)
+
+      vim.api.nvim_set_hl(0, "MiniDiffSignAdd", { link = "DiffAdd" })
+      vim.api.nvim_set_hl(0, "MiniDiffSignChange", { link = "DiffChange" })
+      vim.api.nvim_set_hl(0, "MiniDiffSignDelete", { link = "DiffDelete" })
+
+      vim.api.nvim_set_hl(0, "MiniDiffOverAdd", { link = "DiffAdd" })
+      vim.api.nvim_set_hl(0, "MiniDiffOverChange", { link = "DiffChange" })
+      vim.api.nvim_set_hl(0, "MiniDiffOverChangeBuf", { link = "Comment" })
+      vim.api.nvim_set_hl(0, "MiniDiffOverContext", { link = "Comment" })
+      vim.api.nvim_set_hl(0, "MiniDiffOverContextBuf", { link = "Comment" })
+      vim.api.nvim_set_hl(0, "MiniDiffOverDelete", { link = "DiffDelete" })
+    end
   },
   -- Snacks!
   {

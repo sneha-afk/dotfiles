@@ -21,7 +21,6 @@ Either globally install the LSP (ensure it is in PATH), or use Mason (can also a
     │   ├── options.lua         - Neovim options (vim.opt settings)
     │   └── terminal.lua        - Terminal configurations
     └── plugins/
-        ├── git_plugins.lua     - Git-related plugins
         ├── helpers.lua         - Utility plugins (commenting, surround, etc.)
         ├── lsp/
         │   ├── completions.lua - Completion engine (nvim-cmp) and snippets
@@ -29,9 +28,8 @@ Either globally install the LSP (ensure it is in PATH), or use Mason (can also a
         │   ├── init.lua        - Core LSP setup and initialization
         │   ├── keymaps.lua     - LSP-specific keybindings
         │   └── server_configs.lua - Language-specific server setups
-        ├── oil.lua             - File navigation with oil.nvim
         ├── startup.lua         - Dashboard/startup screen configuration
-        ├── telescope.lua       - Fuzzy finder configuration
+        ├── telescope.lua       - Telescope configuration
         └── ui.lua              - UI customization (statusline, colorscheme, etc.)
 --]]
 

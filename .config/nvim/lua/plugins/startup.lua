@@ -37,7 +37,7 @@ return {
   end,
   dependencies = {
     "folke/lazy.nvim",
-    "stevearc/oil.nvim",
+    "nvim-telescope/telescope.nvim",
   },
   config = function()
     local starter = require("mini.starter")
@@ -51,15 +51,14 @@ return {
       end,
       items = {
         { section = "Actions", name = "New File",                  action = "ene | startinsert" },
-        { section = "Actions", name = "File Browser",              action = "Oil" },
+        { section = "Actions", name = "File Browser",              action = "Telescope file_browser" },
         { section = "Actions", name = "Quit",                      action = "qa" },
 
         { section = "Tools",   name = "Edit Config",               action = "e $MYVIMRC" },
         { section = "Tools",   name = "Lazy.nvim: manage plugins", action = "Lazy" },
         { section = "Tools",   name = "Check Health",              action = "checkhealth" },
 
-        starter.sections.recent_files(5, true),  -- Files from current directory
-        starter.sections.recent_files(5, false), -- Files from anywhere
+        starter.sections.recent_files(10, false),
       },
       content_hooks = {
         starter.gen_hook.aligning("center", "center"),

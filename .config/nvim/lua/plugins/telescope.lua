@@ -6,19 +6,28 @@ return {
     event = "VeryLazy",
     cmd = "Telescope",
     keys = {
-      { "<leader>fc", "<cmd>Telescope commands<cr>",             desc = "[F]ind [C]ommands" },
-      { "<leader>fd", "<cmd>Telescope diagnostics<cr>",          desc = "[F]ile [D]iagnostics" },
-      { "<leader>ff", "<cmd>Telescope find_files<cr>",           desc = "[F]ind [F]iles" },
-      { "<leader>fb", "<cmd>Telescope buffers<cr>",              desc = "[F]ind [B]uffers" },
+      { "<leader>fb", "<cmd>Telescope buffers<cr>",     desc = "[F]ind [B]uffers" },
+      { "<leader>fc", "<cmd>Telescope commands<cr>",    desc = "[F]ind [C]ommands" },
+      { "<leader>fd", "<cmd>Telescope diagnostics<cr>", desc = "[F]ile [D]iagnostics" },
+      { "<leader>ff", "<cmd>Telescope find_files<cr>",  desc = "[F]ind [F]iles" },
+      {
+        "<leader>fe",
+        "<cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>", -- From current buffer
+        desc = "[F]ile [E]xplorer"
+      },
       { "<leader>fh", "<cmd>Telescope help_tags<cr>",            desc = "[F]ind [H]elp Tags" },
       { "<leader>fr", "<cmd>Telescope oldfiles<cr>",             desc = "[F]ind [R]ecent files" },
       { "<leader>fs", "<cmd>Telescope lsp_document_symbols<cr>", desc = "[F]ile/Document [S]ymbols" },
-      { "<leader>fG", "<cmd>Telescope git_status<cr>",           desc = "[F]ind [G]it status" },
+      { "<leader>fg", "<cmd>Telescope live_grep<cr>",            desc = "[F]ind by [G]rep" },
+      { "<leader>gs", "<cmd>Telescope git_status<cr>",           desc = "[G]it [S]tatus" },
+      { "<leader>gc", "<cmd>Telescope git_commits<cr>",          desc = "[G]it [C]ommits" },
+      { "<leader>gb", "<cmd>Telescope git_branches<cr>",         desc = "[G]it [B]ranches" },
     },
     dependencies = {
       "nvim-lua/plenary.nvim",
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
       "nvim-telescope/telescope-ui-select.nvim", -- Set vim.ui.select to telescope
+      "nvim-telescope/telescope-file-browser.nvim",
     },
     opts = function()
       local actions = require("telescope.actions")
@@ -67,11 +76,12 @@ return {
           },
         },
         extensions = {
-          fzf = {
-            fuzzy = true,
-            override_generic_sorter = true,
-            override_file_sorter = true,
-            case_mode = "smart_case",
+          file_browser = {
+            dir_icon = "🗀",
+            hijack_netrw = true,
+            hidden = true,
+            grouped = true,
+            respect_gitignore = true,
           },
         },
       }
@@ -82,6 +92,7 @@ return {
       -- Load extensions
       pcall(require("telescope").load_extension, "fzf")
       pcall(require("telescope").load_extension, "ui-select")
+      pcall(require("telescope").load_extension, "file_browser")
     end,
   },
 }

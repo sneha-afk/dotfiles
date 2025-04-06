@@ -2,10 +2,10 @@
 -- Initialization of the LSP configuration with Mason, completes, and nvim-lspconfig
 
 -- What to install through Mason
-local servers_to_install = { "lua_ls", "vimls" }
+local servers_to_install = { "lua_ls", "bashls" }
 
 -- Language files that LSPs should be enabled for (reduces startup for non-LSP configured files)
-local lsp_languages = { "lua", "vim", "c", "cpp", "h", "hpp", "python", "go", "sh", "bash", "zsh" }
+local lsp_languages = { "lua", "sh", "bash", "zsh", "c", "cpp", "h", "hpp", "python", "go", }
 
 return {
   -- Mason configuration (LSP installer)

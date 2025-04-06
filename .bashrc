@@ -133,19 +133,24 @@ path_entries=(
 
     # Language/runtime paths
     /usr/local/go/bin
-    $HOME/go/bin
+    "$HOME/go/bin"
     "$HOME/gems/bin"
     /usr/share/texlive
     /opt/nvim-linux-x86_64/bin
-    $HOME/.local/share/nvim/mason/bin
-
-    # WSL Windows paths (last to avoid conflicts + performance)
-    /mnt/c/Windows/System32
+    "$HOME/.local/share/nvim/mason/bin"     # LSPs installed through Mason
 )
 
+if [[ -n "$WSL_DISTRO_NAME" || -n "$WSL_INTEROP" ]]; then
+    path_entries+=(
+        # WSL Windows paths (last to avoid conflicts + performance)
+        /mnt/c/Windows/System32
+        /mnt/c/Windows
+        /mnt/c/Windows/System32/Wbem
+    )
+fi
+
 # Join entries and remove any duplicate entries
-IFS=: read -r -a unique_paths <<< "$(printf "%s:" "${path_entries[@]}")"
-export PATH=$(IFS=:; echo "${unique_paths[*]}")
+export PATH=$(printf "%s:" "${path_entries[@]}" | awk -v RS=: '!a[$0]++ {printf "%s%s",!NR++?"":":",$0}')
 
 # ========================================================
 # Environment Variables
@@ -187,12 +192,16 @@ alias gl='git log --oneline'
 # ========================================================
 # WSL-Specific Utilities
 # ========================================================
-if [[ $(uname -r) == *microsoft* ]]; then
+if [[ -n "$WSL_DISTRO_NAME" || -n "$WSL_INTEROP" ]]; then
     # Open Windows Explorer
     explorer() {
-        local win_path=$([ -z "$1" ] && wslpath -w "$PWD" || wslpath -w "$1")
-        cmd.exe /c "explorer.exe $win_path" 2>/dev/null
-        echo "Opening $win_path"
+        local win_path="${1:-$PWD}"
+        win_path=$(wslpath -w "$win_path" 2>/dev/null) || {
+            echo "Invalid path: $win_path" >&2
+            return 1
+        }
+        ( cmd.exe /c "explorer.exe $win_path" &>/dev/null & ) &&
+        echo "📂 Opening: ${win_path}"
     }
 
     # Open PDFs in Adobe Acrobat
@@ -200,18 +209,23 @@ if [[ $(uname -r) == *microsoft* ]]; then
         (( $# == 0 )) && { echo "Usage: openpdf <file.pdf>"; return 1; }
         local file_path
         file_path=$(wslpath -w "$1" 2>/dev/null) || { echo "Invalid path: $1"; return 1; }
-        "/mnt/c/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe" "$file_path" &>/dev/null &
+        ( "/mnt/c/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe" "$file_path" &>/dev/null & ) &&
+        echo "🔖 Opened PDF: ${1##*/}"
     }
 
     # Open files/directories in Sublime Text
     subl() {
-        ( "/mnt/c/Program Files/Sublime Text/sublime_text.exe" "$@" &>/dev/null & )
+        ( "/mnt/c/Program Files/Sublime Text/sublime_text.exe" "$@" &>/dev/null & ) &&
+        echo "✏️ Opened in Sublime: $@"
     }
 fi
 
 # ========================================================
 # Utilities
 # ========================================================
+
+# Fast searching with ripgrep
+alias search="rg --smart-case --hidden --follow"
 
 mkcd() {
     mkdir -p "$1" && cd "$1" || return 1
@@ -274,7 +288,7 @@ genpass() {
     echo
 }
 
-neovim_reset() {
+nvim_reset() {
     rm -rf ~/.local/share/nvim/
     rm -rf ~/.local/state/nvim/
     rm -rf ~/.cache/nvim
@@ -282,38 +296,35 @@ neovim_reset() {
     echo "Neovim has been reset."
 }
 
-neovim_config_size() {
-    local config_dir=~/.config/nvim/
-    local lazy_dir=~/.local/share/nvim/lazy/
-    local mason_dir=~/.local/share/nvim/mason/
-    local cache_dir=~/.cache/nvim/
+nvim_size() {
+  local config=~/.config/nvim/
+  local lazy=~/.local/share/nvim/lazy/
+  local mason=~/.local/share/nvim/mason/
+  local cache=~/.cache/nvim/
 
-    # Calculate sizes in parallel for better performance
-    local sizes=($(
-        du -sk "$config_dir" 2>/dev/null | cut -f1
-        du -sk "$lazy_dir" 2>/dev/null | cut -f1
-        du -sk "$mason_dir" 2>/dev/null | cut -f1
-        du -sk "$cache_dir" 2>/dev/null | cut -f1
-    ))
+  local config_kb=$(du -sk "$config" 2>/dev/null | awk '{print $1}')
+  local lazy_kb=$(du -sk "$lazy" 2>/dev/null | awk '{print $1}')
+  local mason_kb=$(du -sk "$mason" 2>/dev/null | awk '{print $1}')
+  local cache_kb=$(du -sk "$cache" 2>/dev/null | awk '{print $1}')
+  local total_kb=$(( config_kb + lazy_kb + mason_kb + cache_kb ))
 
-    # Count plugins and LSPs
-    local plugin_count=0 lsp_count=0
-    [[ -d "$lazy_dir" ]] && plugin_count=$(find "$lazy_dir" -maxdepth 1 -type d | wc -l)
-    [[ -d "$mason_dir/packages/" ]] && lsp_count=$(find "$mason_dir/packages/" -maxdepth 1 -type d | wc -l)
+  local plugins=$([ -d "$lazy" ] && ls -1 "$lazy" | wc -l || echo 0)
+  local lsps=$([ -d "$mason/packages" ] && ls -1 "$mason/packages" | wc -l || echo 0)
 
-    # Calculate total size
-    local total_size=$(( sizes[0] + sizes[1] + sizes[2] + sizes[3] ))
-    local human_total=$(numfmt --to=iec-i --suffix=B --format="%.1f" $((total_size * 1024)))
+  fmt_size() {
+    numfmt --to=iec --suffix=B --format="%.1f" $(($1 * 1024))
+  }
 
-    echo -e "\033[1mNEOVIM CONFIGURATION SIZE\033[0m"
-    echo "┌──────────────────────┬─────────────────┐"
-    printf "│ %-20s │ %15s │\n" "Configuration" "$(numfmt --to=iec-i --suffix=B --format="%.1f" $((sizes[0] * 1024)))"
-    printf "│ %-20s │ %15s │\n" "Plugins" "$(numfmt --to=iec-i --suffix=B --format="%.1f" $((sizes[1] * 1024))) ($plugin_count)"
-    printf "│ %-20s │ %15s │\n" "LSP Servers" "$(numfmt --to=iec-i --suffix=B --format="%.1f" $((sizes[2] * 1024))) ($lsp_count)"
-    printf "│ %-20s │ %15s │\n" "Cache" "$(numfmt --to=iec-i --suffix=B --format="%.1f" $((sizes[3] * 1024)))"
-    echo "├──────────────────────┼─────────────────┤"
-    printf "│ %-20s │ \033[1m%15s\033[0m │\n" "Total" "$human_total"
-    echo "└──────────────────────┴─────────────────┘"
+  echo "╭───────────────────────────────╮"
+  echo "│     🚀 NEOVIM CONFIG SIZE     │"
+  echo "├───────────────┬───────────────┤"
+  printf "│ %-13s │ %13s │\n" "Config Files" "$(fmt_size "$config_kb")"
+  printf "│ %-13s │ %13s │\n" "Plugins ($plugins)" "$(fmt_size "$lazy_kb")"
+  printf "│ %-13s │ %13s │\n" "LSPs ($lsps)" "$(fmt_size "$mason_kb")"
+  printf "│ %-13s │ %13s │\n" "Cache" "$(fmt_size "$cache_kb")"
+  echo "├───────────────┼───────────────┤"
+  printf "│ %-13s │ \033[1m%13s\033[0m │\n" "Total" "$(fmt_size "$total_kb")"
+  echo "╰───────────────┴───────────────╯"
 }
 
 # ========================================================
@@ -331,7 +342,7 @@ __git_status_for_prompt() {
     status_flags=$(git status --porcelain 2>/dev/null | head -n1)
 
     local status=""
-    [[ -n $status_flags ]] && status="*"  # Dirty if any output
+    [[ -n $status_flags ]] && status=" *"  # Dirty if any output
 
     printf " [%s%s]" "$branch" "$status"
 }

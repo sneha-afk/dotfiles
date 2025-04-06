@@ -2,7 +2,6 @@
 -- Helpful utilities
 
 return {
-  { "ThePrimeagen/vim-be-good", cmd = "VimBeGood" },
   -- Auto-pairs
   {
     "windwp/nvim-autopairs",
@@ -13,6 +12,13 @@ return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
+    keys = {
+      {
+        "<leader>?",
+        function() require("which-key").show({ global = false }) end,
+        desc = "View local buffer keymaps",
+      },
+    },
     opts = {
       preset = "modern",
       win = {

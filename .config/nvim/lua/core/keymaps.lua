@@ -31,23 +31,23 @@ local keymaps = {
   { "n", "<leader>hs", "<cmd>split<cr>",          "[H]orizontal [S]plit" },
 
   -- Buffer operations:
-  { "n", "<leader>]",  "<cmd>bnext<cr>",          "[B]uffer [N]ext" },
-  { "n", "<leader>[",  "<cmd>bprev<cr>",          "[B]uffer [P]revious" },
+  { "n", "<leader>]b", "<cmd>bnext<cr>",          "Go to next buffer" },
+  { "n", "<leader>[b", "<cmd>bprev<cr>",          "Go to previous buffer" },
   { "n", "<leader>bd", "<cmd>bdelete<cr>",        "[B]uffer [D]elete" },
   { "n", "<leader>bD", "<cmd>bd!<cr>",            "[B]uffer [D]elete (force)" },
 
   -- Tab operations
-  { "n", "<leader>tn", ":tabnew<CR>",             "Open new tab" },
-  { "n", "<leader>tc", ":tabclose<CR>",           "Close current tab" },
-  { "n", "<leader>to", ":tabonly<CR>",            "Close all other tabs" },
-  { "n", "<leader>t]", ":tabnext<CR>",            "Go to next tab" },
-  { "n", "<leader>t[", ":tabprevious<CR>",        "Go to previous tab" },
-  { "n", "<leader>tm", ":tabmove<CR>",            "Move current tab to last" },
+  { "n", "<leader>tn", "<cmd>tabnew<CR>",         "Open new tab" },
+  { "n", "<leader>tc", "<cmd>tabclose<CR>",       "Close current tab" },
+  { "n", "<leader>to", "<cmd>tabonly<CR>",        "Close all other tabs" },
+  { "n", "<leader>]t", "<cmd>tabnext<CR>",        "Go to next tab" },
+  { "n", "<leader>[t", "<cmd>tabprevious<CR>",    "Go to previous tab" },
+  { "n", "<leader>tm", "<cmd>tabmove<CR>",        "Move current tab to last" },
+  { "n", "<leader>tp", "<cmd>tablast<CR>",        "Jump to last open tab" },
   { "n", "<leader>t1", "1gt",                     "Go to tab 1" },
   { "n", "<leader>t2", "2gt",                     "Go to tab 2" },
   { "n", "<leader>t3", "3gt",                     "Go to tab 3" },
   { "n", "<leader>t4", "4gt",                     "Go to tab 4" },
-  { "n", "<leader>tp", ":tablast<CR>",            "Jump to last open tab" },
 
   -- Utilities
   { "n", "<leader>un", "<cmd>set nu!<cr>",        "[U]I Toggle line [N]umbers" },
