@@ -1,3 +1,10 @@
+" ============================================================
+" .VIMRC
+" ============================================================
+" Set g:have_plugins to 1 to enable vim-plug and the plugins defined
+" If left at 0, a vanilla config is used (look at the keymaps!)
+let g:have_plugins = 0
+
 " =======================================
 " General Settings
 " =======================================
@@ -5,13 +12,9 @@ set encoding=utf-8               " Set encoding to UTF-8
 set fileformats=unix,dos         " File format preference order
 set shortmess+=I                 " Skip intro message
 set scrolloff=5                  " Keep 5 lines of context above/below the cursor
-set splitright                   " Default vertical splits to the right side
 set wrap                         " Wrap long lines
 set linebreak                    " Do not break in the middle of words
-set ttyfast                      " Optimize performance for fast terminals
-set wildmenu                     " Enable enhanced command-line completion
-set wildmode=list:longest,full   " Show possible matches like autocomplete
-set completeopt=menu,menuone,noselect " Completion options for insert mode (Use Ctrl+n or Ctrl+p)
+set breakindent                  " Indent wrapped lines
 set backspace=indent,eol,start   " Enable backspacing in INSERT mode
 set clipboard+=unnamedplus       " Use the system clipboard
 set signcolumn=yes               " Always show sign column
@@ -20,8 +23,6 @@ set autoread                     " Auto-reload when files externally changed
 " =======================================
 " Plugin Management
 " =======================================
-" Set to 0 to disable having plugins
-let g:have_plugins = 1
 if g:have_plugins
     " Install vim-plug if not installed
     let s:vim_home = has('win32') || has('win64') ? expand('$HOME/vimfiles') : expand('~/.vim')
@@ -61,9 +62,8 @@ endfunction
 " =======================================
 " Leader key mappings
 " =======================================
-" Leader key set to , (comma)
-let mapleader = ","
-nnoremap <Leader> :echoerr "Unmapped leader key"<CR>
+let mapleader = ","      " Leader key set to comma
+nnoremap <leader> :echoerr "Unmapped leader key"<CR>
 
 " SHORTCUTS
 nnoremap <leader>q :q<CR>
@@ -71,36 +71,108 @@ nnoremap <leader>w :w<CR>
 nnoremap <leader>x :wq<CR>
 
 " BUFFER NAVIGATION
-" List buffers and prompt for selection
-nnoremap <leader>bl :buffers<CR>:buffer<Space>
+" Lists all buffers and prompts
+nnoremap <leader>bl :ls<CR>:buffer<Space>
+nnoremap <leader>bn :bnext<CR>                  " Next buffer
+nnoremap <leader>bp :bprevious<CR>              " Previous buffer
+nnoremap <leader>bd :bdelete<CR>                " Delete current buffer
+nnoremap <leader>ba :ball<CR>                   " Open all buffers in splits
 
-nnoremap <leader>bn :bnext<CR>      " Next buffer
-nnoremap <leader>bp :bprevious<CR>  " Previous buffer
-nnoremap <leader>bd :bdelete<CR>    " Delete current buffer
-nnoremap <leader>ba :ball<CR>       " Open all buffers in splits
-
-" Quick jump to buffer by number (e.g., <leader>1 for buffer 1)
+" Quick jump to buffer by number (1-9)
 for i in range(1, 9)
   execute 'nnoremap <leader>' . i . ' :' . i . 'buffer<CR>'
 endfor
 
+" FILE EXPLORER
 if IsPluginAvailable('nerdtree')
-    nnoremap <leader>n :NERDTreeToggle<CR>
-    nnoremap <leader>N :NERDTreeFind<CR>
+    let g:loaded_netrw = 1
+    let g:loaded_netrwPlugin = 1
+
+    " Show hidden files by default (toggle with 'I')
+    let NERDTreeShowHidden = 1
+    let NERDTreeIgnore = ['\.pyc$', '\.swp$', '\.git$']
+    let NERDTreeWinSize = 35
+
+    nnoremap <leader>n :NERDTreeToggle<CR>  " Toggle file explorer
+    nnoremap - :NERDTreeToggle<CR>
+    nnoremap <leader>N :NERDTreeFind<CR>    " Reveal current file in explorer
+    nnoremap <leader>. :NERDTreeCWD<CR>     " Go up to parent directory
+else
+    let g:netrw_winsize = 35                " Set width to 35 pixels
+    let g:netrw_liststyle = 3               " Tree view
+    let g:netrw_keepdir = 0                 " Keep current dir consistent
+
+    nnoremap <leader>n :Lexplore<CR>        " Open file explorer
+    nnoremap - :Lexplore<CR>
+    nnoremap <leader>N :Lexplore %:p:h<CR>  " Open in current file's directory
+    nnoremap <leader>. :Explore ..<CR>      " Go up to parent directory
 endif
 
+" COMMENTING
 if IsPluginAvailable('vim-commentary')
-    " Toggle current line (like 'gcc') - supports count [3,cc -> comment 3 lines]
-    nnoremap <Leader>cc :Commentary<CR>
+    nnoremap <Leader>cc :Commentary<CR>                  " Toggle current line
+    nnoremap <Leader>// :Commentary<CR>                  " Alternative mapping
+    vnoremap <Leader>c :Commentary<CR>                   " Visual mode
+    nnoremap <Leader>C :<C-u>Commentary<C-Left><C-Left>  " Range comment
+else
+    function! CommentToggle() range
+        let comment_chars = {
+            \ 'vim': '"',
+            \ 'python': '#', 'sh': '#', 'bash': '#', 'ruby': '#', 'perl': '#',
+            \ 'c': '//', 'cpp': '//', 'java': '//', 'javascript': '//', 'js': '//',
+            \ 'go': '//', 'php': '//', 'typescript': '//',
+            \ 'html': '<!--', 'xml': '<!--', 'css': '/*', 'scss': '/*', 'less': '/*'
+            \ }
 
-    " Alt for one line
-    nnoremap <Leader>// :Commentary<CR>
+        let comment_ends = {
+            \ 'html': '-->', 'xml': '-->',
+            \ 'css': '*/', 'scss': '*/', 'less': '*/'
+            \ }
 
-    " Visual: select over lines
-    vnoremap <Leader>c :Commentary<CR>
+        let ft = &filetype
+        if !has_key(comment_chars, ft)
+            echo "No comment syntax for filetype: " . ft
+            return
+        endif
 
-    " Comment a range (e.g., ,C 5,10 -> comment lines 5-10)
-    nnoremap <Leader>C :<C-u>Commentary<C-Left><C-Left>
+        let [cstart, cend] = [comment_chars[ft], get(comment_ends, ft, '')]
+        let escaped_cstart = escape(cstart, '/*')
+
+        for lnum in range(a:firstline, a:lastline)
+            let line = getline(lnum)
+            let is_commented = 0
+
+            " Check if line starts with comment marker (with optional space after)
+            if line =~ '^\s*' . escaped_cstart . '\s\?'
+                let is_commented = 1
+                " For languages with end markers, check if they exist
+                if cend != '' && line !~ escape(cend, '/*') . '\s*$'
+                    let is_commented = 0
+                endif
+            endif
+
+            if is_commented
+                " Uncomment the line
+                let line = substitute(line, '^\(\s*\)' . escaped_cstart . '\s\?', '\1', '')
+                if cend != ''
+                    let line = substitute(line, '\s\?' . escape(cend, '/*') . '\s*$', '', '')
+                endif
+            else
+                " Comment the line
+                let line = substitute(line, '^\(\s*\)', '\1' . cstart . ' ', '')
+                if cend != ''
+                    let line = substitute(line, '\s*$', ' ' . cend, '')
+                endif
+            endif
+
+            call setline(lnum, line)
+        endfor
+    endfunction
+
+    nnoremap <leader>cc :call CommentToggle()<CR>
+    vnoremap <leader>cc :call CommentToggle()<CR>
+    nnoremap <leader>// :call CommentToggle()<CR>
+    vnoremap <leader>// :call CommentToggle()<CR>
 endif
 
 " =======================================
@@ -111,6 +183,7 @@ set number                       " Display line numbers
 set t_Co=256                     " Use 256 colors
 set background=dark              " Use dark mode
 set cursorline                   " Highlight the current line
+set showbreak=↳\                 " Wrapped line indicator
 
 " Set true color if available
 if has("termguicolors")
@@ -123,8 +196,17 @@ if IsPluginAvailable('tokyonight')
     let g:tokyonight_enable_italic = 1
     colorscheme tokyonight
 else
-    colorscheme slate
+    colorscheme habamax
 endif
+
+" =======================================
+" Window and Buffer Management
+" =======================================
+set splitright          " Default split rightwards
+set splitbelow          " Default split downwards
+set scrolloff=5         " Context lines when scrolling
+set winwidth=30         " Minimum window width
+set winminwidth=10      " Minimum inactive window width
 
 " =======================================
 " Indentation, Tabs, and Whitespace
@@ -148,21 +230,25 @@ set list                         " Show whitespace characters
 set listchars=tab:▸\ ,trail:·    " Customize whitespace display
 
 " =======================================
-" File-type Specifics
+" Search and Matching
 " =======================================
-augroup FileTypeSpecific
-    autocmd!
-    autocmd FileType c set autoindent cindent
-    autocmd FileType make,go set noexpandtab
-    autocmd FileType markdown,tex set spell wrap linebreak
-augroup END
+set ignorecase          " Case-insensitive search
+set smartcase           " Case-sensitive if uppercase
+set hlsearch           " Highlight matches
 
 " =======================================
-" Search Settings
+" Completion and Command Line
 " =======================================
-set ignorecase                   " Ignore case in search
-set smartcase                    " Case-sensitive search when uppercase is used
-set hlsearch                     " Highlight all search results
+set wildmenu            " Enhanced command completion
+set wildmode=list:longest,full " Completion behavior
+set completeopt=menu,menuone,noselect " Completion options
+
+" =======================================
+" Performance Optimizations
+" =======================================
+set ttyfast             " Optimize performance for fast terminals
+set lazyredraw          " Faster macro execution
+set synmaxcol=300       " Limit syntax highlighting after some columns
 
 " =======================================
 " Status Line Configuration
@@ -201,6 +287,16 @@ else
 endif
 
 " =======================================
+" File-type Specifics
+" =======================================
+augroup FileTypeSpecific
+    autocmd!
+    autocmd FileType c set autoindent cindent
+    autocmd FileType make,go set noexpandtab
+    autocmd FileType markdown,tex set spell wrap linebreak
+augroup END
+
+" =======================================
 " Auto-Completion for Brackets
 " =======================================
 if !IsPluginAvailable('auto-pairs')
@@ -213,11 +309,9 @@ if !IsPluginAvailable('auto-pairs')
 endif
 
 " =======================================
-" Windows: custom command for Powershell
-" Debug: if you need admin access, can do it one time with :!Start-Process powershell -Verb runAs
+" Windows-specific settings
 " =======================================
 if has('win32') || has('win64')
-    " Default shell settings for normal operations
     let g:default_shell = &shell
     let g:default_shellcmdflag = &shellcmdflag
     let g:default_shellquote = &shellquote
@@ -225,7 +319,6 @@ if has('win32') || has('win64')
     let g:default_shellpipe = &shellpipe
     let g:default_shellredir = &shellredir
 
-    " Function to set to Vim's default desired shell
     function! SetDefaultShell()
         let &shell = g:default_shell
         let &shellcmdflag = g:default_shellcmdflag
@@ -235,7 +328,6 @@ if has('win32') || has('win64')
         let &shellredir = g:default_shellredir
     endfunction
 
-    " Function to use PowerShell
     function! SetPowerShell()
         set shell=powershell
         set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
@@ -245,13 +337,12 @@ if has('win32') || has('win64')
         set shellredir=>
     endfunction
 
-    " Enable true cursor shaping in Windows Terminal
+    " Windows Terminal cursor shaping
     if exists('$WT_SESSION')
         let &t_SI = "\<Esc>[6 q"  " Vertical bar in Insert mode
         let &t_EI = "\<Esc>[2 q"  " Block in Normal mode
     endif
 
-    " Use :Term to open Powershell
     command! Term call SetPowerShell() | term
     command! VTerm call SetPowerShell() | vertical terminal
 endif

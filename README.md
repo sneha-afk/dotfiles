@@ -15,6 +15,10 @@ And for Powershell:
 New-Item -ItemType SymbolicLink `
 -Path "getthispathidk\dotfiles\Microsoft.PowerShell_profile.ps1" `
 -Target $PROFILE
+
+New-Item -ItemType SymbolicLink `
+  -Path "$HOME\_vimrc" `
+  -Target "getthispathidk\dotfiles\.vimrc"
 ```
 
 ## Neovim
