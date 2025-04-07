@@ -12,7 +12,7 @@ return {
   },
   {
     "nvim-lualine/lualine.nvim",
-    event = "UIEnter",
+    event = "VeryLazy",
     opts = {
       options = {
         theme = "auto",

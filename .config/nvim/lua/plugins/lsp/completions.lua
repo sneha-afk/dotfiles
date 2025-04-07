@@ -16,7 +16,7 @@ require("luasnip.loaders.from_vscode").lazy_load({
   paths = {
     vim.fn.stdpath("data") .. "/lazy/friendly-snippets", -- Built-in vscode-style snippets
     vim.fn.stdpath("config") .. "/snippets",             -- Personal snippets in .config/nvim/snippets
-    vim.loop.cwd() .. "/.nvim/snippets"                  -- Project-specific snippets
+    vim.uv.cwd() .. "/.nvim/snippets"                  -- Project-specific snippets
   }
 })
 

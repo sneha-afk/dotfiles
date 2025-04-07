@@ -41,9 +41,25 @@ for _, mod in ipairs({ "options", "filetypes", "autocmds", "keymaps", "terminal"
   require("core." .. mod)
 end
 
+-- Setup diagnostics
+vim.diagnostic.config({
+  update_in_insert = true,
+  virtual_text = {
+    spacing = 4,
+    source = "if_many",
+  },
+  severity_sort = true,
+  float = {
+    border = "rounded",
+    padding = 3,
+    header = "",
+    title = " Diagnostics "
+  },
+})
+
 -- Ask if plugins should be installed if not already
-local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.uv.fs_stat(lazypath) then
   vim.api.nvim_echo({
     { "Lazy.nvim not installed.\n", "WarningMsg" },
     { "Load plugin system? [y/N] ", "Question" },

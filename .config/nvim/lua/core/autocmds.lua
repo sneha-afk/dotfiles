@@ -1,8 +1,7 @@
 -- .config/nvim/lua/core/autocmds.lua
 
--- Remove trailing whitespace and extra newlines at EOF upon save
 vim.api.nvim_create_autocmd("BufWritePre", {
-  desc = "Remove all trailing whitespace and newlines",
+  desc = "Remove trailing whitespace and extra newlines at EOF upon saves",
   callback = function()
     local filetype = vim.bo.filetype
     local buftype = vim.bo.buftype
@@ -29,5 +28,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
       curpos[1] = math.max(1, new_line_count)
     end
     vim.api.nvim_win_set_cursor(0, curpos)
+  end,
+})
+
+vim.api.nvim_create_autocmd("TextYankPost", {
+  desc = "Highlight yanked lines",
+  callback = function()
+    vim.hl.on_yank({ higroup = "Visual", timeout = 300, })
   end,
 })

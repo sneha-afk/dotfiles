@@ -68,27 +68,13 @@ return {
       "williamboman/mason-lspconfig.nvim",
     },
     config = function()
+      local lspconfig = require("lspconfig")
       local shared_configs = require("plugins.lsp.config")
       local server_overrides = require("plugins.lsp.server_configs")
 
-      -- Setup diagnostics
-      vim.diagnostic.config({
-        update_in_insert = true,
-        virtual_text = {
-          spacing = 4,
-          source = "if_many",
-        },
-        severity_sort = true,
-        float = {
-          border = "rounded",
-          padding = 3,
-          header = "",
-          title = " Diagnostics "
-        },
-      })
-
+      -- Pass overrides from default configurations
       for server_name, overrides in pairs(server_overrides) do
-        require("lspconfig")[server_name].setup(
+        lspconfig[server_name].setup(
           vim.tbl_deep_extend("force",
             shared_configs, -- Shared configuration
             overrides       -- Server-specific overrides
@@ -102,7 +88,7 @@ return {
           local log_path = vim.fn.stdpath("log") .. "/lsp.log"
           local max_size = 10 * 1024 * 1024
 
-          local ok, stats = pcall((vim.uv or vim.loop).fs_stat, log_path)
+          local ok, stats = pcall(vim.uv.fs_stat, log_path)
           if ok and stats and stats.size > max_size then
             local file = io.open(log_path, "w")
             if file then
