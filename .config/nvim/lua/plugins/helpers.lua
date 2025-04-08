@@ -25,6 +25,10 @@ return {
         border = "rounded",
         title = " Keybindings ",
       },
+      keys = {
+        scroll_down = "<C-j>",
+        scroll_up = "<C-k>",
+      },
       icons = {
         mappings = false,
         rules = false,

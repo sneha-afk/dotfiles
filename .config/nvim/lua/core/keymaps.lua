@@ -1,20 +1,22 @@
 -- .config/nvim/lua/core/keymaps.lua
 -- Globally available keymaps
 
+local diagnostic = vim.diagnostic
+
 -- Format for keymaps: { mode = "n", key=, desc=, action=}
 -- Action can be a Lua function, function reference, or string
 local keymaps = {
   -- Terminal operations
-  { "n", "<leader>ht", "Open [H]orizontal [T]erminal",      "<cmd>split | term<cr>i" },
-  { "n", "<leader>vt", "Open [V]ertical [T]erminal",        "<cmd>vsplit | term<cr>i" },
+  { "n", "<leader>ht", "[H]orizontal [T]erminal",           "<cmd>split | term<cr>i" },
+  { "n", "<leader>vt", "[V]ertical [T]erminal",             "<cmd>vsplit | term<cr>i" },
   { "t", "<Esc>",      "Exit terminal mode",                "<C-\\><C-n>" },
   { "t", "<C-w>h",     "Move left from terminal",           "<C-\\><C-n><C-w>h" },
   { "t", "<C-w>j",     "Move down from terminal",           "<C-\\><C-n><C-w>j" },
   { "t", "<C-w>k",     "Move up from terminal",             "<C-\\><C-n><C-w>k" },
   { "t", "<C-w>l",     "Move right from terminal",          "<C-\\><C-n><C-w>l" },
   { "t", "<C-w>q",     "Close terminal",                    "<C-\\><C-n>:q<CR>" },
-  { "t", "<C-u>",      "Half page up",                      "<C-\\><C-n><C-u>" },
-  { "t", "<C-d>",      "Half page down",                    "<C-\\><C-n><C-d>" },
+  { "t", "<C-j>",      "Half page down",                    "<C-\\><C-n><C-d>" },
+  { "t", "<C-k>",      "Half page up",                      "<C-\\><C-n><C-u>" },
 
   -- File operations
   { "n", "<leader>w",  "Save file",                         "<cmd>w<cr>" },
@@ -53,6 +55,17 @@ local keymaps = {
   { "n", "<leader>un", "[U]I: toggle line [N]umbers",       "<cmd>set nu!<cr>" },
   { "n", "<leader>ur", "[U]I: toggle [R]elative line nums", "<cmd>set rnu!<cr>" },
   { "n", "<leader>uw", "[U]I: toggle line [W]rap",          "<cmd>set wrap!<cr>" },
+
+  -- Diagnostics
+  { "n", "<leader>dl", "[D]iagnostics: open [L]ist",        diagnostic.open_float },
+  { "n", "<leader>df", "[D]iagnostics: [F]ile-local list",  diagnostic.setloclist },
+  { "n", "<leader>da", "[D]iagnostics: [A]ll project-wide", function() diagnostic.setqflist({ open = true }) end },
+  { "n", "[d",         "Previous diagnostic",               function() diagnostic.jump { count = -1, float = true } end },
+  { "n", "]d",         "Next diagnostic",                   function() diagnostic.jump { count = 1, float = true } end },
+  { "n", "<leader>dv", "[D]iagnostics: toggle [V]irtual text",
+    function() diagnostic.config({ virtual_text = not diagnostic.config().virtual_text }) end
+  },
+  { "n", "<leader>dt", "[D]iagnostics: [T]oggle", function() diagnostic.enable(not diagnostic.is_enabled()) end },
 }
 
 local function map(mode, short, action, desc)

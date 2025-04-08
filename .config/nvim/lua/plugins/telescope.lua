@@ -9,19 +9,20 @@ return {
       { "<leader>fb", "<cmd>Telescope buffers<cr>",     desc = "[F]ind [B]uffers" },
       { "<leader>fc", "<cmd>Telescope commands<cr>",    desc = "[F]ind [C]ommands" },
       { "<leader>fd", "<cmd>Telescope diagnostics<cr>", desc = "[F]ile [D]iagnostics" },
-      { "<leader>ff", "<cmd>Telescope find_files<cr>",  desc = "[F]ind [F]iles" },
       {
         "<leader>fe",
         "<cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>", -- From current buffer
         desc = "[F]ile [E]xplorer"
       },
+      { "<leader>ff", "<cmd>Telescope find_files<cr>",           desc = "[F]ind [F]iles" },
+      { "<leader>fg", "<cmd>Telescope live_grep<cr>",            desc = "[F]ind by [G]rep" },
       { "<leader>fh", "<cmd>Telescope help_tags<cr>",            desc = "[F]ind [H]elp Tags" },
       { "<leader>fr", "<cmd>Telescope oldfiles<cr>",             desc = "[F]ind [R]ecent files" },
       { "<leader>fs", "<cmd>Telescope lsp_document_symbols<cr>", desc = "[F]ile/Document [S]ymbols" },
-      { "<leader>fg", "<cmd>Telescope live_grep<cr>",            desc = "[F]ind by [G]rep" },
-      { "<leader>gs", "<cmd>Telescope git_status<cr>",           desc = "[G]it [S]tatus" },
-      { "<leader>gc", "<cmd>Telescope git_commits<cr>",          desc = "[G]it [C]ommits" },
       { "<leader>gb", "<cmd>Telescope git_branches<cr>",         desc = "[G]it [B]ranches" },
+      { "<leader>gc", "<cmd>Telescope git_commits<cr>",          desc = "[G]it [C]ommits" },
+      { "<leader>gs", "<cmd>Telescope git_status<cr>",           desc = "[G]it [S]tatus" },
+      { "<leader>gS", "<cmd>Telescope git_stash<cr>",            desc = "[G]it [S]tash" },
     },
     dependencies = {
       "nvim-lua/plenary.nvim",

@@ -22,23 +22,16 @@ return {
       },
       -- A, B, C are left; X, Y, Z are right
       sections = {
-        lualine_a = { "mode" },
         lualine_b = { "filename", },
         lualine_c = { "branch", "diff", "diagnostics", },
         lualine_x = {
           {
             "lsp_status",
             icon = "",
-            symbols = {
-              spinner = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" },
-              done = "✓",
-              separator = " ",
-            },
             ignore_lsp = {},
           },
-          "filetype" },
-        lualine_y = { "progress" },
-        lualine_z = { "location" },
+          "filetype"
+        },
       },
       -- Inactive windows default: only show filename and location
       tabline = {
@@ -51,7 +44,7 @@ return {
   {
     "echasnovski/mini.diff",
     version = false,
-    event = { "BufReadPost", "BufWritePost" },
+    event = "UIEnter",
     keys = {
       { "<leader>gd", function() require("mini.diff").toggle_overlay() end, desc = "[G]it [D]iff Overlay" },
     },
@@ -79,7 +72,7 @@ return {
   -- Snacks!
   {
     "folke/snacks.nvim",
-    event = { "BufReadPost", "BufNewFile" },
+    event = "UIEnter",
     dependencies = { "echasnovski/mini.diff", },
     opts = {
       indent = {

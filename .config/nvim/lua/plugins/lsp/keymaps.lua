@@ -6,10 +6,6 @@ local diagnostic = vim.diagnostic
 
 local float_ui = {
   border = "rounded",
-  focusable = true,
-  wrap = true,
-  padding = { 2, 2, 2, 2 },
-  trim_empty_lines = true,
   max_width = 100,
   title = " LSP Info ",
   title_pos = "center",
@@ -20,16 +16,16 @@ local float_ui = {
 -- Some of these are already defaults, but overwritten to change their description
 local keymaps = {
   -- Navigation
-  { "n", "gd",         "[G]oto [D]efinition",         lsp.buf.definition },
+  { "n", "gd",         "[G]oto [d]efinition",         lsp.buf.definition },
   { "n", "gD",         "[G]oto [D]eclaration",        lsp.buf.declaration },
   { "n", "gi",         "[G]oto [I]mplementation",     lsp.buf.implementation },
   { "n", "gy",         "[G]oto t[y]pe definition",    lsp.buf.type_definition },
-  { "n", "gr",         "[G]oto [R]eferences",         lsp.buf.references },
+  { "n", "gr",         "[G]oto [r]eferences",         lsp.buf.references },
   { "n", "gI",         "[G]oto [I]ncoming calls",     lsp.buf.incoming_calls },
   { "n", "gO",         "[G]oto [O]utgoing calls",     lsp.buf.outgoing_calls },
 
   -- Documentation
-  { "n", "K",          "Hover Documentation",         function() lsp.buf.hover(float_ui) end },
+  { "n", "K",          "Open documentation float",    function() lsp.buf.hover(float_ui) end },
   { "i", "<C-k>",      "[S]ignature [H]elp",          function() lsp.buf.signature_help(float_ui) end },
   { "n", "<C-k>",      "[S]ignature [H]elp (normal)", function() lsp.buf.signature_help(float_ui) end },
 
@@ -52,23 +48,13 @@ local keymaps = {
   },
 
   -- Symbols
-  { "n", "<leader>ds", "[D]ocument [S]ymbols",                  lsp.buf.document_symbol },
-  { "n", "<leader>ws", "[W]orkspace [S]ymbols",                 lsp.buf.workspace_symbol },
-
-  -- Diagnostics
-  { "n", "<leader>dl", "[D]iagnostics: open [L]ist",            diagnostic.open_float },
-  { "n", "<leader>df", "[D]iagnostics: [f]ile-local list",      diagnostic.setloclist },
-  { "n", "<leader>da", "[D]iagnostics: see [A]ll project-wide", function() diagnostic.setqflist({ open = true }) end },
-  { "n", "[d",         "Previous diagnostic",                   function() diagnostic.jump { count = -1, float = true } end },
-  { "n", "]d",         "Next diagnostic",                       function() diagnostic.jump { count = 1, float = true } end },
-  { "n", "<leader>dt", "[D]iagnostics: [T]oggle",
-    function() diagnostic.config({ virtual_text = not diagnostic.config().virtual_text }) end
-  },
+  { "n", "<leader>ds", "[D]ocument [S]ymbols",  lsp.buf.document_symbol },
+  { "n", "<leader>ws", "[W]orkspace [S]ymbols", lsp.buf.workspace_symbol },
 
   -- Management
-  { "n", "<leader>li", "[L]SP [I]nfo",     "<cmd>LspInfo<cr>" },
-  { "n", "<leader>lr", "[L]SP [R]estart",  "<cmd>LspRestart<cr>" },
-  { "n", "<leader>cl", "Run [C]ode[L]ens", lsp.codelens.run },
+  { "n", "<leader>li", "[L]SP [I]nfo",          "<cmd>LspInfo<cr>" },
+  { "n", "<leader>lr", "[L]SP [R]estart",       "<cmd>LspRestart<cr>" },
+  { "n", "<leader>cl", "Run [C]ode[L]ens",      lsp.codelens.run },
 }
 
 local client_specific = {

@@ -9,6 +9,7 @@ local lsp_languages = { "lua", "sh", "bash", "zsh", "c", "cpp", "h", "hpp", "pyt
 
 return {
   -- Mason configuration (LSP installer)
+  -- Installed to "$HOME/.local/share/nvim/mason/bin"
   {
     "williamboman/mason.nvim",
     cmd = { "Mason", "MasonInstall", "MasonUpdate" },
@@ -81,24 +82,6 @@ return {
           )
         )
       end
-
-      -- Auto-clear LSP logs after 10MB
-      vim.api.nvim_create_autocmd({ "VimEnter", "BufEnter" }, {
-        callback = function()
-          local log_path = vim.fn.stdpath("log") .. "/lsp.log"
-          local max_size = 10 * 1024 * 1024
-
-          local ok, stats = pcall(vim.uv.fs_stat, log_path)
-          if ok and stats and stats.size > max_size then
-            local file = io.open(log_path, "w")
-            if file then
-              file:close()
-              vim.notify("Cleared LSP log (>10MB)", vim.log.levels.INFO)
-            end
-          end
-        end,
-        desc = "Clear oversized LSP logs"
-      })
     end
   },
 }

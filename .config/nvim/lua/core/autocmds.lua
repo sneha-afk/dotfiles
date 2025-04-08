@@ -37,3 +37,20 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     vim.hl.on_yank({ higroup = "Visual", timeout = 300, })
   end,
 })
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  desc = "Auto-clear LSP logs past 10 MB",
+  callback = function()
+    local log_path = vim.fn.stdpath("log") .. "/lsp.log"
+    local max_size = 10 * 1024 * 1024
+
+    local ok, stats = pcall(vim.uv.fs_stat, log_path)
+    if ok and stats and stats.size > max_size then
+      local file = io.open(log_path, "w")
+      if file then
+        file:close()
+        vim.notify("Cleared LSP log (>10MB)", vim.log.levels.INFO)
+      end
+    end
+  end,
+})

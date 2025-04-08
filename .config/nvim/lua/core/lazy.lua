@@ -1,9 +1,6 @@
 -- .config/nvim/lua/core/lazy.lua
 -- Initialization of the plugin system
 
-if vim.g.lazy_nvim_loaded then return end
-vim.g.lazy_nvim_loaded = true
-
 -- Bootstrap lazy.nvim plugin manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
