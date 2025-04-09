@@ -70,7 +70,10 @@ local client_specific = {
         })
       end
     },
-  }
+  },
+  pyright = {
+    { "n", "<leader>oi", "Python: [O]rganize [I]mports", "<cmd>PyrightOrganizeImports<cr>" },
+  },
 }
 
 local function map(mode, short, action, desc, bufnr)

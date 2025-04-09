@@ -10,7 +10,13 @@ return {
     settings = {
       pyright = {
         typeCheckingMode = "basic",
-        useLibraryCodeForTypes = true,
+        disableOrganizeImports = false,
+        analysis = {
+          autoImportCompletions = true,
+          autoSearchPaths = true,
+          diagnosticMode = "workspace",
+          useLibraryCodeForTypes = true,
+        },
       },
     },
   },

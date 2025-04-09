@@ -1,0 +1,73 @@
+{
+  "LaTeX Basic Template": {
+    "prefix": ["latex-basic-start"],
+    "body": [
+      "\\documentclass{article}",
+      "\\title{${1:Default Title}}",
+      "\\author{${2:Default Author}}",
+      "\\begin{document}",
+      "\\maketitle",
+      "$0",
+      "\\end{document}"
+    ],
+    "description": "Generates a simple LaTeX template"
+  },
+  "LaTeX Code Listing": {
+    "prefix": ["latex-code-listing"],
+    "body": [
+      "\\begin{lstlisting}[language=Python]",
+      "${1:Put code here...}",
+      "$0",
+      "\\end{lstlisting}"
+    ],
+    "description": "Generates a simple LaTeX template"
+  },
+  "LaTeX Minted Listing": {
+    "prefix": ["latex-code-minted"],
+    "body": [
+      "\\begin{minted}[linenos,tabsize=2,breaklines]{${1:Language}}",
+      "${2:Put code here...}",
+      "$0",
+      "\\end{minted}"
+    ],
+    "description": "Generates a simple LaTeX template"
+  },
+  "LaTeX Full Template": {
+    "prefix": "latex-full-template",
+    "body": [
+      "\\documentclass[11pt]{article}",
+      "\\usepackage[utf8]{inputenc}",
+      "\\usepackage[margin=1in]{geometry}",
+      "\\usepackage{enumitem}",
+      "\\usepackage{hyperref}",
+      "\\usepackage{amsmath}",
+      "\\usepackage{float}",
+      "\\usepackage{enumitem}",
+      "",
+      "\\usepackage{graphicx}",
+      "\\graphicspath{ {./images/} }",
+      "",
+      "% \\usepackage{times}",
+      "\\usepackage{utopia}",
+      "",
+      "\\usepackage{inconsolata}",
+      "\\renewcommand{\\ttdefault}{zi4}",
+      "",
+      "% Allow page breaks in align environments",
+      "\\allowdisplaybreaks",
+      "",
+      "",
+      "\\title{${1:Title}}",
+      "\\author{${2:Sneha De}}",
+      "\\date{\\today}",
+      "",
+      "\\begin{document}",
+      "\\maketitle",
+      "",
+      "${0}",
+      "",
+      "\\end{document}"
+    ],
+    "description": "A complete LaTeX article template with common packages and configurations"
+  }
+}
