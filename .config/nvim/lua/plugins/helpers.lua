@@ -4,9 +4,17 @@
 return {
   -- Auto-pairs
   {
-    "windwp/nvim-autopairs",
+    "echasnovski/mini.pairs",
     event = "InsertEnter",
-    config = true
+    version = false,
+    config = true,
+  },
+  -- Surrounding
+  {
+    "echasnovski/mini.surround",
+    event = "ModeChanged *:[vV\x16]*", -- Load on Visual
+    version = false,
+    config = true,
   },
   -- whichkey: yes pls
   {

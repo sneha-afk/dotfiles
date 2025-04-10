@@ -13,25 +13,29 @@ Helpers defined in [`.bashrc`](/.bashrc):
 ```
 ~/.config/nvim/
 ├── init.lua
-└── lua/
-    ├── core/
-    │   ├── autocmds.lua        - Autocommands to enable globally
-    │   ├── filetypes.lua       - Filetype-specific settings
-    │   ├── keymaps.lua         - Global keymaps
-    │   ├── lazy.lua            - Sets up lazy.nvim plugin manager
-    │   ├── options.lua         - Neovim options (vim.opt settings)
-    │   └── terminal.lua        - Terminal configurations
-    └── plugins/
-        ├── helpers.lua         - Utility plugins (commenting, surround, etc.)
-        ├── lsp/
-        │   ├── completions.lua - Completion engine (nvim-cmp) and snippets
-        │   ├── config.lua      - Global LSP configurations
-        │   ├── init.lua        - Core LSP setup and initialization
-        │   ├── keymaps.lua     - LSP-specific keybindings
-        │   └── server_configs.lua - Language-specific server setups
-        ├── startup.lua         - Dashboard/startup screen configuration
-        ├── telescope.lua       - Telescope configuration
-        └── ui.lua              - UI customization (statusline, colorscheme, etc.)
+├── lua/
+│   ├── core/
+│   │   ├── autocmds.lua
+│   │   ├── filetypes.lua
+│   │   ├── keymaps.lua
+│   │   ├── lazy.lua
+│   │   ├── options.lua
+│   │   └── terminal.lua
+│   └── plugins/
+│       ├── colorscheme.lua
+│       ├── completions.lua
+│       ├── helpers.lua
+│       ├── lsp/
+│       │   ├── config.lua
+│       │   ├── init.lua
+│       │   ├── keymaps.lua
+│       │   └── server_configs.lua
+│       ├── snippets.lua
+│       ├── startup.lua
+│       ├── statusline.lua
+│       ├── telescope.lua
+│       └── ui.lua
+└── snippets/
 ```
 
 ### Modifying
@@ -50,7 +54,6 @@ To set up a new LSP server:
 | File | Purpose |
 |------|---------|
 | `plugins/lsp/config.lua` | Common LSP configurations shared across all |
-| `plugins/lsp/completions.lua` | Completion and snippet configurations |
 | `plugins/lsp/keymaps.lua` | Keymaps for interacting with LSPs |
 | `plugins/lsp/server_configs.lua` | Set up servers and optionally override settings |
 

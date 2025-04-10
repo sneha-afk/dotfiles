@@ -43,23 +43,6 @@ return {
     },
   },
 
-  -- Autocompletion
-  {
-    "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
-    dependencies = {
-      "hrsh7th/cmp-nvim-lsp",     -- LSP completions
-      "L3MON4D3/LuaSnip",         -- Snippet engine
-      "rafamadriz/friendly-snippets",
-      "saadparwaiz1/cmp_luasnip", -- Snippet completions
-      "hrsh7th/cmp-buffer",       -- Buffer words
-      "hrsh7th/cmp-path",         -- File paths
-    },
-    opts = function()
-      return require("plugins.lsp.completions")
-    end,
-  },
-
   -- LSP configurations: both externally installed and from Mason
   {
     "neovim/nvim-lspconfig",
