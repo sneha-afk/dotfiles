@@ -41,7 +41,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.api.nvim_create_autocmd("VimEnter", {
   desc = "Auto-clear LSP logs past 10 MB",
   callback = function()
-    local log_path = vim.fn.stdpath("log") .. "/lsp.log"
+    local log_path = vim.lsp.log.get_filename()
     local max_size = 10 * 1024 * 1024
 
     local ok, stats = pcall(vim.uv.fs_stat, log_path)

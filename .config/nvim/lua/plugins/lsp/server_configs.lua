@@ -39,6 +39,7 @@ return {
         hints = {
           assignVariableTypes = true,
           compositeLiteralFields = true,
+          compositeLiteralTypes = true,
           constantValues = true,
           functionTypeParameters = true,
           parameterNames = true,
@@ -54,16 +55,23 @@ return {
   },
 
   clangd = {
-    args = {
-      "--clang-tidy",
-      "--background-index",
-      "--compile-commands-dir=build",
-      "--header-insertion=never",
+    cmd = {
+      "clangd",
       "--all-scopes-completion",
+      "--background-index",
+      "--clang-tidy",
+      "--compile-commands-dir=build",
+      "--completion-style=detailed",
+      "--cross-file-rename",
+      "--enable-config",
+      "--function-arg-placeholders",
+      "--header-insertion=never",
+      "--malloc-trim",
       "--offset-encoding=utf-16",
+      "--pch-storage=disk",
     },
     init_options = {
-      fallbackFlags = { "-std=c++11", "-Wall", "-Wextra", "-Wpedantic" },
+      fallbackFlags = { "-Wall", "-Wextra", "-Wpedantic" },
     },
   },
 
@@ -71,6 +79,9 @@ return {
     settings = {
       Lua = {
         diagnostics = { globals = { "vim" }, },
+        hint = {
+          enable = true,
+        },
         workspace = {
           checkThirdParty = false,
           library = {

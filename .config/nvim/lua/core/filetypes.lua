@@ -30,7 +30,7 @@ local filetype_groups = {
   },
 
   smaller_tabs = {
-    ft = { "lua", },
+    ft = { "lua", "json", "html", "css", },
     opts = {
       tabstop = 2,
       softtabstop = 2,

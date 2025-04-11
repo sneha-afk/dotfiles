@@ -1,0 +1,7 @@
+{
+  "Error not nil block": {
+    "prefix": ["err-not-nil"],
+    "body": ["if err != nil {", "\t$1", "}"],
+    "description": "Basic if err != nil block"
+  }
+}

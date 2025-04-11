@@ -33,34 +33,38 @@ return {
         },
       },
       mapping = cmp.mapping.preset.insert({
-        ["<C-Space>"] = cmp.mapping.complete(), -- Manual trigger
-        ["<C-e>"] = cmp.mapping.abort(),        -- Close menu
-        ["<Esc>"] = cmp.mapping.abort(),
+        ["<C-Space>"] = cmp.mapping.complete(),  -- Manual trigger
+        ["<C-e>"] = cmp.mapping.abort(),         -- Close menu
+        ['<C-j>'] = cmp.mapping.scroll_docs(-4), -- Scroll down
+        ['<C-k>'] = cmp.mapping.scroll_docs(4),  -- Scroll up
+
         -- Select: true if select whatever is under cursor, false if need to interact with menu first
         ['<CR>'] = cmp.mapping.confirm({ select = false }),
         ['<C-y>'] = cmp.mapping.confirm({ select = true }),
-        ["<Tab>"] = cmp.mapping(function(fallback) -- Either go to next item in menu, or next placeholder
+
+        -- Tab and S-Tab only apply to a completion menu
+        ["<Tab>"] = cmp.mapping.select_next_item(select_opts),
+        ["<S-Tab>"] = cmp.mapping.select_prev_item(select_opts),
+
+        -- <C-p> and <C-n> is also used to jump snippet placeholders
+        ['<C-p>'] = cmp.mapping(function(fallback)
           if cmp.visible() then
-            cmp.select_next_item()
-          elseif ls.jumpable(1) then
-            ls.jump(1)
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
-        ["<S-Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            cmp.select_prev_item()
+            cmp.select_prev_item(select_opts)
           elseif ls.jumpable(-1) then
             ls.jump(-1)
           else
             fallback()
           end
         end, { "i", "s" }),
-        ['<C-p>'] = cmp.mapping.select_prev_item(select_opts),
-        ['<C-n>'] = cmp.mapping.select_next_item(select_opts),
-        ['<C-j>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-k>'] = cmp.mapping.scroll_docs(4),
+        ['<C-n>'] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_next_item(select_opts)
+          elseif ls.jumpable(1) then
+            ls.jump(1)
+          else
+            fallback()
+          end
+        end, { "i", "s" }),
       }),
       sources = cmp.config.sources({
         { name = "nvim_lsp", priority = 1000 },                    -- LSP suggestions

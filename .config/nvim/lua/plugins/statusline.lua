@@ -7,7 +7,9 @@ return {
     options = {
       theme = "auto",
       icons_enabled = false,
-      disabled_filetypes = { "starter", "ministarter" },
+      disabled_filetypes = {
+        "starter", "ministarter", "help", "lazy", "mason",
+      },
       always_show_tabline = false,
     },
     -- A, B, C are left; X, Y, Z are right

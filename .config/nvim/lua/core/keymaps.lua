@@ -55,6 +55,7 @@ local keymaps = {
   { "n", "<leader>un", "[U]I: toggle line [N]umbers",       "<cmd>set nu!<cr>" },
   { "n", "<leader>ur", "[U]I: toggle [R]elative line nums", "<cmd>set rnu!<cr>" },
   { "n", "<leader>uw", "[U]I: toggle line [W]rap",          "<cmd>set wrap!<cr>" },
+  { "n", "<leader>cs", "[C]lear [S]earch highlights",       "<cmd>nohl<cr>" },
 
   -- Diagnostics
   { "n", "<leader>dl", "[D]iagnostics: open [L]ist",        diagnostic.open_float },

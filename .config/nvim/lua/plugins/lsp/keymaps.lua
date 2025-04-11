@@ -32,12 +32,14 @@ local keymaps = {
   -- Workspace
   { "n", "<leader>wa", "[W]orkspace [A]dd Folder",    lsp.buf.add_workspace_folder },
   { "n", "<leader>wr", "[W]orkspace [R]emove Folder", lsp.buf.remove_workspace_folder },
-  { "n", "<leader>wl", "[W]orkspace [L]ist Folders",  function() vim.print(lsp.buf.list_workspace_folders()) end },
+  { "n", "<leader>wl", "[W]orkspace [L]ist Folders",
+    function() vim.print(lsp.buf.list_workspace_folders()) end
+  },
 
   -- Code Actions
-  { "n", "<leader>rn", "[R]e[n]ame Symbol",           lsp.buf.rename },
-  { "n", "<leader>cf", "[C]ode [F]ormat",             lsp.buf.format },
-  { "n", "<leader>ca", "[C]ode [A]ctions",            lsp.buf.code_action },
+  { "n", "<leader>rn", "[R]e[n]ame Symbol", lsp.buf.rename },
+  { "n", "<leader>cf", "[C]ode [F]ormat",   lsp.buf.format },
+  { "n", "<leader>ca", "[C]ode [A]ctions",  lsp.buf.code_action },
   { "v", "<leader>ca", "Range [C]ode [A]ctions",
     function()
       lsp.buf.code_action({
@@ -55,6 +57,9 @@ local keymaps = {
   { "n", "<leader>li", "[L]SP [I]nfo",          "<cmd>LspInfo<cr>" },
   { "n", "<leader>lr", "[L]SP [R]estart",       "<cmd>LspRestart<cr>" },
   { "n", "<leader>cl", "Run [C]ode[L]ens",      lsp.codelens.run },
+  { "n", "<leader>uh", "[U]I: toggle inlay [H]int",
+    function() lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end
+  },
 }
 
 local client_specific = {
@@ -73,6 +78,10 @@ local client_specific = {
   },
   pyright = {
     { "n", "<leader>oi", "Python: [O]rganize [I]mports", "<cmd>PyrightOrganizeImports<cr>" },
+  },
+  clangd = {
+    { "n", "<leader>si", "C: show [S]ymbol [I]nfo",     "<cmd>ClangdShowSymbolInfo<cr>" },
+    { "n", "<leader>sh", "C: switch [S]ource/[H]eader", "<cmd>ClangdSwitchSourceHeader<cr>" },
   },
 }
 

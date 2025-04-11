@@ -54,6 +54,7 @@ return {
             i = {
               ["<ESC>"] = actions.close,
               ["<C-u>"] = false, -- Clear the prompt
+              ["<C-h>"] = "which_key",
             },
           },
           file_ignore_patterns = { "node_modules", ".git", ".cache", "%.o", "%.out", },
@@ -78,7 +79,7 @@ return {
         },
         extensions = {
           file_browser = {
-            dir_icon = "🗀",
+            dir_icon = "🖿",
             hijack_netrw = true,
             hidden = true,
             grouped = true,
