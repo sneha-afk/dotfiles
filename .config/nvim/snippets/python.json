@@ -2,11 +2,11 @@
   "Python main function": {
     "prefix": "mainfunc",
     "body": [
-      "def ${1:main()}:",
+      "def ${1:main}():",
       "\t$0",
       "",
       "if __name__ == '__main__':",
-      "\t${1:main()}"
+      "\t${1:main}()"
     ],
     "description": "Entry point for Python scripts"
   }

@@ -132,22 +132,12 @@ path_entries=(
     "$HOME/scripts"
 
     # Language/runtime paths
+    "$HOME/.local/share/nvim/mason/bin"     # LSPs installed through Mason
     /usr/local/go/bin
-    "$HOME/go/bin"
     "$HOME/gems/bin"
     /usr/share/texlive
     /opt/nvim-linux-x86_64/bin
-    "$HOME/.local/share/nvim/mason/bin"     # LSPs installed through Mason
 )
-
-if [[ -n "$WSL_DISTRO_NAME" || -n "$WSL_INTEROP" ]]; then
-    path_entries+=(
-        # WSL Windows paths (last to avoid conflicts + performance)
-        /mnt/c/Windows/System32
-        /mnt/c/Windows
-        /mnt/c/Windows/System32/Wbem
-    )
-fi
 
 # Join entries and remove any duplicate entries
 export PATH=$(printf "%s:" "${path_entries[@]}" | awk -v RS=: '!a[$0]++ {printf "%s%s",!NR++?"":":",$0}')
@@ -193,14 +183,20 @@ alias gl='git log --oneline'
 # WSL-Specific Utilities
 # ========================================================
 if [[ -n "$WSL_DISTRO_NAME" || -n "$WSL_INTEROP" ]]; then
+    WINDOWS_DIR="/mnt/c"
+    SYSTEM32_DIR="$WINDOWS_DIR/Windows/System32"
+    CMD_EXE="$SYSTEM32_DIR/cmd.exe"
+    ADOBE_ACROBAT_EXE="$WINDOWS_DIR/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe"
+    SUBLIME_TEXT_EXE="$WINDOWS_DIR/Program Files/Sublime Text/sublime_text.exe"
+
     # Open Windows Explorer
     explorer() {
         local win_path="${1:-$PWD}"
         win_path=$(wslpath -w "$win_path" 2>/dev/null) || {
-            echo "Invalid path: $win_path" >&2
+            echo "Invalid WSL path: $win_path" >&2
             return 1
         }
-        ( cmd.exe /c "explorer.exe $win_path" &>/dev/null & ) &&
+        ( "$CMD_EXE" /c "explorer.exe $win_path" &>/dev/null & ) &&
         echo "📂 Opening: ${win_path}"
     }
 
@@ -208,14 +204,17 @@ if [[ -n "$WSL_DISTRO_NAME" || -n "$WSL_INTEROP" ]]; then
     openpdf() {
         (( $# == 0 )) && { echo "Usage: openpdf <file.pdf>"; return 1; }
         local file_path
-        file_path=$(wslpath -w "$1" 2>/dev/null) || { echo "Invalid path: $1"; return 1; }
-        ( "/mnt/c/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe" "$file_path" &>/dev/null & ) &&
+        file_path=$(wslpath -w "$1" 2>/dev/null) || { 
+            echo "Invalid WSL path: $1" >&2
+            return 1 
+        }
+        ( "$ADOBE_ACROBAT_EXE" "$file_path" &>/dev/null & ) &&
         echo "🔖 Opened PDF: ${1##*/}"
     }
 
     # Open files/directories in Sublime Text
     subl() {
-        ( "/mnt/c/Program Files/Sublime Text/sublime_text.exe" "$@" &>/dev/null & ) &&
+        ( "$SUBLIME_TEXT_EXE" "$@" &>/dev/null & ) &&
         echo "✏️ Opened in Sublime: $@"
     }
 fi
@@ -286,6 +285,34 @@ genpass() {
     local length=${1:-16}
     < /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()_+' | head -c "$length"
     echo
+}
+
+# Verify SHA-256 checksum of a file
+# Usage: verify_sha256 <file> <expected_checksum>
+verify_checksum() {
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: verify_sha256 <file> <expected_checksum>"
+        return 1
+    fi
+
+    local file="$1"
+    if [[ ! -f "$file" ]]; then
+        echo "Error: File '$file' does not exist"
+        return 1
+    fi
+
+    local expected_checksum="$2"
+    actual_checksum=$(sha256sum "$file" | awk '{print $1}')
+
+    if [[ "$actual_checksum" = "$expected_checksum" ]]; then
+        echo "✅ Checksum verified: $file"
+        return 0
+    else
+        echo "❌ Checksum mismatch for: $file"
+        echo "   Expected: $expected_checksum"
+        echo "   Actual:   $actual_checksum"
+        return 1
+    fi
 }
 
 nvim_reset() {

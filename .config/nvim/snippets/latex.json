@@ -3,8 +3,8 @@
     "prefix": ["latex-basic-start"],
     "body": [
       "\\documentclass{article}",
-      "\\title{${1:Default Title}}",
-      "\\author{${2:Default Author}}",
+      "\\title{${1:Title}}",
+      "\\author{${2:Author}",
       "\\begin{document}",
       "\\maketitle",
       "$0",
@@ -25,12 +25,28 @@
   "LaTeX Minted Listing": {
     "prefix": ["latex-code-minted"],
     "body": [
+      "% Remember: \\usepackage[outputdir=build]{minted}",
       "\\begin{minted}[linenos,tabsize=2,breaklines]{${1:Language}}",
       "${2:Put code here...}",
       "$0",
       "\\end{minted}"
     ],
     "description": "Generates a simple LaTeX template"
+  },
+  "LaTeX Minted Settings": {
+    "prefix": "latex-minted-settings",
+    "body": [
+      "\\usepackage[outputdir=build]{minted}",
+      "\\usemintedstyle{trac}",
+      "\\setminted{",
+      "\tfontsize=\\fontsize{11pt}{11pt}\\selectfont,",
+      "\tautogobble=true,",
+      "\tbreaklines=true,",
+      "\tbreakanywhere=true,",
+      "\tframe=single,",
+      "\tlinenos,",
+      "}"
+    ]
   },
   "LaTeX Full Template": {
     "prefix": "latex-full-template",
@@ -58,7 +74,7 @@
       "",
       "",
       "\\title{${1:Title}}",
-      "\\author{${2:Sneha De}}",
+      "\\author{${2:Author}",
       "\\date{\\today}",
       "",
       "\\begin{document}",

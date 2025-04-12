@@ -15,6 +15,7 @@ return {
         desc = "[F]ile [E]xplorer"
       },
       { "<leader>ff", "<cmd>Telescope find_files<cr>",           desc = "[F]ind [F]iles" },
+      { "<leader>fG", "<cmd>Telescope git_files<cr>",            desc = "[F]ind [G]it files" },
       { "<leader>fg", "<cmd>Telescope live_grep<cr>",            desc = "[F]ind by [G]rep" },
       { "<leader>fh", "<cmd>Telescope help_tags<cr>",            desc = "[F]ind [H]elp Tags" },
       { "<leader>fr", "<cmd>Telescope oldfiles<cr>",             desc = "[F]ind [R]ecent files" },

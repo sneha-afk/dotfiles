@@ -69,12 +69,21 @@ nnoremap <leader> :echoerr "Unmapped leader key"<CR>
 nnoremap <leader>q :q<CR>
 nnoremap <leader>w :w<CR>
 nnoremap <leader>x :wq<CR>
+nnoremap <leader>Q :qa<CR>   " Quit all windows
+
+" WINDOW MANAGEMENT
+nnoremap <C-h> <C-w>h                        " Move to left window
+nnoremap <C-j> <C-w>j                        " Move to below window
+nnoremap <C-k> <C-w>k                        " Move to above window
+nnoremap <C-l> <C-w>l                        " Move to right window
+nnoremap <leader>vs :vsplit<CR>              " [V]ertical [S]plit
+nnoremap <leader>hs :split<CR>               " [H]orizontal [S]plit
 
 " BUFFER NAVIGATION
 " Lists all buffers and prompts
 nnoremap <leader>bl :ls<CR>:buffer<Space>
-nnoremap <leader>bn :bnext<CR>                  " Next buffer
-nnoremap <leader>bp :bprevious<CR>              " Previous buffer
+nnoremap ]b :bnext<CR>                          " Next buffer
+nnoremap [b :bprevious<CR>                      " Previous buffer
 nnoremap <leader>bd :bdelete<CR>                " Delete current buffer
 nnoremap <leader>ba :ball<CR>                   " Open all buffers in splits
 
@@ -82,6 +91,32 @@ nnoremap <leader>ba :ball<CR>                   " Open all buffers in splits
 for i in range(1, 9)
   execute 'nnoremap <leader>' . i . ' :' . i . 'buffer<CR>'
 endfor
+
+" TAB OPERATIONS
+nnoremap <leader>tn :tabnew<CR>              " [T]ab: [N]ew
+nnoremap <leader>tc :tabclose<CR>            " [T]ab: [C]lose current
+nnoremap <leader>to :tabonly<CR>             " [T]ab: close all [O]thers
+nnoremap ]t :tabnext<CR>                     " Go to next tab
+nnoremap [t :tabprevious<CR>                 " Go to previous tab
+nnoremap <leader>tm :tabmove<CR>             " [T]ab: [M]ove current to last
+nnoremap <leader>tl :tablast<CR>             " [T]ab: jump to [L]ast open
+nnoremap <leader>t1 1gt                      " [T]ab: go to [1]
+nnoremap <leader>t2 2gt                      " [T]ab: go to [2]
+nnoremap <leader>t3 3gt                      " [T]ab: go to [3]
+nnoremap <leader>t4 4gt                      " [T]ab: go to [4]
+
+" TERMINAL OPERATIONS
+tnoremap <Esc> <C-\><C-n>                    " Exit terminal mode
+tnoremap <C-w>h <C-\><C-n><C-w>h             " Move left from terminal
+tnoremap <C-w>j <C-\><C-n><C-w>j             " Move down from terminal
+tnoremap <C-w>k <C-\><C-n><C-w>k             " Move up from terminal
+tnoremap <C-w>l <C-\><C-n><C-w>l             " Move right from terminal
+tnoremap <C-w>q <C-\><C-n>:q<CR>             " Close terminal
+tnoremap <C-j> <C-\><C-n><C-d>               " Half page down
+tnoremap <C-k> <C-\><C-n><C-u>               " Half page up
+" Horizontal and vertical splits
+nnoremap <leader>ht :terminal<CR>
+nnoremap <leader>vt :terminal<Esc><C-w>L
 
 " FILE EXPLORER
 if IsPluginAvailable('nerdtree')
@@ -345,4 +380,7 @@ if has('win32') || has('win64')
 
     command! Term call SetPowerShell() | term
     command! VTerm call SetPowerShell() | vertical terminal
+
+    nnoremap <leader>Ht :Term<CR>
+    nnoremap <leader>Vt :VTerm<CR>
 endif

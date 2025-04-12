@@ -10,4 +10,9 @@ return {
       vim.cmd.colorscheme("kanagawa-paper-ink")
     end,
   },
+  {
+    "AlexvZyl/nordic.nvim",
+    lazy = true,
+    opts = {},
+  },
 }

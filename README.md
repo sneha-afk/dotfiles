@@ -12,12 +12,12 @@ ln -sf "$(pwd)/.bashrc" "$HOME/.bashrc"
 
 And for Powershell:
 ```powershell
-New-Item -ItemType SymbolicLink
-    -Path  $PROFILE
+New-Item -ItemType SymbolicLink `
+    -Path  $PROFILE `
     -Target "path\dotfiles\Microsoft.PowerShell_profile.ps1"
 
-New-Item -ItemType SymbolicLink
-    -Path "$HOME\_vimrc"
+New-Item -ItemType SymbolicLink `
+    -Path "$HOME\_vimrc" `
     -Target "path\dotfiles\.vimrc"
 ```
 

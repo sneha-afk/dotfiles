@@ -104,9 +104,33 @@ return {
         completion = cmp.config.window.bordered(),
         documentation = cmp.config.window.bordered(),
       },
+      experimental = {
+        ghost_text = true,
+      },
       performance = {
-        max_view_entries = 15,
+        debounce = 30,                 -- How long to wait after typing stops
+        throttle = 40,                 -- How often to update while typing
+        fetching_timeout = 500,        -- Timeout for slower sources
+        filtering_context_budget = 60, -- Time allowed for cmp before control goes back to nvim
+        confirm_resolve_timeout = 100, -- Time for resolving item before completion
+        async_budget = 15,             -- Time async func can run during one step of event loop
+        max_view_entries = 20,         -- How many entries to disiplay in cmp menu
       }
     }
   end,
+  config = function(_, opts)
+    local cmp = require("cmp")
+    cmp.setup(opts)
+
+    local toggle_ghost_text = function()
+      local cmp_config = cmp.get_config()
+      cmp_config.experimental.ghost_text = not cmp_config.experimental.ghost_text
+      cmp.setup(cmp_config)
+      vim.notify(
+        "Ghost text: " .. (cmp_config.experimental.ghost_text and "enabled" or "disabled"),
+        vim.log.levels.INFO
+      )
+    end
+    vim.keymap.set("n", "<leader>ug", toggle_ghost_text, { desc = '[U]I: toggle [G]host text' })
+  end
 }

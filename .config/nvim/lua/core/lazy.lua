@@ -62,11 +62,7 @@ require("lazy").setup({
     notify = false, -- Disable "plugins modified" alerts
   },
   performance = {
-    cache = {
-      enabled = true,
-      path = vim.fn.stdpath("cache") .. "/lazy/cache",
-      reset_on_startup = vim.fn.has("nvim-0.9.0") == 1 -- Auto-clear after Neovim updates
-    },
+    cache = { enabled = true, },
     rtp = {
       disabled_plugins = {
         "gzip",        -- Built-in compression (unneeded with modern SSDs)
