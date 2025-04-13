@@ -1,0 +1,13 @@
+\.git
+\.gitmodules
+\.gitignore
+
+^/README.*
+^/LICENSE.*
+^/COPYING
+
+\.swp$
+\.swo$
+\~$
+
+Microsoft\.PowerShell_profile\.ps1

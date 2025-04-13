@@ -1,13 +1,17 @@
 # dotfiles
 
 ## Setup
-After cloning the repo, setting up symlinks in the home directory can be done for ease:
-
+Using GNU `stow` at the root of this repo:
 ```bash
-# Run from the repository root
-ln -sf "$(pwd)/.config/nvim" "$HOME/.config/nvim"
-ln -sf "$(pwd)/.vimrc" "$HOME/.vimrc"
-ln -sf "$(pwd)/.bashrc" "$HOME/.bashrc"
+make
+# `make delete` to remove all 
+```
+
+Manually setting up symlinks:
+```bash
+ln -sf "$(pwd)/dot-config/nvim" "$HOME/.config/nvim"
+ln -sf "$(pwd)/dot-vim/.vimrc" "$HOME/.vimrc"
+ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 ```
 
 And for Powershell:

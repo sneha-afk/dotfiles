@@ -89,6 +89,7 @@ fi
 # Listing aliases
 alias ll='ls -alF'     # Long format, show all except .
 alias la='ls -A'       # Show all except . and ..
+alias l1="la -1"       # Show all in vertical form
 alias l='ls -CF'       # Column format, classify files
 
 # Navigation alias
@@ -204,9 +205,9 @@ if [[ -n "$WSL_DISTRO_NAME" || -n "$WSL_INTEROP" ]]; then
     openpdf() {
         (( $# == 0 )) && { echo "Usage: openpdf <file.pdf>"; return 1; }
         local file_path
-        file_path=$(wslpath -w "$1" 2>/dev/null) || { 
+        file_path=$(wslpath -w "$1" 2>/dev/null) || {
             echo "Invalid WSL path: $1" >&2
-            return 1 
+            return 1
         }
         ( "$ADOBE_ACROBAT_EXE" "$file_path" &>/dev/null & ) &&
         echo "🔖 Opened PDF: ${1##*/}"
@@ -314,6 +315,8 @@ verify_checksum() {
         return 1
     fi
 }
+
+alias nvim_goto_config="cd ~/.config/nvim/"
 
 nvim_reset() {
     rm -rf ~/.local/share/nvim/
