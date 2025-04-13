@@ -55,15 +55,21 @@ return {
       local lspconfig = require("lspconfig")
       local shared_configs = require("plugins.lsp.config")
       local server_overrides = require("plugins.lsp.server_configs")
+      local nvim_new_lsp_setup = vim.fn.has("nvim-0.11") == 1
 
       -- Pass overrides from default configurations
       for server_name, overrides in pairs(server_overrides) do
-        lspconfig[server_name].setup(
-          vim.tbl_deep_extend("force",
-            shared_configs, -- Shared configuration
-            overrides       -- Server-specific overrides
-          )
+        local combined_config = vim.tbl_deep_extend("force",
+          shared_configs, -- Shared configuration
+          overrides       -- Server-specific overrides
         )
+
+        if nvim_new_lsp_setup then
+          vim.lsp.enable(server_name)
+          vim.lsp.config(server_name, combined_config)
+        else
+          lspconfig[server_name].setup(combined_config)
+        end
       end
     end
   },
