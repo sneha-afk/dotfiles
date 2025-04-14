@@ -10,14 +10,15 @@ local always_format = {
   gopls = true,
 }
 
--- Return overrides of vim.lsp.ClientConfig
-return {
-  -- Occurs on the LspAttach event
-  on_attach = function(client, bufnr)
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local bufnr = args.buf
+    local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+
     require("plugins.lsp.keymaps")(client, bufnr)
 
     if (auto_format_on_save or always_format[client.name])
-        and client.supports_method("textDocument/formatting") then
+        and client:supports_method("textDocument/formatting", bufnr) then
       vim.api.nvim_create_autocmd("BufWritePre", {
         buffer = bufnr,
         callback = function() vim.lsp.buf.format({ async = false }) end,
@@ -25,8 +26,27 @@ return {
     end
 
     vim.lsp.inlay_hint.enable()
+  end
+})
+
+-- Taken from https://neovim.io/doc/user/lsp.html#LspDetach
+vim.api.nvim_create_autocmd('LspDetach', {
+  callback = function(args)
+    local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+    -- Remove the autocommand to format the buffer on save, if it exists
+    if client:supports_method('textDocument/formatting') then
+      vim.api.nvim_clear_autocmds({
+        event = 'BufWritePre',
+        buffer = args.buf,
+      })
+    end
   end,
+})
+
+-- Return overrides of vim.lsp.ClientConfig
+return {
   capabilities = require("cmp_nvim_lsp").default_capabilities(),
+  root_markers = { ".git" },
   settings = {
     telemetry = { enable = false },
     completions = {

@@ -184,11 +184,17 @@ alias gl='git log --oneline'
 # WSL-Specific Utilities
 # ========================================================
 if [[ -n "$WSL_DISTRO_NAME" || -n "$WSL_INTEROP" ]]; then
+    export PATH="$PATH:/mnt/c/Program Files/Microsoft VS Code/bin"
+
     WINDOWS_DIR="/mnt/c"
     SYSTEM32_DIR="$WINDOWS_DIR/Windows/System32"
     CMD_EXE="$SYSTEM32_DIR/cmd.exe"
     ADOBE_ACROBAT_EXE="$WINDOWS_DIR/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe"
     SUBLIME_TEXT_EXE="$WINDOWS_DIR/Program Files/Sublime Text/sublime_text.exe"
+
+    alias wincdrive="cd $WINDOWS_DIR"
+    alias wincmd="cd $CMD_EXE"
+    alias winhome="cd $WINDOWS_DIR/Users/"
 
     # Open Windows Explorer
     explorer() {

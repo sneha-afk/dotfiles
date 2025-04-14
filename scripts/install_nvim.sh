@@ -27,3 +27,7 @@ sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
 rm -f nvim-linux-x86_64.tar.gz
 
 echo "> Neovim installed successfully!"
+
+echo "> Optional helpful utilities: xclip and ripgrep"
+
+sudo apt-get install xclip ripgrep
