@@ -19,6 +19,7 @@ sudo apt-get install -y \
     texlive-bibtex-extra \
     texlive-pictures \
     texlive-science \
+    texlive-xetex \
     latexmk \
     python3-pygments
 

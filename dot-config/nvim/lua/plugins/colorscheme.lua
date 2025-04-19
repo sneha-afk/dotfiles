@@ -2,10 +2,21 @@
 
 return {
   {
-    "thesimonho/kanagawa-paper.nvim",
-    event = "UIEnter",
+    "comfysage/aki",
+    lazy = false,
     priority = 1000,
-    opts = {},
+    opts = {
+      contrast_dark = true,
+      override_terminal = true,
+    },
+    config = function(_, opts)
+      require("aki").setup(opts)
+      vim.cmd.colorscheme("aki")
+    end
+  },
+  {
+    "thesimonho/kanagawa-paper.nvim",
+    lazy = true,
     config = function()
       vim.cmd.colorscheme("kanagawa-paper-ink")
     end,
@@ -13,6 +24,12 @@ return {
   {
     "AlexvZyl/nordic.nvim",
     lazy = true,
-    opts = {},
+    opts = {
+      swap_backgrounds = true,
+    },
+    config = function(_, opts)
+      require("nordic").setup(opts)
+      vim.cmd.colorscheme("nordic")
+    end
   },
 }

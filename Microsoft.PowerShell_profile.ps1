@@ -9,31 +9,6 @@ Set-Alias ll Get-ChildItem
 Set-Alias which Get-Command
 
 # ==============================
-# Custom Prompt
-# ==============================
-function prompt {
-    $dir = (Get-Item -Path .).Name
-    $branch = git branch --show-current 2>$null
-
-    $Reset  = "$([char]0x1b)[0m"
-    $Bold   = "$([char]0x1b)[1m"
-    $Blue   = "$([char]0x1b)[34m"
-    $Green  = "$([char]0x1b)[32m"
-    $Yellow = "$([char]0x1b)[33m"
-    $Gray   = "$([char]0x1b)[90m"
-
-    $user_host = "$Blue$env:USERNAME@$env:COMPUTERNAME$Reset"
-    $dir_part = "$Gray[$Green$dir$Gray"
-
-    if ($branch) {
-        $dir_part += " $Gray($Yellow$branch$Gray)"
-    }
-    $dir_part += "]$Reset"
-
-    "$Bold$user_host $dir_part`nPS $ $Reset"
-}
-
-# ==============================
 # Custom Functions
 # ==============================
 function home {
@@ -43,6 +18,64 @@ function home {
 function Reload-Profile {
     . $PROFILE
     Write-Host "Profile reloaded." -ForegroundColor Green
+}
+
+# ==============================
+# Prompt
+# ==============================
+function Get-GitStatusForPrompt {
+    # Fast path: return immediately if not in a git repo
+    if (-not (Test-Path .git) -and 
+        -not (git rev-parse --is-inside-work-tree 2>$null)) {
+        return $null
+    }
+
+    try {
+        # Get branch name
+        $branch = git symbolic-ref --short HEAD 2>$null
+        if (-not $branch) { return $null }
+
+        # Check repo status with one git command
+        $statusFlags = git status --porcelain 2>$null | Select-Object -First 1
+        
+        # Add indicator if dirty
+        $status = ""
+        if ($statusFlags) { $status = " *" }
+        
+        return "$branch$status"
+    }
+    catch {
+        return $null
+    }
+}
+
+function prompt {
+    $dir = (Get-Item -Path .).Name
+    $gitInfo = Get-GitStatusForPrompt
+    
+    $Reset  = "$([char]0x1b)[0m"
+    $Bold   = "$([char]0x1b)[1m"
+    $Blue   = "$([char]0x1b)[34m"
+    $Green  = "$([char]0x1b)[32m"
+    $Yellow = "$([char]0x1b)[33m"
+    $Gray   = "$([char]0x1b)[90m"
+    $Red    = "$([char]0x1b)[31m"
+
+    $user_host = "$Blue$env:USERNAME@$env:COMPUTERNAME$Reset"
+    $dir_part = "$Gray[$Green$dir$Gray"
+
+    if ($gitInfo) {
+        # Extract branch and status
+        if ($gitInfo.Contains("*")) {
+            $branch = $gitInfo.Replace(" *", "")
+            $dir_part += " $Gray($Yellow$branch$Red*$Gray)"
+        } else {
+            $dir_part += " $Gray($Yellow$gitInfo$Gray)"
+        }
+    }
+    $dir_part += "]$Reset"
+
+    "$Bold$user_host $dir_part`nPS $ $Reset"
 }
 
 # ==============================

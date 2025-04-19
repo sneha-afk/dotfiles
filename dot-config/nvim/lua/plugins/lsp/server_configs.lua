@@ -3,6 +3,7 @@
 
 -- Server name = { table of configurations }, or empty if using defaults
 -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
+---@type table<string, vim.lsp.Config>
 return {
   pyright = {
     settings = {

@@ -1,11 +1,4 @@
 -- .config/nvim/lua/plugins/lsp/init.lua
--- Initialization of the LSP configuration with Mason, completes, and nvim-lspconfig
-
--- What to install through Mason
-local servers_to_install = { "lua_ls", }
-
--- Language files that LSPs should be enabled for (reduces startup for non-LSP configured files)
-local lsp_languages = { "lua", "sh", "bash", "zsh", "c", "cpp", "h", "hpp", "python", "go", }
 
 return {
   -- Mason configuration (LSP installer)
@@ -32,22 +25,17 @@ return {
   -- Mason-LSPConfig bridge
   {
     "williamboman/mason-lspconfig.nvim",
-    ft = lsp_languages,
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      -- Servers to be installed through Mason, see top of file
-      ensure_installed = servers_to_install or {},
-
-      -- Will not automatically install configured servers to allow using global installs
-      automatic_installation = false,
+      ensure_installed = { "lua_ls", }
     },
   },
 
   -- LSP configurations: both externally installed and from Mason
   {
     "neovim/nvim-lspconfig",
-    ft = lsp_languages,
-    cmd = { "LspInfo" },
+    event = { "BufReadPre", "BufNewFile" },
+    cmd = { "LspInfo", "LspInstall", "LspUninstall" },
     dependencies = {
       "williamboman/mason-lspconfig.nvim",
     },
@@ -59,14 +47,12 @@ return {
       local nvim_new_lsp_setup = vim.fn.has("nvim-0.11") == 1
       if nvim_new_lsp_setup then
         vim.lsp.config("*", shared_configs)
-        vim.lsp.enable(vim.tbl_keys(server_overrides))
-      end
-
-      -- Pass overrides from default configurations
-      for server_name, overrides in pairs(server_overrides) do
-        if nvim_new_lsp_setup then
+        for server_name, overrides in pairs(server_overrides) do
           vim.lsp.config(server_name, overrides)
-        else
+        end
+        vim.lsp.enable(vim.tbl_keys(server_overrides))
+      else
+        for server_name, overrides in pairs(server_overrides) do
           lspconfig[server_name].setup(vim.tbl_deep_extend("force", shared_configs, overrides))
         end
       end
