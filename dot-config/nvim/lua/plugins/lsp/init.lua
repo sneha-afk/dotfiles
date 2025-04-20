@@ -5,6 +5,7 @@ return {
   -- Installed to "$HOME/.local/share/nvim/mason/bin"
   {
     "williamboman/mason.nvim",
+    lazy = true,
     cmd = { "Mason", "MasonInstall", "MasonUpdate" },
     build = ":MasonUpdate",
     keys = {
@@ -22,30 +23,27 @@ return {
     },
   },
 
-  -- Mason-LSPConfig bridge
-  {
-    "williamboman/mason-lspconfig.nvim",
-    dependencies = { "williamboman/mason.nvim" },
-    opts = {
-      ensure_installed = { "lua_ls", }
-    },
-  },
-
   -- LSP configurations: both externally installed and from Mason
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
-    cmd = { "LspInfo", "LspInstall", "LspUninstall" },
+    event = { "BufReadPost", "BufNewFile", "VeryLazy" },
+    cmd = { "LspInfo", "LspRestart" },
     dependencies = {
-      "williamboman/mason-lspconfig.nvim",
+      {
+        -- Mason-LSPConfig bridge
+        "williamboman/mason-lspconfig.nvim",
+        cmd = { "LspInstall", "LspUninstall" },
+        dependencies = { "williamboman/mason.nvim" },
+        opts = {},
+      },
+      "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
       local lspconfig = require("lspconfig")
       local shared_configs = require("plugins.lsp.config")
       local server_overrides = require("plugins.lsp.server_configs")
 
-      local nvim_new_lsp_setup = vim.fn.has("nvim-0.11") == 1
-      if nvim_new_lsp_setup then
+      if vim.fn.has("nvim-0.11") == 1 then
         vim.lsp.config("*", shared_configs)
         for server_name, overrides in pairs(server_overrides) do
           vim.lsp.config(server_name, overrides)

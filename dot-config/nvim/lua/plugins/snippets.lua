@@ -20,7 +20,7 @@ return {
       paths = {
         vim.fn.stdpath("data") .. "/lazy/friendly-snippets", -- Built-in vscode-style snippets
         vim.fn.stdpath("config") .. "/snippets",             -- Personal snippets in .config/nvim/snippets
-        vim.uv.cwd() .. "/.nvim/snippets"                    -- Project-specific snippets
+        (vim.uv or vim.loop).cwd() .. "/.nvim/snippets"      -- Project-specific snippets
       }
     })
   end

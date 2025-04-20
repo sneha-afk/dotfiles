@@ -41,6 +41,10 @@ return {
         enabled = true,
         animate = { enabled = false },
       },
+      input = {
+        enabled = true,
+        icon = "> ",
+      },
       statuscolumn = {
         enabled = true,
         fold = { open = true },
@@ -52,13 +56,29 @@ return {
           disabled = "○",
         },
         which_key = true,
-      }
+      },
+      zen = {
+        enabled = true,
+        on_open = function(win)
+          vim.cmd("set nu!")
+        end,
+      },
+      styles = {
+        input = {
+          position = "float",
+        },
+        zen = {
+          width = 0.6,
+          backdrop = { transparent = true, blend = 20 },
+        },
+      },
     },
     init = function()
       vim.api.nvim_create_autocmd("User", {
         pattern = "VeryLazy",
         callback = function()
           Snacks.toggle.indent():map("<leader>ui")
+          Snacks.toggle.zen():map("<leader>z")
         end,
       })
     end,

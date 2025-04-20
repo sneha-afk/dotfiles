@@ -14,6 +14,7 @@ local float_ui = {
 -- Format for keymaps: { mode = "n", key=, desc=, action=}
 -- Action can be a Lua function, function reference, or string
 -- Some of these are already defaults, but overwritten to change their description
+---@type Keymap[]
 local keymaps = {
   -- Navigation
   { "n", "gd",         "[G]oto [d]efinition",         lsp.buf.definition },

@@ -3,7 +3,7 @@
 Upon opening for the first time, you will be prompted on whether to install Lazy.nvim and the plugins
 listed in `plugins/`.
 
-Helpers defined in [`.bashrc`](/.bashrc):
+Helpers defined in [`.bashrc`](/dot-bash/.bashrc):
 1. `nvim_size`: size of entire configuration + LSPs installed through Mason
 2. `nvim_reset`: deletes setup (configuration files kept)
 3. `nvim_dump_swap`: delete swap files
@@ -34,6 +34,7 @@ Helpers defined in [`.bashrc`](/.bashrc):
 │       ├── startup.lua
 │       ├── statusline.lua
 │       ├── telescope.lua
+│       ├── treesitter.lua
 │       └── ui.lua
 └── snippets/
 ```
@@ -47,9 +48,7 @@ Helpers defined in [`.bashrc`](/.bashrc):
 | `core/keymaps.lua` | Global keybindings and mappings |
 
 #### LSP Configuration
-To set up a new LSP server:
-1. List it in `server_configs.lua` with at least `name = {}` to use default configurations provided by `nvim-lspconfig`.
-2. Add the filetype supported to the `lsp_languages` table at the top of `lsp/init.lua`
+To set up a new LSP server, list it in `server_configs.lua` with at least `name = {}` to use default configurations provided by `nvim-lspconfig`.
 
 | File | Purpose |
 |------|---------|

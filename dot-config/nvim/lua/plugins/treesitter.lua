@@ -2,23 +2,33 @@
 
 return {
   {
-    "nvim-treesitter/nvim-treesitter-textobjects",
-    lazy = true,
-  },
-  {
     "nvim-treesitter/nvim-treesitter",
-    event = { "BufReadPost", "BufNewFile" },
+    event = { "BufReadPre", "BufNewFile", "VeryLazy" },
+    cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     build = ":TSUpdate",
     dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
+      { "nvim-treesitter/nvim-treesitter-textobjects", event = "VeryLazy" },
     },
     opts = {
       ensure_installed = {
         "c", "cpp", "lua", "go", "python",
       },
       sync_install = false,
-      highlight = { enable = true },
-      indent = { enable = true },
+      highlight = {
+        enable = true,
+        additional_vim_regex_highlighting = false,
+        disable = function(lang, buf)
+          local max_filesize = 100 * 1024 -- 100 KB
+          local ok, stats = pcall((vim.uv or vim.loop).fs_stat, vim.api.nvim_buf_get_name(buf))
+          if ok and stats and stats.size > max_filesize then
+            return true
+          end
+        end,
+      },
+      indent = {
+        enable = true,
+        disable = { "python", "yaml" },
+      },
       textobjects = {
         select = {
           enable = true,
@@ -28,6 +38,20 @@ return {
             ["if"] = { query = "@function.inner", desc = "Select inner part of a function" },
             ["ac"] = { query = "@class.outer", desc = "Select outer part of a class" },
             ["ic"] = { query = "@class.inner", desc = "Select inner part of a class" },
+            ["aa"] = { query = "@parameter.outer", desc = "Select outer part of a parameter/argument" },
+            ["ia"] = { query = "@parameter.inner", desc = "Select inner part of a parameter/argument" },
+            ["ab"] = { query = "@block.outer", desc = "Select outer part of a block" },
+            ["ib"] = { query = "@block.inner", desc = "Select inner part of a block" },
+            ["al"] = { query = "@loop.outer", desc = "Select outer part of a loop" },
+            ["il"] = { query = "@loop.inner", desc = "Select inner part of a loop" },
+            ["ai"] = { query = "@conditional.outer", desc = "Select outer part of a conditional" },
+            ["ii"] = { query = "@conditional.inner", desc = "Select inner part of a conditional" },
+            ["as"] = { query = "@statement.outer", desc = "Select outer part of a statement" },
+            ["is"] = { query = "@statement.inner", desc = "Select inner part of a statement" },
+            ["am"] = { query = "@call.outer", desc = "Select outer part of a function call" },
+            ["im"] = { query = "@call.inner", desc = "Select inner part of a function call" },
+            ["ad"] = { query = "@comment.outer", desc = "Select outer part of a comment" },
+            ["id"] = { query = "@comment.inner", desc = "Select inner part of a comment" },
           },
         },
         move = {
@@ -54,8 +78,6 @@ return {
     },
     config = function(_, opts)
       require("nvim-treesitter.configs").setup(opts)
-
-      vim.api.nvim_command("syntax off")
     end,
   },
 }

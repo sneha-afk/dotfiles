@@ -1,128 +1,142 @@
-// Modified version of: https://github.com/fastfetch-cli/fastfetch/blob/dev/presets/examples/26.jsonc
-
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": {
-    "type": "small",
-    "padding": {
-      "top": 2
-    }
+    "type": "small"
   },
   "display": {
-    "separator": "",
-    "constants": [
-      "\u001b[90m│                                                             \u001b[60D\u001b[39m"
-    ]
+    "separator": "\t",
+    "key": {
+      "width": 12
+    },
+    "bar": {
+      "charElapsed": "=",
+      "charTotal": "-",
+      "width": 10
+    },
+    "percent": {
+      "type": 3
+    },
+    "size": {
+      "binaryPrefix": "si"
+    }
   },
   "modules": [
-    // CUSTOM - Top UI bar
+    {
+      "type": "title",
+      "color": {
+        "user": "green",
+        "at": "red",
+        "host": "green"
+      }
+    },
+
+    "break",
+
     {
       "type": "custom",
-      "key": "{#90}╭ Keys ───────╮",
-      "format": "{#90}╭ Values ──────────────────────────────────────────────────────"
-    },
-    {
-      "type": "title",
-      "key": "{#90}│ {#92}User        {#90}│",
-      "format": "{$1}{user-name}  {#2}[{home-dir}]"
-    },
-    {
-      "type": "datetime",
-      "key": "{#90}│ {#92}Datetime    {#90}│",
-      "format": "{$1}{year}-{month-pretty}-{day-in-month} {hour-pretty}:{minute-pretty}:{second-pretty}  {#2}[{weekday}] [W{week}] [UTC{offset-from-utc}]"
-    },
-    {
-      "type": "title",
-      "key": "{#90}│ {#93}Host        {#90}│",
-      "format": "{$1}{host-name}"
+      "key": "SYSTEM",
+      "keyColor": "yellow"
     },
     {
       "type": "host",
-      "key": "{#90}│ {#93}Machine     {#90}│",
-      "format": "{$1}{name}  {#2}{version}"
+      "format": "{name}  {#2}{version}",
+      "key": "├─Host",
+      "keyColor": "yellow"
     },
     {
       "type": "os",
-      "key": "{#90}│ {#93}OS          {#90}│",
-      "format": "{$1}{?pretty-name}{pretty-name}{?}{/pretty-name}{name}{/} {codename}  {#2}[v{version}] [{arch}]"
+      "format": "{pretty-name}  {#2}{?version}[v{version}] {arch}",
+      "key": "├─OS",
+      "keyColor": "yellow"
     },
     {
       "type": "kernel",
-      "key": "{#90}│ {#93}Kernel      {#90}│",
-      "format": "{$1}{sysname}  {#2}[v{release}]"
+      "format": "{sysname}  {#2}[v{release}]",
+      "key": "├─Kernel",
+      "keyColor": "yellow"
     },
     {
-      "type": "uptime",
-      "key": "{#90}│ {#93}Uptime      {#90}│",
-      "format": "{$1}{?days}{days} Days + {?}{hours}:{minutes}:{seconds}"
-    },
-    {
-      "type": "cpu",
-      "key": "{#90}│ {#91}CPU         {#90}│",
-      "showPeCoreCount": true,
-      "temp": true,
-      "format": "{$1}{name}  {#2}[C:{core-types}] [{freq-max}]"
-    },
-    {
-      "type": "gpu",
-      "key": "{#90}│ {#91}GPU         {#90}│",
-      "detectionMethod": "auto",
-      "driverSpecific": true,
-      "format": "{$1}{name}  {#2}[C:{core-count}]{?frequency} [{frequency}]{?} {#2}[{type}]"
-    },
-    {
-      "type": "memory",
-      "key": "{#90}│ {#91}Memory      {#90}│",
-      "format": "{$1}{used} / {total} ({percentage})"
-    },
-    {
-      "type": "disk",
-      "key": "{#90}│ {#91}Disk        {#90}│",
-      "format": "{$1}{size-used} / {size-total} ({size-percentage})"
-    },
-    {
-      "type": "poweradapter",
-      "key": "{#90}│ {#91}Power       {#90}│",
-      "format": "{$1}{name}"
-    },
-    {
-      "type": "terminal",
-      "key": "{#90}│ {#95}Terminal    {#90}│",
-      "format": "{$1}{pretty-name}  {#2}[{version}]"
-    },
-    {
-      "type": "terminalfont",
-      "key": "{#90}│ {#95}Font        {#90}│",
-      "format": "{$1}{name}  {#2}[Size: {size}]"
+      "type": "packages",
+      "key": "├─Packages",
+      "keyColor": "yellow"
     },
     {
       "type": "shell",
-      "key": "{#90}│ {#95}Shell       {#90}│",
-      "format": "{$1}{pretty-name}  {#2}[v{version}]"
+      "format": "{pretty-name}  {#2}{?version}[v{version}]",
+      "key": "├─Shell",
+      "keyColor": "yellow"
     },
-    // CUSTOM - Button UI bar
     {
-      "type": "custom",
-      "key": "{#90}╰─────────────╯",
-      "format": "{#90}╰───────────"
+      "type": "uptime",
+      "key": "└─Uptime",
+      "keyColor": "yellow"
     },
+
     "break",
+
     {
       "type": "custom",
-      "key": " ",
-      "format": "{#90}╭ Colors ───────────────────────────────────────────────────────────────────╮"
+      "key": "SOFTWARE",
+      "keyColor": "blue"
     },
     {
-      "type": "custom",
-      "format": "{#90}│ {#40}    {#41}    {#42}    {#43}    {#44}    {#45}    {#46}    {#47}    {#}                                          {#90}│"
+      "type": "editor",
+      "key": "├─Editor",
+      "keyColor": "blue"
     },
     {
-      "type": "custom",
-      "format": "{#90}│ {#100}    {#101}    {#102}    {#103}    {#104}    {#105}    {#106}    {#107}    {#}                                          {#90}│"
+      "type": "terminal",
+      "format": "{pretty-name}  {#2}{?version}[v{version}]",
+      "key": "├─Terminal",
+      "keyColor": "blue"
     },
     {
+      "type": "terminalfont",
+      "format": "{name}  {#2}[{size}]",
+      "key": "├─Font",
+      "keyColor": "blue"
+    },
+    {
+      "type": "wm",
+      "format": "{pretty-name}  {#2}{?version}[v{version}]",
+      "key": "└─DE/WM",
+      "keyColor": "blue"
+    },
+
+    "break",
+
+    {
       "type": "custom",
-      "format": "{#90}╰───────────────────────────────────────────────────────────────────────────╯"
+      "key": "HARDWARE",
+      "keyColor": "green"
+    },
+    {
+      "type": "cpu",
+      "key": "├─CPU",
+      "keyColor": "green"
+    },
+    {
+      "type": "gpu",
+      "format": "{name}  {#2}[{type}]",
+      "key": "├─GPU",
+      "keyColor": "green"
+    },
+    {
+      "type": "disk",
+      "key": "├─Disk",
+      "keyColor": "green"
+    },
+    {
+      "type": "memory",
+      "key": "└─Memory",
+      "keyColor": "green"
+    },
+
+    "break",
+
+    {
+      "type": "colors",
+      "symbol": "background"
     }
   ]
 }

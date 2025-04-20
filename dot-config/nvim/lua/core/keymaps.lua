@@ -5,6 +5,15 @@ local diagnostic = vim.diagnostic
 
 -- Format for keymaps: { mode = "n", key=, desc=, action=}
 -- Action can be a Lua function, function reference, or string
+---@alias KeymapAction string|fun():nil|fun(...):any
+
+---@class Keymap
+---@field [1] string|string[]   -- Mode: e.g. "n", "i", or {"n", "v"}
+---@field [2] string            -- Key combination (e.g. "<leader>f")
+---@field [3] string            -- Description for which-key
+---@field [4] KeymapAction      -- Function, string command, or Lua expression
+
+---@type Keymap[]
 local keymaps = {
   -- Terminal operations
   { "n", "<leader>ht", "[H]orizontal [T]erminal",           "<cmd>split | term<cr>i" },

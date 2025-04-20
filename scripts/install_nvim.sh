@@ -3,8 +3,10 @@
 # Exit on error
 set -e
 
+WHICH_TO_DOWNLOAD="https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz"
+
 echo "> Downloading Neovim..."
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+curl -LO $WHICH_TO_DOWNLOAD
 
 echo "----------------------------------------"
 echo " Get the official SHA256 checksum from:"
@@ -25,6 +27,9 @@ echo "> Installing Neovim to /opt/nvim..."
 sudo rm -rf /opt/nvim*
 sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
 rm -f nvim-linux-x86_64.tar.gz
+
+sudo rm -f /usr/bin/nvim           # Delete old link/binary (if any)
+sudo ln -s /opt/nvim-linux-x86_64/bin/nvim /usr/bin/nvim
 
 echo "> Neovim installed successfully!"
 
