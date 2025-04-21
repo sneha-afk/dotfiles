@@ -9,6 +9,7 @@ make delete   # Remove all symlinks (cleanup)
 ```
 
 ### Manual Symlinks
+Without `stow`:
 ```bash
 ln -sf "$(pwd)/dot-config/nvim" "$HOME/.config/nvim"
 ln -sf "$(pwd)/dot-vim/.vimrc" "$HOME/.vimrc"
@@ -26,6 +27,11 @@ New-Item -ItemType SymbolicLink `
     -Path "$HOME\_vimrc" `
     -Target "$(Resolve-Path ".\dot-vim\.vimrc")" `
     -Force
+
+New-Item -ItemType SymbolicLink `
+    -Path "$env:LOCALAPPDATA\nvim" `
+    -Target "$(Resolve-Path ".\dot-config\nvim")" `
+    -Force
 ```
 
 ## Info

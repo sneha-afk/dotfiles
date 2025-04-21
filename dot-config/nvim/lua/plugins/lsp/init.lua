@@ -49,6 +49,7 @@ return {
           vim.lsp.config(server_name, overrides)
         end
         vim.lsp.enable(vim.tbl_keys(server_overrides))
+        vim.lsp.inlay_hint.enable()
       else
         for server_name, overrides in pairs(server_overrides) do
           lspconfig[server_name].setup(vim.tbl_deep_extend("force", shared_configs, overrides))

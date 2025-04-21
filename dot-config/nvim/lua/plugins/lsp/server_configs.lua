@@ -1,6 +1,6 @@
 -- .config/nvim/lua/plugins/lsp/server_configs.lua
--- List of all servers to use and specific configurations
 
+-- Every used server must be mapped to at least an empty (default config) here.
 -- Server name = { table of configurations }, or empty if using defaults
 -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
 ---@type table<string, vim.lsp.Config>

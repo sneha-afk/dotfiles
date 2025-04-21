@@ -55,4 +55,5 @@ To set up a new LSP server, list it in `server_configs.lua` with at least `name 
 | `plugins/lsp/config.lua` | Common LSP configurations shared across all |
 | `plugins/lsp/keymaps.lua` | Keymaps for interacting with LSPs |
 | `plugins/lsp/server_configs.lua` | Set up servers and optionally override settings |
+| `plugins/lsp/server_keymaps.lua` | Map server-specific commands, detected on `LspAttach` |
 
