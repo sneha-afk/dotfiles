@@ -6,7 +6,7 @@ return {
     lazy = false,
     priority = 1000,
     opts = {
-      contrast_dark = true,
+      contrast_dark = "hard",
       override_terminal = true,
     },
     config = function(_, opts)

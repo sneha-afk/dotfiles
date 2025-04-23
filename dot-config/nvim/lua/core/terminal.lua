@@ -11,8 +11,7 @@ local function setup_terminal()
   opt.bufhidden = "hide"     -- Hide instead of unload when not visible
   opt.scrollback = 10000     -- Increase scrollback history
 
-  -- If using Windows
-  if vim.env.WT_SESSION then
+  if vim.fn.has("win32") == 1 then
     vim.opt.guicursor = table.concat({
       "n-v-c-sm:block-blinkwait500-blinkon500-blinkoff500", -- Normal/visual mode: solid block
       "i-ci-ve:ver25-blinkwait500-blinkon500-blinkoff500",  -- Insert mode: vertical bar
@@ -23,13 +22,13 @@ local function setup_terminal()
 end
 
 vim.api.nvim_create_autocmd("TermOpen", {
-  pattern = "term://*",
+  pattern = { "term://*", "toggleterm" },
   callback = setup_terminal,
   desc = "Setup terminal buffer options and keymaps",
 })
 
 vim.api.nvim_create_autocmd("BufEnter", {
-  pattern = "term://*",
+  pattern = { "term://*", "toggleterm" },
   callback = function()
     vim.cmd("startinsert")
   end,

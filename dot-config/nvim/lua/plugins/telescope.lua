@@ -6,18 +6,20 @@ return {
     event = "VeryLazy",
     cmd = "Telescope",
     keys = {
-      { "<leader>fb", "<cmd>Telescope buffers<cr>",     desc = "[F]ind [B]uffers" },
-      { "<leader>fc", "<cmd>Telescope commands<cr>",    desc = "[F]ind [C]ommands" },
-      { "<leader>fd", "<cmd>Telescope diagnostics<cr>", desc = "[F]ile [D]iagnostics" },
+      { "<leader>fb", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "[F]ind within [B]uffer" },
+      { "<leader>fB", "<cmd>Telescope buffers<cr>",                   desc = "[F]ind open [B]uffers" },
+      { "<leader>fc", "<cmd>Telescope commands<cr>",                  desc = "[F]ind [C]ommands" },
+      { "<leader>fC", "<cmd>Telescope command_history<cr>",           desc = "[F]ind [C]ommand History" },
+      { "<leader>fd", "<cmd>Telescope diagnostics<cr>",               desc = "[F]ile [D]iagnostics" },
       {
         "<leader>fe",
         "<cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>", -- From current buffer
         desc = "[F]ile [E]xplorer"
       },
       { "<leader>ff", "<cmd>Telescope find_files<cr>",           desc = "[F]ind [F]iles" },
-      { "<leader>fG", "<cmd>Telescope git_files<cr>",            desc = "[F]ind [G]it files" },
       { "<leader>fg", "<cmd>Telescope live_grep<cr>",            desc = "[F]ind by [G]rep" },
       { "<leader>fh", "<cmd>Telescope help_tags<cr>",            desc = "[F]ind [H]elp Tags" },
+      { "<leader>fm", "<cmd>Telescope marks<cr>",                desc = "[F]ind [M]arks" },
       { "<leader>fr", "<cmd>Telescope oldfiles<cr>",             desc = "[F]ind [R]ecent files" },
       { "<leader>fs", "<cmd>Telescope lsp_document_symbols<cr>", desc = "[F]ile/Document [S]ymbols" },
       { "<leader>gb", "<cmd>Telescope git_branches<cr>",         desc = "[G]it [B]ranches" },
@@ -33,28 +35,33 @@ return {
     },
     opts = function()
       local actions = require("telescope.actions")
+      local utils = require("telescope.utils")
 
-      -- From LazyVim
-      local function find_command()
-        if 1 == vim.fn.executable("rg") then
-          return { "rg", "--files", "--color", "never", "-g", "!.git" }
-        elseif 1 == vim.fn.executable("fd") then
-          return { "fd", "--type", "f", "--color", "never", "-E", ".git" }
-        elseif 1 == vim.fn.executable("fdfind") then
-          return { "fdfind", "--type", "f", "--color", "never", "-E", ".git" }
-        elseif 1 == vim.fn.executable("find") and vim.fn.has("win32") == 0 then
-          return { "find", ".", "-type", "f" }
-        elseif 1 == vim.fn.executable("where") then
-          return { "where", "/r", ".", "*" }
+      -- https://github.com/nvim-telescope/telescope.nvim/wiki/Configuration-Recipes#find-files-from-project-git-root-with-fallback
+      local function is_git_repo()
+        vim.fn.system("git rev-parse --is-inside-work-tree")
+        return vim.v.shell_error == 0
+      end
+      local function get_git_root()
+        local dot_git_path = vim.fn.finddir(".git", ".;")
+        return vim.fn.fnamemodify(dot_git_path, ":h")
+      end
+
+      ---@return string Root to start searching from
+      local function start_search_path()
+        if is_git_repo then
+          return get_git_root()
+        else
+          return utils.buffer_dir()
         end
       end
 
       return {
         defaults = {
+          -- Mappings within a Telescope prompt
           mappings = {
             i = {
               ["<ESC>"] = actions.close,
-              ["<C-u>"] = false, -- Clear the prompt
               ["<C-h>"] = "which_key",
             },
           },
@@ -62,17 +69,23 @@ return {
           layout_strategy = "flex",
           layout_config = {
             horizontal = {
-              preview_width = 0.55,
+              preview_width = 0.6,
               height = 0.9,
               width = 0.95,
             },
             vertical = { width = 0.8 },
           },
+          preview = {
+            filesize_limit = 0.25, -- MB
+          },
         },
         pickers = {
           find_files = {
-            find_command = find_command,
             hidden = true,
+            cwd = start_search_path(),
+          },
+          live_grep = {
+            cwd = start_search_path(),
           },
           buffers = {
             sort_lastused = true,

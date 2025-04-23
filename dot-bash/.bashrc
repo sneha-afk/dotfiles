@@ -146,9 +146,11 @@ export PATH=$(printf "%s:" "${path_entries[@]}" | awk -v RS=: '!a[$0]++ {printf 
 # ========================================================
 # Environment Variables
 # ========================================================
-export PYTHONPATH="$HOME/python_libs"
-export GEM_HOME="$HOME/gems"
+# -- Language and Locale Settings
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
 
+# -- Editor setup
 # Ordered editor preference (left-to-right)
 for editor in nvim vim vi nano; do
     if command -v "$editor" &> /dev/null; then
@@ -159,8 +161,55 @@ done
 export VISUAL="$EDITOR"
 git config --global core.editor "$EDITOR"
 
-export DISPLAY=:0
-export WAYLAND_DISPLAY=wayland-0
+if [[ $EDITOR = "nvim" ]]; then
+    export MANPAGER="nvim -c 'Man!' -o -"
+elif [[ $EDITOR = "vim" ]]; then
+    export MANPAGER='vim -R +":set ft=man"'
+fi
+
+# -- Display environment
+if [[ -z "$DISPLAY" ]] && [[ -z "$WAYLAND_DISPLAY" ]]; then
+    export DISPLAY=:0
+    export WAYLAND_DISPLAY=wayland-0
+fi
+
+# ---- XDG Base Directory Specification
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+# Create directories if they don't exist
+for dir in "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"; do
+    [[ ! -d "$dir" ]] && mkdir -p "$dir"
+done
+
+# ---- Python Configuration ----
+export PYTHONPATH="$HOME/python_libs:${PYTHONPATH:-}"
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
+export PIP_CONFIG_FILE="$XDG_CONFIG_HOME/pip/pip.conf"
+export PIP_LOG_FILE="$XDG_CACHE_HOME/pip/log"
+export PYLINTHOME="$XDG_CACHE_HOME/pylint"
+
+# ---- Ruby Configuration ----
+export GEM_HOME="$HOME/gems"
+export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
+export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME/bundle"
+export BUNDLE_USER_CACHE="$XDG_CACHE_HOME/bundle"
+export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME/bundle"
+
+# ---- Go Configuration ----
+export GOPATH="$HOME/go"
+export GOMODCACHE="$XDG_CACHE_HOME/go/mod"
+
+# ---- Node.js Configuration ----
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+export NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm"
+
+# ---- History Files ----
+export HISTFILE="$XDG_STATE_HOME/bash/history"
+export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
+export SQLITE_HISTORY="$XDG_DATA_HOME/sqlite_history"
 
 # ========================================================
 # Aliases
