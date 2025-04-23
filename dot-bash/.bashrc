@@ -120,96 +120,10 @@ fi
 # ========================================================
 # PATH configuration
 # ========================================================
-path_entries=(
-    /usr/local/sbin
-    /usr/local/bin
-    /usr/sbin
-    /usr/bin
-    /sbin
-    /bin
-
-    # User binaries
-    "$HOME/.local/bin"
-    "$HOME/scripts"
-
-    # Language/runtime paths
-    "$HOME/.local/share/nvim/mason/bin"     # LSPs installed through Mason
-    /usr/local/go/bin
-    "$HOME/gems/bin"
-    /usr/share/texlive
-    /opt/nvim-linux-x86_64/bin
-)
-
-# Join entries and remove any duplicate entries
-export PATH=$(printf "%s:" "${path_entries[@]}" | awk -v RS=: '!a[$0]++ {printf "%s%s",!NR++?"":":",$0}')
-
-# ========================================================
-# Environment Variables
-# ========================================================
-# -- Language and Locale Settings
-export LANG="en_US.UTF-8"
-export LC_ALL="en_US.UTF-8"
-
-# -- Editor setup
-# Ordered editor preference (left-to-right)
-for editor in nvim vim vi nano; do
-    if command -v "$editor" &> /dev/null; then
-        export EDITOR="$editor"
-        break
-    fi
-done
-export VISUAL="$EDITOR"
-git config --global core.editor "$EDITOR"
-
-if [[ $EDITOR = "nvim" ]]; then
-    export MANPAGER="nvim -c 'Man!' -o -"
-elif [[ $EDITOR = "vim" ]]; then
-    export MANPAGER='vim -R +":set ft=man"'
+# Fallback PATH if no .profile
+if [[ -z "$PATH" ]]; then
+    export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 fi
-
-# -- Display environment
-if [[ -z "$DISPLAY" ]] && [[ -z "$WAYLAND_DISPLAY" ]]; then
-    export DISPLAY=:0
-    export WAYLAND_DISPLAY=wayland-0
-fi
-
-# ---- XDG Base Directory Specification
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_CACHE_HOME="$HOME/.cache"
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_STATE_HOME="$HOME/.local/state"
-
-# Create directories if they don't exist
-for dir in "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"; do
-    [[ ! -d "$dir" ]] && mkdir -p "$dir"
-done
-
-# ---- Python Configuration ----
-export PYTHONPATH="$HOME/python_libs:${PYTHONPATH:-}"
-export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
-export PIP_CONFIG_FILE="$XDG_CONFIG_HOME/pip/pip.conf"
-export PIP_LOG_FILE="$XDG_CACHE_HOME/pip/log"
-export PYLINTHOME="$XDG_CACHE_HOME/pylint"
-
-# ---- Ruby Configuration ----
-export GEM_HOME="$HOME/gems"
-export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
-export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME/bundle"
-export BUNDLE_USER_CACHE="$XDG_CACHE_HOME/bundle"
-export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME/bundle"
-
-# ---- Go Configuration ----
-export GOPATH="$HOME/go"
-export GOMODCACHE="$XDG_CACHE_HOME/go/mod"
-
-# ---- Node.js Configuration ----
-export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
-export NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm"
-
-# ---- History Files ----
-export HISTFILE="$XDG_STATE_HOME/bash/history"
-export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
-export SQLITE_HISTORY="$XDG_DATA_HOME/sqlite_history"
 
 # ========================================================
 # Aliases
@@ -228,52 +142,6 @@ alias ga='git add'
 alias gc='git commit'
 alias gp='git push'
 alias gl='git log --oneline'
-
-# ========================================================
-# WSL-Specific Utilities
-# ========================================================
-if [[ -n "$WSL_DISTRO_NAME" || -n "$WSL_INTEROP" ]]; then
-    export PATH="$PATH:/mnt/c/Program Files/Microsoft VS Code/bin"
-
-    WINDOWS_DIR="/mnt/c"
-    SYSTEM32_DIR="$WINDOWS_DIR/Windows/System32"
-    CMD_EXE="$SYSTEM32_DIR/cmd.exe"
-    ADOBE_ACROBAT_EXE="$WINDOWS_DIR/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe"
-    SUBLIME_TEXT_EXE="$WINDOWS_DIR/Program Files/Sublime Text/sublime_text.exe"
-
-    alias wincdrive="cd $WINDOWS_DIR"
-    alias wincmd="cd $CMD_EXE"
-    alias winhome="cd $WINDOWS_DIR/Users/"
-
-    # Open Windows Explorer
-    explorer() {
-        local win_path="${1:-$PWD}"
-        win_path=$(wslpath -w "$win_path" 2>/dev/null) || {
-            echo "Invalid WSL path: $win_path" >&2
-            return 1
-        }
-        ( "$CMD_EXE" /c "explorer.exe $win_path" &>/dev/null & ) &&
-        echo "📂 Opening: ${win_path}"
-    }
-
-    # Open PDFs in Adobe Acrobat
-    openpdf() {
-        (( $# == 0 )) && { echo "Usage: openpdf <file.pdf>"; return 1; }
-        local file_path
-        file_path=$(wslpath -w "$1" 2>/dev/null) || {
-            echo "Invalid WSL path: $1" >&2
-            return 1
-        }
-        ( "$ADOBE_ACROBAT_EXE" "$file_path" &>/dev/null & ) &&
-        echo "🔖 Opened PDF: ${1##*/}"
-    }
-
-    # Open files/directories in Sublime Text
-    subl() {
-        ( "$SUBLIME_TEXT_EXE" "$@" &>/dev/null & ) &&
-        echo "✏️ Opened in Sublime: $@"
-    }
-fi
 
 # ========================================================
 # Utilities
@@ -415,6 +283,41 @@ nvim_size() {
 nvim_dump_swap() {
     rm -rf ~/.local/state/nvim/swap/
 }
+
+if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
+    # Windows Explorer
+    explorer() {
+        win_path="$(wslpath -w "${1:-$PWD}" 2>/dev/null)" || {
+            echo "Invalid WSL path: ${1:-$PWD}" >&2
+            return 1
+        }
+        ( "$CMD_EXE" /c "explorer.exe $win_path" &>/dev/null & ) &&
+        echo "📂 Opening: $win_path"
+    }
+
+    # PDF opener
+    openpdf() {
+        [ $# -eq 0 ] && { echo "Usage: openpdf <file.pdf>" >&2; return 1; }
+        file_path="$(wslpath -w "$1" 2>/dev/null)" || {
+            echo "Invalid WSL path: $1" >&2
+            return 1
+        }
+        "$PDF_READER" "$file_path" >/dev/null 2>&1 &
+        echo "🔖 Opened PDF: ${1##*/}"
+    }
+
+    # Sublime Text
+    subl() {
+        "$SUBLIME_TEXT_EXE" "$@" >/dev/null 2>&1 &
+        echo "✏️ Opened in Sublime: $*"
+    }
+
+    # VS Code
+    code() {
+        [ ! -f "$VSCODE_EXE" ] && { echo "VS Code not found at $vscode_path" >&2; return 1; }
+        "$VSCODE_EXE" "$@" >/dev/null 2>&1 &
+    }
+fi
 
 # ========================================================
 # Prompt Customization
