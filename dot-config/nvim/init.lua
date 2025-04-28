@@ -18,20 +18,20 @@ require("core.autocmds")
 require("core.keymaps")
 require("core.terminal")
 
--- Setup diagnostics
 vim.diagnostic.config(
 ---@type vim.diagnostic.Opts
   {
     update_in_insert = true,
     virtual_text = {
-      spacing = 4,
+      spacing = 2,
       source = "if_many",
     },
     severity_sort = true,
     float = {
       border = "rounded",
       header = "",
-      title = " Diagnostics "
+      title = " Diagnostics ",
+      source = "if_many",
     },
   }
 )

@@ -3,7 +3,7 @@
 return {
   {
     "comfysage/aki",
-    lazy = false,
+    lazy = true,
     priority = 1000,
     opts = {
       contrast_dark = "hard",
@@ -16,20 +16,21 @@ return {
   },
   {
     "thesimonho/kanagawa-paper.nvim",
-    lazy = true,
+    lazy = false,
+    priority = 1000,
     config = function()
       vim.cmd.colorscheme("kanagawa-paper-ink")
     end,
   },
   {
-    "AlexvZyl/nordic.nvim",
+    "vague2k/vague.nvim",
     lazy = true,
+    priority = 1000,
     opts = {
-      swap_backgrounds = true,
     },
     config = function(_, opts)
-      require("nordic").setup(opts)
-      vim.cmd.colorscheme("nordic")
+      require("vague").setup(opts)
+      vim.cmd.colorscheme("vague")
     end
   },
 }

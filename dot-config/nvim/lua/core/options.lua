@@ -11,7 +11,7 @@ vim.opt.backspace = { "indent", "eol", "start" } -- Full backspace
 vim.opt.clipboard:append("unnamedplus")          -- System clipboard integration
 vim.opt.autoread       = true                    -- Auto-reload when files externally changed
 vim.opt.mouse          = "a"                     -- Enable mouse in all modes
-vim.o.spelllang        = "en_us"
+vim.opt.spelllang      = { "en_us" }
 
 -- ===================================================================
 -- User Interface

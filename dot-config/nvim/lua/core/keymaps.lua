@@ -7,7 +7,7 @@ local diagnostic = vim.diagnostic
 ---@param mode string|string[]     -- Mode: e.g. "n", "i", or {"n", "v"}
 ---@param lhs string               -- Key combination (e.g. "<leader>f")
 ---@param action string|fun():nil|fun(...):any      -- Function, string command, or Lua expression
----@param opts table               -- Options table (include "desc" for which-key)
+---@param opts? table               -- Options table (include "desc" for which-key)
 local function map(mode, lhs, action, opts)
   opts = vim.tbl_extend("force", {
     noremap = true,
@@ -100,7 +100,7 @@ map("n", "gO", lsp.buf.outgoing_calls, { desc = "[G]oto [O]utgoing calls" })
 
 --  DOCUMENTATION
 map("n", "K", function() lsp.buf.hover(float_ui) end, { desc = "Open documentation float" })
-map({ "n", "i" }, "<C-k>", function() lsp.buf.signature_help(float_ui) end, { desc = "[S]ignature [H]elp" })
+map("i", "<C-k>", function() lsp.buf.signature_help(float_ui) end, { desc = "[S]ignature [H]elp" })
 
 --  WORKSPACE
 map("n", "<leader>wa", lsp.buf.add_workspace_folder, { desc = "[W]orkspace [A]dd Folder" })
@@ -111,7 +111,7 @@ map("n", "<leader>wl", function() vim.print(lsp.buf.list_workspace_folders()) en
 --  CODE ACTIONS
 map("n", "<leader>rn", lsp.buf.rename, { desc = "[R]e[n]ame Symbol" })
 map("n", "<leader>cl", lsp.codelens.run, { desc = "Run [C]ode[L]ens" })
-map("n", "<leader>cf", lsp.buf.format, { desc = "[C]ode [F]ormat" })
+map("n", "<leader>cf", function() lsp.buf.format({ async = true }) end, { desc = "[C]ode [F]ormat" })
 map("n", "<leader>ca", lsp.buf.code_action, { desc = "[C]ode [A]ctions" })
 map("v", "<leader>ca", function()
   lsp.buf.code_action({
@@ -127,3 +127,21 @@ map("n", "<leader>ws", lsp.buf.workspace_symbol, { desc = "[W]orkspace [S]ymbols
 --  LSP MANAGEMENT
 map("n", "<leader>li", "<cmd>LspInfo<cr>", { desc = "[L]SP [I]nfo" })
 map("n", "<leader>lr", "<cmd>LspRestart<cr>", { desc = "[L]SP [R]estart" })
+
+-- MOVE ACTIONS, from LazyVim (A -> Alt)
+map("n", "<A-j>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
+map("n", "<A-k>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
+map("i", "<A-j>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Down" })
+map("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move Up" })
+map("v", "<A-j>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
+map("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
+
+-- RESIZE ACTIONS, from LazyVim
+map("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase Window Height" })
+map("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease Window Height" })
+map("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })
+map("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
+
+-- INDENTING, from LazyVim
+map("v", "<", "<gv", { desc = "Decrease Indent" })
+map("v", ">", ">gv", { desc = "Increase Indent" })

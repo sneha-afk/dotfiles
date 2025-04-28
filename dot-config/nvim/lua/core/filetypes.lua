@@ -15,7 +15,7 @@ local filetype_groups = {
   },
 
   spell_files = {
-    ft = { "markdown", "tex", "gitcommit" },
+    ft = { "text", "tex", "plaintex", "typst", "gitcommit", "markdown" },
     opts = {
       spell = true,
       wrap = true,
@@ -39,7 +39,7 @@ local filetype_groups = {
   }
 }
 
-for group, config in pairs(filetype_groups) do
+for group_name, config in pairs(filetype_groups) do
   vim.api.nvim_create_autocmd("FileType", {
     pattern = config.ft,
     callback = function()
@@ -47,6 +47,6 @@ for group, config in pairs(filetype_groups) do
         vim.opt_local[opt] = value
       end
     end,
-    group = vim.api.nvim_create_augroup("FileType_" .. group, { clear = true }),
+    group = vim.api.nvim_create_augroup("FileType_" .. group_name, { clear = true }),
   })
 end

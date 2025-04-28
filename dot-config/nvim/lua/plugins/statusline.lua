@@ -27,8 +27,13 @@ return {
     },
     -- Inactive windows default: only show filename and location
     tabline = {
-      lualine_a = { "buffers" },
-      lualine_z = { "tabs" }
+      lualine_a = {
+        {
+          "tabs",
+          mode = 2,
+          path = 1,
+        }
+      },
     },
   },
 }

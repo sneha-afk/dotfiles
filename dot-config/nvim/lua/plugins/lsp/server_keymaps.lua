@@ -20,7 +20,7 @@ end
 ---@type table<string, function>
 local setup_funcs = {
   gopls = function()
-    map("n", "<leader>ru", function()
+    map("n", "<leader>oi", function()
       lsp.buf.code_action({
         context = {
           diagnostics = diagnostic.get(0),
@@ -28,7 +28,7 @@ local setup_funcs = {
         },
         apply = true,
       })
-    end, { desc = "Go: [R]emove [U]nused imports" })
+    end, { desc = "Go: [O]rganize [I]mports" })
   end,
   pyright = function()
     map("n", "<leader>oi", "<cmd>PyrightOrganizeImports<cr>", { desc = "Python: [O]rganize [I]mports" })

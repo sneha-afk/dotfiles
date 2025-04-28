@@ -77,13 +77,13 @@ path_prepend "$HOME/scripts"
 
 path_append "/opt/nvim-linux-x86_64/bin"
 
-# Language managers (prepended)
 path_append "$HOME/.local/share/nvim/mason/bin"
 path_append "$HOME/.cargo/bin"
 path_append "$HOME/.dotnet/tools"
 path_append "/usr/share/texlive/bin"
 
 path_append "/usr/local/go/bin"
+path_append "$GOPATH/bin"
 path_append "$GEM_HOME/bin"
 
 # ======================
@@ -108,12 +108,12 @@ if [ -z "$EDITOR" ]; then
             if command -v git >/dev/null 2>&1; then
                 git config --global core.editor "$editor"
             fi
-            
+
             case "$editor" in
                 nvim) export MANPAGER="nvim -c 'Man!' -o -" ;;
                 vim) export MANPAGER='vim -R +"set ft=man"' ;;
             esac
-            
+
             break
         fi
     done

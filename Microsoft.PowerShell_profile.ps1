@@ -2,11 +2,8 @@
 # Unix-like Aliases
 # ==============================
 Set-Alias df Get-PSDrive
-Set-Alias grep Select-String
 Set-Alias la Get-ChildItem -Force
 Set-Alias less Get-Content
-Set-Alias ll Get-ChildItem
-Set-Alias which Get-Command
 
 # ==============================
 # Custom Functions
@@ -18,6 +15,38 @@ function home {
 function Reload-Profile {
     . $PROFILE
     Write-Host "Profile reloaded." -ForegroundColor Green
+}
+
+# Taken from https://github.com/CrazyWolf13/unix-pwsh/blob/main/functions.ps1
+
+function which($name) {
+    Get-Command $name | Select-Object -ExpandProperty Definition
+}
+
+function ll { Get-ChildItem -Path $pwd -File }
+function df { get-volume }
+
+function touch {
+    param([string]$file)
+    if (Test-Path $file) {
+        Set-ItemProperty -Path $file -Name LastWriteTime -Value (Get-Date)
+    } else {
+        New-Item -Path $file -ItemType File
+    }
+}
+
+function grep {
+    param (
+        [string]$regex,
+        [string]$dir
+    )
+    process {
+        if ($dir) {
+            Get-ChildItem -Path $dir -Recurse -File | Select-String -Pattern $regex
+        } else {     # Use if piped input is provided
+            $input | Select-String -Pattern $regex
+        }
+    }
 }
 
 # ==============================

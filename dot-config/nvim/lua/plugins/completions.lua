@@ -1,4 +1,5 @@
 -- .config/nvim/lua/plugins/completions.lua
+-- Thanks to https://vonheikemen.github.io/devlog/tools/setup-nvim-lspconfig-plus-nvim-cmp/
 
 return {
   "hrsh7th/nvim-cmp",
@@ -11,6 +12,7 @@ return {
     },
     "hrsh7th/cmp-buffer", -- Buffer words
     "hrsh7th/cmp-path",   -- File paths
+    "f3fora/cmp-spell",
   },
   opts = function()
     local ls = require("luasnip")
@@ -66,14 +68,15 @@ return {
           end
         end, { "i", "s" }),
       }),
-      sources = cmp.config.sources({
-        { name = "nvim_lsp", priority = 1000 },                    -- LSP suggestions
-        { name = "luasnip",  priority = 900, keyword_length = 2 }, -- Snippet suggestions
-        { name = "buffer",   priority = 500, keyword_length = 4 }, -- Buffer words
-        { name = "path",     priority = 250, keyword_length = 4 }, -- File system paths
-        { name = "emoji",    priority = 150 },
-        { name = "spell",    priority = 100 },
-      }),
+      sources = cmp.config.sources(
+        {
+          { name = "nvim_lsp", priority = 1000, keyword_length = 1 }, -- LSP suggestions
+          { name = "luasnip",  priority = 900,  keyword_length = 1 }, -- Snippet suggestions
+          { name = "path",     priority = 500, },                     -- File system paths
+          { name = "buffer",   priority = 250,  keyword_length = 4 }, -- Buffer words
+          { name = "spell",    priority = 100,  keyword_length = 3 },
+        }
+      ),
       formatting = {
         fields = { "menu", "abbr", "kind" },
         format = function(entry, item)
@@ -81,7 +84,8 @@ return {
             path = "🖫",
             nvim_lsp = "✦",
             buffer = "⚇",
-            luasnip = "☇",
+            luasnip = "⌥",
+            spell = "⌯"
           }
           item.menu = menu_icon[entry.source.name] or "?"
           return item
@@ -90,9 +94,9 @@ return {
       sorting = {
         priority_weight = 2.0,
         comparators = {
+          cmp.config.compare.score,         -- Respect LSP relevance
           cmp.config.compare.offset,        -- Prefer nearby symbols
           cmp.config.compare.exact,         -- Exact matches
-          cmp.config.compare.score,         -- Respect LSP relevance
           cmp.config.compare.recently_used, -- Boost frequently used items
           cmp.config.compare.kind,          -- Group by type (e.g., functions before variables)
           cmp.config.compare.sort_text,     -- Secondary LSP hints

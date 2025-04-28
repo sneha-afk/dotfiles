@@ -19,6 +19,7 @@ set backspace=indent,eol,start   " Enable backspacing in INSERT mode
 set clipboard+=unnamedplus       " Use the system clipboard
 set signcolumn=yes               " Always show sign column
 set autoread                     " Auto-reload when files externally changed
+set spelllang=en_us
 
 " =======================================
 " Plugin Management
