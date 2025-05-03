@@ -10,13 +10,14 @@ See README for configuring information.
 
 vim.g.mapleader = ","
 vim.g.maplocalleader = "\\"
+vim.uv = vim.uv or vim.loop
 
 -- Load core configurations in this order
-require("core.options")
-require("core.filetypes")
-require("core.autocmds")
-require("core.keymaps")
-require("core.terminal")
+require "core.options"
+require "core.filetypes"
+require "core.autocmds"
+require "core.keymaps"
+require "core.terminal"
 
 vim.diagnostic.config(
 ---@type vim.diagnostic.Opts
@@ -38,7 +39,7 @@ vim.diagnostic.config(
 
 -- Ask if plugins should be installed if not already
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.api.nvim_echo({
     { "Lazy.nvim not installed.\n", "WarningMsg" },
     { "Load plugin system? [y/N] ", "Question" },

@@ -28,7 +28,7 @@ Helpers defined in [`.bashrc`](/dot-bash/.bashrc):
 │       ├── lsp/
 │       │   ├── config.lua
 │       │   ├── init.lua
-│       │   ├── keymaps.lua
+│       │   ├── server_keymaps.lua
 │       │   └── server_configs.lua
 │       ├── snippets.lua
 │       ├── startup.lua
@@ -48,12 +48,15 @@ Helpers defined in [`.bashrc`](/dot-bash/.bashrc):
 | `core/keymaps.lua` | Global keybindings and mappings |
 
 #### LSP Configuration
-To set up a new LSP server, list it in `server_configs.lua` with at least `name = {}` to use default configurations provided by `nvim-lspconfig`.
+To enable a new LSP server to be used with default `nvim-lspconfig` configurations, add it to the table
+passed into `vim.lsp.enable` in `lsp/init.lua`.
+
+To extend/override from the default settings, use `vim.lsp.config` within `lsp/server_configs.lua`.
 
 | File | Purpose |
 |------|---------|
-| `plugins/lsp/config.lua` | Common LSP configurations shared across all |
+| `plugins/lsp/config.lua` | Enable and configure common shared settings across LSPs |
 | `plugins/lsp/keymaps.lua` | Keymaps for interacting with LSPs |
-| `plugins/lsp/server_configs.lua` | Set up servers and optionally override settings |
+| `plugins/lsp/server_configs.lua` | Set up any extensions/overrides of LSP settings |
 | `plugins/lsp/server_keymaps.lua` | Map server-specific commands, detected on `LspAttach` |
 

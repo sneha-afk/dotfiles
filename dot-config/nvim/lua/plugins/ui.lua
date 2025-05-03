@@ -34,7 +34,8 @@ return {
   -- Snacks!
   {
     "folke/snacks.nvim",
-    event = "UIEnter",
+    lazy = false,
+    priority = 1000,
     dependencies = { "echasnovski/mini.diff", },
     ---@module "snacks"
     ---@type snacks.Config

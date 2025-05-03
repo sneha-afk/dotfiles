@@ -40,7 +40,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   group = augroup("hl_yank"),
   desc = "Highlight yanked lines",
   callback = function()
-    (vim.hl or vim.highlight).on_yank({ higroup = "Visual", timeout = 300, })
+    vim.hl.on_yank({ higroup = "Visual", timeout = 300, })
   end,
 })
 
@@ -48,15 +48,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
   group = augroup("clear_lsp_logs"),
   desc = "Auto-clear LSP logs past 10 MB",
   callback = function()
-    local log_path = ""
-    if vim.fn.has("nvim-0.11") == 1 then
-      log_path = vim.lsp.log.get_filename()
-    else
-      log_path = vim.fn.stdpath("log") .. "/lsp.log"
-    end
+    local log_path = vim.lsp.log.get_filename()
     local max_size = 10 * 1024 * 1024
 
-    local ok, stats = pcall((vim.uv or vim.loop).fs_stat, log_path)
+    local ok, stats = pcall(vim.uv.fs_stat, log_path)
     if ok and stats and stats.size > max_size then
       local file = io.open(log_path, "w")
       if file then
@@ -70,11 +65,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
 -- From LazyVim
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   group = augroup("auto_create_dir"),
+  desc = "Automatically create directories for a new file",
   callback = function(event)
-    if event.match:match("^%w%w+:[\\/][\\/]") then
-      return
-    end
-    local file = (vim.uv or vim.loop).fs_realpath(event.match) or event.match
+    if event.match:match("^%w%w+:[\\/][\\/]") then return end
+    local file = vim.uv.fs_realpath(event.match) or event.match
     vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
   end,
 })

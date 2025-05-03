@@ -41,22 +41,21 @@ return {
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
-      local shared_configs = require("plugins.lsp.config")
-      local server_overrides = require("plugins.lsp.server_configs")
+      -- Setup keymaps and autocommands, get back a vim.lsp.Config
+      local global_configs = require("plugins.lsp.config")
 
-      if vim.fn.has("nvim-0.11") == 1 then
-        vim.lsp.config("*", shared_configs)
-        for server_name, overrides in pairs(server_overrides) do
-          vim.lsp.config(server_name, overrides)
-        end
-        vim.lsp.enable(vim.tbl_keys(server_overrides))
-        vim.lsp.inlay_hint.enable()
-      else
-        local lspconfig = require("lspconfig")
-        for server_name, overrides in pairs(server_overrides) do
-          lspconfig[server_name].setup(vim.tbl_deep_extend("force", shared_configs, overrides))
-        end
-      end
+      -- Shared configurations + capabilities
+      vim.lsp.config("*", global_configs)
+
+      -- Set up any overrides
+      require("plugins.lsp.server_configs")
+
+      -- Enable LSPs to attach when their respective filetypes are opened
+      vim.lsp.enable({
+        "lua_ls", "gopls", "clangd", "pyright",
+      })
+
+      vim.lsp.inlay_hint.enable()
     end
   },
 }

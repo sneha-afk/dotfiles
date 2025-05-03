@@ -1,115 +1,103 @@
 -- .config/nvim/lua/plugins/lsp/server_configs.lua
 
--- Every server to be enabled must be mapped to at least an empty table here to utilize
--- the defaults from nvim-lspconfig, or specify any overrides to merge with the defaults.
--- i.e Server name = { table of configurations }, or empty
+-- To use the default configurations supplied by nvim-lspconfig, simply add to
+--    the vim.lsp.enable table in lsp/init.lua
 -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
----@type table<string, vim.lsp.Config>
-return {
-  pyright = {
-    settings = {
-      pyright = {
-        typeCheckingMode = "basic",
-        disableOrganizeImports = false,
-        analysis = {
-          autoImportCompletions = true,
-          autoSearchPaths = true,
-          diagnosticMode = "workspace",
-          useLibraryCodeForTypes = true,
+-- Set up server-specific overrides within this file.
+
+vim.lsp.config("lua_ls", {
+  settings = {
+    Lua = {
+      hint = {
+        enable = true,
+      },
+      workspace = {
+        library = {
+          vim.env.VIMRUNTIME,
+        },
+      },
+      format = {
+        enable = true,
+        defaultConfig = {
+          indent_style = "space",
+          indent_size = "2",
+          continuation_indent_size = "2",
+          quote_style = "double",
+          align_call_args = true,
+          space_around_assign = true,
+          trailing_table_separator = "smart",
+          insert_final_newline = false,
         },
       },
     },
   },
+})
 
-  gopls = {
-    settings = {
-      gopls = {
-        staticcheck = true,
-        usePlaceholders = true,
-        completeUnimported = true,
-        semanticTokens = true,
-        analyses = {
-          nilness = true,
-          unusedwrite = true,
-          unreachable = true,
-          useany = true,
-          unusedvariable = true,
-          fillreturns = true,
-        },
-        hints = {
-          assignVariableTypes = true,
-          compositeLiteralFields = true,
-          compositeLiteralTypes = true,
-          constantValues = true,
-          functionTypeParameters = true,
-          parameterNames = true,
-          rangeVariableTypes = true,
-        },
-        codelenses = {
-          generate = true,
-          gc_details = true,
-          upgrade_dependency = true
-        }
+vim.lsp.config("gopls", {
+  settings = {
+    gopls = {
+      staticcheck = true,
+      usePlaceholders = true,
+      completeUnimported = true,
+      semanticTokens = true,
+      analyses = {
+        nilness = true,
+        unusedwrite = true,
+        unreachable = true,
+        useany = true,
+        unusedvariable = true,
+        fillreturns = true,
+      },
+      hints = {
+        assignVariableTypes = true,
+        compositeLiteralFields = true,
+        compositeLiteralTypes = true,
+        constantValues = true,
+        functionTypeParameters = true,
+        parameterNames = true,
+        rangeVariableTypes = true,
+      },
+      codelenses = {
+        generate = true,
+        gc_details = true,
+        upgrade_dependency = true
+      }
+    },
+  },
+})
+
+vim.lsp.config("clangd", {
+  cmd = {
+    "clangd",
+    "--all-scopes-completion",
+    "--background-index",
+    "--clang-tidy",
+    "--compile-commands-dir=build",
+    "--completion-style=detailed",
+    "--cross-file-rename",
+    "--enable-config",
+    "--function-arg-placeholders",
+    "--header-insertion=never",
+    "--malloc-trim",
+    "--offset-encoding=utf-16",
+    "--pch-storage=disk",
+  },
+  init_options = {
+    fallbackFlags = { "-Wall", "-Wextra", "-Wpedantic" },
+  },
+})
+
+vim.lsp.config("pyright", {
+  settings = {
+    pyright = {
+      typeCheckingMode = "basic",
+      disableOrganizeImports = false,
+      analysis = {
+        autoImportCompletions = true,
+        autoSearchPaths = true,
+        diagnosticMode = "workspace",
+        useLibraryCodeForTypes = true,
       },
     },
   },
-
-  clangd = {
-    cmd = {
-      "clangd",
-      "--all-scopes-completion",
-      "--background-index",
-      "--clang-tidy",
-      "--compile-commands-dir=build",
-      "--completion-style=detailed",
-      "--cross-file-rename",
-      "--enable-config",
-      "--function-arg-placeholders",
-      "--header-insertion=never",
-      "--malloc-trim",
-      "--offset-encoding=utf-16",
-      "--pch-storage=disk",
-    },
-    init_options = {
-      fallbackFlags = { "-Wall", "-Wextra", "-Wpedantic" },
-    },
-  },
-
-  lua_ls = {
-    settings = {
-      Lua = {
-        diagnostics = { globals = { "vim" }, },
-        runtime = {
-          version = "LuaJIT",
-          path = {
-            'lua/?.lua',
-            'lua/?/init.lua',
-          },
-        },
-        hint = {
-          enable = true,
-        },
-        workspace = {
-          checkThirdParty = false,
-          library = {
-            vim.env.VIMRUNTIME,
-            vim.fn.stdpath("config"),
-          },
-        },
-        format = {
-          enable = true,
-          defaultConfig = {
-            indent_style = "space",
-            indent_size = "2",
-            continuation_indent_size = "2",
-            quote_style = "double",
-            align_call_args = true,
-            space_around_assign = true,
-            trailing_table_separator = "smart",
-            insert_final_newline = false,
-          },
-        },
-      },
-    },
-  },
-}
+})

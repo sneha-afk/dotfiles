@@ -1,6 +1,17 @@
 {
-    "diagnostics.globals": [
-        "vim",
-        "Snacks"
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "diagnostics.globals": ["vim", "Snacks"],
+  "workspace": {
+    "checkThirdParty": false,
+    "library": [
+      "lua",
+      "$VIMRUNTIME/lua/vim",
+      "${3rd}/luv/library",
+      "${3rd}/busted/library"
     ]
+  },
+  "runtime": {
+    "version": "LuaJIT",
+    "path": ["?.lua", "?/init.lua"]
+  }
 }

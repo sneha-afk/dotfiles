@@ -38,17 +38,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 -- Taken from https://neovim.io/doc/user/lsp.html#LspDetach
-vim.api.nvim_create_autocmd('LspDetach', {
+vim.api.nvim_create_autocmd("LspDetach", {
   callback = function(args)
-    local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-    -- Remove the autocommand to format the buffer on save, if it exists
-    if client:supports_method('textDocument/formatting') then
-      vim.api.nvim_clear_autocmds({
-        group = "LspFormatting",
-        event = 'BufWritePre',
-        buffer = args.buf,
-      })
-    end
+    vim.api.nvim_clear_autocmds({
+      group = "LspFormatting",
+      event = "BufWritePre",
+      buffer = args.buf,
+    })
   end,
 })
 

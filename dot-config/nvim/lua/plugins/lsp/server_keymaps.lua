@@ -42,7 +42,5 @@ local setup_funcs = {
 ---@param client vim.lsp.Client Which client to setup keymaps for (if defined)
 return function(client)
   local setup_func = setup_funcs[client.name]
-  if setup_func then
-    setup_func()
-  end
+  if setup_func then setup_func() end
 end

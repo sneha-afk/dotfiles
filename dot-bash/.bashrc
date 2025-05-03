@@ -253,31 +253,35 @@ nvim_size() {
   local config=~/.config/nvim/
   local lazy=~/.local/share/nvim/lazy/
   local mason=~/.local/share/nvim/mason/
+  local ts_local=~/.local/share/nvim/lazy/nvim-treesitter/parser
   local cache=~/.cache/nvim/
 
   local config_kb=$(du -sk "$config" 2>/dev/null | awk '{print $1}')
   local lazy_kb=$(du -sk "$lazy" 2>/dev/null | awk '{print $1}')
   local mason_kb=$(du -sk "$mason" 2>/dev/null | awk '{print $1}')
+  local ts_local_kb=$(du -sk "$ts_local" 2>/dev/null | awk '{print $1}')
   local cache_kb=$(du -sk "$cache" 2>/dev/null | awk '{print $1}')
-  local total_kb=$(( config_kb + lazy_kb + mason_kb + cache_kb ))
+  local total_kb=$(( config_kb + lazy_kb + mason_kb + ts_local_kb + cache_kb ))
 
   local plugins=$([ -d "$lazy" ] && ls -1 "$lazy" | wc -l || echo 0)
   local lsps=$([ -d "$mason/packages" ] && ls -1 "$mason/packages" | wc -l || echo 0)
+  local tss=$([ -d "$ts_local" ] && ls -1 "$ts_local" | wc -l || echo 0)
 
   fmt_size() {
     numfmt --to=iec --suffix=B --format="%.1f" $(($1 * 1024))
   }
 
-  echo "╭───────────────────────────────╮"
-  echo "│     🚀 NEOVIM CONFIG SIZE     │"
-  echo "├───────────────┬───────────────┤"
-  printf "│ %-13s │ %13s │\n" "Config Files" "$(fmt_size "$config_kb")"
-  printf "│ %-13s │ %13s │\n" "Plugins ($plugins)" "$(fmt_size "$lazy_kb")"
-  printf "│ %-13s │ %13s │\n" "LSPs ($lsps)" "$(fmt_size "$mason_kb")"
-  printf "│ %-13s │ %13s │\n" "Cache" "$(fmt_size "$cache_kb")"
-  echo "├───────────────┼───────────────┤"
-  printf "│ %-13s │ \033[1m%13s\033[0m │\n" "Total" "$(fmt_size "$total_kb")"
-  echo "╰───────────────┴───────────────╯"
+  echo "╭──────────────────────────────────╮"
+  echo "│      🚀 NEOVIM CONFIG SIZE       │"
+  echo "├──────────────────┬───────────────┤"
+  printf "│ %-16s │ %13s │\n" "Config Files" "$(fmt_size "$config_kb")"
+  printf "│ %-16s │ %13s │\n" "Plugins ($plugins)" "$(fmt_size "$lazy_kb")"
+  printf "│ %-16s │ %13s │\n" "LSPs ($lsps)" "$(fmt_size "$mason_kb")"
+  printf "│ %-16s │ %13s │\n" "Treesitters ($tss)" "$(fmt_size "$ts_local_kb")"
+  printf "│ %-16s │ %13s │\n" "Cache" "$(fmt_size "$cache_kb")"
+  echo "├──────────────────┼───────────────┤"
+  printf "│ %-16s │ \033[1m%13s\033[0m │\n" "Total" "$(fmt_size "$total_kb")"
+  echo "╰──────────────────┴───────────────╯"
 }
 
 nvim_dump_swap() {
