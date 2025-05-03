@@ -1,7 +1,7 @@
 -- .config/nvim/lua/core/options.lua
 
 -- ===================================================================
--- Core Editor Behavior
+-- General Settings
 -- ===================================================================
 vim.opt.encoding = "utf-8"                       -- Default encoding
 vim.opt.fileformats = "unix,dos"                 -- Line ending support
@@ -12,6 +12,12 @@ vim.opt.clipboard:append("unnamedplus")          -- System clipboard integration
 vim.opt.autoread       = true                    -- Auto-reload when files externally changed
 vim.opt.mouse          = "a"                     -- Enable mouse in all modes
 vim.opt.spelllang      = { "en_us" }
+vim.opt.foldmethod     = "manual"                -- W/o LSP or Treesitter, manually create folds
+vim.opt.foldlevel      = 99                      -- Minimum level to default being folded
+vim.opt.foldlevelstart = 10                      -- Anything below this level will be folded on start
+vim.opt.foldnestmax    = 4                       -- How many levels deep to nest
+vim.opt.undofile       = true                    -- Keep persisitent undo history between sessions
+vim.opt.undodir        = vim.fn.stdpath("data") .. "/undo"
 
 -- ===================================================================
 -- User Interface
@@ -56,6 +62,7 @@ vim.opt.shiftround     = true -- Round indents to multiples
 -- ===================================================================
 vim.opt.list           = true
 vim.opt.listchars      = { tab = "▸ ", trail = "·", nbsp = "␣", }
+vim.opt.fillchars      = { foldopen = "▾", foldsep = "│", foldclose = "▸" }
 
 -- ===================================================================
 -- Search and Matching

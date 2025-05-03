@@ -1,7 +1,8 @@
 -- .config/nvim/lua/plugins/lsp/server_configs.lua
 
--- Every used server must be mapped to at least an empty (default config) here.
--- Server name = { table of configurations }, or empty if using defaults
+-- Every server to be enabled must be mapped to at least an empty table here to utilize
+-- the defaults from nvim-lspconfig, or specify any overrides to merge with the defaults.
+-- i.e Server name = { table of configurations }, or empty
 -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
 ---@type table<string, vim.lsp.Config>
 return {
@@ -78,6 +79,13 @@ return {
     settings = {
       Lua = {
         diagnostics = { globals = { "vim" }, },
+        runtime = {
+          version = "LuaJIT",
+          path = {
+            'lua/?.lua',
+            'lua/?/init.lua',
+          },
+        },
         hint = {
           enable = true,
         },
@@ -92,6 +100,8 @@ return {
           enable = true,
           defaultConfig = {
             indent_style = "space",
+            indent_size = "2",
+            continuation_indent_size = "2",
             quote_style = "double",
             align_call_args = true,
             space_around_assign = true,

@@ -7,7 +7,7 @@ local diagnostic = vim.diagnostic
 ---@param mode string|string[]     -- Mode: e.g. "n", "i", or {"n", "v"}
 ---@param lhs string               -- Key combination (e.g. "<leader>f")
 ---@param action string|fun():nil|fun(...):any      -- Function, string command, or Lua expression
----@param opts table               -- Options table (include "desc" for which-key)
+---@param opts? table              -- Options table (include "desc" for which-key)
 local function map(mode, lhs, action, opts)
   opts = vim.tbl_extend("force", {
     noremap = true,
@@ -39,6 +39,7 @@ local setup_funcs = {
   end,
 }
 
+---@param client vim.lsp.Client Which client to setup keymaps for (if defined)
 return function(client)
   local setup_func = setup_funcs[client.name]
   if setup_func then

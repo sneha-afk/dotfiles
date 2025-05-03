@@ -20,9 +20,7 @@ return {
         disable = function(lang, buf)
           local max_filesize = 100 * 1024 -- 100 KB
           local ok, stats = pcall((vim.uv or vim.loop).fs_stat, vim.api.nvim_buf_get_name(buf))
-          if ok and stats and stats.size > max_filesize then
-            return true
-          end
+          return ok and stats and stats.size > max_filesize
         end,
       },
       indent = {
@@ -78,6 +76,20 @@ return {
     },
     config = function(_, opts)
       require("nvim-treesitter.configs").setup(opts)
+
+      vim.api.nvim_create_autocmd("FileType", {
+        desc = "If available, use treesitter as the folding method in the current buffer",
+        group = vim.api.nvim_create_augroup("TreesitterFolding", { clear = false }),
+        callback = function(args)
+          local buf = args.buf
+          if vim.treesitter.highlighter.active[buf] then
+            vim.opt_local.foldmethod = "expr"
+            vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+          else
+            vim.opt_local.foldmethod = "manual"
+          end
+        end,
+      })
     end,
   },
 }

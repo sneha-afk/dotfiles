@@ -23,9 +23,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
     if (auto_format_on_save or always_format[client.name])
         and client:supports_method("textDocument/formatting", bufnr) then
       vim.api.nvim_create_autocmd("BufWritePre", {
+        group = vim.api.nvim_create_augroup("LspFormatting", { clear = false }),
         buffer = bufnr,
         callback = function() vim.lsp.buf.format({ async = false }) end,
       })
+    end
+
+    -- From Neovim docs: prefer LSP folding if available
+    if client:supports_method("textDocument/foldingRange") then
+      vim.opt_local.foldmethod = "expr"
+      vim.opt_local.foldexpr = "v:lua.vim.lsp.foldexpr()"
     end
   end
 })
@@ -37,6 +44,7 @@ vim.api.nvim_create_autocmd('LspDetach', {
     -- Remove the autocommand to format the buffer on save, if it exists
     if client:supports_method('textDocument/formatting') then
       vim.api.nvim_clear_autocmds({
+        group = "LspFormatting",
         event = 'BufWritePre',
         buffer = args.buf,
       })
@@ -47,7 +55,10 @@ vim.api.nvim_create_autocmd('LspDetach', {
 -- Return overrides of vim.lsp.ClientConfig
 ---@type vim.lsp.Config
 return {
-  capabilities = require("cmp_nvim_lsp").default_capabilities(),
+  capabilities = vim.tbl_deep_extend("force",
+    vim.lsp.protocol.make_client_capabilities(),
+    require("cmp_nvim_lsp").default_capabilities()
+  ),
   root_markers = { ".git" },
   settings = {
     telemetry = { enable = false },

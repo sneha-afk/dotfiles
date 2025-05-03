@@ -41,8 +41,9 @@ return {
         ['<C-k>'] = cmp.mapping.scroll_docs(4),  -- Scroll up
 
         -- Select: true if select whatever is under cursor, false if need to interact with menu first
-        ['<CR>'] = cmp.mapping.confirm({ select = false }),
-        ['<C-y>'] = cmp.mapping.confirm({ select = true }),
+        -- Replace: replace entire word under cursor (important to not have butchered characters)
+        ['<CR>'] = cmp.mapping.confirm({ select = false, behavior = cmp.ConfirmBehavior.Replace }),
+        ['<C-y>'] = cmp.mapping.confirm({ select = true, behavior = cmp.ConfirmBehavior.Replace }),
 
         -- Tab and S-Tab only apply to a completion menu
         ["<Tab>"] = cmp.mapping.select_next_item(select_opts),
@@ -125,6 +126,9 @@ return {
   config = function(_, opts)
     local cmp = require("cmp")
     cmp.setup(opts)
+
+    -- Color of the source icon
+    vim.api.nvim_set_hl(0, "CmpItemMenu", { link = "Constant" })
 
     local toggle_ghost_text = function()
       local cmp_config = cmp.get_config()

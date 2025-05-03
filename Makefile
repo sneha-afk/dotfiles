@@ -11,6 +11,7 @@ all: stowall
 
 stowall:
 	$(STOW) --restow --target $(TARGET_HOME) $(HOME_PACKAGES)
+	mkdir -p $(TARGET_CONFIG)
 	$(STOW) --restow --target $(TARGET_CONFIG) $(CONFIG_PACKAGES)
 
 delete:

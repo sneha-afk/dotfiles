@@ -9,7 +9,7 @@ return {
     cmd = { "Mason", "MasonInstall", "MasonUpdate" },
     build = ":MasonUpdate",
     keys = {
-      { "<leader>lm", "<cmd>Mason<cr>", desc = "Open Mason LSP manager" },
+      { "<leader>lm", "<cmd>Mason<cr>", desc = "Open [L]SP [M]anager" },
     },
     opts = {
       ui = {
@@ -34,12 +34,13 @@ return {
         "williamboman/mason-lspconfig.nvim",
         cmd = { "LspInstall", "LspUninstall" },
         dependencies = { "williamboman/mason.nvim" },
-        opts = {},
+        opts = {
+          automatic_installation = false,
+        },
       },
       "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
-      local lspconfig = require("lspconfig")
       local shared_configs = require("plugins.lsp.config")
       local server_overrides = require("plugins.lsp.server_configs")
 
@@ -51,6 +52,7 @@ return {
         vim.lsp.enable(vim.tbl_keys(server_overrides))
         vim.lsp.inlay_hint.enable()
       else
+        local lspconfig = require("lspconfig")
         for server_name, overrides in pairs(server_overrides) do
           lspconfig[server_name].setup(vim.tbl_deep_extend("force", shared_configs, overrides))
         end

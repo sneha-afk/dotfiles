@@ -20,6 +20,8 @@ set clipboard+=unnamedplus       " Use the system clipboard
 set signcolumn=yes               " Always show sign column
 set autoread                     " Auto-reload when files externally changed
 set spelllang=en_us
+set undofile                     " Persistent undo history across sessions
+set undodir=~/.local/share/nvim/undo
 
 " =======================================
 " Plugin Management
