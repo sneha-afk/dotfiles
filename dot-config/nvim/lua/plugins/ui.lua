@@ -36,6 +36,8 @@ return {
     "folke/snacks.nvim",
     event = "UIEnter",
     dependencies = { "echasnovski/mini.diff", },
+    ---@module "snacks"
+    ---@type snacks.Config
     opts = {
       indent = {
         enabled = true,
@@ -65,9 +67,11 @@ return {
       },
       styles = {
         input = {
+          relative = "cursor",
           position = "float",
         },
         zen = {
+          relative = "editor",
           width = 0.6,
           backdrop = { transparent = true, blend = 20 },
         },

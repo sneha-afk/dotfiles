@@ -71,6 +71,9 @@ return {
       }),
       sources = cmp.config.sources(
         {
+          { name = "lazydev", group_index = 0, }
+        },
+        {
           { name = "nvim_lsp", priority = 1000, keyword_length = 1 }, -- LSP suggestions
           { name = "luasnip",  priority = 900,  keyword_length = 1 }, -- Snippet suggestions
           { name = "path",     priority = 500, },                     -- File system paths
