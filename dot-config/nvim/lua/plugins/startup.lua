@@ -45,13 +45,13 @@ return {
     local greeting = get_greeting()
 
     starter.setup({
-      evaluate_single = true,
       header = function()
         return HEADER_ART .. "\n" .. greeting .. ", " .. username .. ".\n"
       end,
       items = {
         { section = "Actions", name = "New File",                  action = "ene | startinsert" },
         { section = "Actions", name = "File Browser",              action = "Telescope file_browser" },
+        { section = "Actions", name = "Search",                    action = "Telescope live_grep" },
         { section = "Actions", name = "Quit",                      action = "qa" },
 
         { section = "Tools",   name = "Edit Config",               action = "e $MYVIMRC" },
@@ -78,17 +78,12 @@ return {
       end,
     })
 
-    for hl, def in pairs({
-      MiniStarterHeader = { link = "Question", bold = true },
-      MiniStarterFooter = { link = "Comment", italic = true },
-      MiniStarterItem = { link = "Normal" },
-      MiniStarterItemBullet = { link = "LineNr", bold = true },
-      MiniStarterItemPrefix = { link = "Conceal", bold = true },
-      MiniStarterSection = { link = "MsgSeparator", bold = true },
-      MiniStarterQuery = { link = "Keyword" },
-      MiniStarterCurrent = { link = "CursorLine" },
-    }) do
-      vim.api.nvim_set_hl(0, hl, def)
-    end
+    vim.api.nvim_set_hl(0, "MiniStarterHeader", { link = "Define" })
+    vim.api.nvim_set_hl(0, "MiniStarterFooter", { link = "LineNr" })
+    vim.api.nvim_set_hl(0, "MiniStarterQuery", { link = "IncSearch" })
+    vim.api.nvim_set_hl(0, "MiniStarterItemPrefix", { link = "Keyword" })
+    vim.api.nvim_set_hl(0, "MiniStarterItemBullet", { link = "LineNr" })
+    vim.api.nvim_set_hl(0, "MiniStarterCurrent", { link = "CursorLine" })
+    vim.api.nvim_set_hl(0, "MiniStarterSection", { link = "MsgSeparator" })
   end,
 }

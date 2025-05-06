@@ -1,21 +1,12 @@
 -- .config/nvim/lua/core/keymaps.lua
 -- Globally available keymaps
 
+local utils = require("core.utils")
+local map = utils.set_keymap
+
 local lsp = vim.lsp
 local diagnostic = vim.diagnostic
 
----@param mode string|string[]     -- Mode: e.g. "n", "i", or {"n", "v"}
----@param lhs string               -- Key combination (e.g. "<leader>f")
----@param action string|fun():nil|fun(...):any      -- Function, string command, or Lua expression
----@param opts? table               -- Options table (include "desc" for which-key)
-local function map(mode, lhs, action, opts)
-  opts = vim.tbl_extend("force", {
-    noremap = true,
-    silent = true,
-  }, opts or {})
-
-  vim.keymap.set(mode, lhs, action, opts)
-end
 
 local float_ui = {
   border = "rounded",
@@ -31,6 +22,31 @@ map("n", "<leader>ur", "<cmd>set rnu!<cr>", { desc = "[U]I: toggle [R]elative li
 map("n", "<leader>uw", "<cmd>set wrap!<cr>", { desc = "[U]I: toggle line [W]rap" })
 map("n", "<leader>uh", function() lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
   { desc = "[U]I: toggle inlay [H]int" })
+map("n", "<leader>sb", function()
+  vim.api.nvim_set_current_buf(utils.create_scratch_buf())
+end, { desc = "[S]cratch [B]uffer (create empty)" })
+map("n", "<leader>sm", function()
+  local width = math.min(80, vim.o.columns - 10)
+  local height = math.min(20, vim.o.lines - 10)
+  local col = (vim.o.columns - width) / 2
+  local row = (vim.o.lines - height) / 2
+
+  -- Get messages and split into lines
+  local buf = utils.create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
+
+  vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
+  vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    col = col,
+    row = row,
+    style = "minimal",
+    border = "rounded",
+    title = " Messages ",
+    title_pos = "center"
+  })
+end, { desc = "[S]cratch [M]essages (view :messages)" })
 
 --  TERMINAL OPERATIONS
 map("n", "<leader>ht", "<cmd>split | term<cr>i", { desc = "[H]orizontal [T]erminal" })

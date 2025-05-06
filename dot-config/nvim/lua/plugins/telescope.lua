@@ -36,21 +36,13 @@ return {
     opts = function()
       local actions = require("telescope.actions")
       local utils = require("telescope.utils")
+      local my_utils = require("core.utils")
 
       -- https://github.com/nvim-telescope/telescope.nvim/wiki/Configuration-Recipes#find-files-from-project-git-root-with-fallback
-      local function is_git_repo()
-        vim.fn.system("git rev-parse --is-inside-work-tree")
-        return vim.v.shell_error == 0
-      end
-      local function get_git_root()
-        local dot_git_path = vim.fn.finddir(".git", ".;")
-        return vim.fn.fnamemodify(dot_git_path, ":h")
-      end
-
       ---@return string Root to start searching from
       local function start_search_path()
-        if is_git_repo then
-          return get_git_root()
+        if my_utils.is_git_repo then
+          return my_utils.get_git_root()
         else
           return utils.buffer_dir()
         end

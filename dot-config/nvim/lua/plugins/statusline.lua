@@ -14,7 +14,12 @@ return {
     },
     -- A, B, C are left; X, Y, Z are right
     sections = {
-      lualine_b = { "filename", },
+      lualine_b = {
+        {
+          "filename",
+          path = 4, -- Parent directory + current file
+        },
+      },
       lualine_c = { "branch", "diff", "diagnostics", },
       lualine_x = {
         {
@@ -30,8 +35,8 @@ return {
       lualine_a = {
         {
           "tabs",
-          mode = 2,
-          path = 1,
+          mode = 2, -- Tab number and name
+          path = 1, -- Relative path
         }
       },
     },
