@@ -71,9 +71,9 @@ path_append() {
     esac
 }
 
-path_prepend "$HOME/.local/bin"
-path_prepend "$HOME/bin"
 path_prepend "$HOME/scripts"
+path_prepend "$HOME/bin"
+path_prepend "$HOME/.local/bin"
 
 path_append "/opt/nvim-linux-x86_64/bin"
 
@@ -128,7 +128,7 @@ if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
     SYSTEM32_DIR="$WINDOWS_DIR/Windows/System32"
     CMD_EXE="$SYSTEM32_DIR/cmd.exe"
     VSCODE_EXE="$WINDOWS_PROG_FILES/Microsoft VS Code/bin/code"
-    PDF_READER="$WINDOWS_PROG_FILES/Adobe/Acrobat DC/Acrobat/Acrobat.exe"
+    PDF_READER="$WINDOWS_PROG_FILES/SumatraPDF/SumatraPDF.exe"
     SUBLIME_TEXT_EXE="$WINDOWS_PROG_FILES/Sublime Text/sublime_text.exe"
 
     if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ]; then
@@ -137,5 +137,6 @@ if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
 fi
 
 # ---------------------------------------------------------------
+
 # If running bash, source .bashrc
 [ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"

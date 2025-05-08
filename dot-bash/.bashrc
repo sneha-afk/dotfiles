@@ -239,6 +239,31 @@ verify_checksum() {
     fi
 }
 
+dezones() {
+    local dir="${1:-.}"
+    find "$dir" -type f -name "*:Zone.Identifier" -delete 2>/dev/null
+    echo "Removed all Zone.Identifier files under $dir"
+}
+
+killport() {
+  if [ -z "$1" ]; then
+    echo "Usage: killport <port_number>"
+    return 1
+  fi
+
+  local port="$1"
+  local pid=$(sudo lsof -t -i :"$port")
+
+  if [ -n "$pid" ]; then
+    echo "Killing process $pid using port $port"
+    sudo kill -9 "$pid"
+    echo "Process killed"
+  else
+    echo "No process found using port $port"
+    return 1
+  fi
+}
+
 alias nvim_goto_config="cd ~/.config/nvim/"
 
 nvim_reset() {
@@ -301,25 +326,28 @@ if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
 
     # PDF opener
     openpdf() {
+        [ ! -f "$PDF_READER" ] && { echo "PDF Reader not found at $PDF_READER" >&2; return 1; }
         [ $# -eq 0 ] && { echo "Usage: openpdf <file.pdf>" >&2; return 1; }
         file_path="$(wslpath -w "$1" 2>/dev/null)" || {
             echo "Invalid WSL path: $1" >&2
             return 1
         }
-        "$PDF_READER" "$file_path" >/dev/null 2>&1 &
+        ( "$PDF_READER" "$file_path" >/dev/null 2>&1 & ) &&
         echo "🔖 Opened PDF: ${1##*/}"
     }
 
     # Sublime Text
     subl() {
-        "$SUBLIME_TEXT_EXE" "$@" >/dev/null 2>&1 &
+        [ ! -f "$SUBLIME_TEXT_EXE" ] && { echo "Sublime Text not found at $SUBLIME_TEXT_EXE" >&2; return 1; }
+        ( "$SUBLIME_TEXT_EXE" "$@" >/dev/null 2>&1 & ) &&
         echo "✏️ Opened in Sublime: $*"
     }
 
     # VS Code
     code() {
-        [ ! -f "$VSCODE_EXE" ] && { echo "VS Code not found at $vscode_path" >&2; return 1; }
-        "$VSCODE_EXE" "$@" >/dev/null 2>&1 &
+        [ ! -f "$VSCODE_EXE" ] && { echo "VS Code not found at $VSCODE_EXE" >&2; return 1; }
+        ( "$VSCODE_EXE" "$@" >/dev/null 2>&1 & ) &&
+        echo "✏️ Opened in VSCode: $*"
     }
 fi
 

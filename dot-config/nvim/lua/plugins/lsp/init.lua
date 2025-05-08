@@ -4,7 +4,7 @@ return {
   -- Mason configuration (LSP installer)
   -- Installed to "$HOME/.local/share/nvim/mason/bin"
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     lazy = true,
     cmd = { "Mason", "MasonInstall", "MasonUpdate" },
     build = ":MasonUpdate",
@@ -27,15 +27,19 @@ return {
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPost", "BufNewFile", "VeryLazy" },
-    cmd = { "LspInfo", "LspRestart" },
+    keys = {
+      { "<leader>li", "<cmd>LspInfo<cr>",    desc = "[L]SP [I]nfo" },
+      { "<leader>lr", "<cmd>LspRestart<cr>", desc = "[L]SP [R]estart" },
+    },
     dependencies = {
       {
         -- Mason-LSPConfig bridge
-        "williamboman/mason-lspconfig.nvim",
+        "mason-org/mason-lspconfig.nvim",
         cmd = { "LspInstall", "LspUninstall" },
-        dependencies = { "williamboman/mason.nvim" },
+        dependencies = { "mason-org/mason.nvim" },
         opts = {
-          automatic_installation = false,
+          automatic_enable = true,
+          ensure_installed = {},
         },
       },
       "hrsh7th/cmp-nvim-lsp",
@@ -47,7 +51,7 @@ return {
       -- Shared configurations + capabilities
       vim.lsp.config("*", global_configs)
 
-      -- Set up any overrides
+      -- Use vim.lsp.config for further configuration
       require("plugins.lsp.server_configs")
 
       -- Enable LSPs to attach when their respective filetypes are opened

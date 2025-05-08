@@ -15,38 +15,83 @@ local float_ui = {
   title_pos = "center",
 }
 
+---Opens a buffer within a floating window
+---@param buf integer ID of buffer
+---@param title string Title of the window
+---@param opts? table Options for the window
+local function open_float_win(buf, title, opts)
+  local dims = utils.get_centered_dims()
+  vim.api.nvim_open_win(buf, true,
+    vim.tbl_extend("force", {
+      relative = "editor",
+      width = dims[1],
+      height = dims[2],
+      col = dims[3],
+      row = dims[4],
+      style = "minimal",
+      border = "rounded",
+      title = title,
+      title_pos = "center"
+    }, opts or {})
+  )
+end
+
 --  UTILITIES
 map("n", "<leader>cs", "<cmd>nohl<cr>", { desc = "[C]lear [S]earch highlights" })
 map("n", "<leader>un", "<cmd>set nu!<cr>", { desc = "[U]I: toggle line [N]umbers" })
 map("n", "<leader>ur", "<cmd>set rnu!<cr>", { desc = "[U]I: toggle [R]elative line nums" })
 map("n", "<leader>uw", "<cmd>set wrap!<cr>", { desc = "[U]I: toggle line [W]rap" })
+map("n", "<leader>us", "<cmd>set spell!<cr>", { desc = "[U]I: toggle [S]pell check" })
 map("n", "<leader>uh", function() lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
   { desc = "[U]I: toggle inlay [H]int" })
-map("n", "<leader>sb", function()
-  vim.api.nvim_set_current_buf(utils.create_scratch_buf())
-end, { desc = "[S]cratch [B]uffer (create empty)" })
+map("n", "<leader>sb", function() vim.api.nvim_set_current_buf(utils.create_scratch_buf()) end,
+  { desc = "[S]cratch: empty [B]uffer" })
 map("n", "<leader>sm", function()
-  local width = math.min(80, vim.o.columns - 10)
-  local height = math.min(20, vim.o.lines - 10)
-  local col = (vim.o.columns - width) / 2
-  local row = (vim.o.lines - height) / 2
-
   -- Get messages and split into lines
   local buf = utils.create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
 
   vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
-  vim.api.nvim_open_win(buf, true, {
-    relative = "editor",
-    width = width,
-    height = height,
-    col = col,
-    row = row,
-    style = "minimal",
-    border = "rounded",
-    title = " Messages ",
-    title_pos = "center"
+  open_float_win(buf, " Messages ")
+end, { desc = "[S]cratch: view [M]essages" })
+map("n", "<leader>se", function()
+  local env_vars = vim.fn.environ()
+  local lines = { "# PATH VARIABLES", "" }
+  local other_vars = {}
+
+  for k, v in pairs(env_vars) do
+    if k:match("PATH$") then
+      table.insert(lines, string.format("## %s", k))
+
+      if type(v) == "string" and v ~= "" then
+        local separator = vim.fn.has("win32") == 1 and ";" or ":"
+        for path in v:gmatch("[^" .. separator .. "]+") do
+          if path ~= "" then
+            table.insert(lines, string.format("  - %s", path))
+          end
+        end
+      else
+        table.insert(lines, "  (empty)")
+      end
+      table.insert(lines, "")
+    else
+      table.insert(other_vars, string.format("%-20s = %s", k, v))
+    end
+  end
+
+  table.insert(lines, "# ENV VARIABLES")
+  for _, v in ipairs(other_vars) do
+    table.insert(lines, v)
+  end
+
+  local buf = utils.create_scratch_buf(lines)
+  vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
+  local h = math.floor(vim.o.lines / 1.5)
+  local r = (vim.o.lines - h) / 2
+  open_float_win(buf, " Environment Variables ", {
+    height = h,
+    row = r,
   })
-end, { desc = "[S]cratch [M]essages (view :messages)" })
+end, { desc = "[S]cratch: [E]nvironment Variables" })
 
 --  TERMINAL OPERATIONS
 map("n", "<leader>ht", "<cmd>split | term<cr>i", { desc = "[H]orizontal [T]erminal" })
@@ -75,17 +120,31 @@ map("n", "<leader>vs", "<cmd>vsplit<cr>", { desc = "[V]ertical [S]plit" })
 map("n", "<leader>hs", "<cmd>split<cr>", { desc = "[H]orizontal [S]plit" })
 
 --  BUFFER OPERATIONS
-map("n", "<leader>]b", "<cmd>bnext<cr>", { desc = "Go to next buffer" })
-map("n", "<leader>[b", "<cmd>bprev<cr>", { desc = "Go to previous buffer" })
-map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "[B]uffer [D]elete" })
-map("n", "<leader>bD", "<cmd>bd!<cr>", { desc = "[B]uffer [D]elete (force)" })
+map("n", "<leader>]b", "<cmd>bnext<cr>", { desc = "Next buffer" })
+map("n", "<leader>[b", "<cmd>bprev<cr>", { desc = "Previous buffer" })
+map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "[B]uffer: [D]elete current" })
+map("n", "<leader>bD", "<cmd>bd!<cr>", { desc = "[B]uffer: [D]elete current (force)" })
+map("n", "<leader>bc", function()
+  local current = vim.api.nvim_get_current_buf()
+  local buffers = vim.api.nvim_list_bufs()
+
+  for _, buf in ipairs(buffers) do
+    if buf ~= current and vim.api.nvim_buf_is_loaded(buf) then
+      local buf_type = vim.api.nvim_get_option_value("buftype", { buf = buf })
+      if buf_type == "" or buf_type == "help" then -- Only close normal/help buffers
+        vim.api.nvim_buf_delete(buf, { force = true })
+      end
+    end
+  end
+  vim.notify("Deleted other buffers", vim.log.levels.INFO)
+end, { desc = "[B]uffer: [C]lose all others" })
 
 --  TAB OPERATIONS
 map("n", "<leader>tn", "<cmd>tabnew<CR>", { desc = "[T]ab: [N]ew" })
 map("n", "<leader>tc", "<cmd>tabclose<CR>", { desc = "[T]ab: [C]lose current" })
 map("n", "<leader>to", "<cmd>tabonly<CR>", { desc = "[T]ab: close all [O]thers" })
-map("n", "<leader>]t", "<cmd>tabnext<CR>", { desc = "Go to next tab" })
-map("n", "<leader>[t", "<cmd>tabprevious<CR>", { desc = "Go to previous tab" })
+map("n", "<leader>]t", "<cmd>tabnext<CR>", { desc = "Next tab" })
+map("n", "<leader>[t", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
 map("n", "<leader>tm", "<cmd>tabmove<CR>", { desc = "[T]ab: [M]ove current to last" })
 map("n", "<leader>tl", "<cmd>tablast<CR>", { desc = "[T]ab: jump to [L]ast open" })
 map("n", "<leader>t1", "1gt", { desc = "[T]ab: go to [1]" })
@@ -100,8 +159,8 @@ map("n", "<leader>dl", diagnostic.open_float, { desc = "[D]iagnostics: open [L]i
 map("n", "<leader>df", diagnostic.setloclist, { desc = "[D]iagnostics: [F]ile-local list" })
 map("n", "<leader>da", function() diagnostic.setqflist({ open = true }) end,
   { desc = "[D]iagnostics: [A]ll project-wide" })
-map("n", "[d", function() diagnostic.jump { count = -1, float = true } end, { desc = "Previous diagnostic" })
-map("n", "]d", function() diagnostic.jump { count = 1, float = true } end, { desc = "Next diagnostic" })
+map("n", "<leader>[d", function() diagnostic.jump { count = -1, float = true } end, { desc = "Previous diagnostic" })
+map("n", "<leader>]d", function() diagnostic.jump { count = 1, float = true } end, { desc = "Next diagnostic" })
 map("n", "<leader>dv", function() diagnostic.config({ virtual_text = not diagnostic.config().virtual_text }) end,
   { desc = "[D]iagnostics: toggle [V]irtual text" })
 
@@ -139,10 +198,6 @@ end, { desc = "Range [C]ode [A]ctions" })
 --  SYMBOLS
 map("n", "<leader>ds", lsp.buf.document_symbol, { desc = "[D]ocument [S]ymbols" })
 map("n", "<leader>ws", lsp.buf.workspace_symbol, { desc = "[W]orkspace [S]ymbols" })
-
---  LSP MANAGEMENT
-map("n", "<leader>li", "<cmd>LspInfo<cr>", { desc = "[L]SP [I]nfo" })
-map("n", "<leader>lr", "<cmd>LspRestart<cr>", { desc = "[L]SP [R]estart" })
 
 -- MOVE ACTIONS, from LazyVim (A -> Alt)
 map("n", "<A-j>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })

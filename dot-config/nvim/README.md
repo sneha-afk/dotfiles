@@ -7,8 +7,11 @@ Helpers defined in [`.bashrc`](/dot-bash/.bashrc):
 1. `nvim_size`: size of entire configuration + LSPs installed through Mason
 2. `nvim_reset`: deletes setup (configuration files kept)
 3. `nvim_dump_swap`: delete swap files
+4. `nvim_goto_config`: navigates to base of config
 
-### Configuration Structure
+### Configuration
+
+Minimum version required: v0.11.0
 
 ```
 ~/.config/nvim/
@@ -20,7 +23,8 @@ Helpers defined in [`.bashrc`](/dot-bash/.bashrc):
 │   │   ├── keymaps.lua
 │   │   ├── lazy.lua
 │   │   ├── options.lua
-│   │   └── terminal.lua
+│   │   ├── terminal.lua
+│   │   └── utils.lua
 │   └── plugins/
 │       ├── colorscheme.lua
 │       ├── completions.lua
@@ -44,8 +48,10 @@ Helpers defined in [`.bashrc`](/dot-bash/.bashrc):
 
 | File | Purpose |
 |------|---------|
-| `core/options.lua` | Basic Neovim settings (tabs, line numbers, etc.) |
-| `core/keymaps.lua` | Global keybindings and mappings |
+| `core/filetypes.lua` | Settings for groups of related filetypes |
+| `core/keymaps.lua`   | Global keybindings and mappings |
+| `core/options.lua`   | Basic Neovim settings (tabs, line numbers, etc.) |
+
 
 #### LSP Configuration
 To enable a new LSP server to be used with default `nvim-lspconfig` configurations, add it to the table
@@ -55,8 +61,7 @@ To extend/override from the default settings, use `vim.lsp.config` within `lsp/s
 
 | File | Purpose |
 |------|---------|
-| `plugins/lsp/config.lua` | Enable and configure common shared settings across LSPs |
-| `plugins/lsp/keymaps.lua` | Keymaps for interacting with LSPs |
+| `plugins/lsp/config.lua`  | Configure shared settings for all LSPs, `LspAttach`, and `LspDetach` |
 | `plugins/lsp/server_configs.lua` | Set up any extensions/overrides of LSP settings |
 | `plugins/lsp/server_keymaps.lua` | Map server-specific commands, detected on `LspAttach` |
 

@@ -40,6 +40,16 @@ function M.create_scratch_buf(content)
   return buf
 end
 
+---Returns centered width, height, columns, and rows for a floating window
+---@return table Dimensions centered on screen
+function M.get_centered_dims()
+  local width = math.max(80, vim.o.columns - 20)
+  local height = math.max(20, vim.o.lines - 15)
+  local col = (vim.o.columns - width) / 2
+  local row = (vim.o.lines - height) / 2
+  return { width, height, col, row }
+end
+
 ---@return boolean True if currently inside a Git repo
 function M.is_git_repo()
   vim.fn.system("git rev-parse --is-inside-work-tree")
