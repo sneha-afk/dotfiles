@@ -23,5 +23,27 @@ return {
         vim.uv.cwd() .. "/.nvim/snippets"                    -- Project-specific snippets
       }
     })
+
+    vim.api.nvim_create_user_command("EditSnippets", function()
+      require("luasnip.loaders").edit_snippet_files({
+        format = function(file, source_name)
+          local path_replacements = {
+            ["/.local/share/nvim/lazy/friendly%-snippets"] = "FriendlySnippets",
+            ["/.config/nvim/snippets"] = "Personal",
+            ["/dotfiles/dot%-config/nvim/snippets"] = "Personal",
+            [vim.uv.cwd() .. "/.nvim/snippets"] = "Project",
+            ["/.local/share/nvim/lazy/LuaSnip"] = "LuaSnip",
+          }
+
+          for pattern, label in pairs(path_replacements) do
+            if file:find(pattern) then
+              local filename = file:match(".*/(.*)$") or file
+              return string.format("%s : %s", label, filename)
+            end
+          end
+          return file
+        end
+      })
+    end, { desc = "Open snippet files for editing" })
   end
 }

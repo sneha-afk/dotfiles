@@ -18,7 +18,7 @@ Minimum version required: v0.11.0
 ├── init.lua
 ├── lua/
 │   ├── core/
-│   │   ├── autocmds.lua
+│   │   ├── commands.lua
 │   │   ├── filetypes.lua
 │   │   ├── keymaps.lua
 │   │   ├── lazy.lua
@@ -34,6 +34,7 @@ Minimum version required: v0.11.0
 │       │   ├── init.lua
 │       │   ├── server_keymaps.lua
 │       │   └── server_configs.lua
+│       ├── sessions.lua
 │       ├── snippets.lua
 │       ├── startup.lua
 │       ├── statusline.lua

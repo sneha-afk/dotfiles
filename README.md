@@ -9,7 +9,7 @@ make delete   # Remove all symlinks (cleanup)
 ```
 
 ### Manual Symlinks
-Without `stow`:
+Without `stow`, create symlinks with `ln`:
 ```bash
 ln -sf "$(pwd)/dot-config/nvim" "$HOME/.config/nvim"
 ln -sf "$(pwd)/dot-vim/.vimrc" "$HOME/.vimrc"
@@ -35,9 +35,9 @@ New-Item -ItemType SymbolicLink `
 ```
 
 ## Info
-See [Neovim README](./dot-config/nvim/README.md) for plugin management.
+See [Neovim README](./dot-config/nvim/README.md) for more on that.
 
-Test symlinks without changes:
+Test `stow` without changes:
 ```bash
 make dry-run
 ```

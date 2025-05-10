@@ -2,6 +2,15 @@
 
 return {
   {
+    "webhooked/kanso.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {},
+    config = function()
+      vim.cmd.colorscheme("kanso-ink")
+    end
+  },
+  {
     "comfysage/aki",
     lazy = true,
     priority = 1000,
@@ -16,7 +25,7 @@ return {
   },
   {
     "thesimonho/kanagawa-paper.nvim",
-    lazy = false,
+    lazy = true,
     priority = 1000,
     config = function()
       vim.cmd.colorscheme("kanagawa-paper-ink")

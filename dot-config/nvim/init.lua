@@ -15,7 +15,7 @@ vim.uv = vim.uv or vim.loop
 -- Load core configurations in this order
 require "core.options"
 require "core.filetypes"
-require "core.autocmds"
+require "core.commands"
 require "core.keymaps"
 require "core.terminal"
 

@@ -7,34 +7,12 @@ local map = utils.set_keymap
 local lsp = vim.lsp
 local diagnostic = vim.diagnostic
 
-
 local float_ui = {
   border = "rounded",
   max_width = 120,
   title = " LSP Info ",
   title_pos = "center",
 }
-
----Opens a buffer within a floating window
----@param buf integer ID of buffer
----@param title string Title of the window
----@param opts? table Options for the window
-local function open_float_win(buf, title, opts)
-  local dims = utils.get_centered_dims()
-  vim.api.nvim_open_win(buf, true,
-    vim.tbl_extend("force", {
-      relative = "editor",
-      width = dims[1],
-      height = dims[2],
-      col = dims[3],
-      row = dims[4],
-      style = "minimal",
-      border = "rounded",
-      title = title,
-      title_pos = "center"
-    }, opts or {})
-  )
-end
 
 --  UTILITIES
 map("n", "<leader>cs", "<cmd>nohl<cr>", { desc = "[C]lear [S]earch highlights" })
@@ -47,51 +25,17 @@ map("n", "<leader>uh", function() lsp.inlay_hint.enable(not vim.lsp.inlay_hint.i
 map("n", "<leader>sb", function() vim.api.nvim_set_current_buf(utils.create_scratch_buf()) end,
   { desc = "[S]cratch: empty [B]uffer" })
 map("n", "<leader>sm", function()
-  -- Get messages and split into lines
   local buf = utils.create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
-
   vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
-  open_float_win(buf, " Messages ")
+  vim.keymap.set("n", "<Esc>", "<cmd>q<cr>", { buffer = buf })
+  utils.open_float_win(buf, " Messages ")
 end, { desc = "[S]cratch: view [M]essages" })
-map("n", "<leader>se", function()
-  local env_vars = vim.fn.environ()
-  local lines = { "# PATH VARIABLES", "" }
-  local other_vars = {}
 
-  for k, v in pairs(env_vars) do
-    if k:match("PATH$") then
-      table.insert(lines, string.format("## %s", k))
-
-      if type(v) == "string" and v ~= "" then
-        local separator = vim.fn.has("win32") == 1 and ";" or ":"
-        for path in v:gmatch("[^" .. separator .. "]+") do
-          if path ~= "" then
-            table.insert(lines, string.format("  - %s", path))
-          end
-        end
-      else
-        table.insert(lines, "  (empty)")
-      end
-      table.insert(lines, "")
-    else
-      table.insert(other_vars, string.format("%-20s = %s", k, v))
-    end
-  end
-
-  table.insert(lines, "# ENV VARIABLES")
-  for _, v in ipairs(other_vars) do
-    table.insert(lines, v)
-  end
-
-  local buf = utils.create_scratch_buf(lines)
-  vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
-  local h = math.floor(vim.o.lines / 1.5)
-  local r = (vim.o.lines - h) / 2
-  open_float_win(buf, " Environment Variables ", {
-    height = h,
-    row = r,
-  })
-end, { desc = "[S]cratch: [E]nvironment Variables" })
+-- Moving around easier on QWERTY
+map("n", "<C-a>", "^", { desc = "Start of line (first non-blank)" })
+map("n", "<C-e>", "$", { desc = "End of line" })
+map("i", "<C-a>", "<ESC>^i", { desc = "Start of line (first non-blank)" })
+map("i", "<C-e>", "<ESC>$a", { desc = "End of line" })
 
 --  TERMINAL OPERATIONS
 map("n", "<leader>ht", "<cmd>split | term<cr>i", { desc = "[H]orizontal [T]erminal" })
@@ -146,16 +90,15 @@ map("n", "<leader>to", "<cmd>tabonly<CR>", { desc = "[T]ab: close all [O]thers" 
 map("n", "<leader>]t", "<cmd>tabnext<CR>", { desc = "Next tab" })
 map("n", "<leader>[t", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
 map("n", "<leader>tm", "<cmd>tabmove<CR>", { desc = "[T]ab: [M]ove current to last" })
-map("n", "<leader>tl", "<cmd>tablast<CR>", { desc = "[T]ab: jump to [L]ast open" })
+map("n", "<leader>tl", "<cmd>tablast<CR>", { desc = "[T]ab: goto [L]ast" })
 map("n", "<leader>t1", "1gt", { desc = "[T]ab: go to [1]" })
 map("n", "<leader>t2", "2gt", { desc = "[T]ab: go to [2]" })
 map("n", "<leader>t3", "3gt", { desc = "[T]ab: go to [3]" })
-map("n", "<leader>t4", "4gt", { desc = "[T]ab: go to [4]" })
 
 --  DIAGNOSTICS
 map("n", "<leader>dt", function() diagnostic.enable(not diagnostic.is_enabled()) end,
   { desc = "[D]iagnostics: [T]oggle" })
-map("n", "<leader>dl", diagnostic.open_float, { desc = "[D]iagnostics: open [L]ist" })
+map("n", "<leader>dl", diagnostic.open_float, { desc = "[D]iagnostics: on this [L]ine" })
 map("n", "<leader>df", diagnostic.setloclist, { desc = "[D]iagnostics: [F]ile-local list" })
 map("n", "<leader>da", function() diagnostic.setqflist({ open = true }) end,
   { desc = "[D]iagnostics: [A]ll project-wide" })
@@ -165,23 +108,24 @@ map("n", "<leader>dv", function() diagnostic.config({ virtual_text = not diagnos
   { desc = "[D]iagnostics: toggle [V]irtual text" })
 
 --  LSP NAVIGATION
-map("n", "gd", lsp.buf.definition, { desc = "[G]oto [d]efinition" })
+-- map("n", "gd", lsp.buf.definition, { desc = "[G]oto [d]efinition" })
 map("n", "gD", lsp.buf.declaration, { desc = "[G]oto [D]eclaration" })
-map("n", "gi", lsp.buf.implementation, { desc = "[G]oto [I]mplementation" })
-map("n", "gy", lsp.buf.type_definition, { desc = "[G]oto t[y]pe definition" })
-map("n", "gr", lsp.buf.references, { desc = "[G]oto [r]eferences" })
-map("n", "gI", lsp.buf.incoming_calls, { desc = "[G]oto [I]ncoming calls" })
-map("n", "gO", lsp.buf.outgoing_calls, { desc = "[G]oto [O]utgoing calls" })
+-- map("n", "gi", lsp.buf.implementation, { desc = "[G]oto [I]mplementation" })
+-- map("n", "gy", lsp.buf.type_definition, { desc = "[G]oto t[y]pe definition" })
+map("n", "gY", lsp.buf.typehierarchy, { desc = "[G]oto t[Y]pe hierarchy" })
+-- map("n", "gr", lsp.buf.references, { desc = "[G]oto [r]eferences" })
+-- map("n", "gI", lsp.buf.incoming_calls, { desc = "[G]oto [I]ncoming calls" })
+-- map("n", "gO", lsp.buf.outgoing_calls, { desc = "[G]oto [O]utgoing calls" })
 
 --  DOCUMENTATION
 map("n", "K", function() lsp.buf.hover(float_ui) end, { desc = "Open documentation float" })
 map("i", "<C-k>", function() lsp.buf.signature_help(float_ui) end, { desc = "[S]ignature [H]elp" })
 
 --  WORKSPACE
-map("n", "<leader>wa", lsp.buf.add_workspace_folder, { desc = "[W]orkspace [A]dd Folder" })
-map("n", "<leader>wr", lsp.buf.remove_workspace_folder, { desc = "[W]orkspace [R]emove Folder" })
-map("n", "<leader>wl", function() vim.print(lsp.buf.list_workspace_folders()) end,
-  { desc = "[W]orkspace [L]ist Folders" })
+map("n", "<leader>Wa", lsp.buf.add_workspace_folder, { desc = "[W]orkspace: [A]dd Folder" })
+map("n", "<leader>Wr", lsp.buf.remove_workspace_folder, { desc = "[W]orkspace: [R]emove Folder" })
+map("n", "<leader>Wl", function() vim.print(lsp.buf.list_workspace_folders()) end,
+  { desc = "[W]orkspace: [L]ist Folders" })
 
 --  CODE ACTIONS
 map("n", "<leader>rn", lsp.buf.rename, { desc = "[R]e[n]ame Symbol" })
@@ -196,8 +140,8 @@ map("v", "<leader>ca", function()
 end, { desc = "Range [C]ode [A]ctions" })
 
 --  SYMBOLS
-map("n", "<leader>ds", lsp.buf.document_symbol, { desc = "[D]ocument [S]ymbols" })
-map("n", "<leader>ws", lsp.buf.workspace_symbol, { desc = "[W]orkspace [S]ymbols" })
+map("n", "<leader>ls", lsp.buf.document_symbol, { desc = "[L]SP: document [S]ymbols" })
+map("n", "<leader>lS", lsp.buf.workspace_symbol, { desc = "[L]SP: workspace [S]ymbols" })
 
 -- MOVE ACTIONS, from LazyVim (A -> Alt)
 map("n", "<A-j>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })

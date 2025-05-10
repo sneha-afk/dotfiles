@@ -31,7 +31,6 @@ end
 
 return {
   "echasnovski/mini.starter",
-  pin = true,
   event = function()
     return vim.fn.argc() == 0 and "VimEnter" or nil
   end,
@@ -50,15 +49,17 @@ return {
       end,
       items = {
         { section = "Actions", name = "New File",                  action = "ene | startinsert" },
-        { section = "Actions", name = "File Browser",              action = "Telescope file_browser" },
+        { section = "Actions", name = "Browse files",              action = "Telescope file_browser" },
+        { section = "Actions", name = "Find files",                action = "Telescope find_files", },
         { section = "Actions", name = "Search",                    action = "Telescope live_grep" },
+        { section = "Actions", name = "Load previous session",     action = function() require("persistence").select() end, },
         { section = "Actions", name = "Quit",                      action = "qa" },
 
         { section = "Tools",   name = "Edit Config",               action = "e $MYVIMRC" },
-        { section = "Tools",   name = "Lazy.nvim: manage plugins", action = "Lazy" },
         { section = "Tools",   name = "Check Health",              action = "checkhealth" },
+        { section = "Tools",   name = "Lazy.nvim: manage plugins", action = "Lazy" },
 
-        starter.sections.recent_files(10, false),
+        starter.sections.recent_files(5, false),
       },
       content_hooks = {
         starter.gen_hook.aligning("center", "center"),

@@ -7,8 +7,7 @@ return {
     version = false,
     event = "UIEnter",
     keys = {
-      { "<leader>gd", function() require("mini.diff").toggle_overlay() end,  desc = "Toggle [G]it [D]iff Overlay" },
-      { "<leader>gD", function() require("mini.diff").toggle_overlay(1) end, desc = "Toggle [G]it [D]iff all buffers" },
+      { "<leader>gd", function() require("mini.diff").toggle_overlay() end, desc = "[G]it: toggle [D]iff Overlay" },
     },
     opts = {
       view = {
@@ -37,8 +36,6 @@ return {
     lazy = false,
     priority = 1000,
     dependencies = { "echasnovski/mini.diff", },
-    ---@module "snacks"
-    ---@type snacks.Config
     opts = {
       indent = {
         enabled = true,
@@ -58,7 +55,6 @@ return {
           enabled = "●",
           disabled = "○",
         },
-        which_key = true,
       },
       zen = {
         enabled = true,
@@ -75,6 +71,17 @@ return {
           relative = "editor",
           width = 0.6,
           backdrop = { transparent = true, blend = 20 },
+        },
+      },
+      notifier = {
+        timeout = 3000,   -- in ms
+        top_down = false, -- false for bottom up
+        icons = {
+          error = "[E] ",
+          warn  = "[W] ",
+          info  = "[I] ",
+          debug = "[D] ",
+          trace = "[T] ",
         },
       },
     },

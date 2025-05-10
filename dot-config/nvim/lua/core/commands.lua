@@ -1,5 +1,52 @@
--- .config/nvim/lua/core/autocmds.lua
+-- .config/nvim/lua/core/commands.lua
+-- Set user commands, autocommands, etc.
 
+local utils = require("core.utils")
+
+vim.api.nvim_create_user_command("EnvVariables", function()
+  local env_vars = vim.fn.environ()
+  local lines = { "# PATH VARIABLES", "" }
+  local other_vars = {}
+
+  for k, v in pairs(env_vars) do
+    if k:match("PATH$") then
+      table.insert(lines, string.format("## %s", k))
+
+      if type(v) == "string" and v ~= "" then
+        local separator = vim.fn.has("win32") == 1 and ";" or ":"
+        for path in v:gmatch("[^" .. separator .. "]+") do
+          if path ~= "" then
+            table.insert(lines, string.format("  - %s", path))
+          end
+        end
+      else
+        table.insert(lines, "  (empty)")
+      end
+      table.insert(lines, "")
+    else
+      table.insert(other_vars, string.format("%-20s = %s", k, v))
+    end
+  end
+
+  table.insert(lines, "# ENV VARIABLES")
+  for _, v in ipairs(other_vars) do
+    table.insert(lines, v)
+  end
+
+  local buf = utils.create_scratch_buf(lines)
+  vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
+  vim.keymap.set("n", "<Esc>", "<cmd>q<cr>", { buffer = buf })
+  local h = math.floor(vim.o.lines / 1.5)
+  local r = (vim.o.lines - h) / 2
+  utils.open_float_win(buf, " Environment Variables ", {
+    height = h,
+    row = r,
+  })
+end, { desc = "View system environment variables" })
+
+---Taken from LazyVim
+---@param name string
+---@return integer AutocmdGroup id
 local function augroup(name)
   return vim.api.nvim_create_augroup("Autocmds_" .. name, { clear = true })
 end
@@ -40,7 +87,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   group = augroup("hl_yank"),
   desc = "Highlight yanked lines",
   callback = function()
-    vim.hl.on_yank({ higroup = "Visual", timeout = 300, })
+    vim.hl.on_yank({ higroup = "Visual", timeout = 400, })
   end,
 })
 

@@ -45,11 +45,27 @@ return {
         ['<CR>'] = cmp.mapping.confirm({ select = false, behavior = cmp.ConfirmBehavior.Replace }),
         ['<C-y>'] = cmp.mapping.confirm({ select = true, behavior = cmp.ConfirmBehavior.Replace }),
 
-        -- Tab and S-Tab only apply to a completion menu
-        ["<Tab>"] = cmp.mapping.select_next_item(select_opts),
-        ["<S-Tab>"] = cmp.mapping.select_prev_item(select_opts),
+        -- Tab/S-Tab will cycle menu items or jump in a (local) snippet
+        ["<Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_next_item(select_opts)
+          elseif ls.expand_or_locally_jumpable() then
+            ls.expand_or_jump()
+          else
+            fallback()
+          end
+        end, { "i", "s" }),
+        ["<S-Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_prev_item(select_opts)
+          elseif ls.locally_jumpable(-1) then
+            ls.jump(-1)
+          else
+            fallback()
+          end
+        end, { "i", "s" }),
 
-        -- <C-p> and <C-n> is also used to jump snippet placeholders
+        -- <C-p> and <C-n> is also used for the above operations
         ['<C-p>'] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_prev_item(select_opts)
@@ -68,19 +84,22 @@ return {
             fallback()
           end
         end, { "i", "s" }),
+
+        -- More snippet jump shortcuts
+        ["<C-l>"] = cmp.mapping(function(fallback)
+          if ls.expand_or_locally_jumpable() then ls.expand_or_jump() else fallback() end
+        end, { "i", "s" }),
+        ["<C-h>"] = cmp.mapping(function(fallback)
+          if ls.jumpable(-1) then ls.jump(-1) else fallback() end
+        end, { "i", "s" }),
       }),
-      sources = cmp.config.sources(
-        {
-          { name = "lazydev", group_index = 0, }
-        },
-        {
-          { name = "nvim_lsp", priority = 1000, keyword_length = 1 }, -- LSP suggestions
-          { name = "luasnip",  priority = 900,  keyword_length = 1 }, -- Snippet suggestions
-          { name = "path",     priority = 500, },                     -- File system paths
-          { name = "buffer",   priority = 250,  keyword_length = 4 }, -- Buffer words
-          { name = "spell",    priority = 100,  keyword_length = 3 },
-        }
-      ),
+      sources = cmp.config.sources({
+        { name = "nvim_lsp", priority = 1000, },                    -- LSP suggestions
+        { name = "luasnip",  priority = 900, },                     -- Snippet suggestions
+        { name = "path",     priority = 500, },                     -- File system paths
+        { name = "buffer",   priority = 250,  keyword_length = 3 }, -- Buffer words
+        { name = "spell",    priority = 100,  keyword_length = 2 },
+      }),
       formatting = {
         fields = { "menu", "abbr", "kind" },
         format = function(entry, item)
@@ -122,7 +141,7 @@ return {
         filtering_context_budget = 60, -- Time allowed for cmp before control goes back to nvim
         confirm_resolve_timeout = 100, -- Time for resolving item before completion
         async_budget = 15,             -- Time async func can run during one step of event loop
-        max_view_entries = 20,         -- How many entries to disiplay in cmp menu
+        max_view_entries = 15,         -- How many entries to disiplay in cmp menu
       }
     }
   end,

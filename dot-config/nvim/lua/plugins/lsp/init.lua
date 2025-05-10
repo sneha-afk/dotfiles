@@ -28,8 +28,8 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPost", "BufNewFile", "VeryLazy" },
     keys = {
-      { "<leader>li", "<cmd>LspInfo<cr>",    desc = "[L]SP [I]nfo" },
-      { "<leader>lr", "<cmd>LspRestart<cr>", desc = "[L]SP [R]estart" },
+      { "<leader>li", "<cmd>LspInfo<cr>",    desc = "[L]SP: [I]nfo" },
+      { "<leader>lr", "<cmd>LspRestart<cr>", desc = "[L]SP: [R]estart" },
     },
     dependencies = {
       {

@@ -3,10 +3,10 @@
 
 local M = {}
 
----@param mode string|string[]     -- Mode: e.g. "n", "i", or {"n", "v"}
----@param lhs string               -- Key combination (e.g. "<leader>f")
----@param action string|fun():nil|fun(...):any      -- Function, string command, or Lua expression
----@param opts? table               -- Options table (include "desc" for which-key)
+---@param mode string|string[]            -- Mode: e.g. "n", "i", or {"n", "v"}
+---@param lhs string                      -- Key combination (e.g. "<leader>f")
+---@param action string|function          -- Function, string command, or Lua expression
+---@param opts? table|vim.keymap.set.Opts -- Options table (include "desc" for which-key)
 function M.set_keymap(mode, lhs, action, opts)
   opts = vim.tbl_extend("force", {
     noremap = true,
@@ -60,6 +60,27 @@ end
 function M.get_git_root()
   local dot_git_path = vim.fn.finddir(".git", ".;")
   return vim.fn.fnamemodify(dot_git_path, ":h")
+end
+
+---Opens a buffer within a floating window
+---@param buf integer ID of buffer
+---@param title string Title of the window
+---@param opts? table Options for the window
+function M.open_float_win(buf, title, opts)
+  local dims = M.get_centered_dims()
+  vim.api.nvim_open_win(buf, true,
+    vim.tbl_extend("force", {
+      relative = "editor",
+      width = dims[1],
+      height = dims[2],
+      col = dims[3],
+      row = dims[4],
+      style = "minimal",
+      border = "rounded",
+      title = title,
+      title_pos = "center"
+    }, opts or {})
+  )
 end
 
 return M
