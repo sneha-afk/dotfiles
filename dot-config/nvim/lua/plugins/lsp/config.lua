@@ -48,12 +48,24 @@ vim.api.nvim_create_autocmd("LspDetach", {
   end,
 })
 
+---Figures out which completion environment is being used to extend capabilities
+---@return lsp.ClientCapabilities
+local function get_capabilities_source()
+  if pcall(require, "blink.cmp") then
+    return require("blink.cmp").get_lsp_capabilities({}, false)
+  elseif pcall(require, "cmp_nvim_lsp") then
+    return require("cmp_nvim_lsp").default_capabilities()
+  else
+    return {}
+  end
+end
+
 -- Return overrides of vim.lsp.ClientConfig
 ---@type vim.lsp.Config
 return {
   capabilities = vim.tbl_deep_extend("force",
     vim.lsp.protocol.make_client_capabilities(),
-    require("cmp_nvim_lsp").default_capabilities()
+    get_capabilities_source()
   ),
   root_markers = { ".git" },
   settings = {

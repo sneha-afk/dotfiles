@@ -8,8 +8,6 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
-# Default .profile contents at bottom of file
-
 # ========================================================
 # Environment Variables
 # ========================================================
@@ -125,10 +123,12 @@ fi
 if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
     WINDOWS_DIR="/mnt/c"
     WINDOWS_PROG_FILES="$WINDOWS_DIR/Program Files"
+    WINDOWS_LOCALAPPDATA=$(wslpath -u "$(cmd.exe /c "echo %LOCALAPPDATA%" 2>/dev/null | tr -d '\r')")
     SYSTEM32_DIR="$WINDOWS_DIR/Windows/System32"
     CMD_EXE="$SYSTEM32_DIR/cmd.exe"
+
     VSCODE_EXE="$WINDOWS_PROG_FILES/Microsoft VS Code/bin/code"
-    PDF_READER="$WINDOWS_PROG_FILES/SumatraPDF/SumatraPDF.exe"
+    PDF_READER="$WINDOWS_LOCALAPPDATA/SumatraPDF/SumatraPDF.exe"
     SUBLIME_TEXT_EXE="$WINDOWS_PROG_FILES/Sublime Text/sublime_text.exe"
 
     if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ]; then
@@ -137,6 +137,8 @@ if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
 fi
 
 # ---------------------------------------------------------------
+# Source Rust/Cargo env
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 # If running bash, source .bashrc
 [ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"

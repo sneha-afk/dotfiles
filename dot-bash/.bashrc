@@ -288,6 +288,10 @@ nvim_size() {
   local cache_kb=$(du -sk "$cache" 2>/dev/null | awk '{print $1}')
   local total_kb=$(( config_kb + lazy_kb + mason_kb + ts_local_kb + cache_kb ))
 
+  # Calculate size without .git directories
+  local lazy_no_git_kb=$(find "$lazy" -type d -name ".git" -prune -o -type f -print | du -sk 2>/dev/null | awk '{print $1}')
+#   local lazy_diff_kb=$((lazy_kb - lazy_no_git_kb))
+
   local plugins=$([ -d "$lazy" ] && ls -1 "$lazy" | wc -l || echo 0)
   local lsps=$([ -d "$mason/packages" ] && ls -1 "$mason/packages" | wc -l || echo 0)
   local tss=$([ -d "$ts_local" ] && ls -1 "$ts_local" | wc -l || echo 0)
@@ -301,6 +305,7 @@ nvim_size() {
   echo "├──────────────────┬───────────────┤"
   printf "│ %-16s │ %13s │\n" "Config Files" "$(fmt_size "$config_kb")"
   printf "│ %-16s │ %13s │\n" "Plugins ($plugins)" "$(fmt_size "$lazy_kb")"
+  printf "│ %-16s │ %13s │\n" " ^ w/o .git dirs" "$(fmt_size "$lazy_no_git_kb")"
   printf "│ %-16s │ %13s │\n" "LSPs ($lsps)" "$(fmt_size "$mason_kb")"
   printf "│ %-16s │ %13s │\n" "Treesitters ($tss)" "$(fmt_size "$ts_local_kb")"
   printf "│ %-16s │ %13s │\n" "Cache" "$(fmt_size "$cache_kb")"

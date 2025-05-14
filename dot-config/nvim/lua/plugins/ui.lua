@@ -7,7 +7,7 @@ return {
     version = false,
     event = "UIEnter",
     keys = {
-      { "<leader>gd", function() require("mini.diff").toggle_overlay() end, desc = "[G]it: toggle [D]iff Overlay" },
+      { "<leader>gd", function() require("mini.diff").toggle_overlay(0) end, desc = "[G]it: toggle [D]iff Overlay" },
     },
     opts = {
       view = {
@@ -36,6 +36,8 @@ return {
     lazy = false,
     priority = 1000,
     dependencies = { "echasnovski/mini.diff", },
+    ---@module "snacks"
+    ---@type snacks.Config
     opts = {
       indent = {
         enabled = true,
@@ -94,5 +96,110 @@ return {
         end,
       })
     end,
+  },
+  {
+    "Bekaboo/dropbar.nvim",
+    event = "UIEnter",
+    dependencies = {
+      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+    },
+    opts = {
+      icons = {
+        enable = true,
+        ui = {
+          bar = {
+            separator = " ) ",
+            extends = "…",
+          },
+          menu = {
+            -- separator = " ⟩ ",
+            indicator = " ⟩ ",
+          },
+        },
+        kinds = {
+          symbols = {
+            Array = "[] ",
+            BlockMappingPair = "{} ",
+            Boolean = "bool ",
+            BreakStatement = "break ",
+            Call = "fn() ",
+            CaseStatement = "case ",
+            Class = "class ",
+            Color = "# ",
+            Constant = "const ",
+            Constructor = "ctor ",
+            ContinueStatement = "cont ",
+            Copilot = "AI ",
+            Declaration = "decl ",
+            Delete = "del ",
+            DoStatement = "do ",
+            Element = "elem ",
+            Enum = "enum ",
+            EnumMember = "enumval ",
+            Event = "⍺ ",
+            Field = "■ ",
+            File = "⛶ ",
+            Folder = "🖿",
+            ForStatement = "for ",
+            Function = "ƒ ",
+            GotoStatement = "goto ",
+            Identifier = "id ",
+            IfStatement = "if ",
+            Interface = "iface ",
+            Keyword = "kw ",
+            List = "☰ ",
+            Log = "log ",
+            Lsp = "LSP ",
+            Macro = "macro ",
+            MarkdownH1 = "# ",
+            MarkdownH2 = "## ",
+            MarkdownH3 = "### ",
+            MarkdownH4 = "#### ",
+            MarkdownH5 = "##### ",
+            MarkdownH6 = "###### ",
+            Method = "ƒ ",
+            Module = "mod ",
+            Namespace = "ns ",
+            Null = "null ",
+            Number = "123 ",
+            Object = "▢ ",
+            Operator = "op ",
+            Package = "pkg ",
+            Pair = "pair ",
+            Property = "prop ",
+            Reference = "ref ",
+            Regex = "re ",
+            Repeat = "loop ",
+            Return = "ret ",
+            RuleSet = "rules ",
+            Scope = "{} ",
+            Section = "§ ",
+            Snippet = "✁ ",
+            Specifier = "spec ",
+            Statement = "stmt ",
+            String = "\"\" ",
+            Struct = "struct ",
+            SwitchStatement = "switch ",
+            Table = "tbl ",
+            Terminal = "term ",
+            Text = "txt ",
+            Type = "type ",
+            TypeParameter = "T ",
+            Unit = "unit ",
+            Value = "val ",
+            Variable = "var ",
+            WhileStatement = "while "
+          },
+        },
+      },
+    },
+    config = function(_, opts)
+      require("dropbar").setup(opts)
+
+      local dropbar_api = require('dropbar.api')
+      vim.keymap.set('n', '<Leader>;', dropbar_api.pick, { desc = 'Pick symbols in winbar' })
+      vim.keymap.set('n', '[;', dropbar_api.goto_context_start, { desc = 'Go to start of current context' })
+      vim.keymap.set('n', '];', dropbar_api.select_next_context, { desc = 'Select next context' })
+    end
   },
 }

@@ -31,15 +31,4 @@ return {
       vim.cmd.colorscheme("kanagawa-paper-ink")
     end,
   },
-  {
-    "vague2k/vague.nvim",
-    lazy = true,
-    priority = 1000,
-    opts = {
-    },
-    config = function(_, opts)
-      require("vague").setup(opts)
-      vim.cmd.colorscheme("vague")
-    end
-  },
 }

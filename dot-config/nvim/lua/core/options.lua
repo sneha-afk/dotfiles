@@ -22,12 +22,13 @@ vim.opt.undodir        = vim.fn.stdpath("data") .. "/undo"
 -- ===================================================================
 -- User Interface
 -- ===================================================================
-vim.opt.number         = true  -- Line numbers
-vim.opt.termguicolors  = true  -- True color support
-vim.opt.cursorline     = true  -- Highlight current line
-vim.opt.showmode       = false -- Disable mode text (handled by lualine)
-vim.opt.pumheight      = 15    -- Popup menu height limit
-vim.opt.pumblend       = 10    -- Popup menu transparency
+vim.opt.number         = true      -- Line numbers
+vim.opt.termguicolors  = true      -- True color support
+vim.opt.cursorline     = true      -- Highlight current line
+vim.opt.showmode       = true      -- Show current mode (turn off in statusline plugins)
+vim.opt.pumheight      = 15        -- Popup menu height limit
+vim.opt.pumblend       = 10        -- Popup menu transparency
+vim.opt.winborder      = "rounded" -- Border for windows
 
 -- ===================================================================
 -- Window and Buffer Management

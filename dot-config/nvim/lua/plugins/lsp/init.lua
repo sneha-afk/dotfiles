@@ -1,6 +1,18 @@
 -- .config/nvim/lua/plugins/lsp/init.lua
 
 return {
+  -- Lazy-loads plugin completions
+  {
+    "folke/lazydev.nvim",
+    ft = "lua",
+    cmd = "LazyDev",
+    opts = {
+      library = {
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    },
+  },
+
   -- Mason configuration (LSP installer)
   -- Installed to "$HOME/.local/share/nvim/mason/bin"
   {
@@ -42,7 +54,6 @@ return {
           ensure_installed = {},
         },
       },
-      "hrsh7th/cmp-nvim-lsp",
     },
     config = function()
       -- Setup keymaps and autocommands, get back a vim.lsp.Config
