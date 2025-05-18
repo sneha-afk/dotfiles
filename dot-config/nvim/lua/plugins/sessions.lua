@@ -50,8 +50,10 @@ return {
         failed = failed + 1
         vim.notify("Failed to delete: " .. session_path, vim.log.levels.ERROR)
       end
-      vim.notify(string.format("Deleted %d session(s)%s", deleted,
-        failed > 0 and (" (%d failed)"):format(failed) or ""), vim.log.levels.INFO)
+      vim.notify(
+        string.format("Deleted %d session(s)%s", deleted, failed > 0 and (" (%d failed)"):format(failed) or ""),
+        vim.log.levels.INFO
+      )
     end
 
     -- Select one session from vim.ui.select
@@ -60,12 +62,14 @@ return {
       if not sessions then return end
 
       local session_names = vim.tbl_map(format_session_path, sessions)
-      vim.ui.select(session_names, {
+      vim.ui.select(session_names,
+        {
           prompt = "Select session to delete:",
         },
         function(choice, idx)
           if choice and idx then delete_session(sessions[idx]) end
-        end)
+        end
+      )
     end, { desc = "Delete a section selected by user" })
 
     -- Delete all sessions
@@ -87,9 +91,11 @@ return {
         for _, file in ipairs(sessions) do
           if os.remove(file) then deleted = deleted + 1 end
         end
-        vim.notify(string.format("Deleted %d/%d sessions", deleted, #sessions),
-          deleted > 0 and vim.log.levels.INFO or vim.log.levels.ERROR)
+        vim.notify(
+          string.format("Deleted %d/%d sessions", deleted, #sessions),
+          deleted > 0 and vim.log.levels.INFO or vim.log.levels.ERROR
+        )
       end
     end, { desc = "Delete all sessions with confirmation" })
-  end
+  end,
 }

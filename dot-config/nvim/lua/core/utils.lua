@@ -33,9 +33,9 @@ end
 ---@return integer ID of scratch buffer
 function M.create_scratch_buf(content)
   local buf = vim.api.nvim_create_buf(true, true)
-  vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
-  vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
-  vim.api.nvim_set_option_value("swapfile", false, { buf = buf })
+  vim.api.nvim_set_option_value("buftype",   "nofile", { buf = buf })
+  vim.api.nvim_set_option_value("bufhidden", "wipe",   { buf = buf })
+  vim.api.nvim_set_option_value("swapfile",  false,    { buf = buf })
   if content then vim.api.nvim_buf_set_lines(buf, 0, -1, false, content) end
   return buf
 end
@@ -78,7 +78,7 @@ function M.open_float_win(buf, title, opts)
       style = "minimal",
       border = "rounded",
       title = title,
-      title_pos = "center"
+      title_pos = "center",
     }, opts or {})
   )
 end

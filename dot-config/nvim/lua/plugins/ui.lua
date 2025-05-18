@@ -7,7 +7,11 @@ return {
     version = false,
     event = "UIEnter",
     keys = {
-      { "<leader>gd", function() require("mini.diff").toggle_overlay(0) end, desc = "[G]it: toggle [D]iff Overlay" },
+      {
+        "<leader>gd",
+        function() require("mini.diff").toggle_overlay(0) end,
+        desc = "[G]it: toggle [D]iff Overlay",
+      },
     },
     opts = {
       view = {
@@ -18,24 +22,24 @@ return {
     config = function(_, opts)
       require("mini.diff").setup(opts)
 
-      vim.api.nvim_set_hl(0, "MiniDiffSignAdd", { link = "DiffAdd" })
-      vim.api.nvim_set_hl(0, "MiniDiffSignChange", { link = "DiffChange" })
-      vim.api.nvim_set_hl(0, "MiniDiffSignDelete", { link = "DiffDelete" })
+      vim.api.nvim_set_hl(0, "MiniDiffSignAdd",        { link = "DiffAdd" })
+      vim.api.nvim_set_hl(0, "MiniDiffSignChange",     { link = "DiffChange" })
+      vim.api.nvim_set_hl(0, "MiniDiffSignDelete",     { link = "DiffDelete" })
 
-      vim.api.nvim_set_hl(0, "MiniDiffOverAdd", { link = "DiffAdd" })
-      vim.api.nvim_set_hl(0, "MiniDiffOverChange", { link = "DiffChange" })
-      vim.api.nvim_set_hl(0, "MiniDiffOverChangeBuf", { link = "Comment" })
-      vim.api.nvim_set_hl(0, "MiniDiffOverContext", { link = "Comment" })
+      vim.api.nvim_set_hl(0, "MiniDiffOverAdd",        { link = "DiffAdd" })
+      vim.api.nvim_set_hl(0, "MiniDiffOverChange",     { link = "DiffChange" })
+      vim.api.nvim_set_hl(0, "MiniDiffOverChangeBuf",  { link = "Comment" })
+      vim.api.nvim_set_hl(0, "MiniDiffOverContext",    { link = "Comment" })
       vim.api.nvim_set_hl(0, "MiniDiffOverContextBuf", { link = "Comment" })
-      vim.api.nvim_set_hl(0, "MiniDiffOverDelete", { link = "DiffDelete" })
-    end
+      vim.api.nvim_set_hl(0, "MiniDiffOverDelete",     { link = "DiffDelete" })
+    end,
   },
   -- Snacks!
   {
     "folke/snacks.nvim",
     lazy = false,
     priority = 1000,
-    dependencies = { "echasnovski/mini.diff", },
+    dependencies = { "echasnovski/mini.diff" },
     ---@module "snacks"
     ---@type snacks.Config
     opts = {
@@ -60,9 +64,7 @@ return {
       },
       zen = {
         enabled = true,
-        on_open = function(win)
-          vim.cmd("set nu!")
-        end,
+        on_open = function(win) vim.cmd("set nu!") end,
       },
       styles = {
         input = {
@@ -80,8 +82,8 @@ return {
         top_down = false, -- false for bottom up
         icons = {
           error = "[E] ",
-          warn  = "[W] ",
-          info  = "[I] ",
+          warn = "[W] ",
+          info = "[I] ",
           debug = "[D] ",
           trace = "[T] ",
         },
@@ -92,7 +94,7 @@ return {
         pattern = "VeryLazy",
         callback = function()
           Snacks.toggle.indent():map("<leader>ui")
-          Snacks.toggle.zen():map("<leader>z")
+          Snacks.toggle.zen():map("<leader>uz")
         end,
       })
     end,
@@ -177,7 +179,7 @@ return {
             Snippet = "✁ ",
             Specifier = "spec ",
             Statement = "stmt ",
-            String = "\"\" ",
+            String = '"" ',
             Struct = "struct ",
             SwitchStatement = "switch ",
             Table = "tbl ",
@@ -188,7 +190,7 @@ return {
             Unit = "unit ",
             Value = "val ",
             Variable = "var ",
-            WhileStatement = "while "
+            WhileStatement = "while ",
           },
         },
       },
@@ -196,10 +198,10 @@ return {
     config = function(_, opts)
       require("dropbar").setup(opts)
 
-      local dropbar_api = require('dropbar.api')
-      vim.keymap.set('n', '<Leader>;', dropbar_api.pick, { desc = 'Pick symbols in winbar' })
-      vim.keymap.set('n', '[;', dropbar_api.goto_context_start, { desc = 'Go to start of current context' })
-      vim.keymap.set('n', '];', dropbar_api.select_next_context, { desc = 'Select next context' })
-    end
+      local dropbar_api = require("dropbar.api")
+      vim.keymap.set("n", "<Leader>;", dropbar_api.pick,                { desc = "Pick symbols in winbar" })
+      vim.keymap.set("n", "[;",        dropbar_api.goto_context_start,  { desc = "Go to start of current context" })
+      vim.keymap.set("n", "];",        dropbar_api.select_next_context, { desc = "Select next context" })
+    end,
   },
 }

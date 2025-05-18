@@ -22,13 +22,13 @@ vim.opt.undodir        = vim.fn.stdpath("data") .. "/undo"
 -- ===================================================================
 -- User Interface
 -- ===================================================================
-vim.opt.number         = true      -- Line numbers
-vim.opt.termguicolors  = true      -- True color support
-vim.opt.cursorline     = true      -- Highlight current line
-vim.opt.showmode       = true      -- Show current mode (turn off in statusline plugins)
-vim.opt.pumheight      = 15        -- Popup menu height limit
-vim.opt.pumblend       = 10        -- Popup menu transparency
-vim.opt.winborder      = "rounded" -- Border for windows
+vim.opt.number         = true -- Line numbers
+vim.opt.termguicolors  = true -- True color support
+vim.opt.cursorline     = true -- Highlight current line
+vim.opt.showmode       = true -- Show current mode (turn off in statusline plugins)
+vim.opt.pumheight      = 15   -- Popup menu height limit
+vim.opt.pumblend       = 10   -- Popup menu transparency
+-- vim.opt.winborder      = "rounded" -- Border for windows
 
 -- ===================================================================
 -- Window and Buffer Management
@@ -62,7 +62,7 @@ vim.opt.shiftround     = true -- Round indents to multiples
 -- Character lists
 -- ===================================================================
 vim.opt.list           = true
-vim.opt.listchars      = { tab = "▸ ", trail = "·", nbsp = "␣", }
+vim.opt.listchars      = { tab = "▸ ", trail = "·", nbsp = "␣" }
 vim.opt.fillchars      = { foldopen = "▾", foldsep = "│", foldclose = "▸" }
 
 -- ===================================================================

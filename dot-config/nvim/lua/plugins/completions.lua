@@ -8,8 +8,8 @@ return {
   dependencies = {
     "rafamadriz/friendly-snippets",
   },
-  version = '1.*',
-  ---@module 'blink.cmp'
+  version = "1.*",
+  ---@module "blink.cmp"
   ---@type blink.cmp.Config
   opts = {
     -- From the docs:
@@ -32,7 +32,7 @@ return {
       ["<C-l>"] = { "snippet_forward", "fallback" },
     },
     sources = {
-      default = { "lazydev", "lsp", "snippets", "path", "buffer", },
+      default = { "lazydev", "lsp", "snippets", "path", "buffer" },
       providers = {
         lazydev = {
           name = "LazyDev",
@@ -43,10 +43,16 @@ return {
     },
     signature = {
       enabled = true,
+      window = {
+        border = "rounded",
+      },
     },
     completion = {
       documentation = {
         auto_show = true,
+        window = {
+          border = "rounded",
+        },
       },
       ghost_text = {
         enabled = true,
@@ -55,6 +61,7 @@ return {
       menu = {
         min_width = 20,
         max_height = 10,
+        border = "rounded",
         draw = {
           components = {
             kind_icon = {
@@ -74,8 +81,8 @@ return {
             },
           },
           columns = {
-            { "kind_icon", "label", "label_description", gap = 1, },
-            { "kind", },
+            { "kind_icon", "label", "label_description", gap = 1 },
+            { "kind" },
           },
         },
       },

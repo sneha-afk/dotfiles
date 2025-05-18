@@ -1,5 +1,11 @@
 # nvim
 
+<a href="https://dotfyle.com/sneha-afk/dotfiles-dot-config-nvim"><img src="https://dotfyle.com/sneha-afk/dotfiles-dot-config-nvim/badges/plugins?style=flat-square" /></a>
+<a href="https://dotfyle.com/sneha-afk/dotfiles-dot-config-nvim"><img src="https://dotfyle.com/sneha-afk/dotfiles-dot-config-nvim/badges/leaderkey?style=flat-square" /></a>
+<a href="https://dotfyle.com/sneha-afk/dotfiles-dot-config-nvim"><img src="https://dotfyle.com/sneha-afk/dotfiles-dot-config-nvim/badges/plugin-manager?style=flat-square" /></a>
+
+> Badges from [Dotfyle](https://dotfyle.com)
+
 Upon opening for the first time, you will be prompted on whether to install Lazy.nvim and the plugins
 listed in `plugins/`.
 
@@ -65,4 +71,3 @@ To extend/override from the default settings, use `vim.lsp.config` within `lsp/s
 | `plugins/lsp/config.lua`  | Configure shared settings for all LSPs, `LspAttach`, and `LspDetach` |
 | `plugins/lsp/server_configs.lua` | Set up any extensions/overrides of LSP settings |
 | `plugins/lsp/server_keymaps.lua` | Map server-specific commands, detected on `LspAttach` |
-

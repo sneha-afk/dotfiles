@@ -67,10 +67,14 @@ return {
 
       -- Enable LSPs to attach when their respective filetypes are opened
       vim.lsp.enable({
-        "lua_ls", "gopls", "clangd", "pyright",
+        "lua_ls",
+        "gopls",
+        "clangd",
+        "pyright",
+        "protols",
       })
 
       vim.lsp.inlay_hint.enable()
-    end
+    end,
   },
 }

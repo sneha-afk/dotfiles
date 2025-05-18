@@ -13,29 +13,28 @@ vim.g.maplocalleader = "\\"
 vim.uv = vim.uv or vim.loop
 
 -- Load core configurations in this order
-require "core.options"
-require "core.filetypes"
-require "core.commands"
-require "core.keymaps"
-require "core.terminal"
+require("core.options")
+require("core.filetypes")
+require("core.commands")
+require("core.keymaps")
+require("core.terminal")
 
-vim.diagnostic.config(
 ---@type vim.diagnostic.Opts
-  {
-    update_in_insert = true,
-    virtual_text = {
-      spacing = 2,
-      source = "if_many",
-    },
-    severity_sort = true,
-    float = {
-      border = "rounded",
-      header = "",
-      title = " Diagnostics ",
-      source = "if_many",
-    },
-  }
-)
+local diagnostic_opts = {
+  update_in_insert = true,
+  virtual_text = {
+    spacing = 2,
+    source = "if_many",
+  },
+  severity_sort = true,
+  float = {
+    border = "rounded",
+    header = "",
+    title = " Diagnostics ",
+    source = "if_many",
+  },
+}
+vim.diagnostic.config(diagnostic_opts)
 
 -- Ask if plugins should be installed if not already
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -56,4 +55,4 @@ if not vim.uv.fs_stat(lazypath) then
 end
 
 -- Initialize plugin system
-require "core.lazy"
+require("core.lazy")

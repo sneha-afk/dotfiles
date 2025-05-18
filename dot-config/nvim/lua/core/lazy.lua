@@ -19,7 +19,6 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 
-
 -- Grabs all setup files in plugins
 vim.keymap.set("n", "<leader>ll", "<cmd>Lazy<cr>", { desc = "Open Lazy plugin manager" })
 require("lazy").setup({
@@ -49,20 +48,19 @@ require("lazy").setup({
     },
     border = "rounded",
     title = " lazy.nvim ",
-    backdrop = 100,
-    size = { width = 0.9, height = 0.85, },
+    size = { width = 0.8, height = 0.85 },
   },
   checker = {
     enabled = true,    -- Enable plugin version checking
     frequency = 86400, -- Check every 86,400 seconds (24 hours)
-    concurrency = 5    -- Max parallel update checks
+    concurrency = 5,   -- Max parallel update checks
   },
   change_detection = {
     enabled = true, -- Monitor plugin files for changes
     notify = false, -- Disable "plugins modified" alerts
   },
   performance = {
-    cache = { enabled = true, },
+    cache = { enabled = true },
     rtp = {
       disabled_plugins = {
         "gzip",        -- Built-in compression (unneeded with modern SSDs)
@@ -71,7 +69,7 @@ require("lazy").setup({
         "tohtml",      -- HTML export (security risk)
         "tutor",
         "zipPlugin",   -- Archive handling
-        "rplugin"      -- Legacy remote plugin system
+        "rplugin",     -- Legacy remote plugin system
       },
     },
   },

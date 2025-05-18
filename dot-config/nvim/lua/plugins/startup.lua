@@ -21,19 +21,14 @@ local function get_greeting()
   }
 
   for _, greeting in ipairs(greetings) do
-    if hour < greeting.max then
-      return greeting.emoji .. " " .. greeting.msg
-    end
+    if hour < greeting.max then return greeting.emoji .. " " .. greeting.msg end
   end
   return "Hello"
 end
 
-
 return {
   "echasnovski/mini.starter",
-  event = function()
-    return vim.fn.argc() == 0 and "VimEnter" or nil
-  end,
+  event = function() return vim.fn.argc() == 0 and "VimEnter" or nil end,
   dependencies = {
     "folke/lazy.nvim",
     "nvim-telescope/telescope.nvim",
@@ -44,15 +39,17 @@ return {
     local greeting = get_greeting()
 
     starter.setup({
-      header = function()
-        return HEADER_ART .. "\n" .. greeting .. ", " .. username .. ".\n"
-      end,
+      header = function() return HEADER_ART .. "\n" .. greeting .. ", " .. username .. ".\n" end,
       items = {
-        { section = "Actions", name = "New File",                  action = "ene | startinsert" },
-        { section = "Actions", name = "Browse files",              action = "Telescope file_browser" },
-        { section = "Actions", name = "Find files",                action = "Telescope find_files", },
-        { section = "Actions", name = "Search",                    action = "Telescope live_grep" },
-        { section = "Actions", name = "Load previous session",     action = function() require("persistence").select() end, },
+        { section = "Actions", name = "New File",     action = "ene | startinsert" },
+        { section = "Actions", name = "Browse files", action = "Telescope file_browser" },
+        { section = "Actions", name = "Find files",   action = "Telescope find_files" },
+        { section = "Actions", name = "Search",       action = "Telescope live_grep" },
+        {
+          section = "Actions",
+          name = "Load previous session",
+          action = function() require("persistence").select() end,
+        },
         { section = "Actions", name = "Quit",                      action = "qa" },
 
         { section = "Tools",   name = "Edit Config",               action = "e $MYVIMRC" },
@@ -68,23 +65,18 @@ return {
       footer = function()
         local version = vim.version()
         local nvim_version = string.format("NVIM v%d.%d.%d", version.major, version.minor, version.patch)
-        local curr_working_dir = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+        local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
 
-        return string.format(
-          "%s • %s\n%s",
-          os.date("%A, %B %d %Y • %I:%M %p"),
-          nvim_version,
-          curr_working_dir
-        )
+        return string.format("%s • %s\n%s", os.date("%A, %B %d %Y • %I:%M %p"), nvim_version, cwd)
       end,
     })
 
-    vim.api.nvim_set_hl(0, "MiniStarterHeader", { link = "Define" })
-    vim.api.nvim_set_hl(0, "MiniStarterFooter", { link = "LineNr" })
-    vim.api.nvim_set_hl(0, "MiniStarterQuery", { link = "IncSearch" })
+    vim.api.nvim_set_hl(0, "MiniStarterHeader",     { link = "Define" })
+    vim.api.nvim_set_hl(0, "MiniStarterFooter",     { link = "LineNr" })
+    vim.api.nvim_set_hl(0, "MiniStarterQuery",      { link = "IncSearch" })
     vim.api.nvim_set_hl(0, "MiniStarterItemPrefix", { link = "Keyword" })
     vim.api.nvim_set_hl(0, "MiniStarterItemBullet", { link = "LineNr" })
-    vim.api.nvim_set_hl(0, "MiniStarterCurrent", { link = "CursorLine" })
-    vim.api.nvim_set_hl(0, "MiniStarterSection", { link = "MsgSeparator" })
+    vim.api.nvim_set_hl(0, "MiniStarterCurrent",    { link = "CursorLine" })
+    vim.api.nvim_set_hl(0, "MiniStarterSection",    { link = "MsgSeparator" })
   end,
 }

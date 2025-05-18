@@ -8,7 +8,11 @@ return {
       theme = "auto",
       icons_enabled = false,
       disabled_filetypes = {
-        "starter", "ministarter", "help", "lazy", "mason",
+        "starter",
+        "ministarter",
+        "help",
+        "lazy",
+        "mason",
       },
       always_show_tabline = false,
     },
@@ -20,14 +24,14 @@ return {
           path = 4, -- Parent directory + current file
         },
       },
-      lualine_c = { "branch", "diff", "diagnostics", },
+      lualine_c = { "branch", "diff", "diagnostics" },
       lualine_x = {
         {
           "lsp_status",
           icon = "",
           ignore_lsp = {},
         },
-        "filetype"
+        "filetype",
       },
     },
     -- Inactive windows default: only show filename and location
@@ -39,12 +43,12 @@ return {
           max_length = vim.o.columns / 1.5,
           mode = 2, -- Tab number and name
           path = 1, -- Relative path
-        }
+        },
       },
     },
   },
   config = function(_, opts)
     require("lualine").setup(opts)
     vim.opt.showmode = false
-  end
+  end,
 }

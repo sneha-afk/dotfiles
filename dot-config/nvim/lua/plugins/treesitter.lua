@@ -8,9 +8,15 @@ return {
   dependencies = {
     "nvim-treesitter/nvim-treesitter-textobjects",
   },
+  ---@class TSConfig
   opts = {
     ensure_installed = {
-      "c", "cpp", "lua", "go", "python", "bash"
+      "c",
+      "cpp",
+      "lua",
+      "go",
+      "python",
+      "bash",
     },
     sync_install = false,
     highlight = {

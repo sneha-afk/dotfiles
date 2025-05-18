@@ -15,9 +15,7 @@ vim.api.nvim_create_user_command("EnvVariables", function()
       if type(v) == "string" and v ~= "" then
         local separator = vim.fn.has("win32") == 1 and ";" or ":"
         for path in v:gmatch("[^" .. separator .. "]+") do
-          if path ~= "" then
-            table.insert(lines, string.format("  - %s", path))
-          end
+          if path ~= "" then table.insert(lines, string.format("  - %s", path)) end
         end
       else
         table.insert(lines, "  (empty)")
@@ -76,9 +74,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
     -- Restore position: account for cursor being in those extra newlines
     local new_line_count = vim.api.nvim_buf_line_count(0)
-    if curpos[1] > new_line_count then
-      curpos[1] = math.max(1, new_line_count)
-    end
+    if curpos[1] > new_line_count then curpos[1] = math.max(1, new_line_count) end
     vim.api.nvim_win_set_cursor(0, curpos)
   end,
 })
@@ -86,9 +82,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = augroup("hl_yank"),
   desc = "Highlight yanked lines",
-  callback = function()
-    vim.hl.on_yank({ higroup = "Visual", timeout = 400, })
-  end,
+  callback = function() vim.hl.on_yank({ higroup = "Visual", timeout = 400 }) end,
 })
 
 vim.api.nvim_create_autocmd("VimEnter", {

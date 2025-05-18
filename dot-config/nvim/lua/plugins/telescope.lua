@@ -13,7 +13,7 @@ return {
     {
       "<leader>fe",
       "<cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>", -- From current buffer
-      desc = "[F]ile: [E]xplorer"
+      desc = "[F]ile: [E]xplorer",
     },
     { "<leader>ff", "<cmd>Telescope find_files<cr>",            desc = "[F]ind: [F]iles" },
     { "<leader>fg", "<cmd>Telescope live_grep<cr>",             desc = "[F]ind: live [G]rep" },
@@ -44,7 +44,9 @@ return {
     "nvim-telescope/telescope-ui-select.nvim", -- Set vim.ui.select to telescope
     "nvim-telescope/telescope-file-browser.nvim",
   },
-  opts = function()
+  config = function()
+    local telescope = require("telescope")
+
     local actions = require("telescope.actions")
     local utils = require("telescope.utils")
     local my_utils = require("core.utils")
@@ -59,16 +61,15 @@ return {
       end
     end
 
-    return {
+    telescope.setup({
       defaults = {
-        -- Mappings within a Telescope prompt
         mappings = {
           i = {
             ["<ESC>"] = actions.close,
             ["<C-?>"] = "which_key",
           },
         },
-        file_ignore_patterns = { "node_modules", ".git", ".cache", "%.o", "%.out", },
+        file_ignore_patterns = { "node_modules", ".git", ".cache", "%.o", "%.out" },
         layout_strategy = "flex",
         layout_config = {
           horizontal = {
@@ -103,14 +104,11 @@ return {
           respect_gitignore = true,
         },
       },
-    }
-  end,
-  config = function(_, opts)
-    require("telescope").setup(opts)
+    })
 
     -- Load extensions
-    pcall(require("telescope").load_extension, "fzf")
-    pcall(require("telescope").load_extension, "ui-select")
-    pcall(require("telescope").load_extension, "file_browser")
+    pcall(telescope.load_extension, "fzf")
+    pcall(telescope.load_extension, "ui-select")
+    pcall(telescope.load_extension, "file_browser")
   end,
 }

@@ -6,7 +6,7 @@ return {
   enabled = false,
   event = "InsertEnter",
   dependencies = {
-    "hrsh7th/cmp-nvim-lsp",       -- LSP completions
+    "hrsh7th/cmp-nvim-lsp", -- LSP completions
     {
       "saadparwaiz1/cmp_luasnip", -- Snippet completions
       dependencies = {
@@ -28,9 +28,9 @@ return {
             require("luasnip.loaders.from_vscode").lazy_load({
               paths = {
                 vim.fn.stdpath("data") .. "/lazy/friendly-snippets", -- Built-in vscode-style snippets
-                vim.fn.stdpath("config") .. "/snippets",             -- Personal snippets in .config/nvim/snippets
-                vim.uv.cwd() .. "/.nvim/snippets"                    -- Project-specific snippets
-              }
+                vim.fn.stdpath("config") .. "/snippets", -- Personal snippets in .config/nvim/snippets
+                vim.uv.cwd() .. "/.nvim/snippets", -- Project-specific snippets
+              },
             })
 
             vim.api.nvim_create_user_command("EditSnippets", function()
@@ -51,15 +51,15 @@ return {
                     end
                   end
                   return file
-                end
+                end,
               })
             end, { desc = "Open snippet files for editing" })
-          end
+          end,
         },
       },
     },
     "hrsh7th/cmp-buffer", -- Buffer words
-    "hrsh7th/cmp-path",   -- File paths
+    "hrsh7th/cmp-path", -- File paths
     "f3fora/cmp-spell",
   },
   opts = function()
@@ -70,9 +70,7 @@ return {
 
     return {
       snippet = {
-        expand = function(args)
-          ls.lsp_expand(args.body)
-        end,
+        expand = function(args) ls.lsp_expand(args.body) end,
       },
       completion = {
         completeopt = "menu,menuone,noselect",
@@ -83,15 +81,15 @@ return {
         },
       },
       mapping = cmp.mapping.preset.insert({
-        ["<C-Space>"] = cmp.mapping.complete(),  -- Manual trigger
-        ["<C-e>"] = cmp.mapping.abort(),         -- Close menu
-        ['<C-j>'] = cmp.mapping.scroll_docs(-4), -- Scroll down
-        ['<C-k>'] = cmp.mapping.scroll_docs(4),  -- Scroll up
+        ["<C-Space>"] = cmp.mapping.complete(), -- Manual trigger
+        ["<C-e>"] = cmp.mapping.abort(), -- Close menu
+        ["<C-j>"] = cmp.mapping.scroll_docs(-4), -- Scroll down
+        ["<C-k>"] = cmp.mapping.scroll_docs(4), -- Scroll up
 
         -- Select: true if select whatever is under cursor, false if need to interact with menu first
         -- Replace: replace entire word under cursor (important to not have butchered characters)
-        ['<CR>'] = cmp.mapping.confirm({ select = false, behavior = cmp.ConfirmBehavior.Replace }),
-        ['<C-y>'] = cmp.mapping.confirm({ select = true, behavior = cmp.ConfirmBehavior.Replace }),
+        ["<CR>"] = cmp.mapping.confirm({ select = false, behavior = cmp.ConfirmBehavior.Replace }),
+        ["<C-y>"] = cmp.mapping.confirm({ select = true, behavior = cmp.ConfirmBehavior.Replace }),
 
         -- Tab/S-Tab will cycle menu items or jump in a (local) snippet
         ["<Tab>"] = cmp.mapping(function(fallback)
@@ -114,7 +112,7 @@ return {
         end, { "i", "s" }),
 
         -- <C-p> and <C-n> is also used for the above operations
-        ['<C-p>'] = cmp.mapping(function(fallback)
+        ["<C-p>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_prev_item(select_opts)
           elseif ls.jumpable(-1) then
@@ -123,7 +121,7 @@ return {
             fallback()
           end
         end, { "i", "s" }),
-        ['<C-n>'] = cmp.mapping(function(fallback)
+        ["<C-n>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_next_item(select_opts)
           elseif ls.jumpable(1) then
@@ -135,18 +133,26 @@ return {
 
         -- More snippet jump shortcuts
         ["<C-l>"] = cmp.mapping(function(fallback)
-          if ls.expand_or_locally_jumpable() then ls.expand_or_jump() else fallback() end
+          if ls.expand_or_locally_jumpable() then
+            ls.expand_or_jump()
+          else
+            fallback()
+          end
         end, { "i", "s" }),
         ["<C-h>"] = cmp.mapping(function(fallback)
-          if ls.jumpable(-1) then ls.jump(-1) else fallback() end
+          if ls.jumpable(-1) then
+            ls.jump(-1)
+          else
+            fallback()
+          end
         end, { "i", "s" }),
       }),
       sources = cmp.config.sources({
-        { name = "nvim_lsp", priority = 1000, },                    -- LSP suggestions
-        { name = "luasnip",  priority = 900, },                     -- Snippet suggestions
-        { name = "path",     priority = 500, },                     -- File system paths
-        { name = "buffer",   priority = 250,  keyword_length = 3 }, -- Buffer words
-        { name = "spell",    priority = 100,  keyword_length = 2 },
+        { name = "nvim_lsp", priority = 1000 }, -- LSP suggestions
+        { name = "luasnip", priority = 900 }, -- Snippet suggestions
+        { name = "path", priority = 500 }, -- File system paths
+        { name = "buffer", priority = 250, keyword_length = 3 }, -- Buffer words
+        { name = "spell", priority = 100, keyword_length = 2 },
       }),
       formatting = {
         fields = { "menu", "abbr", "kind" },
@@ -156,7 +162,7 @@ return {
             nvim_lsp = "✦",
             buffer = "⚇",
             luasnip = "⌥",
-            spell = "⌯"
+            spell = "⌯",
           }
           item.menu = menu_icon[entry.source.name] or "?"
           return item
@@ -165,15 +171,15 @@ return {
       sorting = {
         priority_weight = 2.0,
         comparators = {
-          cmp.config.compare.score,         -- Respect LSP relevance
-          cmp.config.compare.offset,        -- Prefer nearby symbols
-          cmp.config.compare.exact,         -- Exact matches
+          cmp.config.compare.score, -- Respect LSP relevance
+          cmp.config.compare.offset, -- Prefer nearby symbols
+          cmp.config.compare.exact, -- Exact matches
           cmp.config.compare.recently_used, -- Boost frequently used items
-          cmp.config.compare.kind,          -- Group by type (e.g., functions before variables)
-          cmp.config.compare.sort_text,     -- Secondary LSP hints
-          cmp.config.compare.length,        -- Prefer shorter names
-          cmp.config.compare.order,         -- Alphabetical fallback
-        }
+          cmp.config.compare.kind, -- Group by type (e.g., functions before variables)
+          cmp.config.compare.sort_text, -- Secondary LSP hints
+          cmp.config.compare.length, -- Prefer shorter names
+          cmp.config.compare.order, -- Alphabetical fallback
+        },
       },
       window = {
         completion = cmp.config.window.bordered(),
@@ -183,14 +189,14 @@ return {
         ghost_text = true,
       },
       performance = {
-        debounce = 30,                 -- How long to wait after typing stops
-        throttle = 40,                 -- How often to update while typing
-        fetching_timeout = 500,        -- Timeout for slower sources
+        debounce = 30, -- How long to wait after typing stops
+        throttle = 40, -- How often to update while typing
+        fetching_timeout = 500, -- Timeout for slower sources
         filtering_context_budget = 60, -- Time allowed for cmp before control goes back to nvim
         confirm_resolve_timeout = 100, -- Time for resolving item before completion
-        async_budget = 15,             -- Time async func can run during one step of event loop
-        max_view_entries = 15,         -- How many entries to disiplay in cmp menu
-      }
+        async_budget = 15, -- Time async func can run during one step of event loop
+        max_view_entries = 15, -- How many entries to disiplay in cmp menu
+      },
     }
   end,
   config = function(_, opts)
@@ -204,11 +210,8 @@ return {
       local cmp_config = cmp.get_config()
       cmp_config.experimental.ghost_text = not cmp_config.experimental.ghost_text
       cmp.setup(cmp_config)
-      vim.notify(
-        "Ghost text: " .. (cmp_config.experimental.ghost_text and "enabled" or "disabled"),
-        vim.log.levels.INFO
-      )
+      vim.notify("Ghost text: " .. (cmp_config.experimental.ghost_text and "enabled" or "disabled"), vim.log.levels.INFO)
     end
-    vim.keymap.set("n", "<leader>ug", toggle_ghost_text, { desc = '[U]I: toggle [G]host text' })
-  end
+    vim.keymap.set("n", "<leader>ug", toggle_ghost_text, { desc = "[U]I: toggle [G]host text" })
+  end,
 }

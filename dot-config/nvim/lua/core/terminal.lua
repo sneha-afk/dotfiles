@@ -27,8 +27,6 @@ vim.api.nvim_create_autocmd("TermOpen", {
 
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = { "term://*", "toggleterm" },
-  callback = function()
-    vim.cmd("startinsert")
-  end,
+  callback = function() vim.cmd("startinsert") end,
   desc = "Auto-enter insert mode when focusing terminal",
 })

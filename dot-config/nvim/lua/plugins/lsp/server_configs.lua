@@ -8,6 +8,9 @@
 vim.lsp.config("lua_ls", {
   settings = {
     Lua = {
+      diagnostics = {
+        globals = { "vim" },
+      },
       hint = {
         enable = true,
       },
@@ -60,8 +63,8 @@ vim.lsp.config("gopls", {
       codelenses = {
         generate = true,
         gc_details = true,
-        upgrade_dependency = true
-      }
+        upgrade_dependency = true,
+      },
     },
   },
 })
@@ -82,6 +85,7 @@ vim.lsp.config("clangd", {
     "--offset-encoding=utf-16",
     "--pch-storage=disk",
   },
+  filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
   init_options = {
     fallbackFlags = { "-Wall", "-Wextra", "-Wpedantic" },
   },

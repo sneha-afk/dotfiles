@@ -8,7 +8,7 @@ return {
     opts = {},
     config = function()
       vim.cmd.colorscheme("kanso-ink")
-    end
+    end,
   },
   {
     "comfysage/aki",
@@ -21,7 +21,7 @@ return {
     config = function(_, opts)
       require("aki").setup(opts)
       vim.cmd.colorscheme("aki")
-    end
+    end,
   },
   {
     "thesimonho/kanagawa-paper.nvim",

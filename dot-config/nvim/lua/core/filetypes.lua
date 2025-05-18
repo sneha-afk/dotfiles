@@ -30,13 +30,13 @@ local filetype_groups = {
   },
 
   smaller_tabs = {
-    ft = { "lua", "json", "html", "css", },
+    ft = { "lua", "json", "html", "css" },
     opts = {
       tabstop = 2,
       softtabstop = 2,
       shiftwidth = 2,
-    }
-  }
+    },
+  },
 }
 
 for group_name, config in pairs(filetype_groups) do

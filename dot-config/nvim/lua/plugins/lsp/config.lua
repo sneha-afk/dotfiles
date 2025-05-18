@@ -20,12 +20,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     lsp_keymap_config(client)
 
-    if (auto_format_on_save or always_format[client.name])
-        and client:supports_method("textDocument/formatting", bufnr) then
+    if  (auto_format_on_save or always_format[client.name])
+    and client:supports_method("textDocument/formatting", bufnr) then
       vim.api.nvim_create_autocmd("BufWritePre", {
         group = vim.api.nvim_create_augroup("LspFormatting", { clear = false }),
         buffer = bufnr,
-        callback = function() vim.lsp.buf.format({ async = false }) end,
+        callback = function()
+          vim.lsp.buf.format({ async = false })
+        end,
       })
     end
 
@@ -34,7 +36,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.opt_local.foldmethod = "expr"
       vim.opt_local.foldexpr = "v:lua.vim.lsp.foldexpr()"
     end
-  end
+  end,
 })
 
 -- Taken from https://neovim.io/doc/user/lsp.html#LspDetach
