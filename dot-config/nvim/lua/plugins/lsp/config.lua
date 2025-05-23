@@ -72,9 +72,5 @@ return {
   root_markers = { ".git" },
   settings = {
     telemetry = { enable = false },
-    completions = {
-      completeFunctionCalls = true,
-      triggerCompletionOnInsert = true,
-    },
   },
 }

@@ -1,7 +1,48 @@
 {
   "Error not nil block": {
-    "prefix": ["err-not-nil"],
-    "body": ["if err != nil {", "\t$1", "}"],
+    "prefix": [
+      "err-not-nil",
+      "iferr"
+    ],
+    "body": [
+      "if err != nil {",
+      "\t$1",
+      "}"
+    ],
     "description": "Basic if err != nil block"
+  },
+  "Struct Definition": {
+    "prefix": "struct",
+    "body": [
+      "type ${1:Name} struct {",
+      "\t$2",
+      "}"
+    ],
+    "description": "Struct type definition"
+  },
+  "Interface Definition": {
+    "prefix": "interface",
+    "body": [
+      "type ${1:Name} interface {",
+      "\t$2",
+      "}"
+    ],
+    "description": "Interface type definition"
+  },
+  "Go Routine": {
+    "prefix": "goroutine",
+    "body": [
+      "go func() {",
+      "\t$1",
+      "}()"
+    ],
+    "description": "Start a new goroutine"
+  },
+  "Slice Declaration": {
+    "prefix": "slice",
+    "body": [
+      "${1:name} := []${2:type}{$3}"
+    ],
+    "description": "Slice declaration"
   }
 }

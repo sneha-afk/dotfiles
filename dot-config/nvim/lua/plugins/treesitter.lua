@@ -90,8 +90,6 @@ return {
         if vim.treesitter.highlighter.active[buf] then
           vim.opt_local.foldmethod = "expr"
           vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-        else
-          vim.opt_local.foldmethod = "manual"
         end
       end,
     })
