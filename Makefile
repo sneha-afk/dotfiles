@@ -2,9 +2,7 @@ STOW = stow --verbose
 TARGET_HOME = $(HOME)
 TARGET_CONFIG = $(TARGET_HOME)/.config
 
-HOME_PACKAGES = dot-vim dot-bash
-
-# Work around in case other folders exist in a .config/ already
+HOME_PACKAGES = dot-home
 CONFIG_PACKAGES = dot-config
 
 all: stowall

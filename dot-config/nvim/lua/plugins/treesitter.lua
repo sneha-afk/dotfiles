@@ -2,11 +2,14 @@
 
 return {
   "nvim-treesitter/nvim-treesitter",
-  event = { "BufReadPre", "BufNewFile", "VeryLazy" },
-  cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
+  branch = "master",
+  lazy = false,
   build = ":TSUpdate",
   dependencies = {
-    "nvim-treesitter/nvim-treesitter-textobjects",
+    {
+      "nvim-treesitter/nvim-treesitter-textobjects",
+      branch = "master",
+    },
   },
   ---@class TSConfig
   opts = {

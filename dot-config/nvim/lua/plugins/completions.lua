@@ -59,7 +59,7 @@ return {
         show_with_menu = false,
       },
       menu = {
-        min_width = 20,
+        min_width = 25,
         max_height = 10,
         border = "rounded",
         draw = {

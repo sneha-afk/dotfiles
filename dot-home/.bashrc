@@ -128,8 +128,12 @@ fi
 # ========================================================
 # Aliases
 # ========================================================
-alias cp='cp -iv'               # Confirm before overwriting
-alias mv='mv -iv'               # Confirm before overwriting
+# Confirm destructive actions
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias rm='rm -i'
+alias ln='ln -i'
+
 alias mkdir='mkdir -pv'         # Create parent directories and verbose
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -142,6 +146,7 @@ alias ga='git add'
 alias gc='git commit'
 alias gp='git push'
 alias gl='git log --oneline'
+alias glg='git log --graph --oneline --decorate --all'
 
 # ========================================================
 # Utilities
@@ -149,6 +154,9 @@ alias gl='git log --oneline'
 
 # Fast searching with ripgrep
 alias search="rg --smart-case --hidden --follow"
+
+# Get public IP
+alias myip='curl ifconfig.me'
 
 mkcd() {
     mkdir -p "$1" && cd "$1" || return 1
@@ -162,6 +170,25 @@ ff() {
 # Find directories quickly
 fd() {
     find . -type d -name "*$1*"
+}
+
+# Get C and C++ includes
+show_includes() {
+    echo "System (C) Includes:"
+    gcc -E -Wp,-v -xc /dev/null 2>&1 | grep '^ '
+    echo -e "\nC++ Includes:"
+    g++ -E -Wp,-v -xc++ /dev/null 2>&1 | grep '^ '
+}
+
+# Usage: weather [city] (default: based off IP)
+weather() {
+    if [[ $# -ne 1 ]]; then
+        local location=$1
+        location=${location// /%20}
+        curl -s --max-time 3 "wttr.in/~${location}?0" || echo "Error: Couldn't fetch weather for ${location}"
+    else
+        curl -s --max-time 3 "wttr.in/?0"
+    fi
 }
 
 # Display a quick system info summary
@@ -265,6 +292,7 @@ killport() {
 }
 
 alias nvim_goto_config="cd ~/.config/nvim/"
+alias nvim_dump_swap="rm -rf ~/.local/state/nvim/swap/"
 
 nvim_reset() {
     rm -rf ~/.local/share/nvim/
@@ -312,10 +340,6 @@ nvim_size() {
   echo "├──────────────────┼───────────────┤"
   printf "│ %-16s │ \033[1m%13s\033[0m │\n" "Total" "$(fmt_size "$total_kb")"
   echo "╰──────────────────┴───────────────╯"
-}
-
-nvim_dump_swap() {
-    rm -rf ~/.local/state/nvim/swap/
 }
 
 if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then

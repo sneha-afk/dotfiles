@@ -1,8 +1,3 @@
-# Enforce this in subfolder, do
-# [nvim/] unset = true
-# in any global .editorconfig
-root = true
-
 [*]
 charset = utf-8
 end_of_line = lf

@@ -84,9 +84,6 @@ path_append "/usr/local/go/bin"
 path_append "$GOPATH/bin"
 path_append "$GEM_HOME/bin"
 
-# ======================
-# WSL/Windows Specific
-# ======================
 if [ -n "$WSL_DISTRO_NAME" ]; then
     path_append "/mnt/c/Windows/System32"
 fi
