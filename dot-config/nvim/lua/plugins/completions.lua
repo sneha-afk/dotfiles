@@ -8,6 +8,18 @@ return {
   dependencies = {
     "rafamadriz/friendly-snippets",
   },
+  keys = {
+    {
+      "<leader>ct",
+      function()
+        -- Could be nil before explicitly set to a boolean
+        if vim.b.completion == nil then vim.b.completion = true end
+        vim.b.completion = not vim.b.completion
+        vim.notify("Completion toggled to: " .. (vim.b.completion and "enabled" or "disabled"), vim.log.levels.INFO)
+      end,
+      desc = "[C]ompletion: [t]oggle",
+    },
+  },
   version = "1.*",
   ---@module "blink.cmp"
   ---@type blink.cmp.Config

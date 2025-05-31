@@ -43,15 +43,19 @@ vim.lsp.config("gopls", {
       usePlaceholders = true,
       completeUnimported = true,
       semanticTokens = true,
-      analyses = {
+      analyses = { -- See https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md
         nilness = true,
         unusedwrite = true,
         unreachable = true,
-        useany = true,
         unusedvariable = true,
         fillreturns = true,
+        QF1007 = true,
+        S1002 = true,
+        S1011 = true,
+        S1016 = true,
+        S1021 = true,
       },
-      hints = {
+      hints = { -- See https://github.com/golang/tools/blob/master/gopls/doc/inlayHints.md
         assignVariableTypes = true,
         compositeLiteralFields = true,
         compositeLiteralTypes = true,

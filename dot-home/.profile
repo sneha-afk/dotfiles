@@ -100,10 +100,6 @@ if [ -z "$EDITOR" ]; then
         if command -v "$editor" >/dev/null 2>&1; then
             export EDITOR="$editor" VISUAL="$editor"
 
-            if command -v git >/dev/null 2>&1; then
-                git config --global core.editor "$editor"
-            fi
-
             case "$editor" in
                 nvim) export MANPAGER="nvim -c 'Man!' -o -" ;;
                 vim) export MANPAGER='vim -R +"set ft=man"' ;;

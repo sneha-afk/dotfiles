@@ -42,6 +42,25 @@ vim.api.nvim_create_user_command("EnvVariables", function()
   })
 end, { desc = "View system environment variables" })
 
+vim.api.nvim_create_user_command("CrToLf", function()
+  if vim.bo.fileformat == "dos" or vim.fn.search("\r$", "nw") > 0 then
+    local view = vim.fn.winsaveview()
+
+    -- Save file, remove the trailing CR (^M), set fileformat to Unix, then write
+    vim.cmd([[
+      update
+      silent! %s/\r$//e
+      set fileformat=unix
+      write
+    ]])
+
+    vim.fn.winrestview(view)
+    vim.notify("Converted CRLF to LF line endings", vim.log.levels.INFO)
+  else
+    vim.notify("No CRLF line endings found", vim.log.levels.INFO)
+  end
+end, { desc = "Change CRLF line endings to LF" })
+
 ---Taken from LazyVim
 ---@param name string
 ---@return integer AutocmdGroup id
@@ -56,26 +75,22 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     local filetype = vim.bo.filetype
     local buftype = vim.bo.buftype
 
-    -- Skip special buffers
+    -- Skip special buffers and certain filetypes
     if buftype ~= "" then return end
-
-    -- Skip these filetypes
     local excluded_filetypes = {
       diff = true,
       gitcommit = true,
     }
     if excluded_filetypes[filetype] then return end
 
-    local curpos = vim.api.nvim_win_get_cursor(0)
+    local view = vim.fn.winsaveview()
+
     pcall(function()
       vim.cmd([[keeppatterns %s/\s\+$//e]])   -- Remove trailing whitespace
       vim.cmd([[silent! %s/\%(\n\+\%$\)//e]]) -- Remove extra newlines at EOF
     end)
 
-    -- Restore position: account for cursor being in those extra newlines
-    local new_line_count = vim.api.nvim_buf_line_count(0)
-    if curpos[1] > new_line_count then curpos[1] = math.max(1, new_line_count) end
-    vim.api.nvim_win_set_cursor(0, curpos)
+    vim.fn.winrestview(view)
   end,
 })
 

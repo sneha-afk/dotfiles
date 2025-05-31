@@ -3,19 +3,6 @@
 
 local M = {}
 
----@param mode string|string[]            -- Mode: e.g. "n", "i", or {"n", "v"}
----@param lhs string                      -- Key combination (e.g. "<leader>f")
----@param action string|function          -- Function, string command, or Lua expression
----@param opts? table|vim.keymap.set.Opts -- Options table (include "desc" for which-key)
-function M.set_keymap(mode, lhs, action, opts)
-  opts = vim.tbl_extend("force", {
-    noremap = true,
-    silent = true,
-  }, opts or {})
-
-  vim.keymap.set(mode, lhs, action, opts)
-end
-
 ---Touch a file, creating if it does not exist
 ---@param filepath string
 ---@return boolean True on success

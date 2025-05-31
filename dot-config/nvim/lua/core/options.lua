@@ -26,6 +26,7 @@ vim.opt.number         = true -- Line numbers
 vim.opt.termguicolors  = true -- True color support
 vim.opt.cursorline     = true -- Highlight current line
 vim.opt.showmode       = true -- Show current mode (turn off in statusline plugins)
+vim.opt.signcolumn     = "yes"
 vim.opt.pumheight      = 15   -- Popup menu height limit
 vim.opt.pumblend       = 10   -- Popup menu transparency
 -- vim.opt.winborder      = "rounded" -- Border for windows
@@ -35,7 +36,7 @@ vim.opt.pumblend       = 10   -- Popup menu transparency
 -- ===================================================================
 vim.opt.splitright     = true -- Default split rightwards
 vim.opt.splitbelow     = true -- Default split downwards
-vim.opt.scrolloff      = 5    -- Context lines when scrolling
+vim.opt.scrolloff      = 10   -- Context lines when scrolling
 vim.opt.winwidth       = 30   -- Minimum window width
 vim.opt.winminwidth    = 10   -- Minimum inactive window width
 
@@ -46,7 +47,6 @@ vim.opt.wrap           = true -- Enable line wrapping
 vim.opt.linebreak      = true -- Wrap at word boundaries
 vim.opt.showbreak      = "↳ " -- Wrapped line indicator
 vim.opt.breakindent    = true -- Indent wrapped lines
-vim.opt.breakindentopt = "shift:4" -- Wrapped line indent size
 
 -- ===================================================================
 -- Indentation and Tabs

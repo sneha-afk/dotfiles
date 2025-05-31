@@ -131,8 +131,6 @@ fi
 # Confirm destructive actions
 alias cp='cp -iv'
 alias mv='mv -iv'
-alias rm='rm -i'
-alias ln='ln -i'
 
 alias mkdir='mkdir -pv'         # Create parent directories and verbose
 alias ..='cd ..'
@@ -202,6 +200,7 @@ sysinfo() {
 }
 
 # Extract multiple types of archive files
+# Usage: extract <file>
 extract() {
     if [ -z "$1" ]; then
         echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>"
@@ -232,9 +231,17 @@ extract() {
 }
 
 # Generate a random password
+# Usage: genpass [length] (default length: 16)
 genpass() {
     local length=${1:-16}
-    < /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()_+' | head -c "$length"
+    local charset='A-Za-z0-9!@#$%^&*()_+'
+
+    if ! [[ "$length" =~ ^[0-9]+$ ]] || [ "$length" -le 0 ]; then
+        echo "Error: Password length must be a positive integer" >&2
+        return 1
+    fi
+
+    LC_ALL=C tr -dc "$charset" < /dev/urandom | head -c "$length"
     echo
 }
 
@@ -266,12 +273,16 @@ verify_checksum() {
     fi
 }
 
+# Removes Zone.Identifier files that appear from file transfers
+# Usage: dezones [optional: directory]
 dezones() {
     local dir="${1:-.}"
     find "$dir" -type f -name "*:Zone.Identifier" -delete 2>/dev/null
     echo "Removed all Zone.Identifier files under $dir"
 }
 
+# Kills the process occupying a certain port
+# Usage: killport <port #>
 killport() {
   if [ -z "$1" ]; then
     echo "Usage: killport <port_number>"
@@ -390,12 +401,13 @@ __git_status_for_prompt() {
     local branch
     branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return
 
-    # Check repo status in a single git command
+    # Check repo status for any changes
     local status_flags
     status_flags=$(git status --porcelain 2>/dev/null | head -n1)
 
+    # Add a "dirty symbol" if there are any changes to commit
     local status=""
-    [[ -n $status_flags ]] && status=" *"  # Dirty if any output
+    [[ -n "$status_flags" ]] && status=" *"
 
     printf " [%s%s]" "$branch" "$status"
 }

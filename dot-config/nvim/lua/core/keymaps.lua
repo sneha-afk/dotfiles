@@ -2,8 +2,8 @@
 -- Globally available keymaps
 
 local utils = require("core.utils")
-local map = utils.set_keymap
 
+local map = vim.keymap.set
 local lsp = vim.lsp
 local diagnostic = vim.diagnostic
 
@@ -15,13 +15,7 @@ local float_ui = {
 }
 
 --  UTILITIES
-map("n", "<leader>cs", "<cmd>nohl<cr>", { desc = "[C]lear [S]earch highlights" })
-map("n", "<leader>ct", function()
-  -- Could be nil before explicitly set to a boolean
-  if vim.b.completion == nil then vim.b.completion = true end
-  vim.b.completion = not vim.b.completion
-  vim.notify("Completion toggled to: " .. (vim.b.completion and "enabled" or "disabled"), vim.log.levels.INFO)
-end, { desc = "[C]ompletion: [t]oggle" })
+map("n", "<leader>cs", "<cmd>nohl<cr>",       { desc = "[C]lear [S]earch highlights" })
 map("n", "<leader>un", "<cmd>set nu!<cr>",    { desc = "[U]I: toggle line [N]umbers" })
 map("n", "<leader>ur", "<cmd>set rnu!<cr>",   { desc = "[U]I: toggle [R]elative line nums" })
 map("n", "<leader>uw", "<cmd>set wrap!<cr>",  { desc = "[U]I: toggle line [W]rap" })
@@ -97,9 +91,9 @@ map("n", "<leader>]t", "<cmd>tabnext<CR>",     { desc = "Next tab" })
 map("n", "<leader>[t", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
 map("n", "<leader>tm", "<cmd>tabmove<CR>",     { desc = "[T]ab: [M]ove current to last" })
 map("n", "<leader>tl", "<cmd>tablast<CR>",     { desc = "[T]ab: goto [L]ast" })
-map("n", "<leader>t1", "1gt",                  { desc = "[T]ab: go to [1]" })
-map("n", "<leader>t2", "2gt",                  { desc = "[T]ab: go to [2]" })
-map("n", "<leader>t3", "3gt",                  { desc = "[T]ab: go to [3]" })
+for i = 1, 3 do
+  map("n", "<leader>t" .. i, i .. "gt", { desc = "[T]ab: go to " .. i })
+end
 
 --  DIAGNOSTICS
 map("n", "<leader>dt", function() diagnostic.enable(not diagnostic.is_enabled()) end,

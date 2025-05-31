@@ -11,16 +11,10 @@ return {
       branch = "master",
     },
   },
+  ---@module "nvim-treesitter.configs"
   ---@class TSConfig
   opts = {
-    ensure_installed = {
-      "c",
-      "cpp",
-      "lua",
-      "go",
-      "python",
-      "bash",
-    },
+    ensure_installed = {},
     sync_install = false,
     highlight = {
       enable = true,
@@ -83,7 +77,8 @@ return {
     },
   },
   config = function(_, opts)
-    require("nvim-treesitter.configs").setup(opts)
+    require("nvim-treesitter.configs").setup(opts) -- Master branch has a configs module
+    -- require("nvim-treesitter").setup(opts) -- Main removes the config module
 
     vim.api.nvim_create_autocmd("FileType", {
       desc = "If available, use treesitter as the folding method in the current buffer",

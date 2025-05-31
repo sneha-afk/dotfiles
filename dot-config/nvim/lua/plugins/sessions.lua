@@ -7,7 +7,7 @@ return {
     { "<leader>sl", function() require("persistence").select() end,              desc = "[S]essions: [L]oad session" },
     { "<leader>sL", function() require("persistence").load({ last = true }) end, desc = "[S]essions: [L]oad last" },
     { "<leader>ss", function() require("persistence").stop() end,                desc = "[S]essions: [S]top current" },
-    { "<leader>sd", "<cmd>DeleteSession<cr>",                                    desc = "[S]essions: Delete [S]elective" },
+    { "<leader>sd", "<cmd>DeleteSession<cr>",                                    desc = "[S]essions: [d]elete session" },
     { "<leader>sD", "<cmd>DeleteAllSessions<cr>",                                desc = "[S]essions: [D]elete all" },
   },
   opts = {
@@ -34,10 +34,11 @@ return {
     ---@return string Standardized sessions path
     local function format_session_path(path)
       local standard, _ = path
-          :gsub("^" .. sessions_dir, "") -- Remove session directory
-          :gsub("%%", "/")               -- Convert URL-encoded % to /
-          :gsub("%.vim$", "")            -- Remove .vim extension
-      return vim.fn.fnamemodify(standard, ":~")
+          :gsub("^" .. vim.pesc(sessions_dir), "") -- Remove session directory
+          :gsub("%%", "/")                         -- Convert URL-encoded % to /
+          :gsub("%.vim$", "")                      -- Remove .vim extension
+      local time = os.date("%Y-%m-%d %I:%M %P", vim.fn.getftime(path))
+      return string.format("%s | %s", time, vim.fn.fnamemodify(standard, ":~"))
     end
 
     ---Deletes the specified sessions

@@ -40,8 +40,20 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPost", "BufNewFile", "VeryLazy" },
     keys = {
-      { "<leader>li", "<cmd>LspInfo<cr>",    desc = "[L]SP: [I]nfo" },
-      { "<leader>lr", "<cmd>LspRestart<cr>", desc = "[L]SP: [R]estart" },
+      { "<leader>li", "<cmd>LspInfo<cr>", desc = "[L]SP: [I]nfo" },
+      {
+        "<leader>lr",
+        function()
+          local clients = vim.lsp.get_clients({ bufnr = 0 })
+          for _, client in pairs(clients) do
+            if client.name then
+              vim.cmd("LspRestart " .. client.name)
+              vim.notify(("Restarted LSP " .. client.name), vim.log.levels.INFO)
+            end
+          end
+        end,
+        desc = "[L]SP: [R]estart",
+      },
     },
     dependencies = {
       {
@@ -50,6 +62,7 @@ return {
         cmd = { "LspInstall", "LspUninstall" },
         dependencies = { "mason-org/mason.nvim" },
         opts = {
+          -- Calls vim.lsp.enable for every installed LSP
           automatic_enable = true,
           ensure_installed = {},
         },
@@ -71,7 +84,6 @@ return {
         "gopls",
         "clangd",
         "pyright",
-        "protols",
       })
 
       vim.lsp.inlay_hint.enable()

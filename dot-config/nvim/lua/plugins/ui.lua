@@ -34,71 +34,29 @@ return {
       vim.api.nvim_set_hl(0, "MiniDiffOverDelete",     { link = "DiffDelete" })
     end,
   },
-  -- Snacks!
+
+  -- Rainbow brackets/delimiters for clarity
   {
-    "folke/snacks.nvim",
-    lazy = false,
-    priority = 1000,
-    dependencies = { "echasnovski/mini.diff" },
-    ---@module "snacks"
-    ---@type snacks.Config
+    "HiPhish/rainbow-delimiters.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    ---@type rainbow_delimiters.config
     opts = {
-      indent = {
-        enabled = true,
-        animate = { enabled = false },
-      },
-      input = {
-        enabled = true,
-        icon = "> ",
-      },
-      statuscolumn = {
-        enabled = true,
-        fold = { open = true },
-      },
-      toggle = {
-        enabled = true,
-        icon = {
-          enabled = "●",
-          disabled = "○",
-        },
-      },
-      zen = {
-        enabled = true,
-        on_open = function(win) vim.cmd("set nu!") end,
-      },
-      styles = {
-        input = {
-          relative = "cursor",
-          position = "float",
-        },
-        zen = {
-          relative = "editor",
-          width = 0.6,
-          backdrop = { transparent = true, blend = 20 },
-        },
-      },
-      notifier = {
-        timeout = 3000,   -- in ms
-        top_down = false, -- false for bottom up
-        icons = {
-          error = "[E] ",
-          warn = "[W] ",
-          info = "[I] ",
-          debug = "[D] ",
-          trace = "[T] ",
-        },
+      -- Defines list of highlights to cycle through
+      highlight = {
+        "Character",
+        "PreProc",
+        "Boolean",
+        "Special",
+        "Statement",
+        "Type",
       },
     },
-    init = function()
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "VeryLazy",
-        callback = function()
-          Snacks.toggle.indent():map("<leader>ui")
-          Snacks.toggle.zen():map("<leader>uz")
-        end,
-      })
+    config = function(_, opts)
+      require("rainbow-delimiters.setup").setup(opts)
     end,
   },
+
+  -- Dropbar breadcrumb menu at top of screen
   {
     "Bekaboo/dropbar.nvim",
     event = "UIEnter",
@@ -106,16 +64,21 @@ return {
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     },
     opts = {
+      menu = {
+        win_configs = {
+          border = "rounded",
+        },
+      },
       icons = {
         enable = true,
         ui = {
           bar = {
-            separator = " ) ",
+            separator = " ❯ ",
             extends = "…",
           },
           menu = {
-            -- separator = " ⟩ ",
-            indicator = " ⟩ ",
+            -- separator = "❯ ",
+            indicator = "❯ ",
           },
         },
         kinds = {
