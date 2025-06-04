@@ -302,6 +302,20 @@ killport() {
   fi
 }
 
+# Search running processes
+psgrep() {
+    if [ $# -lt 1 ]; then
+        echo "Usage: psgrep <search_term>"
+        echo "Example: psgrep nginx"
+        return 1
+    fi
+
+    ps aux | awk -v term="$1" '
+        NR == 1 {print; next} 
+        $0 ~ term {print}
+    '
+}
+
 alias nvim_goto_config="cd ~/.config/nvim/"
 alias nvim_dump_swap="rm -rf ~/.local/state/nvim/swap/"
 

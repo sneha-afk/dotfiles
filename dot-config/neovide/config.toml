@@ -1,0 +1,6 @@
+# wsl = true        # Keep updated on this for a fix
+title-hidden = false
+
+[font] # Default: Fira Code Nerd Font at 14.0 given in binary
+normal = ["Geist Mono", "Symbols Nerd Font Mono"]
+size = 10.0

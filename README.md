@@ -32,6 +32,11 @@ New-Item -ItemType SymbolicLink `
     -Path "$env:LOCALAPPDATA\nvim" `
     -Target "$(Resolve-Path ".\dot-config\nvim")" `
     -Force
+
+New-Item -ItemType SymbolicLink `
+    -Path "$env:LOCALAPPDATA\..\Roaming\neovide" `
+    -Target "$(Resolve-Path ".\dot-config\neovide")" `
+    -Force
 ```
 
 ## Info

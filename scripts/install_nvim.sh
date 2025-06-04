@@ -28,7 +28,8 @@ sudo rm -rf /opt/nvim*
 sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
 rm -f nvim-linux-x86_64.tar.gz
 
-sudo rm -f /usr/bin/nvim           # Delete old link/binary (if any)
+# Symlinks
+sudo rm -f /usr/bin/nvim /usr/local/bin/nvim
 sudo ln -s /opt/nvim-linux-x86_64/bin/nvim /usr/bin/nvim
 
 echo "> Neovim installed successfully!"

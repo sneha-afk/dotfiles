@@ -51,6 +51,22 @@ vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_node_provider = 0
 
+if vim.g.neovide then
+  vim.o.guifont = "Geist Mono,Symbols Nerd Font Mono:h10"
+  vim.opt.belloff:equal("all")
+  vim.opt.belloff:append("term")
+
+  -- https://github.com/neovide/neovide/issues/1263#issuecomment-1972013043
+  vim.opt.clipboard:append({ "unnamedplus" })
+  local paste = function()
+    vim.api.nvim_paste(vim.fn.getreg("+"), true, -1)
+  end
+  -- Paste with Cmd+V / Ctrl+V in all modes
+  local modes = { "n", "v", "s", "x", "o", "i", "l", "c", "t" }
+  vim.keymap.set(modes, (vim.fn.has("mac") == 1 and "<D-v>" or "<C-v>"), paste, { noremap = true, silent = true })
+  vim.keymap.set(modes, "<S-Insert>",                                    paste, { noremap = true, silent = true })
+end
+
 -- Load core configurations in this order
 require("core.options")
 require("core.filetypes")

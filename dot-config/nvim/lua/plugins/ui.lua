@@ -38,8 +38,7 @@ return {
   -- Rainbow brackets/delimiters for clarity
   {
     "HiPhish/rainbow-delimiters.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    ---@type rainbow_delimiters.config
+    event = { "UIEnter" },
     opts = {
       -- Defines list of highlights to cycle through
       highlight = {

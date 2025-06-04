@@ -15,8 +15,6 @@ return {
       "<cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>", -- From current buffer
       desc = "[F]ile: [E]xplorer",
     },
-    { "<leader>ff", "<cmd>Telescope find_files<cr>",            desc = "[F]ind: [F]iles" },
-    { "<leader>fg", "<cmd>Telescope live_grep<cr>",             desc = "[F]ind: live [G]rep" },
     { "<leader>fh", "<cmd>Telescope search_history<cr>",        desc = "[F]ind: search [H]istory" },
     { "<leader>fH", "<cmd>Telescope help_tags<cr>",             desc = "[F]ind: [H]elp tags" },
     { "<leader>fm", "<cmd>Telescope marks<cr>",                 desc = "[F]ind: [M]arks" },
@@ -47,6 +45,7 @@ return {
   config = function()
     local telescope = require("telescope")
 
+    local builtin = require("telescope.builtin")
     local actions = require("telescope.actions")
     local utils = require("telescope.utils")
     local my_utils = require("core.utils")
@@ -54,7 +53,7 @@ return {
     -- https://github.com/nvim-telescope/telescope.nvim/wiki/Configuration-Recipes#find-files-from-project-git-root-with-fallback
     ---@return string Root to start searching from
     local function start_search_path()
-      if my_utils.is_git_repo then
+      if my_utils.is_git_repo() then
         return my_utils.get_git_root()
       else
         return utils.buffer_dir()
@@ -84,13 +83,6 @@ return {
         },
       },
       pickers = {
-        find_files = {
-          hidden = true,
-          cwd = start_search_path(),
-        },
-        live_grep = {
-          cwd = start_search_path(),
-        },
         buffers = {
           sort_lastused = true,
         },
@@ -110,5 +102,13 @@ return {
     pcall(telescope.load_extension, "fzf")
     pcall(telescope.load_extension, "ui-select")
     pcall(telescope.load_extension, "file_browser")
+
+    -- Dynamic cwd: either top of git repo, or from cwd
+    vim.keymap.set("n", "<leader>ff", function()
+      builtin.find_files({ cwd = start_search_path() })
+    end, { desc = "[F]ind: [F]iles" })
+    vim.keymap.set("n", "<leader>fg", function()
+      builtin.live_grep({ cwd = start_search_path() })
+    end, { desc = "[F]ind: live [G]rep" })
   end,
 }
