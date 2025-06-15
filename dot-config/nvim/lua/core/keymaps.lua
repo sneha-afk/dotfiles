@@ -130,19 +130,22 @@ map("n", "<leader>Wl", function() vim.print(lsp.buf.list_workspace_folders()) en
   { desc = "[W]orkspace: [L]ist Folders" })
 
 --  CODE ACTIONS
-map("n", "<leader>rn", lsp.buf.rename,                                  { desc = "[R]e[n]ame Symbol" })
-map("n", "<leader>cl", lsp.codelens.run,                                { desc = "Run [C]ode[L]ens" })
-map("n", "<leader>cf", function() lsp.buf.format({ async = true }) end, { desc = "[C]ode [F]ormat" })
-map("n", "<leader>ca", lsp.buf.code_action,                             { desc = "[C]ode [A]ctions" })
-map("v", "<leader>ca",
-  function()
-    lsp.buf.code_action({
-      diagnostics = diagnostic.get(0),
-      only = { "quickfix", "refactor", "source" },
-    })
-  end,
-  { desc = "Range [C]ode [A]ctions" }
-)
+map("n", "<leader>rn", lsp.buf.rename,      { desc = "[R]e[n]ame Symbol" })
+map("n", "<leader>cl", lsp.codelens.run,    { desc = "Run [C]ode[L]ens" })
+map("n", "<leader>ca", lsp.buf.code_action, { desc = "[C]ode [A]ctions" })
+map("v", "<leader>ca", function()
+  lsp.buf.code_action({
+    diagnostics = diagnostic.get(0),
+    only = { "quickfix", "refactor", "source" },
+  })
+end, { desc = "Range [C]ode [A]ctions" })
+map("n", "<leader>cf", function()
+  if pcall(require, "conform") then
+    require("conform").format({ async = true })
+  else
+    lsp.buf.format({ async = true })
+  end
+end, { desc = "[C]ode [F]ormat" })
 
 --  SYMBOLS
 map("n", "<leader>ls", lsp.buf.document_symbol,  { desc = "[L]SP: document [S]ymbols" })

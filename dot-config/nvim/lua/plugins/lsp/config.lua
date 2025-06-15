@@ -8,6 +8,7 @@ local auto_format_on_save = false
 local always_format = {
   lua_ls = true,
   gopls = true,
+  ts_ls = true,
 }
 
 -- LSP-specific keymaps that should be attached once the client is known
@@ -26,7 +27,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("LspFormatting", { clear = false }),
         buffer = bufnr,
         callback = function()
-          vim.lsp.buf.format({ async = false })
+          if pcall(require, "conform") then
+            require("conform").format({ async = false })
+            vim.notify("conform not async")
+          else
+            vim.lsp.buf.format({ async = false })
+          end
         end,
       })
     end

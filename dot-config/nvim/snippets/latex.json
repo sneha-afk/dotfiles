@@ -1,6 +1,8 @@
 {
   "LaTeX Basic Template": {
-    "prefix": "latex-basic-start",
+    "prefix": [
+      "latex-basic-start"
+    ],
     "body": [
       "\\documentclass{article}",
       "\\title{${1:Title}}",
@@ -13,7 +15,9 @@
     "description": "Generates a simple LaTeX template"
   },
   "LaTeX Code Listing": {
-    "prefix": "latex-code-listing",
+    "prefix": [
+      "latex-code-listing"
+    ],
     "body": [
       "\\begin{lstlisting}[language=Python]",
       "${1:Put code here...}",
@@ -23,7 +27,9 @@
     "description": "Generates a simple LaTeX template"
   },
   "LaTeX Minted Listing": {
-    "prefix": "latex-code-minted",
+    "prefix": [
+      "latex-code-minted"
+    ],
     "body": [
       "% Remember: \\usepackage[outputdir=build]{minted}",
       "\\begin{minted}[linenos,tabsize=2,breaklines]{${1:Language}}",
@@ -85,5 +91,18 @@
       "\\end{document}"
     ],
     "description": "A complete LaTeX article template with common packages and configurations"
+  },
+  "LaTeX Figure": {
+    "prefix": "lfig",
+    "body": [
+      "\\begin{figure}[H]",
+      "  \\centering",
+      "  \\includegraphics[width=\\textwidth]{$1}",
+      "  \\caption{$2}",
+      "  \\label{fig:$3}",
+      "\\end{figure}",
+      "$0"
+    ],
+    "description": "Insert a LaTeX figure environment with customizable path, caption, and label"
   }
 }

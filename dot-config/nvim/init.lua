@@ -53,7 +53,7 @@ vim.g.loaded_node_provider = 0
 
 if vim.g.neovide then
   vim.o.guifont = "Geist Mono,Symbols Nerd Font Mono:h10"
-  vim.opt.belloff:equal("all")
+  vim.opt.belloff:append("all")
   vim.opt.belloff:append("term")
 
   -- https://github.com/neovide/neovide/issues/1263#issuecomment-1972013043

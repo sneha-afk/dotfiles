@@ -3,8 +3,6 @@
 return {
   "m4xshen/hardtime.nvim",
   event = "UIEnter",
-  -- Only if using :Hardtime report
-  -- dependencies = { "MunifTanjim/nui.nvim" },
   keys = {
     {
       "<leader>hd",

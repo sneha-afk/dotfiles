@@ -1,14 +1,17 @@
 -- .config/nvim/lua/plugins/treesitter.lua
 
+-- Treesitter going through archival of master branch
+local which_branch = "master"
+
 return {
   "nvim-treesitter/nvim-treesitter",
-  branch = "master",
+  branch = which_branch,
   lazy = false,
   build = ":TSUpdate",
   dependencies = {
     {
       "nvim-treesitter/nvim-treesitter-textobjects",
-      branch = "master",
+      branch = which_branch,
     },
   },
   ---@module "nvim-treesitter.configs"
@@ -77,17 +80,33 @@ return {
     },
   },
   config = function(_, opts)
-    require("nvim-treesitter.configs").setup(opts) -- Master branch has a configs module
-    -- require("nvim-treesitter").setup(opts) -- Main removes the config module
+    local treesitter = require("nvim-treesitter")
+    if which_branch == "master" then
+      require("nvim-treesitter.configs").setup(opts) -- Master branch has a configs module
+    else
+      treesitter.setup(opts)                         -- Main removes the config module
+    end
+
+    if which_branch == "main" then
+      vim.api.nvim_create_autocmd("FileType", {
+        desc = "Enable treesitter highlighting for installed groups",
+        group = vim.api.nvim_create_augroup("Treesitter_Custom", { clear = false }),
+        pattern = treesitter.get_installed(),
+        callback = function()
+          vim.treesitter.start()
+        end,
+      })
+    end
 
     vim.api.nvim_create_autocmd("FileType", {
       desc = "If available, use treesitter as the folding method in the current buffer",
-      group = vim.api.nvim_create_augroup("TreesitterFolding", { clear = false }),
+      group = vim.api.nvim_create_augroup("Treesitter_Custom", { clear = false }),
       callback = function(args)
         local buf = args.buf
         if vim.treesitter.highlighter.active[buf] then
           vim.opt_local.foldmethod = "expr"
           vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+          vim.opt_local.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end
       end,
     })

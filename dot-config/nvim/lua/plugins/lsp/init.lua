@@ -18,7 +18,6 @@ return {
   {
     "mason-org/mason.nvim",
     lazy = true,
-    cmd = { "Mason", "MasonInstall", "MasonUpdate" },
     build = ":MasonUpdate",
     keys = {
       { "<leader>lm", "<cmd>Mason<cr>", desc = "Open [L]SP [M]anager" },
@@ -38,28 +37,15 @@ return {
   -- LSP configurations: both externally installed and from Mason
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPost", "BufNewFile", "VeryLazy" },
+    event = { "BufReadPre", "BufNewFile" },
     keys = {
-      { "<leader>li", "<cmd>LspInfo<cr>", desc = "[L]SP: [I]nfo" },
-      {
-        "<leader>lr",
-        function()
-          local clients = vim.lsp.get_clients({ bufnr = 0 })
-          for _, client in pairs(clients) do
-            if client.name then
-              vim.cmd("LspRestart " .. client.name)
-              vim.notify(("Restarted LSP " .. client.name), vim.log.levels.INFO)
-            end
-          end
-        end,
-        desc = "[L]SP: [R]estart",
-      },
+      { "<leader>li", "<cmd>LspInfo<cr>",    desc = "[L]SP: [I]nfo" },
+      { "<leader>lr", "<cmd>LspRestart<cr>", desc = "[L]SP: [R]estart active" },
     },
     dependencies = {
       {
         -- Mason-LSPConfig bridge
         "mason-org/mason-lspconfig.nvim",
-        cmd = { "LspInstall", "LspUninstall" },
         dependencies = { "mason-org/mason.nvim" },
         opts = {
           -- Calls vim.lsp.enable for every installed LSP
@@ -79,6 +65,7 @@ return {
       require("plugins.lsp.server_configs")
 
       -- Enable LSPs to attach when their respective filetypes are opened
+      -- Need to explicitly add to this list if not installed via Mason
       vim.lsp.enable({
         "lua_ls",
         "gopls",
@@ -88,5 +75,21 @@ return {
 
       vim.lsp.inlay_hint.enable()
     end,
+  },
+
+  {
+    "stevearc/conform.nvim",
+    event = "VeryLazy",
+    ---@module "conform"
+    ---@type conform.setupOpts
+    opts = {
+      formatters_by_ft = {
+        javascript = { "prettierd", "prettier", stop_after_first = true },
+        typescript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      default_format_opts = {
+        lsp_format = "fallback",
+      },
+    },
   },
 }

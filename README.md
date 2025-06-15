@@ -1,11 +1,19 @@
 # dotfiles
 
 ## Setup
-### `stow`
+Check existing symlinks:
+```bash
+find ~ -maxdepth 1 -type l -ls | grep dotfiles
+
+Get-ChildItem -Recurse -Attributes ReparsePoint $HOME | Where-Object { $_.Target -match "dotfiles" }
+```
+
+### `stow` (recommended)
 Using GNU `stow` at the root of this repo:
 ```bash
 make          # Symlink all configurations
 make delete   # Remove all symlinks (cleanup)
+make dry-run # Preview changes without changes
 ```
 
 ### Manual Symlinks
@@ -25,7 +33,7 @@ New-Item -ItemType SymbolicLink `
 
 New-Item -ItemType SymbolicLink `
     -Path "$HOME\_vimrc" `
-    -Target "$(Resolve-Path ".\dot-vim\.vimrc")" `
+    -Target "$(Resolve-Path ".\dot-home\.vimrc")" `
     -Force
 
 New-Item -ItemType SymbolicLink `
@@ -41,13 +49,3 @@ New-Item -ItemType SymbolicLink `
 
 ## Info
 See [Neovim README](./dot-config/nvim/README.md) for more on that.
-
-Test `stow` without changes:
-```bash
-make dry-run
-```
-
-Check existing symlinks:
-```bash
-find ~ -maxdepth 1 -type l -ls | grep dotfiles
-```
