@@ -71,6 +71,8 @@ return {
         "gopls",
         "clangd",
         "pyright",
+        "ts_ls",
+        "bashls",
       })
 
       vim.lsp.inlay_hint.enable()
@@ -79,17 +81,30 @@ return {
 
   {
     "stevearc/conform.nvim",
-    event = "VeryLazy",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
     ---@module "conform"
     ---@type conform.setupOpts
     opts = {
-      formatters_by_ft = {
-        javascript = { "prettierd", "prettier", stop_after_first = true },
-        typescript = { "prettierd", "prettier", stop_after_first = true },
-      },
+      formatters_by_ft = {},
       default_format_opts = {
         lsp_format = "fallback",
       },
     },
+    config = function(_, opts)
+      for _, ft in ipairs({
+        "angular", "css", "flow", "graphql", "html", "javascript", "json", "jsx",
+        "less", "scss", "typescript", "vue", "yaml",
+      }) do
+        opts.formatters_by_ft[ft] = { "prettierd", "prettier", stop_after_first = true }
+      end
+
+      local conform = require("conform")
+      conform.setup(opts)
+
+      --- Redefine vim.lsp.buf.format so other settings don't need to change
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.lsp.buf.format = conform.format
+    end,
   },
 }

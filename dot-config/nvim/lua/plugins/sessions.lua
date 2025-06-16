@@ -6,7 +6,7 @@ return {
   keys = {
     { "<leader>sl", function() require("persistence").select() end,              desc = "[S]essions: [L]oad session" },
     { "<leader>sL", function() require("persistence").load({ last = true }) end, desc = "[S]essions: [L]oad last" },
-    { "<leader>ss", function() require("persistence").stop() end,                desc = "[S]essions: [S]top current" },
+    { "<leader>sS", function() require("persistence").stop() end,                desc = "[S]essions: [S]top current" },
     { "<leader>sd", "<cmd>DeleteSession<cr>",                                    desc = "[S]essions: [d]elete session" },
     { "<leader>sD", "<cmd>DeleteAllSessions<cr>",                                desc = "[S]essions: [D]elete all" },
   },

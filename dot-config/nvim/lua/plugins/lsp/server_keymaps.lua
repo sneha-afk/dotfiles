@@ -5,24 +5,29 @@ local map = vim.keymap.set
 local lsp = vim.lsp
 local diagnostic = vim.diagnostic
 
+local organize_imports = function()
+  lsp.buf.code_action({
+    context = {
+      diagnostics = diagnostic.get(0),
+      only = { "source.organizeImports" },
+    },
+    apply = true,
+  })
+end
+
 ---@type table<string, function>
 local setup_funcs = {
   gopls = function()
-    map("n", "<leader>oi",
-      function()
-        lsp.buf.code_action({
-          context = {
-            diagnostics = diagnostic.get(0),
-            only = { "source.organizeImports" },
-          },
-          apply = true,
-        })
-      end, { desc = "Go: [O]rganize [I]mports" })
+    map("n", "<leader>oi", organize_imports, { desc = "Go: [O]rganize [I]mports" })
   end,
   pyright = function() map("n", "<leader>oi", "<cmd>LspPyrightOrganizeImports<cr>", { desc = "Python: [O]rganize [I]mports" }) end,
   clangd = function()
     map("n", "<leader>si", "<cmd>LspClangdShowSymbolInfo<cr>",     { desc = "C: show [S]ymbol [I]nfo" })
     map("n", "<leader>sh", "<cmd>LspClangdSwitchSourceHeader<cr>", { desc = "C: switch [S]ource/[H]eader" })
+  end,
+  ts_ls = function()
+    map("n", "<leader>oi",  organize_imports,                     { desc = "JS/TS: [O]rganize [I]mports" })
+    map("n", "<leader>cas", "<cmd>LspTypescriptSourceAction<cr>", { desc = "JS/TS: [CA]ctions, [S]ource" })
   end,
 }
 

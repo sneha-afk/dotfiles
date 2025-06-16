@@ -30,6 +30,14 @@ map("n", "<leader>sm", function()
   vim.keymap.set("n", "<Esc>", "<cmd>q<cr>", { buffer = buf })
   utils.open_float_win(buf, " Messages ")
 end, { desc = "[S]cratch: view [M]essages" })
+vim.keymap.set("n", "<leader>ss", function()
+  vim.notify("Starting server at localhost:3000", vim.log.levels.INFO, { title = "npx serve" })
+  local handle = io.popen("npx serve & 2>&1") -- https://www.npmjs.com/package/serve
+end, { desc = "[S]tart live [s]erver" })
+
+-- Taken from ThePrimeagen, changed to gc to default to confirmation
+map("n", "<leader>sr", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gc<Left><Left><Left>]],
+  { silent = false, desc = "[S]earch+[R]eplace word" })
 
 -- Moving around easier on QWERTY
 map("n", "<C-a>", "^",       { desc = "Start of line (first non-blank)" })
@@ -130,22 +138,16 @@ map("n", "<leader>Wl", function() vim.print(lsp.buf.list_workspace_folders()) en
   { desc = "[W]orkspace: [L]ist Folders" })
 
 --  CODE ACTIONS
-map("n", "<leader>rn", lsp.buf.rename,      { desc = "[R]e[n]ame Symbol" })
-map("n", "<leader>cl", lsp.codelens.run,    { desc = "Run [C]ode[L]ens" })
-map("n", "<leader>ca", lsp.buf.code_action, { desc = "[C]ode [A]ctions" })
+map("n", "<leader>rn", lsp.buf.rename,                                  { desc = "[R]e[n]ame Symbol" })
+map("n", "<leader>cl", lsp.codelens.run,                                { desc = "Run [C]ode[L]ens" })
+map("n", "<leader>ca", lsp.buf.code_action,                             { desc = "[C]ode [A]ctions" })
+map("n", "<leader>cf", function() lsp.buf.format({ async = true }) end, { desc = "[C]ode [F]ormat" })
 map("v", "<leader>ca", function()
   lsp.buf.code_action({
     diagnostics = diagnostic.get(0),
     only = { "quickfix", "refactor", "source" },
   })
 end, { desc = "Range [C]ode [A]ctions" })
-map("n", "<leader>cf", function()
-  if pcall(require, "conform") then
-    require("conform").format({ async = true })
-  else
-    lsp.buf.format({ async = true })
-  end
-end, { desc = "[C]ode [F]ormat" })
 
 --  SYMBOLS
 map("n", "<leader>ls", lsp.buf.document_symbol,  { desc = "[L]SP: document [S]ymbols" })

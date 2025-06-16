@@ -1,38 +1,55 @@
 -- .config/nvim/plugins/lsp/config.lua
 -- Global configurations applied to all LSPs
 
--- Toggle for auto-formatting on save (all LSPs)
-local auto_format_on_save = false
+local format_config = {
+  -- Toggle for auto-formatting on save (all LSPs)
+  auto_format_on_save = false,
 
--- Servers that will ignore the above setting
-local always_format = {
-  lua_ls = true,
-  gopls = true,
-  ts_ls = true,
+  --- Filetypes that should NEVER be formatted externally
+  never_format_filetypes = {
+    markdown = true,
+  },
+
+  -- Servers that bypass global toggle
+  always_format_servers = {
+    lua_ls = true,
+    gopls = true,
+  },
+
+  -- Filetypes that bypass global toggle
+  always_format_filetypes = {
+    typescript = true,
+    javascript = true,
+    html = true,
+    css = true,
+    scss = true,
+  },
 }
 
 -- LSP-specific keymaps that should be attached once the client is known
 local lsp_keymap_config = require("plugins.lsp.server_keymaps")
 
+vim.api.nvim_create_augroup("LspFormatting", { clear = true })
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local bufnr = args.buf
     local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+    local filetype = vim.bo[bufnr].filetype
 
     lsp_keymap_config(client)
 
-    if  (auto_format_on_save or always_format[client.name])
-    and client:supports_method("textDocument/formatting", bufnr) then
+    local should_format = not format_config.never_format_filetypes[filetype]
+        and (
+          format_config.auto_format_on_save
+          or (format_config.always_format_servers[client.name] and client:supports_method("textDocument/formatting", bufnr))
+          or format_config.always_format_filetypes[filetype]
+        )
+    if should_format then
       vim.api.nvim_create_autocmd("BufWritePre", {
-        group = vim.api.nvim_create_augroup("LspFormatting", { clear = false }),
+        group = "LspFormatting",
         buffer = bufnr,
         callback = function()
-          if pcall(require, "conform") then
-            require("conform").format({ async = false })
-            vim.notify("conform not async")
-          else
-            vim.lsp.buf.format({ async = false })
-          end
+          vim.lsp.buf.format({ async = false })
         end,
       })
     end

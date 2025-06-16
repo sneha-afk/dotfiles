@@ -18,6 +18,7 @@ return {
     },
     -- A, B, C are left; X, Y, Z are right
     sections = {
+      lualine_a = { "mode" },
       lualine_b = {
         {
           "filename",
@@ -28,11 +29,22 @@ return {
       lualine_x = {
         {
           "lsp_status",
-          icon = "",
           ignore_lsp = {},
+        },
+      },
+      lualine_y = {
+        {
+          "fileformat",
+          icons_enabled = true,
+          symbols = {
+            unix = "LF",
+            dos = "CRLF",
+            mac = "LF",
+          },
         },
         "filetype",
       },
+      lualine_z = { "progress", "location" },
     },
     -- Inactive windows default: only show filename and location
     tabline = {
