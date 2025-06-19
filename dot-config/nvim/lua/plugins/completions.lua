@@ -20,7 +20,9 @@ return {
       desc = "[C]ompletion: [t]oggle",
     },
   },
-  version = "1.*",
+  -- Use version to download pre-built
+  -- version = "1.*",
+  build = "cargo build --release",
   ---@module "blink.cmp"
   ---@type blink.cmp.Config
   opts = {
@@ -83,7 +85,7 @@ return {
                   lsp = "✦",
                   buffer = "⚇",
                   snippets = "⌥",
-                  cmdline = "⨠",
+                  cmdline = "λ",
                   spell = "⌯",
                   lazydev = "💤",
                 }
@@ -97,6 +99,13 @@ return {
             { "kind" },
           },
         },
+      },
+    },
+    fuzzy = {
+      sorts = {
+        -- "exact",
+        "score",
+        "sort_text",
       },
     },
   },

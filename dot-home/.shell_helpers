@@ -1,0 +1,277 @@
+#!/bin/bash
+# vim: set ft=sh ts=4 sts=4 sw=4 et:
+
+# Contains utility functions and aliases, shell-agnostic.
+
+# Fast searching with ripgrep
+alias search="rg --smart-case --hidden --follow"
+
+# Get public IP
+alias myip='curl ifconfig.me'
+
+mkcd() {
+    mkdir -p "$1" && cd "$1" || return 1
+}
+
+# Find files quickly
+ff() {
+    find . -type f -name "*$1*"
+}
+
+# Find directories quickly
+fd() {
+    find . -type d -name "*$1*"
+}
+
+# Get C and C++ includes
+show_includes() {
+    echo "System (C) Includes:"
+    gcc -E -Wp,-v -xc /dev/null 2>&1 | grep '^ '
+    echo -e "\nC++ Includes:"
+    g++ -E -Wp,-v -xc++ /dev/null 2>&1 | grep '^ '
+}
+
+# Usage: weather [city] (default: based off IP)
+weather() {
+    if [[ $# -ge 0 ]]; then
+        # local location=$1
+        local location=${1// /%20}
+        curl -s --max-time 3 "wttr.in/~${location}?0" || echo "Error: Couldn't fetch weather for ${location}"
+    else
+        curl -s --max-time 3 "wttr.in/?0"
+    fi
+}
+
+# Display a quick system info summary
+sysinfo() {
+    echo "Hostname: $(hostname)"
+    echo "Kernel: $(uname -r)"
+    echo "Uptime: $(uptime -p)"
+    echo "CPU: $(cat /proc/cpuinfo | grep 'model name' | uniq | cut -d ':' -f2 | xargs)"
+    echo "Memory:"
+    free -h
+}
+
+# Extract multiple types of archive files
+# Usage: extract <file>
+extract() {
+    if [ -z "$1" ]; then
+        echo "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>"
+        return 1
+    fi
+
+    if [ ! -f "$1" ]; then
+        echo "'$1' - file doesn't exist"
+        return 1
+    fi
+
+    case "$1" in
+        *.tar.bz2) tar xjf "$1" ;;
+        *.tar.gz) tar xzf "$1" ;;
+        *.tar.xz) tar xJf "$1" ;;
+        *.bz2) bunzip2 "$1" ;;
+        *.rar) unrar x "$1" ;;
+        *.gz) gunzip "$1" ;;
+        *.tar) tar xf "$1" ;;
+        *.tbz2) tar xjf "$1" ;;
+        *.tgz) tar xzf "$1" ;;
+        *.zip) unzip "$1" ;;
+        *.Z) uncompress "$1" ;;
+        *.7z) 7z x "$1" ;;
+        *.xz) unxz "$1" ;;
+        *) echo "'$1' cannot be extracted via extract()" ;;
+    esac
+}
+
+# Generate a random password
+# Usage: genpass [length] (default length: 16)
+genpass() {
+    local length=${1:-16}
+    local charset='A-Za-z0-9!@#$%^&*()_+'
+
+    if ! [[ "$length" =~ ^[0-9]+$ ]] || [ "$length" -le 0 ]; then
+        echo "Error: Password length must be a positive integer" >&2
+        return 1
+    fi
+    LC_ALL=C tr -dc "$charset" < /dev/urandom | head -c "$length"
+    echo
+}
+
+# Verify SHA-256 checksum of a file
+# Usage: verify_sha256 <file> <expected_checksum>
+verify_checksum() {
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: verify_sha256 <file> <expected_checksum>"
+        return 1
+    fi
+
+    local file="$1"
+    local expected="$2"
+
+    if [[ ! -f "$file" ]]; then
+        echo "Error: File '$file' does not exist"
+        return 1
+    fi
+
+    local actual=$(sha256sum "$file" | awk '{print $1}')
+
+    if [[ "$actual" == "$expected" ]]; then
+        echo "✅ Checksum verified: $file"
+    else
+        echo "❌ Checksum mismatch: $file"
+        echo "   Expected: $expected"
+        echo "   Actual:   $actual"
+        return 1
+    fi
+}
+
+# Removes Zone.Identifier files that appear from file transfers
+# Usage: dezones [optional: directory]
+dezones() {
+    local dir="${1:-.}"
+    find "$dir" -type f -name "*:Zone.Identifier" -delete 2> /dev/null
+    echo "Removed all Zone.Identifier files under $dir"
+}
+
+# Kills the process occupying a certain port
+# Usage: killport <port #>
+killport() {
+    if [ -z "$1" ]; then
+        echo "Usage: killport <port_number>"
+        return 1
+    fi
+
+    local pid=$(sudo lsof -t -i :"$1")
+
+    if [ -n "$pid" ]; then
+        echo "Killing process $pid on port $1"
+        sudo kill -9 "$pid"
+    else
+        echo "No process found using port $1"
+        return 1
+    fi
+}
+
+# Search running processes
+psgrep() {
+    if [ $# -lt 1 ]; then
+        echo "Usage: psgrep <search_term>"
+        echo "Example: psgrep nginx"
+        return 1
+    fi
+
+    ps aux | awk -v term="$1" 'NR == 1 || $0 ~ term'
+}
+
+if command -v "nvim" > /dev/null 2>&1; then
+    alias nvim_goto_config="cd ~/.config/nvim/"
+    alias nvim_dump_swap="rm -rf ~/.local/state/nvim/swap/"
+    alias nvim_server="nvim --headless --listen localhost:6666"
+
+    nvim_reset() {
+        rm -rf ~/.local/share/nvim/
+        rm -rf ~/.local/state/nvim/
+        rm -rf ~/.cache/nvim
+        [ -f ~/.config/nvim/lazy-lock.json ] && rm -f ~/.config/nvim/lazy-lock.json
+        echo "Neovim has been reset."
+    }
+
+    nvim_size() {
+        local config=~/.config/nvim/
+        local lazy=~/.local/share/nvim/lazy/
+        local mason=~/.local/share/nvim/mason/
+        local ts_local=~/.local/share/nvim/lazy/nvim-treesitter/parser
+        local cache=~/.cache/nvim/
+
+        local config_kb=$(du -sk "$config" 2> /dev/null | awk '{print $1}')
+        local lazy_kb=$(du -sk "$lazy" 2> /dev/null | awk '{print $1}')
+        local mason_kb=$(du -sk "$mason" 2> /dev/null | awk '{print $1}')
+        local ts_local_kb=$(du -sk "$ts_local" 2> /dev/null | awk '{print $1}')
+        local cache_kb=$(du -sk "$cache" 2> /dev/null | awk '{print $1}')
+        local total_kb=$((config_kb + lazy_kb + mason_kb + ts_local_kb + cache_kb))
+
+        # Calculate size without .git directories
+        local lazy_no_git_kb=$(find "$lazy" -type d -name ".git" -prune -o -type f -print | du -sk 2> /dev/null | awk '{print $1}')
+        #   local lazy_diff_kb=$((lazy_kb - lazy_no_git_kb))
+
+        local plugins=$([ -d "$lazy" ] && ls -1 "$lazy" | wc -l || echo 0)
+        local lsps=$([ -d "$mason/packages" ] && ls -1 "$mason/packages" | wc -l || echo 0)
+        local tss=$([ -d "$ts_local" ] && ls -1 "$ts_local" | wc -l || echo 0)
+
+        fmt_size() {
+            numfmt --to=iec --suffix=B --format="%.1f" $(($1 * 1024))
+        }
+
+        echo "╭──────────────────────────────────╮"
+        echo "│      🚀 NEOVIM CONFIG SIZE       │"
+        echo "├──────────────────┬───────────────┤"
+        printf "│ %-16s │ %13s │\n" "Config Files" "$(fmt_size "$config_kb")"
+        printf "│ %-16s │ %13s │\n" "Plugins ($plugins)" "$(fmt_size "$lazy_kb")"
+        printf "│ %-16s │ %13s │\n" " ^ w/o .git dirs" "$(fmt_size "$lazy_no_git_kb")"
+        printf "│ %-16s │ %13s │\n" "LSPs ($lsps)" "$(fmt_size "$mason_kb")"
+        printf "│ %-16s │ %13s │\n" "Treesitters ($tss)" "$(fmt_size "$ts_local_kb")"
+        printf "│ %-16s │ %13s │\n" "Cache" "$(fmt_size "$cache_kb")"
+        echo "├──────────────────┼───────────────┤"
+        printf "│ %-16s │ \033[1m%13s\033[0m │\n" "Total" "$(fmt_size "$total_kb")"
+        echo "╰──────────────────┴───────────────╯"
+    }
+fi
+
+if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
+    # Windows Explorer
+    explorer() {
+        win_path="$(wslpath -w "${1:-$PWD}" 2> /dev/null)" || {
+            echo "Invalid WSL path: ${1:-$PWD}" >&2
+            return 1
+        }
+        ("$CMD_EXE" /c "explorer.exe $win_path" &> /dev/null &) && echo "📂 Opening: $win_path"
+    }
+
+    # PDF opener
+    openpdf() {
+        [ ! -f "$PDF_READER" ] && {
+            echo "PDF Reader not found at $PDF_READER" >&2
+            return 1
+        }
+        [ $# -eq 0 ] && {
+            echo "Usage: openpdf <file.pdf>" >&2
+            return 1
+        }
+        local file_path=$(wslpath -w "$1" 2> /dev/null) || {
+            echo "Invalid WSL path: $1" >&2
+            return 1
+        }
+        ("$PDF_READER" "$file_path" > /dev/null 2>&1 &) && echo "🔖 Opened PDF: ${1##*/}"
+    }
+
+    # Sublime Text
+    subl() {
+        [ ! -f "$SUBLIME_TEXT_EXE" ] && {
+            echo "Sublime Text not found at $SUBLIME_TEXT_EXE" >&2
+            return 1
+        }
+        ("$SUBLIME_TEXT_EXE" "$@" > /dev/null 2>&1 &) && echo "✏️ Opened in Sublime: $*"
+    }
+
+    # VS Code
+    code() {
+        [ ! -f "$VSCODE_EXE" ] && {
+            echo "VS Code not found at $VSCODE_EXE" >&2
+            return 1
+        }
+        ("$VSCODE_EXE" "$@" > /dev/null 2>&1 &) && echo "✏️ Opened in VSCode: $*"
+    }
+
+    # Run a Neovide instance (where installation is on Windows) from CWD
+    nvim_nvide() {
+        local server_port="localhost:6666"
+        local neovide_path="$WINDOWS_PROG_FILES/Neovide/neovide.exe"
+
+        (nvim --headless --listen "$server_port" > /dev/null 2>&1 &)
+        echo "[nvim_nvide] Starting Neovim server in background..."
+        echo "[nvim_nvide] Launching Neovide..."
+        echo "  ├─ Server address: $server_port"
+        echo "  └─ Opening: $*"
+        "$neovide_path" --server "$server_port" "$*"
+    }
+fi

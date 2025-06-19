@@ -1,7 +1,9 @@
 -- .config/nvim/lua/core/terminal.lua
 
+local term_types = { "term://*", "toggleterm", "snacks_terminal" }
+
 vim.api.nvim_create_autocmd("TermOpen", {
-  pattern = { "term://*", "toggleterm" },
+  pattern = term_types,
   callback = function()
     local opt = vim.opt_local
     opt.number = false         -- Disable line numbers
@@ -26,7 +28,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
 })
 
 vim.api.nvim_create_autocmd("BufEnter", {
-  pattern = { "term://*", "toggleterm" },
+  pattern = term_types,
   callback = function() vim.cmd("startinsert") end,
   desc = "Auto-enter insert mode when focusing terminal",
 })

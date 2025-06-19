@@ -17,6 +17,10 @@ function Reload-Profile {
     Write-Host "Profile reloaded." -ForegroundColor Green
 }
 
+function nvimide-wsl {
+    neovide.exe --server localhost:6666 @args
+}
+
 # Taken from https://github.com/CrazyWolf13/unix-pwsh/blob/main/functions.ps1
 
 function which($name) {
@@ -54,7 +58,7 @@ function grep {
 # ==============================
 function Get-GitStatusForPrompt {
     # Fast path: return immediately if not in a git repo
-    if (-not (Test-Path .git) -and 
+    if (-not (Test-Path .git) -and
         -not (git rev-parse --is-inside-work-tree 2>$null)) {
         return $null
     }
@@ -66,11 +70,11 @@ function Get-GitStatusForPrompt {
 
         # Check repo status with one git command
         $statusFlags = git status --porcelain 2>$null | Select-Object -First 1
-        
+
         # Add indicator if dirty
         $status = ""
         if ($statusFlags) { $status = " *" }
-        
+
         return "$branch$status"
     }
     catch {
@@ -81,7 +85,7 @@ function Get-GitStatusForPrompt {
 function prompt {
     $dir = (Get-Item -Path .).Name
     $gitInfo = Get-GitStatusForPrompt
-    
+
     $Reset  = "$([char]0x1b)[0m"
     $Bold   = "$([char]0x1b)[1m"
     $Blue   = "$([char]0x1b)[34m"

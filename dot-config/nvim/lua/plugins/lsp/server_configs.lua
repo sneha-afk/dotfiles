@@ -19,6 +19,9 @@ vim.lsp.config("lua_ls", {
           vim.env.VIMRUNTIME,
         },
       },
+      runtime = {
+        version = "LuaJIT",
+      },
       format = {
         enable = true,
         defaultConfig = {
@@ -65,9 +68,14 @@ vim.lsp.config("gopls", {
         rangeVariableTypes = true,
       },
       codelenses = {
+        gc_details = false,
         generate = true,
-        gc_details = true,
+        regenerate_cgo = true,
+        run_govulncheck = true,
+        test = true,
+        tidy = true,
         upgrade_dependency = true,
+        vendor = true,
       },
     },
   },
@@ -84,7 +92,7 @@ vim.lsp.config("clangd", {
     "--cross-file-rename",
     "--enable-config",
     "--function-arg-placeholders",
-    "--header-insertion=never",
+    "--header-insertion=iwyu",
     "--malloc-trim",
     "--offset-encoding=utf-16",
     "--pch-storage=disk",
@@ -92,6 +100,9 @@ vim.lsp.config("clangd", {
   filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
   init_options = {
     fallbackFlags = { "-Wall", "-Wextra", "-Wpedantic" },
+    usePlaceholders = true,
+    completeUnimported = true,
+    clangdFileStatus = true,
   },
 })
 

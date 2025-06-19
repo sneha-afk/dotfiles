@@ -9,12 +9,6 @@
 Upon opening for the first time, you will be prompted on whether to install Lazy.nvim and the plugins
 listed in `plugins/`.
 
-Helpers defined in [`.bashrc`](/dot-bash/.bashrc):
-1. `nvim_size`: size of entire configuration + LSPs installed through Mason
-2. `nvim_reset`: deletes setup (configuration files kept)
-3. `nvim_dump_swap`: delete swap files
-4. `nvim_goto_config`: navigates to base of config
-
 ### Configuration
 
 Minimum version required: v0.11.0
@@ -34,19 +28,21 @@ Minimum version required: v0.11.0
 │   └── plugins/
 │       ├── colorscheme.lua
 │       ├── completions.lua
+│       ├── hardtime.lua
 │       ├── helpers.lua
 │       ├── lsp/
 │       │   ├── config.lua
 │       │   ├── init.lua
-│       │   ├── server_keymaps.lua
-│       │   └── server_configs.lua
+│       │   ├── server_configs.lua
+│       │   └── server_keymaps.lua
 │       ├── sessions.lua
-│       ├── snippets.lua
+│       ├── snacks.lua
 │       ├── startup.lua
 │       ├── statusline.lua
 │       ├── telescope.lua
 │       ├── treesitter.lua
-│       └── ui.lua
+│       ├── ui.lua
+│       └── which_key.lua
 └── snippets/
 ```
 

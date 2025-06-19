@@ -10,6 +10,7 @@ return {
       desc = "View local buffer keymaps",
     },
   },
+  ---@module "which-key"
   ---@type wk.Opts
   opts = {
     preset = "modern",

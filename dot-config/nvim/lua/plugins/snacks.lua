@@ -5,6 +5,11 @@ return {
   lazy = false,
   priority = 1000,
   dependencies = { "echasnovski/mini.diff" },
+  keys = {
+    { "<leader>hn", function() Snacks.notifier.show_history() end, desc = "[H]istory: [N]otifications" },
+    { "<leader>.",  function() Snacks.scratch() end,               desc = "Toggle scratch buffer" },
+    { "<leader>sb", function() Snacks.scratch.select() end,        desc = "Select: [s]cratch [b]uffer" },
+  },
   ---@module "snacks"
   ---@type snacks.Config
   opts = {
@@ -25,6 +30,10 @@ return {
     input = {
       enabled = true,
       icon = "❯ ",
+    },
+    scratch = {
+      enabled = true,
+      icon = "⚏",
     },
     statuscolumn = {
       enabled = true,
@@ -62,6 +71,12 @@ return {
       notification_history = {
         width = 0.85,
         height = 0.75,
+        relative = "editor",
+      },
+      scratch = {
+        width = 0.85,
+        height = 0.75,
+        relative = "editor",
       },
       zen = {
         relative = "editor",
@@ -79,7 +94,6 @@ return {
       callback = function()
         Snacks.toggle.indent():map("<leader>ui")
         Snacks.toggle.zen():map("<leader>uz")
-        vim.keymap.set("n", "<leader>hn", Snacks.notifier.show_history, { desc = "[H]istory: [N]otifications" })
       end,
     })
   end,

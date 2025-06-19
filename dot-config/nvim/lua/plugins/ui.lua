@@ -38,7 +38,9 @@ return {
   -- Rainbow brackets/delimiters for clarity
   {
     "HiPhish/rainbow-delimiters.nvim",
-    event = { "UIEnter" },
+    lazy = false,
+    ---@module "rainbow-delimiters"
+    ---@type rainbow_delimiters.config
     opts = {
       -- Defines list of highlights to cycle through
       highlight = {
@@ -62,6 +64,8 @@ return {
     dependencies = {
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     },
+    ---@module "dropbar"
+    ---@type dropbar_configs_t
     opts = {
       menu = {
         win_configs = {
@@ -72,12 +76,12 @@ return {
         enable = true,
         ui = {
           bar = {
-            separator = " ❯ ",
+            separator = "  ",
             extends = "…",
           },
           menu = {
-            -- separator = "❯ ",
-            indicator = "❯ ",
+            -- separator = "  ",
+            indicator = "  ",
           },
         },
         kinds = {
@@ -164,6 +168,8 @@ return {
       vim.keymap.set("n", "<Leader>;", dropbar_api.pick,                { desc = "Pick symbols in winbar" })
       vim.keymap.set("n", "[;",        dropbar_api.goto_context_start,  { desc = "Go to start of current context" })
       vim.keymap.set("n", "];",        dropbar_api.select_next_context, { desc = "Select next context" })
+
+      vim.api.nvim_set_hl(0, "DropBarIconUISeparator", { link = "Constant" })
     end,
   },
 }

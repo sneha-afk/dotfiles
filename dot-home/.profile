@@ -51,20 +51,22 @@ export NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm"
 # PATH Configuration
 # ========================================================
 # Start with system defaults
-export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+if [ -z "$PATH" ]; then
+    export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+fi
 
 path_prepend() {
-    [ -d "$1" ] || return 1  # Only proceed if directory exists
+    [ -d "$1" ] || return 1 # Only proceed if directory exists
     case ":${PATH}:" in
-        *:"$1":*) ;;         # Already in PATH - do nothing
+        *:"$1":*) ;; # Already in PATH - do nothing
         *) PATH="$1:${PATH}" ;;
     esac
 }
 
 path_append() {
-    [ -d "$1" ] || return 1  # Only proceed if directory exists
+    [ -d "$1" ] || return 1 # Only proceed if directory exists
     case ":${PATH}:" in
-        *:"$1":*) ;;         # Already in PATH - do nothing
+        *:"$1":*) ;; # Already in PATH - do nothing
         *) PATH="${PATH:+$PATH:}$1" ;;
     esac
 }
@@ -97,7 +99,7 @@ unset -f path_prepend path_append
 # ========================================================
 if [ -z "$EDITOR" ]; then
     for editor in nvim vim vi nano; do
-        if command -v "$editor" >/dev/null 2>&1; then
+        if command -v "$editor" > /dev/null 2>&1; then
             export EDITOR="$editor" VISUAL="$editor"
 
             case "$editor" in
@@ -116,7 +118,7 @@ fi
 if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
     WINDOWS_DIR="/mnt/c"
     WINDOWS_PROG_FILES="$WINDOWS_DIR/Program Files"
-    WINDOWS_LOCALAPPDATA=$(wslpath -u "$(cmd.exe /c "echo %LOCALAPPDATA%" 2>/dev/null | tr -d '\r')")
+    WINDOWS_LOCALAPPDATA=$(wslpath -u "$(cmd.exe /c "echo %LOCALAPPDATA%" 2> /dev/null | tr -d '\r')")
     SYSTEM32_DIR="$WINDOWS_DIR/Windows/System32"
     CMD_EXE="$SYSTEM32_DIR/cmd.exe"
 
@@ -130,8 +132,6 @@ if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
 fi
 
 # ---------------------------------------------------------------
-# Source Rust/Cargo env
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 # If running bash, source .bashrc
 [ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"

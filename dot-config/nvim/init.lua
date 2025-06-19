@@ -51,21 +51,30 @@ vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_node_provider = 0
 
-if vim.g.neovide then
-  vim.o.guifont = "Geist Mono,Symbols Nerd Font Mono:h10"
-  vim.opt.belloff:append("all")
-  vim.opt.belloff:append("term")
+-- Hack to work to launch in any environment that may load the UI later (e.g. WSL starts a server)
+vim.api.nvim_create_autocmd("UIEnter", {
+  desc = "Load GUI specific options (e.g. Neovide)",
+  callback = function()
+    if vim.g.neovide then
+      vim.o.guifont = "Geist Mono,Symbols Nerd Font Mono:h10"
+      vim.opt.belloff:append("all")
 
-  -- https://github.com/neovide/neovide/issues/1263#issuecomment-1972013043
-  vim.opt.clipboard:append({ "unnamedplus" })
-  local paste = function()
-    vim.api.nvim_paste(vim.fn.getreg("+"), true, -1)
-  end
-  -- Paste with Cmd+V / Ctrl+V in all modes
-  local modes = { "n", "v", "s", "x", "o", "i", "l", "c", "t" }
-  vim.keymap.set(modes, (vim.fn.has("mac") == 1 and "<D-v>" or "<C-v>"), paste, { noremap = true, silent = true })
-  vim.keymap.set(modes, "<S-Insert>",                                    paste, { noremap = true, silent = true })
-end
+      local ctrl_key = vim.fn.has("mac") == 1 and "<D-" or "<C-"
+      -- https://github.com/neovide/neovide/issues/1263#issuecomment-1972013043
+      vim.keymap.set(
+        { "n", "v", "s", "x", "o", "i", "l", "c", "t" },
+        ctrl_key .. "v>",
+        function() vim.api.nvim_paste(vim.fn.getreg("+"), true, -1) end,
+        { desc = "Paste from clipboard" }
+      )
+      vim.keymap.set({ "n", "v" }, ctrl_key .. "c>", '"+y', { desc = "Copy to clipboard" })
+
+      vim.keymap.set("n", "<leader>uf", function()
+        vim.g.neovide_fullscreen = not vim.g.neovide_fullscreen
+      end, { desc = "[U]I: toggle [f]ullscreen" })
+    end
+  end,
+})
 
 -- Load core configurations in this order
 require("core.options")

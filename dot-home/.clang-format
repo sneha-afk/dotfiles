@@ -22,4 +22,3 @@ SpaceBeforeAssignmentOperators: true
 SpaceAfterControlStatementKeyword: true
 BreakBeforeBraces: Attach
 ---
-
