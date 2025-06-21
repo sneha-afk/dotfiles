@@ -52,7 +52,7 @@ return {
         {
           "tabs",
           tab_max_length = 60,
-          max_length = vim.o.columns / 1.5,
+          max_length = vim.o.columns,
           mode = 2, -- Tab number and name
           path = 1, -- Relative path
         },

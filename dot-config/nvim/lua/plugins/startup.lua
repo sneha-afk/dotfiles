@@ -32,6 +32,7 @@ return {
   dependencies = {
     "folke/lazy.nvim",
     "nvim-telescope/telescope.nvim",
+    "folke/persistence.nvim",
   },
   config = function()
     local starter = require("mini.starter")

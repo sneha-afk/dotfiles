@@ -28,7 +28,7 @@ ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 ```powershell
 New-Item -ItemType SymbolicLink `
     -Path $PROFILE `
-    -Target "$(Resolve-Path ".\Microsoft.PowerShell_profile.ps1")" `
+    -Target "$(Resolve-Path ".\dot-home\Microsoft.PowerShell_profile.ps1")" `
     -Force
 
 New-Item -ItemType SymbolicLink `
