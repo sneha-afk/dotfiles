@@ -86,6 +86,9 @@ return {
         buffers = {
           sort_lastused = true,
         },
+        find_files = {
+          hidden = true,
+        },
       },
       extensions = {
         file_browser = {

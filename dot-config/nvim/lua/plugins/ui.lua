@@ -42,6 +42,11 @@ return {
     ---@module "rainbow-delimiters"
     ---@type rainbow_delimiters.config
     opts = {
+      query = {
+        [""] = "rainbow-delimiters",
+        lua = "rainbow-blocks",
+        latex = "rainbow-blocks",
+      },
       -- Defines list of highlights to cycle through
       highlight = {
         "Character",

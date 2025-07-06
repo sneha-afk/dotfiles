@@ -71,24 +71,30 @@ path_append() {
     esac
 }
 
+if [ -n "$WSL_DISTRO_NAME" ]; then
+    path_prepend "/mnt/c/WINDOWS/system32"
+fi
+
+path_prepend "$HOME/.cargo/bin"
+path_prepend "/usr/share/texlive/bin"
+
+path_prepend "/usr/local/go/bin"
+path_prepend "$GOPATH/bin"
+path_prepend "$GEM_HOME/bin"
+
+path_prepend "/opt/nvim-linux-x86_64/bin"
+path_prepend "$HOME/.local/share/nvim/mason/bin"
+
+# Default paths to look at, first in the PATH to look at
+path_prepend "/bin"
+path_prepend "/sbin"
+path_prepend "/usr/bin"
+path_prepend "/usr/sbin"
+path_prepend "/usr/local/bin"
+path_prepend "/usr/local/sbin"
 path_prepend "$HOME/scripts"
 path_prepend "$HOME/bin"
 path_prepend "$HOME/.local/bin"
-
-path_append "/opt/nvim-linux-x86_64/bin"
-
-path_append "$HOME/.local/share/nvim/mason/bin"
-path_append "$HOME/.cargo/bin"
-path_append "$HOME/.dotnet/tools"
-path_append "/usr/share/texlive/bin"
-
-path_append "/usr/local/go/bin"
-path_append "$GOPATH/bin"
-path_append "$GEM_HOME/bin"
-
-if [ -n "$WSL_DISTRO_NAME" ]; then
-    path_append "/mnt/c/Windows/System32"
-fi
 
 export PATH
 
@@ -135,3 +141,6 @@ fi
 
 # If running bash, source .bashrc
 [ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"
+
+# If running zsh, make sure to exit any emulation
+[ -n "$ZSH_VERSION" ] && [ -f "$HOME/.zshrc" ] && emulate -L zsh && . "$HOME/.zshrc"

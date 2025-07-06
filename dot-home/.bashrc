@@ -130,6 +130,14 @@ alias gl='git log --oneline'
 alias glg='git log --graph --oneline --decorate --all'
 
 # ========================================================
+# Completions
+# ========================================================
+
+if command -v uv > /dev/null 2>&1; then
+    eval "$(uv generate-shell-completion bash)"
+fi
+
+# ========================================================
 # Prompt Customization
 # ========================================================
 # Fallback to basic terminal if no color support

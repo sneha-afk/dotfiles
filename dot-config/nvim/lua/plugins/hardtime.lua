@@ -2,7 +2,7 @@
 
 return {
   "m4xshen/hardtime.nvim",
-  event = "UIEnter",
+  event = "VeryLazy",
   keys = {
     {
       "<leader>hd",
