@@ -6,7 +6,7 @@
 <# And since I put everything in dotfiles...
 New-Item -ItemType SymbolicLink `
     -Path "$HOME\neovide_wsl.ps1" `
-    -Target "$(Resolve-Path ".\scripts\neovide_wsl_makeshift.ps1")" `
+    -Target "$(Resolve-Path ".\windows\neovide_wsl_makeshift.ps1")" `
     -Force
 #>
 

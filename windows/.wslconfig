@@ -1,0 +1,18 @@
+# Settings apply across all Linux distros running on WSL 2
+# vim: set ft=toml ts=2 sw=2 sts=2 et ai:
+[wsl2]
+
+# Set to whole numbers using GB/MB
+memory=8GB
+
+# Number of virtual processors
+processors=8
+
+# Sets amount of swap storage space, default is 25% of available RAM
+swap=8GB
+
+# Turn off default connection to bind WSL 2 localhost to Windows localhost
+localhostforwarding=true
+
+# Turns on or off support for GUI applications (WSLg) in WSL, boolean
+guiApplications=true

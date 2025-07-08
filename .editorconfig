@@ -1,4 +1,5 @@
 # EditorConfig (https://editorconfig.org)
+# vim: set ft=toml ts=2 sw=2 sts=2 et ai:
 root = true
 
 [*]
