@@ -1,7 +1,9 @@
 #!/bin/bash
-# vim: set ft=sh ts=4 sts=4 sw=4 et:
 
+# .shell_helpers
 # Contains utility functions and aliases, shell-agnostic.
+
+# vim: set ft=sh ts=4 sts=4 sw=4 et:
 
 # Fast searching with ripgrep
 alias search="rg --smart-case --hidden --follow"
@@ -214,64 +216,5 @@ if command -v "nvim" > /dev/null 2>&1; then
         echo "├──────────────────┼───────────────┤"
         printf "│ %-16s │ \033[1m%13s\033[0m │\n" "Total" "$(fmt_size "$total_kb")"
         echo "╰──────────────────┴───────────────╯"
-    }
-fi
-
-if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
-    # Windows Explorer
-    explorer() {
-        win_path="$(wslpath -w "${1:-$PWD}" 2> /dev/null)" || {
-            echo "Invalid WSL path: ${1:-$PWD}" >&2
-            return 1
-        }
-        ("$CMD_EXE" /c "explorer.exe $win_path" &> /dev/null &) && echo "📂 Opening: $win_path"
-    }
-
-    # PDF opener
-    openpdf() {
-        [ ! -f "$PDF_READER" ] && {
-            echo "PDF Reader not found at $PDF_READER" >&2
-            return 1
-        }
-        [ $# -eq 0 ] && {
-            echo "Usage: openpdf <file.pdf>" >&2
-            return 1
-        }
-        local file_path=$(wslpath -w "$1" 2> /dev/null) || {
-            echo "Invalid WSL path: $1" >&2
-            return 1
-        }
-        ("$PDF_READER" "$file_path" > /dev/null 2>&1 &) && echo "🔖 Opened PDF: ${1##*/}"
-    }
-
-    # Sublime Text
-    subl() {
-        [ ! -f "$SUBLIME_TEXT_EXE" ] && {
-            echo "Sublime Text not found at $SUBLIME_TEXT_EXE" >&2
-            return 1
-        }
-        ("$SUBLIME_TEXT_EXE" "$@" > /dev/null 2>&1 &) && echo "✏️ Opened in Sublime: $*"
-    }
-
-    # VS Code
-    code() {
-        [ ! -f "$VSCODE_EXE" ] && {
-            echo "VS Code not found at $VSCODE_EXE" >&2
-            return 1
-        }
-        ("$VSCODE_EXE" "$@" > /dev/null 2>&1 &) && echo "✏️ Opened in VSCode: $*"
-    }
-
-    # Run a Neovide instance (where installation is on Windows) from CWD
-    nvim_nvide() {
-        local server_port="localhost:6666"
-        local neovide_path="$WINDOWS_PROG_FILES/Neovide/neovide.exe"
-
-        (nvim --headless --listen "$server_port" > /dev/null 2>&1 &)
-        echo "[nvim_nvide] Starting Neovim server in background..."
-        echo "[nvim_nvide] Launching Neovide..."
-        echo "  ├─ Server address: $server_port"
-        echo "  └─ Opening: $*"
-        "$neovide_path" --server "$server_port" "$*"
     }
 fi

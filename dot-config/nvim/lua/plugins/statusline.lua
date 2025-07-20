@@ -13,6 +13,7 @@ return {
         "help",
         "lazy",
         "mason",
+        "oil",
       },
       always_show_tabline = false,
     },

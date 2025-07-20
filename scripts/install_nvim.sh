@@ -14,6 +14,9 @@ echo "   https://github.com/neovim/neovim/releases/latest"
 echo "----------------------------------------"
 read -p "> Paste SHA256 checksum: " EXPECTED_SHA
 
+# Remove "sha256:" prefix if present
+EXPECTED_SHA=${EXPECTED_SHA#sha256:}
+
 ACTUAL_SHA=$(sha256sum nvim-linux-x86_64.tar.gz | awk '{print $1}')
 
 if [[ "$EXPECTED_SHA" != "$ACTUAL_SHA" ]]; then

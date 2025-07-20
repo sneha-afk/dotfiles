@@ -10,6 +10,8 @@
 # correct: try to correct spelling; correctall: correct arguments
 setopt autolist correct
 
+autoload -U colors && colors
+
 # ========================
 # Completions
 # ========================
@@ -22,19 +24,13 @@ else
     compinit -C
 fi
 
-zstyle ':completion:*:*:*:*:*' menu select
-zstyle ':completion:*' auto-description 'specify: %d'
 zstyle ':completion:*' completer _expand _complete
-zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' group-name ''
-zstyle ':completion:*' list-colors ''
-zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' list-colors '=(#b) #([a-z]*|[0-9]*)=36'
 zstyle ':completion:*' rehash true
-zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
-zstyle ':completion:*' use-compctl false
-zstyle ':completion:*' verbose true
-zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+zstyle ':completion:*' verbose false
 
 # =====================
 # History
@@ -45,7 +41,6 @@ HISTFILE=~/.zsh_history
 setopt hist_ignore_dups  # No duplicates
 setopt share_history     # Share history across sessions
 setopt hist_ignore_space  # Ignore commands starting with space
-export HISTORY_IGNORE="(ls|ll|la|cd|exit|history|pwd)"
 
 # =====================
 # Key Bindings (Emacs mode)
@@ -57,7 +52,6 @@ bindkey '^[[3~' delete-char  # Fix Delete key
 # Color support
 # =====================
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
     alias dir='dir --color=auto'
     alias vdir='vdir --color=auto'
@@ -67,25 +61,15 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # ========================================================
-# PATH configuration
+# Aliases and Helpers
 # ========================================================
-# Fallback PATH if no .profile
-if [[ -z "$PATH" ]]; then
-    export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-fi
-
-# Load shell-helper utility functions
-[ -f ~/.shell_helpers ] && . ~/.shell_helpers
-
-[ -f ~/.bash_aliases ] && . ~/.bash_aliases
+[ -f ~/.shell_helpers ] && source ~/.shell_helpers
+[ -f ~/.bash_aliases ] && source ~/.bash_aliases
 
 if command -v uv > /dev/null 2>&1; then
     eval "$(uv generate-shell-completion zsh)"
 fi
 
-# ========================================================
-# Aliases
-# ========================================================
 # Listing aliases
 alias ll='ls -alF' # Long format, show all except .
 alias la='ls -A'   # Show all except . and ..
@@ -103,7 +87,6 @@ alias cp='nocorrect cp -iv'
 alias mv='nocorrect mv -iv'
 
 alias mkdir='nocorrect mkdir -pv' # Create parent directories and verbose
-alias ..='cd ..'
 alias ...='cd ../..'
 alias df='df -h' # Human-readable sizes
 alias du='du -h' # Human-readable sizes
@@ -119,29 +102,30 @@ alias glg='git log --graph --oneline --decorate --all'
 # =====================
 # Prompt
 # =====================
-autoload -U colors && colors
 
-# Git integration with vcs_info
-autoload -Uz vcs_info
-zstyle ':vcs_info:*' enable git
-zstyle ':vcs_info:git:*' formats ' [%b%u%c%m]%f'
-zstyle ':vcs_info:git:*' actionformats ' [%b|%a]%f'
-zstyle ':vcs_info:*' unstagedstr '*'
-zstyle ':vcs_info:*' stagedstr '+'
-zstyle ':vcs_info:*' check-for-changes true
+__git_info() {
+    local branch
+    branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return 1
+    
+    local status=""
+    git diff-index --quiet HEAD -- 2>/dev/null || status="*"
+    
+    printf " [%s%s]" "$branch" "$status"
+}
 
 # Enable prompt substitution
 setopt prompt_subst
 
 __set_prompt() {
     local last_status=$?
-    vcs_info
 
     # user@host:path
     PROMPT=$'\n'"%F{green}%n@%m%f:%F{blue}%~%f"
 
     [[ -n $VIRTUAL_ENV ]] && PROMPT+=" %F{yellow}($(basename $VIRTUAL_ENV))%f"
-    [[ -n "$vcs_info_msg_0_" ]] && PROMPT+="%F{magenta}${vcs_info_msg_0_}%f"
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        PROMPT+="%F{magenta}$(__git_info)%f"
+    fi
 
     # Green plus (last command succeeded), else red minus on a new line
     PROMPT+=$'\n'"$([[ $last_status -eq 0 ]] && echo "%F{green}+" || echo "%F{red}-")%f "

@@ -8,27 +8,22 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+# vim: set ft=sh ts=4 sts=4 sw=4 et:
+
 # ========================================================
 # Environment Variables
 # ========================================================
 
-# ---- XDG Base Directory Specification ----
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 
-# Create directories if they don't exist
-for dir in "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"; do
-    [ ! -d "$dir" ] && mkdir -p "$dir"
-done
+mkdir -p "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"
 
-# ---- History Files ----
-export HISTFILE="$XDG_STATE_HOME/bash/history"
 export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
 export SQLITE_HISTORY="$XDG_DATA_HOME/sqlite_history"
 
-# ---- Language Configurations ----
 export PYTHONPATH="$HOME/python_libs:${PYTHONPATH:-}"
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
 export PIP_CONFIG_FILE="$XDG_CONFIG_HOME/pip/pip.conf"
@@ -70,10 +65,6 @@ path_append() {
         *) PATH="${PATH:+$PATH:}$1" ;;
     esac
 }
-
-if [ -n "$WSL_DISTRO_NAME" ]; then
-    path_prepend "/mnt/c/WINDOWS/system32"
-fi
 
 path_prepend "$HOME/.cargo/bin"
 path_prepend "/usr/share/texlive/bin"
@@ -121,26 +112,15 @@ fi
 # ========================================================
 # WSL-Specific Configuration
 # ========================================================
-if [ -n "$WSL_DISTRO_NAME" ] || [ -n "$WSL_INTEROP" ]; then
-    WINDOWS_DIR="/mnt/c"
-    WINDOWS_PROG_FILES="$WINDOWS_DIR/Program Files"
-    WINDOWS_LOCALAPPDATA=$(wslpath -u "$(cmd.exe /c "echo %LOCALAPPDATA%" 2> /dev/null | tr -d '\r')")
-    SYSTEM32_DIR="$WINDOWS_DIR/Windows/System32"
-    CMD_EXE="$SYSTEM32_DIR/cmd.exe"
 
-    VSCODE_EXE="$WINDOWS_PROG_FILES/Microsoft VS Code/bin/code"
-    PDF_READER="$WINDOWS_LOCALAPPDATA/SumatraPDF/SumatraPDF.exe"
-    SUBLIME_TEXT_EXE="$WINDOWS_PROG_FILES/Sublime Text/sublime_text.exe"
-
-    if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ]; then
-        export DISPLAY=:0 WAYLAND_DISPLAY=wayland-0
-    fi
-fi
+[ -f "$HOME/.wsl_env" ] && source "$HOME/.wsl_env"
 
 # ---------------------------------------------------------------
 
-# If running bash, source .bashrc
-[ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"
+if [ -n "$ZSH_VERSION" ]; then
+    emulate -L zsh
+    [ -f "$HOME/.zshrc" ] && . "$HOME/.zshrc"
+    return 0
+fi
 
-# If running zsh, make sure to exit any emulation
-[ -n "$ZSH_VERSION" ] && [ -f "$HOME/.zshrc" ] && emulate -L zsh && . "$HOME/.zshrc"
+[ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"

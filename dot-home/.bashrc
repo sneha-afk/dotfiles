@@ -1,4 +1,5 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
+# vim: set ft=sh ts=4 sts=4 sw=4 et:
 
 # Only execute for interactive shells
 case $- in
@@ -11,14 +12,12 @@ HISTCONTROL=ignoreboth # Ignore duplicate lines and lines starting with space
 HISTSIZE=10000         # Increase number of commands to remember
 HISTFILESIZE=20000     # Increase maximum size of history file
 
+# Set shell options:
 # histappend     - Append to history file instead of overwriting
 # cmdhist        - Save multi-line commands as single history entry
-shopt -s histappend cmdhist
-
-# Set shell options:
-#   checkwinsize - Update LINES/COLUMNS after each command to maintain correct window size
-#   dirspell     - Auto-correct minor spelling errors in directory names during completion
-shopt -s checkwinsize dirspell
+# checkwinsize - Update LINES/COLUMNS after each command to maintain correct window size
+# dirspell     - Auto-correct minor spelling errors in directory names during completion
+shopt -s histappend cmdhist checkwinsize
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -31,22 +30,6 @@ fi
 # Detect color support
 case "$TERM" in
     xterm-color | *-256color) color_prompt=yes ;;
-esac
-
-# # Set prompt based on color support
-# if [ "$color_prompt" = yes ]; then
-#     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-# else
-#     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-# fi
-# unset color_prompt force_color_prompt
-
-# If this is an xterm set the title to user@host:dir
-case "$TERM" in
-    xterm* | rxvt*)
-        PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-        ;;
-    *) ;;
 esac
 
 # Enable color for ls and grep utilities
@@ -104,9 +87,7 @@ fi
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 # Load shell-helper utility functions
-if [ -f ~/.shell_helpers ]; then
-    . ~/.shell_helpers
-fi
+[ -f "$HOME/.shell_helpers" ] && source "$HOME/.shell_helpers"
 
 # ========================================================
 # Aliases
@@ -116,7 +97,6 @@ alias cp='cp -iv'
 alias mv='mv -iv'
 
 alias mkdir='mkdir -pv' # Create parent directories and verbose
-alias ..='cd ..'
 alias ...='cd ../..'
 alias df='df -h' # Human-readable sizes
 alias du='du -h' # Human-readable sizes
@@ -158,10 +138,9 @@ PS1_MAGENTA='\[\033[35m\]'
 
 # Source git-prompt if available and not declared yet
 if ! declare -F __git_ps1 &> /dev/null; then
-    for path in \
-        /usr/share/git-core/contrib/completion/git-prompt.sh \
-        /usr/lib/git-core/git-sh-prompt \
-        /usr/local/etc/bash_completion.d/git-prompt.sh; do
+    for path in /usr/share/git-core/contrib/completion/git-prompt.sh \
+                /usr/lib/git-core/git-sh-prompt \
+                /usr/local/etc/bash_completion.d/git-prompt.sh; do
         [[ -f "$path" ]] && . "$path" && break
     done
 fi
@@ -174,6 +153,7 @@ export GIT_PS1_SHOWUPSTREAM="auto"  # < > = for behind/ahead/diverged
 export GIT_PS1_SHOWCOLORHINTS=1
 
 __git_info() {
+    ! command -v git >/dev/null && return
     # Use git's built-in prompt function if available
     if type -t __git_ps1 > /dev/null; then
         printf " %s " "$(__git_ps1 "[%s]")"

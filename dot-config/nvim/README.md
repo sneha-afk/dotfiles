@@ -28,13 +28,16 @@ Minimum version required: v0.11.0
 │   └── plugins/
 │       ├── colorscheme.lua
 │       ├── completions.lua
+│       ├── extras.lua
 │       ├── hardtime.lua
 │       ├── helpers.lua
+│       ├── live_preview.lua
 │       ├── lsp/
 │       │   ├── config.lua
 │       │   ├── init.lua
 │       │   ├── server_configs.lua
 │       │   └── server_keymaps.lua
+│       ├── oil.lua
 │       ├── sessions.lua
 │       ├── snacks.lua
 │       ├── startup.lua
@@ -42,6 +45,7 @@ Minimum version required: v0.11.0
 │       ├── telescope.lua
 │       ├── treesitter.lua
 │       ├── ui.lua
+│       ├── vimtex.lua
 │       └── which_key.lua
 └── snippets/
 ```

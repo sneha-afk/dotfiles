@@ -1,0 +1,104 @@
+# ~/.wsl_env
+# Source from .profile, .bashrc, or .zshrc:
+#   [ -f "$HOME/.wsl_env" ] && source "$HOME/.wsl_env"
+
+# vim: set ft=sh ts=4 sts=4 sw=4 et:
+
+# Fast exit if not inside WSL environment
+grep -qi microsoft /proc/version 2>/dev/null || return
+
+# ========================================================
+# Windows mount and key PATHs
+# ========================================================
+export WINDOWS_DRIVE="/mnt/c"
+export SYSTEM32_DIR="$WINDOWS_DRIVE/Windows/System32"
+export PROGRAM_FILES="$WINDOWS_DRIVE/Program Files"
+export WINDOWS_LOCALAPPDATA=$(wslpath -u "$(cmd.exe /c "echo %LOCALAPPDATA%" 2> /dev/null | tr -d '\r')")
+export CMD_EXE="$SYSTEM32_DIR/cmd.exe"
+
+
+export VSCODE_EXE="$PROGRAM_FILES/Microsoft VS Code/bin/code"
+export SUBLIME_EXE="$PROGRAM_FILES/Sublime Text/sublime_text.exe"
+export PDF_READER_EXE="$WINDOWS_LOCALAPPDATA/SumatraPDF/SumatraPDF.exe"
+
+alias codewsl='"$VSCODE_EXE"'
+alias sublwsl='"$SUBLIME_EXE"'
+alias pdfwsl='"$PDF_READER_EXE"'
+
+# ========================================================
+# Append system32 to PATH if not already included (last fallback)
+# ========================================================
+case ":$PATH:" in
+    *:"$SYSTEM32_DIR":*) ;;
+    *) PATH="$PATH:$SYSTEM32_DIR" ;;
+esac
+
+# ========================================================
+# GUI Settings
+# ========================================================
+if [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+    export DISPLAY=:0
+    export WAYLAND_DISPLAY=wayland-0
+fi
+
+
+# ========================================================
+# Helper functions
+# ========================================================
+
+# Windows Explorer
+explorer() {
+    win_path="$(wslpath -w "${1:-$PWD}" 2> /dev/null)" || {
+        echo "Invalid WSL path: ${1:-$PWD}" >&2
+        return 1
+    }
+    ("$CMD_EXE" /c "explorer.exe $win_path" &> /dev/null &) && echo "📂 Opening: $win_path"
+}
+
+# PDF opener
+openpdf() {
+    [ ! -f "$PDF_READER" ] && {
+        echo "PDF Reader not found at $PDF_READER" >&2
+        return 1
+    }
+    [ $# -eq 0 ] && {
+        echo "Usage: openpdf <file.pdf>" >&2
+        return 1
+    }
+    local file_path=$(wslpath -w "$1" 2> /dev/null) || {
+        echo "Invalid WSL path: $1" >&2
+        return 1
+    }
+    ("$PDF_READER" "$file_path" > /dev/null 2>&1 &) && echo "🔖 Opened PDF: ${1##*/}"
+}
+
+# Sublime Text
+subl() {
+    [ ! -f "$SUBLIME_TEXT_EXE" ] && {
+        echo "Sublime Text not found at $SUBLIME_TEXT_EXE" >&2
+        return 1
+    }
+    ("$SUBLIME_TEXT_EXE" "$@" > /dev/null 2>&1 &) && echo "✏️ Opened in Sublime: $*"
+}
+
+# VS Code
+code() {
+    [ ! -f "$VSCODE_EXE" ] && {
+        echo "VS Code not found at $VSCODE_EXE" >&2
+        return 1
+    }
+    ("$VSCODE_EXE" "$@" > /dev/null 2>&1 &) && echo "✏️ Opened in VSCode: $*"
+}
+
+# Run a Neovide instance (where installation is on Windows) from CWD
+nvim_nvide() {
+    local server_port="localhost:6666"
+    local neovide_path="$WINDOWS_PROG_FILES/Neovide/neovide.exe"
+
+    (nvim --headless --listen "$server_port" > /dev/null 2>&1 &)
+    echo "[nvim_nvide] Starting Neovim server in background..."
+    echo "[nvim_nvide] Launching Neovide..."
+    echo "  ├─ Server address: $server_port"
+    echo "  └─ Opening: $*"
+    "$neovide_path" --server "$server_port" "$*"
+}
