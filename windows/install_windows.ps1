@@ -1,3 +1,5 @@
+# windows/install_windows.ps1
+
 Write-Output "Symbolic links require an admin shell to perform."
 Write-Output "If the following commands fail, open up an admin shell:"
 Write-Output "`tStart-Process wt -Verb RunAs"
@@ -7,41 +9,39 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 #region Helpers
-function Create-Symlink {
-    param (
-        [string]$Path,
-        [string]$Target
-    )
-
-    try {
-        $ResolvedTarget = Resolve-Path -Path $Target
-        New-Item -ItemType SymbolicLink -Path $Path -Target $ResolvedTarget -Force | Out-Null
-        Write-Output "+ Linked: $Path -> $ResolvedTarget"
-    } catch {
-        Write-Warning "- Failed to link: $Path -> $Target. Error: $_"
-    }
-}
+. "$PSScriptRoot\helpers.ps1"
 #endregion
 
 #region Directories
+$ScriptDir = $PSScriptRoot                          # e.g., repo\windows
+$RepoDir = Split-Path -Path $ScriptDir -Parent      # one level up, i.e., repo root
 $LocalAppData = $env:LOCALAPPDATA
 $RoamingAppData = [System.Environment]::GetFolderPath("ApplicationData")
-$ScriptDir = $PSScriptRoot  # Script directory (i.e., repo\windows)
 #endregion
 
 #region Symlinks
-Create-Symlink -Path $PROFILE `
-    -Target (Join-Path $ScriptDir "Microsoft.PowerShell_profile.ps1")
+$symlinks = @(
+    @{
+        Path   = $PROFILE
+        Target = Join-Path $ScriptDir "Microsoft.PowerShell_profile.ps1"
+    },
+    @{
+        Path   = Join-Path $HOME ".wslconfig"
+        Target = Join-Path $ScriptDir ".wslconfig"
+    },
+    @{
+        Path   = Join-Path $HOME "_vimrc"
+        Target = Join-Path $RepoDir "dot-home\.vimrc"
+    },
+    @{
+        Path   = Join-Path $LocalAppData "nvim"
+        Target = Join-Path $RepoDir "dot-config\nvim"
+    },
+    @{
+        Path   = Join-Path $RoamingAppData "neovide"
+        Target = Join-Path $RepoDir "dot-config\neovide"
+    }
+)
 
-Create-Symlink -Path (Join-Path $HOME ".wslconfig") `
-    -Target (Join-Path $ScriptDir ".wslconfig")
-
-Create-Symlink -Path (Join-Path $HOME "_vimrc") `
-    -Target (Join-Path $ScriptDir "..\dot-home\.vimrc")
-
-Create-Symlink -Path (Join-Path $LocalAppData "nvim") `
-    -Target (Join-Path $ScriptDir "..\dot-config\nvim")
-
-Create-Symlink -Path (Join-Path $RoamingAppData "neovide") `
-    -Target (Join-Path $ScriptDir "..\dot-config\neovide")
+Reset-Symlinks -Links $symlinks
 #endregion

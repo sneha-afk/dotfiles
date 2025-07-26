@@ -6,6 +6,9 @@ function wsl-restart {
 }
 
 function wsl-kill { taskkill /im wslservice.exe /f }
+
+function nvim-wsl { neovide.exe --server localhost:6666 }
+
 #endregion
 
 # ========================[ Region: Admin & Elevated ]=========================

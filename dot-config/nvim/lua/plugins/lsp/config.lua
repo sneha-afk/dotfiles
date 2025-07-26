@@ -19,7 +19,9 @@ local format_config = {
   -- Filetypes that bypass global toggle
   always_format_filetypes = {
     typescript = true,
+    typescriptreact = true,
     javascript = true,
+    javascriptreact = true,
     html = true,
     css = true,
     scss = true,

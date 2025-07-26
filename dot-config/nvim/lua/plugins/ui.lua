@@ -46,15 +46,24 @@ return {
         [""] = "rainbow-delimiters",
         lua = "rainbow-blocks",
         latex = "rainbow-blocks",
+        javascript = "rainbow-delimiters-react",
+        typescript = "rainbow-parens",
+        tsx = "rainbow-tags-react",
+        typescriptreact = "rainbow-tags-react",
+      },
+      priority = {
+        [""] = 145,
+        latex = 210,
+        lua = 210,
       },
       -- Defines list of highlights to cycle through
       highlight = {
-        "Character",
-        "PreProc",
-        "Boolean",
-        "Special",
         "Statement",
+        "Character",
+        "Special",
+        "Number",
         "Type",
+        "Boolean",
       },
     },
     config = function(_, opts)

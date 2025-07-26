@@ -12,13 +12,13 @@ grep -qi microsoft /proc/version 2>/dev/null || return
 # ========================================================
 export WINDOWS_DRIVE="/mnt/c"
 export SYSTEM32_DIR="$WINDOWS_DRIVE/Windows/System32"
-export PROGRAM_FILES="$WINDOWS_DRIVE/Program Files"
+export WINDOWS_PROG_FILES="$WINDOWS_DRIVE/Program Files"
 export WINDOWS_LOCALAPPDATA=$(wslpath -u "$(cmd.exe /c "echo %LOCALAPPDATA%" 2> /dev/null | tr -d '\r')")
 export CMD_EXE="$SYSTEM32_DIR/cmd.exe"
 
 
-export VSCODE_EXE="$PROGRAM_FILES/Microsoft VS Code/bin/code"
-export SUBLIME_EXE="$PROGRAM_FILES/Sublime Text/sublime_text.exe"
+export VSCODE_EXE="$WINDOWS_PROG_FILES/Microsoft VS Code/bin/code"
+export SUBLIME_EXE="$WINDOWS_PROG_FILES/Sublime Text/sublime_text.exe"
 export PDF_READER_EXE="$WINDOWS_LOCALAPPDATA/SumatraPDF/SumatraPDF.exe"
 
 alias codewsl='"$VSCODE_EXE"'
