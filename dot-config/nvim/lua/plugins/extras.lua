@@ -7,9 +7,8 @@ return {
     event = "UIEnter",
     version = false,
     keys = {
-      { "<localleader>mo", function() MiniMap.open() end,   desc = "Mini[M]ap: [O]pen" },
-      { "<localleader>mc", function() MiniMap.close() end,  desc = "Mini[M]ap: [C]lose" },
-      { "<localleader>mt", function() MiniMap.toggle() end, desc = "Mini[M]ap: [T]oggle" },
+      { "<leader>mt", function() MiniMap.toggle() end,       desc = "Mini[M]ap: [T]oggle" },
+      { "<leader>mf", function() MiniMap.toggle_focus() end, desc = "Mini[M]ap: [F]ocus" },
     },
     config = function()
       local minimap = require("mini.map")
@@ -39,7 +38,7 @@ return {
       vim.api.nvim_create_autocmd("User", {
         pattern = "VeryLazy",
         callback = function()
-          if vim.bo.filetype == "ministarter" then
+          if vim.bo.filetype == "ministarter" or vim.bo.filetype == "oil" then
             return
           end
           MiniMap.open()

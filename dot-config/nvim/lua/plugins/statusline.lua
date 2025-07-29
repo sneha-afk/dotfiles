@@ -60,8 +60,7 @@ return {
       },
     },
   },
-  config = function(_, opts)
-    require("lualine").setup(opts)
+  init = function()
     vim.opt.showmode = false
   end,
 }

@@ -1,8 +1,25 @@
 -- .config/nvim/lua/core/lazy.lua
 -- Initialization of the plugin system
 
--- Bootstrap lazy.nvim plugin manager
+-- If lazy.nvim not detected, ask if plugins should be installed
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.uv.fs_stat(lazypath) then
+  vim.api.nvim_echo({
+    { "Lazy.nvim not installed.\n", "WarningMsg" },
+    { "Load plugin system? [y/N] ", "Question" },
+  }, true, {})
+
+  local input = vim.fn.getcharstr()
+  if input:lower() ~= "y" then
+    vim.api.nvim_echo({
+      { "Plugin system disabled.\n",            "WarningMsg" },
+      { "Run :Lazy bootstrap to enable later.", "MoreMsg" },
+    }, true, {})
+    return
+  end
+end
+
+-- Bootstrap lazy.nvim
 if not vim.uv.fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
   local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })

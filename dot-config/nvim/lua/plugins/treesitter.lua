@@ -106,7 +106,6 @@ return {
         if vim.treesitter.highlighter.active[buf] then
           vim.opt_local.foldmethod = "expr"
           vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-          vim.opt_local.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end
       end,
     })

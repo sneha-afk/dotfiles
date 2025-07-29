@@ -24,7 +24,7 @@ return {
   },
   config = function(_, opts)
     for _, ft in ipairs({
-      "angular", "css", "flow", "graphql", "html", "javascript", "javascriptreact", "jsx",
+      "angular", "css", "flow", "graphql", "html", "htmldjango", "javascript", "javascriptreact", "jsx",
       "json", "less", "markdown", "scss", "typescript", "typescriptreact", "tsx", "vue", "yaml",
     }) do
       opts.formatters_by_ft[ft] = { "prettierd", "prettier", stop_after_first = true }

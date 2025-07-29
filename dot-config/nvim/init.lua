@@ -86,24 +86,4 @@ require("core.filetypes")
 require("core.commands")
 require("core.keymaps")
 require("core.terminal")
-
--- Ask if plugins should be installed if not already
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.uv.fs_stat(lazypath) then
-  vim.api.nvim_echo({
-    { "Lazy.nvim not installed.\n", "WarningMsg" },
-    { "Load plugin system? [y/N] ", "Question" },
-  }, true, {})
-
-  local input = vim.fn.getcharstr()
-  if input:lower() ~= "y" then
-    vim.api.nvim_echo({
-      { "Plugin system disabled.\n",            "WarningMsg" },
-      { "Run :Lazy bootstrap to enable later.", "MoreMsg" },
-    }, true, {})
-    return
-  end
-end
-
--- Initialize plugin system
 require("core.lazy")

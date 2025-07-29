@@ -23,6 +23,7 @@ local format_config = {
     javascript = true,
     javascriptreact = true,
     html = true,
+    htmldjango = true,
     css = true,
     scss = true,
   },
