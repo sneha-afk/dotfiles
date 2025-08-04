@@ -15,8 +15,8 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 #region Directories
 $ScriptDir = $PSScriptRoot                          # e.g., repo\windows
 $RepoDir = Split-Path -Path $ScriptDir -Parent      # one level up, i.e., repo root
-$LocalAppData = $env:LOCALAPPDATA
-$RoamingAppData = [System.Environment]::GetFolderPath("ApplicationData")
+$AppDataLocal = $env:LOCALAPPDATA
+$AppDataRoaming = [System.Environment]::GetFolderPath("ApplicationData")
 #endregion
 
 #region Symlinks
@@ -34,12 +34,16 @@ $symlinks = @(
         Target = Join-Path $RepoDir "dot-home\.vimrc"
     },
     @{
-        Path   = Join-Path $LocalAppData "nvim"
+        Path   = Join-Path $AppDataLocal "nvim"
         Target = Join-Path $RepoDir "dot-config\nvim"
     },
     @{
-        Path   = Join-Path $RoamingAppData "neovide"
+        Path   = Join-Path $AppDataRoaming "neovide"
         Target = Join-Path $RepoDir "dot-config\neovide"
+    }
+    @{
+        Path   = Join-Path $AppDataRoaming "alacritty"
+        Target = Join-Path $RepoDir "dot-config\alacritty"
     }
 )
 
