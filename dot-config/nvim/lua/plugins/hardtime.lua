@@ -29,5 +29,19 @@ return {
       ["<Left>"] = false,
       ["<Right>"] = false,
     },
+    hints = {
+      ["ggVG:"] = {
+        message = function() return "Use :% instead of ggVG: to operate on the entire document" end,
+        length = 5,
+      },
+      ["[dcyvV][ia][%(%)]"] = {
+        message = function(keys) return "Use " .. keys:sub(1, 2) .. "b instead of " .. keys end,
+        length = 3,
+      },
+      ["[dcyvV][ia][%{%}]"] = {
+        message = function(keys) return "Use " .. keys:sub(1, 2) .. "B instead of " .. keys end,
+        length = 3,
+      },
+    },
   },
 }

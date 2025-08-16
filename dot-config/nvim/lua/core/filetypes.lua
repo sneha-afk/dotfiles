@@ -2,51 +2,43 @@
 -- Filetype-specific settings
 
 -- Define groups of settings that can be mapped to multiple filetypes
-local filetype_groups = {
-  -- Tab-indented files
-  no_expand_tab = {
-    ft = { "make", "go", "terraform" },
-    opts = {
-      expandtab = false,
-      tabstop = 4,
-      softtabstop = 4,
-      shiftwidth = 4,
-    },
-  },
+local no_expand_tab = { expandtab = false, tabstop = 4, softtabstop = 4, shiftwidth = 4 }
+local spell_wrap    = { spell = true, wrap = true }
+local c_indent      = { cindent = true }
+local small_tabs    = { tabstop = 2, softtabstop = 2, shiftwidth = 2 }
 
-  spell_files = {
-    ft = { "text", "tex", "plaintex", "typst", "gitcommit", "markdown" },
-    opts = {
-      spell = true,
-      wrap = true,
-    },
-  },
+local ft_opts       = {
+  make      = no_expand_tab,
+  go        = no_expand_tab,
+  terraform = no_expand_tab,
 
-  c_indent = {
-    ft = { "c", "cpp", "h", "hpp" },
-    opts = {
-      cindent = true,
-    },
-  },
+  text      = spell_wrap,
+  tex       = spell_wrap,
+  plaintex  = spell_wrap,
+  typst     = spell_wrap,
+  gitcommit = spell_wrap,
+  markdown  = spell_wrap,
 
-  smaller_tabs = {
-    ft = { "lua", "json", "html", "css" },
-    opts = {
-      tabstop = 2,
-      softtabstop = 2,
-      shiftwidth = 2,
-    },
-  },
+  c         = c_indent,
+  cpp       = c_indent,
+  h         = c_indent,
+  hpp       = c_indent,
+
+  lua       = small_tabs,
+  json      = small_tabs,
+  html      = small_tabs,
+  css       = small_tabs,
 }
 
-for group_name, config in pairs(filetype_groups) do
-  vim.api.nvim_create_autocmd("FileType", {
-    pattern = config.ft,
-    callback = function()
-      for opt, value in pairs(config.opts) do
-        vim.opt_local[opt] = value
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("FiletypeLocalOpts", { clear = true }),
+  pattern = "*",
+  callback = function(ev)
+    local opts = ft_opts[ev.match]
+    if opts then
+      for opt, val in pairs(opts) do
+        vim.opt_local[opt] = val
       end
-    end,
-    group = vim.api.nvim_create_augroup("FileType_" .. group_name, { clear = true }),
-  })
-end
+    end
+  end,
+})

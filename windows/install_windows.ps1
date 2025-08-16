@@ -1,12 +1,15 @@
 # windows/install_windows.ps1
 
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Warning "This script requires Administrator privileges to run properly."
+    Write-Host "Re-launching script as Administrator..."
+    Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+    exit
+}
+
 Write-Output "Symbolic links require an admin shell to perform."
 Write-Output "If the following commands fail, open up an admin shell:"
 Write-Output "`tStart-Process wt -Verb RunAs"
-
-if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Warning "! This script is not running with Administrator privileges. Symlinks may fail."
-}
 
 #region Helpers
 . "$PSScriptRoot\helpers.ps1"

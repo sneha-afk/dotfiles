@@ -34,7 +34,6 @@ dry-run:
 _check_stow:
 	@command -v stow >/dev/null || { echo "'stow' not found. Please install it."; exit 1; }
 
-#region Windows
 windows:
 	powershell -NoProfile -ExecutionPolicy Bypass -Command "& { \
 		try { \
@@ -46,4 +45,3 @@ windows:
 			Write-Warning $_.Exception.Message \
 		} \
 	}"
-#endregion

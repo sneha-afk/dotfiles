@@ -1,4 +1,5 @@
 -- .config/nvim/lua/plugins/completions-nvim-cmp.lua
+-- Thanks to https://vonheikemen.github.io/devlog/tools/setup-nvim-lspconfig-plus-nvim-cmp/
 -- Backing up previous completion setup
 
 return {
@@ -6,7 +7,7 @@ return {
   enabled = false,
   event = "InsertEnter",
   dependencies = {
-    "hrsh7th/cmp-nvim-lsp", -- LSP completions
+    "hrsh7th/cmp-nvim-lsp",       -- LSP completions
     {
       "saadparwaiz1/cmp_luasnip", -- Snippet completions
       dependencies = {
@@ -28,8 +29,8 @@ return {
             require("luasnip.loaders.from_vscode").lazy_load({
               paths = {
                 vim.fn.stdpath("data") .. "/lazy/friendly-snippets", -- Built-in vscode-style snippets
-                vim.fn.stdpath("config") .. "/snippets", -- Personal snippets in .config/nvim/snippets
-                vim.uv.cwd() .. "/.nvim/snippets", -- Project-specific snippets
+                vim.fn.stdpath("config") .. "/snippets",             -- Personal snippets in .config/nvim/snippets
+                vim.uv.cwd() .. "/.nvim/snippets",                   -- Project-specific snippets
               },
             })
 
@@ -59,7 +60,7 @@ return {
       },
     },
     "hrsh7th/cmp-buffer", -- Buffer words
-    "hrsh7th/cmp-path", -- File paths
+    "hrsh7th/cmp-path",   -- File paths
     "f3fora/cmp-spell",
   },
   opts = function()
@@ -81,10 +82,10 @@ return {
         },
       },
       mapping = cmp.mapping.preset.insert({
-        ["<C-Space>"] = cmp.mapping.complete(), -- Manual trigger
-        ["<C-e>"] = cmp.mapping.abort(), -- Close menu
+        ["<C-Space>"] = cmp.mapping.complete(),  -- Manual trigger
+        ["<C-e>"] = cmp.mapping.abort(),         -- Close menu
         ["<C-j>"] = cmp.mapping.scroll_docs(-4), -- Scroll down
-        ["<C-k>"] = cmp.mapping.scroll_docs(4), -- Scroll up
+        ["<C-k>"] = cmp.mapping.scroll_docs(4),  -- Scroll up
 
         -- Select: true if select whatever is under cursor, false if need to interact with menu first
         -- Replace: replace entire word under cursor (important to not have butchered characters)
@@ -148,11 +149,11 @@ return {
         end, { "i", "s" }),
       }),
       sources = cmp.config.sources({
-        { name = "nvim_lsp", priority = 1000 }, -- LSP suggestions
-        { name = "luasnip", priority = 900 }, -- Snippet suggestions
-        { name = "path", priority = 500 }, -- File system paths
-        { name = "buffer", priority = 250, keyword_length = 3 }, -- Buffer words
-        { name = "spell", priority = 100, keyword_length = 2 },
+        { name = "nvim_lsp", priority = 1000 },                  -- LSP suggestions
+        { name = "luasnip",  priority = 900 },                   -- Snippet suggestions
+        { name = "path",     priority = 500 },                   -- File system paths
+        { name = "buffer",   priority = 250, keyword_length = 3 }, -- Buffer words
+        { name = "spell",    priority = 100, keyword_length = 2 },
       }),
       formatting = {
         fields = { "menu", "abbr", "kind" },
@@ -171,14 +172,14 @@ return {
       sorting = {
         priority_weight = 2.0,
         comparators = {
-          cmp.config.compare.score, -- Respect LSP relevance
-          cmp.config.compare.offset, -- Prefer nearby symbols
-          cmp.config.compare.exact, -- Exact matches
+          cmp.config.compare.score,         -- Respect LSP relevance
+          cmp.config.compare.offset,        -- Prefer nearby symbols
+          cmp.config.compare.exact,         -- Exact matches
           cmp.config.compare.recently_used, -- Boost frequently used items
-          cmp.config.compare.kind, -- Group by type (e.g., functions before variables)
-          cmp.config.compare.sort_text, -- Secondary LSP hints
-          cmp.config.compare.length, -- Prefer shorter names
-          cmp.config.compare.order, -- Alphabetical fallback
+          cmp.config.compare.kind,          -- Group by type (e.g., functions before variables)
+          cmp.config.compare.sort_text,     -- Secondary LSP hints
+          cmp.config.compare.length,        -- Prefer shorter names
+          cmp.config.compare.order,         -- Alphabetical fallback
         },
       },
       window = {
@@ -189,13 +190,13 @@ return {
         ghost_text = true,
       },
       performance = {
-        debounce = 30, -- How long to wait after typing stops
-        throttle = 40, -- How often to update while typing
-        fetching_timeout = 500, -- Timeout for slower sources
+        debounce = 30,                 -- How long to wait after typing stops
+        throttle = 40,                 -- How often to update while typing
+        fetching_timeout = 500,        -- Timeout for slower sources
         filtering_context_budget = 60, -- Time allowed for cmp before control goes back to nvim
         confirm_resolve_timeout = 100, -- Time for resolving item before completion
-        async_budget = 15, -- Time async func can run during one step of event loop
-        max_view_entries = 15, -- How many entries to disiplay in cmp menu
+        async_budget = 15,             -- Time async func can run during one step of event loop
+        max_view_entries = 15,         -- How many entries to disiplay in cmp menu
       },
     }
   end,

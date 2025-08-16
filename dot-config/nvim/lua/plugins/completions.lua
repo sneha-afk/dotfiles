@@ -1,5 +1,4 @@
 -- .config/nvim/lua/plugins/completions.lua
--- Thanks to https://vonheikemen.github.io/devlog/tools/setup-nvim-lspconfig-plus-nvim-cmp/
 
 return {
   "saghen/blink.cmp",

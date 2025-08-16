@@ -105,10 +105,13 @@ return {
       winblend = 5,
     },
     float = {
-      padding = 3,
       max_width = 0.95,
       max_height = 0.70,
       border = "rounded",
+    },
+
+    keymaps = {
+      ["<localleader>p"] = "actions.preview",
     },
   },
 }

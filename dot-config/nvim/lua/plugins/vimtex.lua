@@ -3,7 +3,7 @@
 return {
   "lervag/vimtex",
   ft = { "tex", "latex", "bib" },
-  init = function()
+  config = function()
     vim.g.tex_flavor = "latex"
 
     vim.g.vimtex_compiler_method = "latexmk"
@@ -25,5 +25,13 @@ return {
       vim.g.vimtex_view_general_viewer = "SumatraPDF"
     end
     vim.g.vimtex_view_general_options = "-reuse-instance -forward-search @tex @line @pdf"
+
+    -- Start continuous mode by compiling on start
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "VeryLazy",
+      callback = function()
+        vim.cmd("VimtexCompile")
+      end,
+    })
   end,
 }

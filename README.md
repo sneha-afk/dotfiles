@@ -7,6 +7,7 @@
 * PowerShell: `windows\Microsoft.PowerShell_profile.ps1`
 * WSL: `windows\.wslconfig`
 * Windows Terminal with [Geist Mono](https://vercel.com/font)
+    * Optionally: [Symbols Nerd Font Mono](https://www.nerdfonts.com/font-downloads)
 
 ##  Setup
 ## 🐧 Unix
@@ -14,9 +15,9 @@
 
 ```bash
 make         # Symlink all configs
-make delete  # Remove all symlinks
-make dry-run # Preview changes without applying them
 ```
+- `make delete` to remove all symlinks
+- `make dry-run` to preview changes without applying them
 
 ### 🔗 Manual
 
@@ -33,8 +34,6 @@ ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 ## 🪟 Windows
 ### ✅ Recommended: PowerShell Script
 
-[`install_windows.ps1`](./windows/install_windows.ps1) should be run in an **elevated PowerShell**:
-
 ```bash
 make windows
 ```
@@ -42,10 +41,11 @@ make windows
 which expands to:
 
 ```powershell
-Start-Process wt -Verb RunAs
 Unblock-File -Path .\install_windows.ps1
 .\install_windows.ps1
 ```
+
+[`install_windows.ps1`](./windows/install_windows.ps1) should automatically elevate to an Admin shell, but if not, first do `Start-Process wt -Verb RunAs`.
 
 
 ### 🔗 Manual

@@ -1,35 +1,57 @@
-# ========================[ Region: WSL Helpers ]==============================
-#region WSL
-function wsl-restart {
-    wsl.exe --shutdown
-    wsl.exe
-}
+# ========================[ Initialization ]===================================
+#region Init
+# $script variables are persistent across function calls
+if (-not $script:CommandCache) { $script:CommandCache = @{} }
 
-function wsl-kill { taskkill /im wslservice.exe /f }
-
-function nvim-wsl { neovide.exe --server localhost:6666 }
-
+if (-not $script:GitCache) { $script:GitCache = @{} }
+if (-not $script:VenvCache) { $script:VenvCache = if ($env:VIRTUAL_ENV) { Split-Path -Leaf $env:VIRTUAL_ENV } else { $null } }
+if (-not $script:IsWSL) { $script:IsWSL = [bool]$env:WSL_DISTRO_NAME }
 #endregion
 
 # ========================[ Region: Admin & Elevated ]=========================
 #region Admin
 function admin {
     param([string[]]$Command)
-    if ($Command) {
-        $argList = $Command -join ' '
-        Start-Process wt -Verb RunAs -ArgumentList "pwsh.exe -NoExit -Command $argList"
-    } else {
-        Start-Process wt -Verb RunAs
-    }
+    $args = if ($Command) { "pwsh -NoExit -Command $($Command -join ' ')" } else { 'pwsh' }
+    Start-Process wt -Verb RunAs -ArgumentList $args
 }
 Set-Alias su admin
+#endregion
+
+# ========================[ Region: WSL Helpers ]==============================
+#region WSL
+function WSL-Restart {
+    [CmdletBinding()]
+    param()
+    Write-Host "Shutting down WSL..." -ForegroundColor Yellow
+    wsl --shutdown
+    Start-Sleep 2
+    Write-Host "Starting WSL..." -ForegroundColor Green
+    wsl --status
+}
+
+function WSL-Kill {
+    [CmdletBinding()]
+    param()
+    Get-Process wslservice -ErrorAction SilentlyContinue | Stop-Process -Force
+    Write-Host "WSL service stopped" -ForegroundColor Yellow
+}
+
+function Neovide-WSL {
+    [CmdletBinding()]
+    param()
+    Start-Process neovide.exe --server localhost:6666
+}
 #endregion
 
 # ========================[ Region: Utility Functions ]========================
 #region Utilities
 function Test-CommandExists {
     param([Parameter(Mandatory)]$Command)
-    $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
+    if ($script:CommandCache.ContainsKey($Command)) { return $script:CommandCache[$Command] }
+    $exists = $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
+    $script:CommandCache[$Command] = $exists
+    return $exists
 }
 
 # Open profile in preferred editor
@@ -44,51 +66,6 @@ function mkcd {
 
 # Reload profile
 function Reload-Profile { . $PROFILE }
-
-# Jump up N directories (Up 2)
-function Up {
-    param([int]$Levels = 1)
-    $dest = (".." * $Levels) -replace '\\', '/'
-    Set-Location $dest
-}
-
-function free {
-    $os = Get-CimInstance -ClassName Win32_OperatingSystem
-    [PSCustomObject]@{
-        "Total_GB" = [math]::Round($os.TotalVisibleMemorySize/1MB,1)
-        "Free_GB"  = [math]::Round($os.FreePhysicalMemory/1MB,1)
-    } | Format-Table
-}
-
-function uptime {
-    $boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
-    $up   = (Get-Date) - $boot
-    "up $($up.Days)d $($up.Hours)h $($up.Minutes)m"
-}
-
-function sort { $input | Sort-Object }
-
-function uniq { $input | Sort-Object | Get-Unique }
-
-function tar {
-    param(
-        [Parameter(Position=0)][string]$Option,
-        [Parameter(Position=1)][string]$Archive,
-        [Parameter(Position=2)][string]$Target = '.'
-    )
-    switch ($Option) {
-        '-xzf' { Expand-Archive -Path $Archive -DestinationPath $Target }
-        '-czf' { Compress-Archive -Path $Target -DestinationPath $Archive }
-        default { Write-Host 'Usage: tar -xzf <archive> | tar -czf <archive> <path>' }
-    }
-}
-
-function unzip { param([Parameter(Mandatory)][string]$File) Expand-Archive -Path $File -DestinationPath $PWD }
-
-function ff {
-    param([Parameter(Mandatory)][string]$Name)
-    Get-ChildItem -Recurse -Filter "*${Name}*" -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }
-}
 
 # Measure word/line/char (like wc)
 function wc {
@@ -105,6 +82,11 @@ Set-Alias   la    Get-ChildItem
 Set-Alias   grep  Select-String
 Set-Alias   which Get-Command
 Set-Alias   ping Test-NetConnection
+function .. { Set-Location .. }
+
+# WSL aliases
+Set-Alias -Name wslr -Value WSL-Restart
+Set-Alias -Name wslk -Value WSL-Kill
 #endregion
 
 # ========================[ Region: Git Shortcuts ]===========================
@@ -119,8 +101,13 @@ function gl  { git log --oneline -10 }
 
 # ========================[ Region: Editor Selection ]=========================
 #region Editor
-$EDITOR = foreach ($e in 'nvim','pvim','vim','vi','code','notepad++','sublime_text') { if (Test-CommandExists $e) { $e; break } }
-if (-not $EDITOR) { $EDITOR = 'notepad' }
+if (-not $script:EditorCache) {
+    $script:EditorCache = foreach ($e in 'nvim','pvim','vim','vi','code','notepad++','sublime_text') {
+        if (Test-CommandExists $e) { $e; break }
+    }
+    if (-not $script:EditorCache) { $script:EditorCache = 'notepad' }
+}
+$EDITOR = $script:EditorCache
 Set-Alias vim $EDITOR
 #endregion
 
@@ -140,49 +127,51 @@ $global:FG = @{
     Gray    = "${Esc}[90m"
 }
 
-function global:Color($color, $text) {
-    return "$($FG[$color])$text$Reset"
+function global:Color($color, $text, [switch]$BoldText) {
+    $prefix = if ($BoldText) { $global:Bold } else { "" }
+    return "$prefix$($FG[$color])$text$Reset"
 }
 #endregion
 
 # ========================[ Region: Prompt ]===========================
 #region Prompt
+
 function Get-GitInfo {
+    $cwd = Get-Location
+    if ($script:GitCache.ContainsKey($cwd)) { return $script:GitCache[$cwd] }
+
     try {
         if (-not (git rev-parse --is-inside-work-tree 2>$null)) { return $null }
         $branch = git symbolic-ref --short HEAD 2>$null
         if (-not $branch) { return $null }
         $dirty  = (git status --porcelain 2>$null | Select-Object -First 1)
-        return @{ Branch = $branch; Dirty = $dirty }
+        $info = @{ Branch = $branch; Dirty = $dirty }
+        $script:GitCache[$cwd] = $info
+        return $info
     } catch { return $null }
 }
 
 function global:prompt {
-    $status_indicator = if ($? -eq 1) { Color 'Green' '+' } else { Color 'Red' "-" }
+    $status_indicator = if ($? -eq $true) { (Color 'Green' '+') } else { (Color 'Red' '-') }
 
     $hostStr = "$env:USERNAME@$env:COMPUTERNAME"
-    if ($env:WSL_DISTRO_NAME) { $hostStr += "(wsl)" }
-    $userHost = Color 'Blue' $hostStr
+    if ($script:IsWSL) { $hostStr += " (wsl)" }
+    $userHost = (Color 'Blue' $hostStr -BoldText)
 
-    $cwd = Split-Path -Leaf (Get-Location)
-    $pathSeg = Color 'Green' $cwd
+    $cwd = Split-Path -Leaf (Get-Location) -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrEmpty($cwd)) { $cwd = (Get-Location).Path }
+    $pathSeg = (Color 'Green' $cwd)
 
-    # Python venv
-    $venvSeg = ""
-    if ($env:VIRTUAL_ENV) {
-        $venvName = Split-Path -Leaf $env:VIRTUAL_ENV
-        $venvSeg = " " + (Color 'Magenta' $venvName)
-    }
+    $venvSeg = if ($script:VenvCache) { " " + (Color 'Magenta' "($script:VenvCache)") } else { "" }
 
-    $gitSeg = ""
     $gitSeg = ""
     $git = Get-GitInfo
     if ($git) {
-        $branchColor = Color 'Yellow' $git.Branch
-        $dirtyFlag = if ($git.Dirty) { Color 'Red' '*' } else { "" }
+        $branchColor = (Color 'Yellow' $git.Branch)
+        $dirtyFlag = if ($git.Dirty) { (Color 'Red' '*') } else { "" }
         $gitSeg = " ($branchColor$dirtyFlag)"
     }
 
-    "$Bold$userHost [$pathSeg]$gitSeg$venvSeg`nPS $status_indicator $Reset"
+    "$userHost [$pathSeg]$gitSeg$venvSeg`nPS $status_indicator "
 }
 #endregion

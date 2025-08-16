@@ -97,7 +97,6 @@ vim.lsp.config("clangd", {
     "--offset-encoding=utf-16",
     "--pch-storage=disk",
   },
-  filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
   init_options = {
     fallbackFlags = { "-Wall", "-Wextra", "-Wpedantic" },
     usePlaceholders = true,
