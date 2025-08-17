@@ -12,8 +12,17 @@ if (-not $script:IsWSL) { $script:IsWSL = [bool]$env:WSL_DISTRO_NAME }
 #region Admin
 function admin {
     param([string[]]$Command)
-    $args = if ($Command) { "pwsh -NoExit -Command $($Command -join ' ')" } else { 'pwsh' }
-    Start-Process wt -Verb RunAs -ArgumentList $args
+
+    # Try to find PowerShell 7+ first
+    $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
+    $shell = if ($pwsh) { "pwsh.exe" } else { "powershell.exe" }
+
+    if ($Command) {
+        $argList = $Command -join ' '
+        Start-Process wt -Verb RunAs -ArgumentList "$shell -NoExit -Command $argList"
+    } else {
+        Start-Process wt -Verb RunAs -ArgumentList $shell
+    }
 }
 Set-Alias su admin
 #endregion
