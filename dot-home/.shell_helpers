@@ -170,6 +170,8 @@ if command -v "nvim" > /dev/null 2>&1; then
     alias nvim_dump_swap="rm -rf ~/.local/state/nvim/swap/"
     alias nvim_server="nvim --headless --listen localhost:6666"
 
+    alias leetcode="nvim leetcode.nvim"
+
     nvim_reset() {
         rm -rf ~/.local/share/nvim/
         rm -rf ~/.local/state/nvim/

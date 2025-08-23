@@ -14,6 +14,7 @@ return {
         "lazy",
         "mason",
         "oil",
+        "leetcode.nvim",
       },
       always_show_tabline = false,
     },

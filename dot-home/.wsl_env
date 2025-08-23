@@ -16,6 +16,8 @@ export WINDOWS_PROG_FILES="$WINDOWS_DRIVE/Program Files"
 export WINDOWS_LOCALAPPDATA=$(wslpath -u "$(cmd.exe /c "echo %LOCALAPPDATA%" 2> /dev/null | tr -d '\r')")
 export CMD_EXE="$SYSTEM32_DIR/cmd.exe"
 
+# Setting to explorer.exe opens the link twice
+export BROWSER="powershell.exe /C start"
 
 export VSCODE_EXE="$WINDOWS_PROG_FILES/Microsoft VS Code/bin/code"
 export SUBLIME_EXE="$WINDOWS_PROG_FILES/Sublime Text/sublime_text.exe"

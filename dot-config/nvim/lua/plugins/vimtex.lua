@@ -2,6 +2,7 @@
 
 return {
   "lervag/vimtex",
+  enabled = vim.fn.has("unix") == 1,
   ft = { "tex", "latex", "bib" },
   config = function()
     vim.g.tex_flavor = "latex"

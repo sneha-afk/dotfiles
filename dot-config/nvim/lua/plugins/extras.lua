@@ -35,10 +35,19 @@ return {
         },
       })
 
+      local excluded_filetypes = {
+        ministarter = true,
+        oil = true,
+        qf = true,
+        help = true,
+        ["leetcode.nvim"] = true,
+      }
+
+
       vim.api.nvim_create_autocmd("User", {
         pattern = "VeryLazy",
         callback = function()
-          if vim.bo.filetype == "ministarter" or vim.bo.filetype == "oil" then
+          if excluded_filetypes[vim.bo.filetype] then
             return
           end
           MiniMap.open()

@@ -43,3 +43,10 @@ luac.out
 # -------
 .vscode/*
 !.vscode/c_cpp_properties.json
+
+*.spl
+
+*.swp
+*.swo
+*.swn
+*.undo

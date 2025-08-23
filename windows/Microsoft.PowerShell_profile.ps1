@@ -81,6 +81,10 @@ function wc {
     if ($args) { Get-Content @args | Measure-Object -Line -Word -Character }
     else       { $input       | Measure-Object -Line -Word -Character }
 }
+
+function leetcode {
+    nvim leetcode.nvim
+}
 #endregion
 
 # ========================[ Region: Aliases ]==================================
