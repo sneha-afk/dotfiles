@@ -59,22 +59,34 @@ vim.api.nvim_create_autocmd("UIEnter", {
       vim.o.guifont = "Geist Mono,Symbols Nerd Font Mono:h10"
       vim.opt.belloff:append("all")
 
+
+      -- https://neovide.dev/faq.html#how-can-i-use-cmd-ccmd-v-to-copy-and-paste
       local ctrl_key = vim.fn.has("mac") == 1 and "<D-" or "<C-"
-      -- https://github.com/neovide/neovide/issues/1263#issuecomment-1972013043
-      vim.keymap.set(
-        { "n", "v", "s", "x", "o", "i", "l", "c", "t" },
-        ctrl_key .. "v>",
-        function() vim.api.nvim_paste(vim.fn.getreg("+"), true, -1) end,
-        { desc = "Paste from clipboard" }
-      )
-      vim.keymap.set({ "n", "v" }, ctrl_key .. "c>", '"+y', { desc = "Copy to clipboard" })
+      vim.keymap.set("n",          ctrl_key .. "s>", ":w<CR>",      { desc = "Save" })
+      vim.keymap.set({ "n", "v" }, ctrl_key .. "c>", '"+y',         { desc = "Copy to clipboard" })
+      vim.keymap.set("n",          ctrl_key .. "v>", '"+P',         { desc = "Paste (normal)" })
+      vim.keymap.set("v",          ctrl_key .. "v>", '"+P',         { desc = "Paste (visual)" })
+      vim.keymap.set("c",          ctrl_key .. "v>", "<C-r>+",      { desc = "Paste (command)" })
+      vim.keymap.set("i",          ctrl_key .. "v>", '<ESC>l"+Pli', { desc = "Paste (insert)" })
+      vim.api.nvim_set_keymap("",  ctrl_key .. "v>", "+p<CR>", { noremap = true, silent = true })
+      vim.api.nvim_set_keymap("!", ctrl_key .. "v>", "<C-R>+", { noremap = true, silent = true })
+      vim.api.nvim_set_keymap("t", ctrl_key .. "v>", "<C-R>+", { noremap = true, silent = true })
+      vim.api.nvim_set_keymap("v", ctrl_key .. "v>", "<C-R>+", { noremap = true, silent = true })
+
+      -- Zoom in/out: https://neovide.dev/faq.html#how-can-i-dynamically-change-the-scale-at-runtime
+      vim.g.neovide_scale_factor = 1.0
+      local change_scale_factor = function(delta)
+        vim.g.neovide_scale_factor = vim.g.neovide_scale_factor * delta
+      end
+      vim.keymap.set("n", "<C-=>", function() change_scale_factor(1.25) end,     { desc = "Increase font size" })
+      vim.keymap.set("n", "<C-->", function() change_scale_factor(1 / 1.25) end, { desc = "Decrease font size" })
 
       vim.keymap.set("n", "<leader>uf", function()
         vim.g.neovide_fullscreen = not vim.g.neovide_fullscreen
       end, { desc = "[U]I: toggle [f]ullscreen" })
 
       vim.g.neovide_title_background_color = string.format("%x",
-        vim.api.nvim_get_hl(0, { id = vim.api.nvim_get_hl_id_by_name("Normal") }).bg
+        vim.api.nvim_get_hl(0, { id = vim.api.nvim_get_hl_id_by_name("Normal") }).bg or 0x000000
       )
     end
   end,
