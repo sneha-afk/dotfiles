@@ -11,11 +11,13 @@
 
 return {
   "kawre/leetcode.nvim",
+  enabled = vim.fn.has("wsl") == 0, -- Cookie expires too quickly on WSL
   cmd = "Leet",
   lazy = "leetcode.nvim" ~= vim.fn.argv()[1],
   build = ":TSUpdate html",
   dependencies = {
     "nvim-telescope/telescope.nvim",
+    "nvim-treesitter/nvim-treesitter",
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
   },
@@ -27,6 +29,16 @@ return {
 
     ---@type lc.picker
     picker = { provider = "telescope" },
+
+    keys = {
+      toggle = { "q" },
+      confirm = { "<CR>" },
+
+      reset_testcases = "tr",
+      use_testcase = "U",
+      focus_testcases = "H",
+      focus_result = "L",
+    },
   },
   config = function(_, opts)
     require("leetcode").setup(opts)
