@@ -40,10 +40,10 @@ $symlinks = @(
         Path   = Join-Path $AppDataLocal "nvim"
         Target = Join-Path $RepoDir "dot-config\nvim"
     },
-    @{
-        Path   = Join-Path $AppDataRoaming "neovide"
-        Target = Join-Path $RepoDir "dot-config\neovide"
-    }
+    # @{
+    #     Path   = Join-Path $AppDataRoaming "neovide"
+    #     Target = Join-Path $RepoDir "dot-config\neovide"
+    # }
     @{
         Path   = Join-Path $AppDataRoaming "alacritty"
         Target = Join-Path $RepoDir "dot-config\alacritty"

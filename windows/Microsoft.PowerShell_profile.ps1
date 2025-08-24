@@ -81,9 +81,77 @@ function wc {
     if ($args) { Get-Content @args | Measure-Object -Line -Word -Character }
     else       { $input       | Measure-Object -Line -Word -Character }
 }
+#endregion
 
-function leetcode {
-    nvim leetcode.nvim
+# ========================[ Region: Neovim Helpers ]==============================
+#region Neovim
+if (Get-Command nvim -ErrorAction SilentlyContinue) {
+    $nvimConfig = "$env:LOCALAPPDATA\nvim"
+    $nvimData   = "$env:LOCALAPPDATA\nvim-data"
+    $nvimLazy   = "$nvimData\lazy"
+    $nvimMason  = "$nvimData\mason"
+    $nvimTS     = "$nvimLazy\nvim-treesitter\parser"
+    $nvimCache  = "$nvimData\cache"
+    $nvimSwap   = "$nvimData\swap"
+
+    function nvim_goto_config {
+        Set-Location $nvimConfig
+    }
+
+    function nvim_dump_swap {
+        if (Test-Path $nvimSwap) {
+            Remove-Item -Recurse -Force "$nvimSwap\*" -ErrorAction SilentlyContinue
+            Write-Host "Neovim swap files cleared." -ForegroundColor Green
+        }
+    }
+
+    function nvim_server {
+        nvim --headless --listen localhost:6666
+    }
+
+    function leetcode {
+        nvim leetcode.nvim
+    }
+
+     function nvim_reset {
+        if (Test-Path $nvimConfig) { Remove-Item -Recurse -Force $nvimConfig -ErrorAction SilentlyContinue }
+        if (Test-Path $nvimData)   { Remove-Item -Recurse -Force $nvimData   -ErrorAction SilentlyContinue }
+        Write-Host "Neovim has been completely reset (folders removed)." -ForegroundColor Green
+    }
+
+    function nvim_size {
+        function Get-FolderSizeBytes($path) {
+            if (Test-Path $path) {
+                $files = Get-ChildItem -Recurse -Force -File -ErrorAction SilentlyContinue $path
+                return ($files | Measure-Object -Property Length -Sum).Sum
+            } else {
+                return 0
+            }
+        }
+
+        function Format-Size($bytes) {
+            if ($bytes -ge 1MB) {
+                return "{0:N1} MB" -f ($bytes / 1MB)
+            } else {
+                return "{0:N1} KB" -f ($bytes / 1KB)
+            }
+        }
+
+        $config_b   = Get-FolderSizeBytes $nvimConfig
+        $lazy_b     = Get-FolderSizeBytes $nvimLazy
+        $mason_b    = Get-FolderSizeBytes $nvimMason
+        $ts_b       = Get-FolderSizeBytes $nvimTS
+        $cache_b    = Get-FolderSizeBytes $nvimCache
+
+        $total_b = $config_b + $lazy_b + $mason_b + $ts_b + $cache_b
+
+        Write-Host "Config Files: $(Format-Size $config_b)"
+        Write-Host "Plugins:      $(Format-Size $lazy_b)"
+        Write-Host "LSPs:         $(Format-Size $mason_b)"
+        Write-Host "Treesitters:  $(Format-Size $ts_b)"
+        Write-Host "Cache:        $(Format-Size $cache_b)"
+        Write-Host "Total:        $(Format-Size $total_b)"
+    }
 }
 #endregion
 

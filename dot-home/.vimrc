@@ -20,6 +20,10 @@ set clipboard+=unnamedplus       " Use the system clipboard
 set signcolumn=yes               " Always show sign column
 set autoread                     " Auto-reload when files externally changed
 set spelllang=en_us
+set foldmethod=manual
+set foldlevel=99
+set foldlevelstart=10
+set foldnestmax=4
 set undofile                     " Persistent undo history across sessions
 set undodir=~/.local/share/nvim/undo
 
@@ -148,10 +152,10 @@ endif
 
 " COMMENTING
 if IsPluginAvailable('vim-commentary')
-    nnoremap <Leader>cc :Commentary<CR>                  " Toggle current line
-    nnoremap <Leader>// :Commentary<CR>                  " Alternative mapping
-    vnoremap <Leader>c :Commentary<CR>                   " Visual mode
-    nnoremap <Leader>C :<C-u>Commentary<C-Left><C-Left>  " Range comment
+    nnoremap <leader>cc :Commentary<CR>                  " Toggle current line
+    nnoremap <leader>// :Commentary<CR>                  " Alternative mapping
+    vnoremap <leader>c :Commentary<CR>                   " Visual mode
+    nnoremap <leader>C :<C-u>Commentary<C-Left><C-Left>  " Range comment
 else
     function! CommentToggle() range
         let comment_chars = {
@@ -222,6 +226,14 @@ set t_Co=256                     " Use 256 colors
 set background=dark              " Use dark mode
 set cursorline                   " Highlight the current line
 set showbreak=↳\                 " Wrapped line indicator
+set colorcolumn=120
+
+" Whitespace display
+set list
+set listchars=tab:▸\ ,trail:·,nbsp:␣
+set fillchars=foldopen:▾,foldsep:│,foldclose:▸
+
+set guifont=Geist_Mono,Consolas,Segoe_UI_Emoji,Symbols_Nerd_Font_Mono:h10
 
 " Set true color if available
 if has("termguicolors")
@@ -234,7 +246,7 @@ if IsPluginAvailable('tokyonight')
     let g:tokyonight_enable_italic = 1
     colorscheme tokyonight
 else
-    colorscheme habamax
+    colorscheme sorbet
 endif
 
 " =======================================
@@ -247,7 +259,7 @@ set winwidth=30         " Minimum window width
 set winminwidth=10      " Minimum inactive window width
 
 " =======================================
-" Indentation, Tabs, and Whitespace
+" Indentation and Tabs
 " =======================================
 filetype indent plugin on        " Enable filetype-specific indentation
 set tabstop=4                    " Tab width: 4 spaces
@@ -262,10 +274,6 @@ set shiftround                   " Shift to the next round tab stop
 " Soft line breaks
 set breakindent                  " Enable soft line breaks
 set breakindentopt=shift:4       " Indent wrapped lines by 4 spaces
-
-" Whitespace display
-set list                         " Show whitespace characters
-set listchars=tab:▸\ ,trail:·    " Customize whitespace display
 
 " =======================================
 " Search and Matching
@@ -315,13 +323,19 @@ if IsPluginAvailable('lightline')
 else
     " Fallback statusline
     set statusline=
-    set statusline+=[Ln\ %3l,\ Col\ %3c]      " Line:Column
-    set statusline+=\ %{&modified?'[+]':''}   " Modified flag ([+] if modified)
-    set statusline+=\ %{&readonly?'[RO]':''}  " Read-only flag ([RO] if read-only)
-    set statusline+=%=                        " Right-align the rest
-    set statusline+=\ (%3p%%)                 " Percent
-    set statusline+=\ %t                      " Shorter filename
-    set statusline+=\ [%{&filetype}]          " Filetype
+
+    set statusline+=\ %{toupper(mode())}         " Mode initial
+    set statusline+=\ │\                         " Separator bar
+    set statusline+=\ %f                         " Filename (relative path)
+    set statusline+=%r                           " [RO] if readonly
+    set statusline+=%m                           " [+] if modified
+
+    set statusline+=%=                           " Separator (right align)
+
+    set statusline+=Ln\ %l/%L                    " Current line / Total lines
+    set statusline+=,\ Col\ %c                   " Column
+    set statusline+=\ │\ %p%%                    " Percent through file
+    set statusline+=\ │\ %y                      " Filetype
 endif
 
 " =======================================
@@ -329,9 +343,10 @@ endif
 " =======================================
 augroup FileTypeSpecific
     autocmd!
-    autocmd FileType c set autoindent cindent
+    autocmd FileType c,h,cpp,hpp set autoindent cindent
     autocmd FileType make,go set noexpandtab
-    autocmd FileType markdown,tex set spell wrap linebreak
+    autocmd FileType markdown,tex,text set spell wrap linebreak
+    autocmd FileType lua,json,html,css set tabstop=2 shiftwidth=2 softtabstop=2
 augroup END
 
 " =======================================
@@ -345,6 +360,19 @@ if !IsPluginAvailable('auto-pairs')
     inoremap ' ''<Esc>ha
     inoremap ` ``<Esc>ha
 endif
+
+" =======================================
+" Auto Commands
+" =======================================
+augroup remove_whitespace
+  autocmd!
+  autocmd BufWritePre * if &buftype == '' && index(['diff','gitcommit'], &filetype) < 0 |
+        \ let view = winsaveview() |
+        \ silent! keeppatterns %s/\s\+$//e |
+        \ silent! %s/\%(\n\+\%$\)//e |
+        \ call winrestview(view) |
+      \ endif
+augroup END
 
 " =======================================
 " Windows-specific settings
