@@ -168,7 +168,14 @@ return {
       vim.keymap.set("n", "[;",        dropbar_api.goto_context_start,  { desc = "Go to start of current context" })
       vim.keymap.set("n", "];",        dropbar_api.select_next_context, { desc = "Select next context" })
 
-      vim.api.nvim_set_hl(0, "DropBarIconUISeparator", { link = "Constant" })
+      vim.api.nvim_create_autocmd("UIEnter", {
+        callback = function()
+          vim.schedule(function()
+            vim.api.nvim_set_hl(0, "DropBarIconUISeparator", { link = "Constant" })
+            vim.api.nvim_set_hl(0, "DropBarMenuHoverEntry",  { link = "Search" })
+          end)
+        end,
+      })
     end,
   },
 

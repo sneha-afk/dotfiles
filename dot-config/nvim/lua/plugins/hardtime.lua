@@ -29,6 +29,12 @@ return {
       ["<Left>"] = false,
       ["<Right>"] = false,
     },
+    disabled_filetypes = {
+      ["dropbar_menu"] = true,
+      ["dropbar_menu_fzf"] = true,
+      ["dropbar_preview"] = true,
+    },
+
     hints = {
       ["ggVG:"] = {
         message = function() return "Use :% instead of ggVG: to operate on the entire document" end,

@@ -10,37 +10,37 @@ return {
     { "<leader>fc", "<cmd>Telescope commands<cr>",                  desc = "[F]ind: [C]ommands" },
     { "<leader>fC", "<cmd>Telescope command_history<cr>",           desc = "[F]ind: [C]ommand History" },
     { "<leader>fd", "<cmd>Telescope diagnostics bufnr=0<cr>",       desc = "[F]ile: [D]iagnostics" },
-    {
-      "<leader>fe",
-      "<cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>", -- From current buffer
-      desc = "[F]ile: [E]xplorer",
-    },
-    { "<leader>fh", "<cmd>Telescope search_history<cr>",        desc = "[F]ind: search [H]istory" },
-    { "<leader>fH", "<cmd>Telescope help_tags<cr>",             desc = "[F]ind: [H]elp tags" },
-    { "<leader>fm", "<cmd>Telescope marks<cr>",                 desc = "[F]ind: [M]arks" },
-    { "<leader>fr", "<cmd>Telescope oldfiles<cr>",              desc = "[F]ind: [R]ecent files" },
+    { "<leader>fh", "<cmd>Telescope search_history<cr>",            desc = "[F]ind: search [H]istory" },
+    { "<leader>fH", "<cmd>Telescope help_tags<cr>",                 desc = "[F]ind: [H]elp tags" },
+    { "<leader>fm", "<cmd>Telescope marks<cr>",                     desc = "[F]ind: [M]arks" },
+    { "<leader>fr", "<cmd>Telescope oldfiles<cr>",                  desc = "[F]ind: [R]ecent files" },
 
     -- LSP operations: override system lsp.buf
-    { "gd",         "<cmd>Telescope lsp_definitions<cr>",       desc = "[G]oto [d]efinition" },
-    { "gi",         "<cmd>Telescope lsp_implementations<cr>",   desc = "[G]oto [i]mplementation" },
-    { "gy",         "<cmd>Telescope lsp_type_definitions<cr>",  desc = "[G]oto t[y]pe definition" },
-    { "gr",         "<cmd>Telescope lsp_references<cr>",        desc = "[G]oto [r]eferences" },
-    { "gI",         "<cmd>Telescope lsp_incoming_calls<cr>",    desc = "[G]oto [I]ncoming calls" },
-    { "gO",         "<cmd>Telescope lsp_outgoing_calls<cr>",    desc = "[G]oto [O]utgoing calls" },
-    { "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>",  desc = "[L]SP: document [S]ymbols" },
-    { "<leader>lS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "[L]SP: workspace [S]ymbols" },
+    { "gd",         "<cmd>Telescope lsp_definitions<cr>",           desc = "[G]oto [d]efinition" },
+    { "gi",         "<cmd>Telescope lsp_implementations<cr>",       desc = "[G]oto [i]mplementation" },
+    { "gy",         "<cmd>Telescope lsp_type_definitions<cr>",      desc = "[G]oto t[y]pe definition" },
+    { "gr",         "<cmd>Telescope lsp_references<cr>",            desc = "[G]oto [r]eferences" },
+    { "gI",         "<cmd>Telescope lsp_incoming_calls<cr>",        desc = "[G]oto [I]ncoming calls" },
+    { "gO",         "<cmd>Telescope lsp_outgoing_calls<cr>",        desc = "[G]oto [O]utgoing calls" },
+    { "<leader>ls", "<cmd>Telescope lsp_document_symbols<cr>",      desc = "[L]SP: document [S]ymbols" },
+    { "<leader>lS", "<cmd>Telescope lsp_workspace_symbols<cr>",     desc = "[L]SP: workspace [S]ymbols" },
 
     -- Git operations
-    { "<leader>gb", "<cmd>Telescope git_branches<cr>",          desc = "[G]it: [B]ranches" },
-    { "<leader>gc", "<cmd>Telescope git_commits<cr>",           desc = "[G]it: [C]ommits" },
-    { "<leader>gs", "<cmd>Telescope git_status<cr>",            desc = "[G]it: [S]tatus" },
-    { "<leader>gS", "<cmd>Telescope git_stash<cr>",             desc = "[G]it: [S]tash" },
+    { "<leader>gb", "<cmd>Telescope git_branches<cr>",              desc = "[G]it: [B]ranches" },
+    { "<leader>gc", "<cmd>Telescope git_commits<cr>",               desc = "[G]it: [C]ommits" },
+    { "<leader>gs", "<cmd>Telescope git_status<cr>",                desc = "[G]it: [S]tatus" },
+    { "<leader>gS", "<cmd>Telescope git_stash<cr>",                 desc = "[G]it: [S]tash" },
   },
   dependencies = {
     "nvim-lua/plenary.nvim",
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     "nvim-telescope/telescope-ui-select.nvim", -- Set vim.ui.select to telescope
-    "nvim-telescope/telescope-file-browser.nvim",
+    {
+      "nvim-telescope/telescope-file-browser.nvim",
+      keys = {
+        { "<leader>fe", "<cmd>Telescope file_browser path=%:p:h select_buffer=true<cr>", desc = "[F]ile: [E]xplorer" },
+      },
+    },
   },
   config = function()
     local telescope = require("telescope")

@@ -2,7 +2,7 @@
 
 return {
   "brianhuster/live-preview.nvim",
-  event = { "VeryLazy" },
+  cmd = { "LivePreview", "LivePreviewPortChange" },
   dependencies = { "nvim-telescope/telescope.nvim" },
   opts = {
     port = 8000,

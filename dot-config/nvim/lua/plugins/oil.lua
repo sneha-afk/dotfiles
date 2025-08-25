@@ -45,7 +45,7 @@ end
 
 return {
   "stevearc/oil.nvim",
-  event = "VeryLazy",
+  cmd = "Oil",
   keys = {
     { "<leader>e", "<cmd>Oil --float<cr>", desc = "Open files" },
     { "-",         "<cmd>Oil<cr>",         desc = "Open file tree" },

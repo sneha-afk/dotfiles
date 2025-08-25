@@ -12,6 +12,13 @@ vim.g.mapleader = ","
 vim.g.maplocalleader = "\\"
 vim.uv = vim.uv or vim.loop
 
+vim.g.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+
+if vim.g.is_windows then
+  vim.opt.shell = "powershell"
+  vim.opt.shellcmdflag = "-NoLogo -ExecutionPolicy RemoteSigned -Command"
+end
+
 -- Taken from folke: override vim.keymap.set
 -- Default to silent, non-recursive keymaps
 local orig_keymap_set = vim.keymap.set

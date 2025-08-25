@@ -29,11 +29,6 @@ end
 return {
   "echasnovski/mini.starter",
   event = function() return vim.fn.argc() == 0 and "VimEnter" or nil end,
-  dependencies = {
-    "folke/lazy.nvim",
-    "nvim-telescope/telescope.nvim",
-    "folke/persistence.nvim",
-  },
   config = function()
     local starter = require("mini.starter")
     local username = os.getenv("USER") or os.getenv("USERNAME") or "User"
