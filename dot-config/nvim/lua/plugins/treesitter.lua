@@ -3,17 +3,11 @@
 -- Treesitter going through archival of master branch
 local which_branch = "master"
 
-return {
+return { {
   "nvim-treesitter/nvim-treesitter",
   branch = which_branch,
   lazy = false,
   build = ":TSUpdate",
-  dependencies = {
-    {
-      "nvim-treesitter/nvim-treesitter-textobjects",
-      branch = which_branch,
-    },
-  },
   ---@module "nvim-treesitter.configs"
   ---@class TSConfig
   opts = {
@@ -110,4 +104,11 @@ return {
       end,
     })
   end,
+},
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = which_branch,
+    event = "VeryLazy",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+  },
 }

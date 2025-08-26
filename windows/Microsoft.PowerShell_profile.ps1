@@ -6,32 +6,44 @@ if (-not $script:CommandCache) { $script:CommandCache = @{} }
 if (-not $script:GitCache) { $script:GitCache = @{} }
 if (-not $script:VenvCache) { $script:VenvCache = if ($env:VIRTUAL_ENV) { Split-Path -Leaf $env:VIRTUAL_ENV } else { $null } }
 if (-not $script:IsWSL) { $script:IsWSL = [bool]$env:WSL_DISTRO_NAME }
+
+if (-not $script:PreferredShell) {
+    $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
+    $script:PreferredShell = if ($pwsh) { "pwsh.exe" } else { "powershell.exe" }
+}
 #endregion
 
 # ========================[ Region: Admin & Elevated ]=========================
 #region Admin
-function admin {
+function Admin {
     param([string[]]$Command)
-
-    # Try to find PowerShell 7+ first
-    $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
-    $shell = if ($pwsh) { "pwsh.exe" } else { "powershell.exe" }
 
     if ($Command) {
         $argList = $Command -join ' '
-        Start-Process wt -Verb RunAs -ArgumentList "$shell -NoExit -Command $argList"
+        Start-Process wt -Verb RunAs -ArgumentList "$script:PreferredShell -NoExit -Command $argList"
     } else {
-        Start-Process wt -Verb RunAs -ArgumentList $shell
+        Start-Process wt -Verb RunAs -ArgumentList $script:PreferredShell
     }
 }
-Set-Alias su admin
+Set-Alias su Admin
+
+function Require-Admin {
+    param([string]$FunctionName)
+
+    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
+               ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+    if (-not $isAdmin) {
+        Write-Host "Restarting '$FunctionName' as administrator..." -ForegroundColor Yellow
+        Start-Process $script:PreferredShell -Verb RunAs -ArgumentList "-NoExit", "-Command `"& { $FunctionName }`""
+        return
+    }
+}
 #endregion
 
 # ========================[ Region: WSL Helpers ]==============================
 #region WSL
 function WSL-Restart {
-    [CmdletBinding()]
-    param()
     Write-Host "Shutting down WSL..." -ForegroundColor Yellow
     wsl --shutdown
     Start-Sleep 2
@@ -40,16 +52,19 @@ function WSL-Restart {
 }
 
 function WSL-Kill {
-    [CmdletBinding()]
-    param()
+    Require-Admin $MyInvocation.MyCommand.Name
+
     Get-Process wslservice -ErrorAction SilentlyContinue | Stop-Process -Force
-    Write-Host "WSL service stopped" -ForegroundColor Yellow
+    Write-Host "WSL service stopped" -ForegroundColor Green
 }
 
 function Neovide-WSL {
-    [CmdletBinding()]
-    param()
     Start-Process neovide.exe --server localhost:6666
+}
+
+function To-WSLPath {
+    param([Parameter(Mandatory)][string]$WinPath)
+    wsl.exe wslpath -a "`"$WinPath`"" | ForEach-Object { $_.Trim() }
 }
 #endregion
 
@@ -63,17 +78,14 @@ function Test-CommandExists {
     return $exists
 }
 
-# Open profile in preferred editor
 function Edit-Profile { $PROFILE | Invoke-Item }
 
-# Quick make‑and‑cd
 function mkcd {
     param([Parameter(Mandatory)][string]$Path)
     New-Item -ItemType Directory -Path $Path -ErrorAction SilentlyContinue | Out-Null
     Set-Location $Path
 }
 
-# Reload profile
 function Reload-Profile { . $PROFILE }
 
 # Measure word/line/char (like wc)
@@ -149,7 +161,7 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
         Write-Host "Plugins:      $(Format-Size $lazy_b)"
         Write-Host "LSPs:         $(Format-Size $mason_b)"
         Write-Host "Treesitters:  $(Format-Size $ts_b)"
-        Write-Host "Cache:        $(Format-Size $cache_b)"
+        Write-Host "Cache:        $(Format-Size $cache_b)`n"
         Write-Host "Total:        $(Format-Size $total_b)"
     }
 }
@@ -159,15 +171,16 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
 #region Aliases
 # Prefer Set-Alias to avoid function wrapping when possible
 Set-Alias   ll    Get-ChildItem
-Set-Alias   la    Get-ChildItem
+function la { Get-ChildItem -Force }
 Set-Alias   grep  Select-String
 Set-Alias   which Get-Command
-Set-Alias   ping Test-NetConnection
 function .. { Set-Location .. }
 
 # WSL aliases
 Set-Alias -Name wslr -Value WSL-Restart
 Set-Alias -Name wslk -Value WSL-Kill
+
+function dotfiles { Set-Location "~\dotfiles" }
 #endregion
 
 # ========================[ Region: Git Shortcuts ]===========================
@@ -223,7 +236,7 @@ function Get-GitInfo {
 
     try {
         if (-not (git rev-parse --is-inside-work-tree 2>$null)) { return $null }
-        $branch = git symbolic-ref --short HEAD 2>$null
+        $branch = git rev-parse --abbrev-ref HEAD 2>$null
         if (-not $branch) { return $null }
         $dirty  = (git status --porcelain 2>$null | Select-Object -First 1)
         $info = @{ Branch = $branch; Dirty = $dirty }
@@ -237,7 +250,7 @@ function global:prompt {
 
     $hostStr = "$env:USERNAME@$env:COMPUTERNAME"
     if ($script:IsWSL) { $hostStr += " (wsl)" }
-    $userHost = (Color 'Blue' $hostStr -BoldText)
+    $userHost = (Color 'Blue' $hostStr)
 
     $cwd = Split-Path -Leaf (Get-Location) -ErrorAction SilentlyContinue
     if ([string]::IsNullOrEmpty($cwd)) { $cwd = (Get-Location).Path }
