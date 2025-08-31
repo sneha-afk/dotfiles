@@ -175,12 +175,17 @@ function la { Get-ChildItem -Force }
 Set-Alias   grep  Select-String
 Set-Alias   which Get-Command
 function .. { Set-Location .. }
+function home { Set-Location $env:USERPROFILE }
 
 # WSL aliases
 Set-Alias -Name wslr -Value WSL-Restart
 Set-Alias -Name wslk -Value WSL-Kill
 
 function dotfiles { Set-Location "~\dotfiles" }
+
+# Source the aliases file if it exists
+$aliasesFile = "$HOME\.aliases.ps1"
+if (Test-Path $aliasesFile) { . $aliasesFile}
 #endregion
 
 # ========================[ Region: Git Shortcuts ]===========================

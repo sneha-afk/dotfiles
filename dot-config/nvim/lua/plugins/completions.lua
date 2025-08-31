@@ -6,6 +6,50 @@ return {
   event = "InsertEnter",
   dependencies = {
     "rafamadriz/friendly-snippets",
+    {
+      "L3MON4D3/LuaSnip",
+      version = "v2.*",
+      build = "make install_jsregexp",
+      opts = {
+        history = true,
+        region_check_events = "InsertEnter",
+        update_events = "TextChanged,TextChangedI",
+        delete_check_events = "TextChanged",
+      },
+      config = function(_, opts)
+        require("luasnip").config.setup(opts)
+
+        require("luasnip.loaders.from_vscode").lazy_load({
+          paths = {
+            vim.fn.stdpath("data") .. "/lazy/friendly-snippets", -- Built-in vscode-style snippets
+            vim.fn.stdpath("config") .. "/snippets",             -- Personal snippets in .config/nvim/snippets
+            vim.uv.cwd() .. "/.nvim/snippets",                   -- Project-specific snippets
+          },
+        })
+
+        vim.api.nvim_create_user_command("EditSnippets", function()
+          require("luasnip.loaders").edit_snippet_files({
+            format = function(file, source_name)
+              local path_replacements = {
+                ["/.local/share/nvim/lazy/friendly%-snippets"] = "FriendlySnippets",
+                ["/.config/nvim/snippets"] = "Personal",
+                ["/dotfiles/dot%-config/nvim/snippets"] = "Personal",
+                [vim.uv.cwd() .. "/.nvim/snippets"] = "Project",
+                ["/.local/share/nvim/lazy/LuaSnip"] = "LuaSnip",
+              }
+
+              for pattern, label in pairs(path_replacements) do
+                if file:find(pattern) then
+                  local filename = file:match(".*/(.*)$") or file
+                  return string.format("%s : %s", label, filename)
+                end
+              end
+              return file
+            end,
+          })
+        end, { desc = "Open snippet files for editing" })
+      end,
+    },
   },
   keys = {
     {
@@ -45,15 +89,37 @@ return {
       ["<C-l>"] = { "snippet_forward", "fallback" },
     },
     sources = {
-      default = { "lazydev", "lsp", "snippets", "path", "buffer" },
+      default = { "lsp", "snippets", "path", "buffer" },
+      per_filetype = {
+        tex = { "snippets", "latex", "omni", "buffer" },
+        lua = { inherit_defaults = true, "lazydev" },
+      },
       providers = {
         lazydev = {
           name = "LazyDev",
           module = "lazydev.integrations.blink",
           score_offset = 100,
         },
+        latex = {
+          name = "Latex",
+          module = "blink-cmp-latex",
+          opts = {
+            -- set to true to insert the latex command instead of the symbol
+            insert_command = true,
+          },
+        },
+        snippets = {
+          opts = {
+            -- Selectively disable snippets by returning false
+            -- filter_snippets = function(ft, file)
+            --   -- 2025-08-31: Excessive lag on Windows only on my own snippets, when using vim.snippet
+            --   return not (vim.g.is_windows and file:find("latex.json"))
+            -- end,
+          },
+        },
       },
     },
+    snippets = { preset = "luasnip" },
     signature = {
       enabled = true,
       window = {
@@ -82,7 +148,9 @@ return {
                 local menu_icon = {
                   path = "🖫",
                   lsp = "✦",
+                  latex = "✒",
                   buffer = "⚇",
+                  omni = "⎉",
                   snippets = "⌥",
                   cmdline = "λ",
                   spell = "⌯",

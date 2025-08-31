@@ -149,9 +149,9 @@ return {
         end, { "i", "s" }),
       }),
       sources = cmp.config.sources({
-        { name = "nvim_lsp", priority = 1000 },                  -- LSP suggestions
-        { name = "luasnip",  priority = 900 },                   -- Snippet suggestions
-        { name = "path",     priority = 500 },                   -- File system paths
+        { name = "nvim_lsp", priority = 1000 },                    -- LSP suggestions
+        { name = "luasnip",  priority = 900 },                     -- Snippet suggestions
+        { name = "path",     priority = 500 },                     -- File system paths
         { name = "buffer",   priority = 250, keyword_length = 3 }, -- Buffer words
         { name = "spell",    priority = 100, keyword_length = 2 },
       }),
