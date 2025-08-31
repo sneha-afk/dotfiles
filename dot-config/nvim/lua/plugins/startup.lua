@@ -29,6 +29,10 @@ end
 return {
   "echasnovski/mini.starter",
   event = function() return vim.fn.argc() == 0 and "VimEnter" or nil end,
+  version = false,
+  dependencies = {
+    "nvim-mini/mini.sessions",
+  },
   config = function()
     local starter = require("mini.starter")
     local username = os.getenv("USER") or os.getenv("USERNAME") or "User"
@@ -41,22 +45,18 @@ return {
         { section = "Actions", name = "Browse files", action = "Telescope file_browser" },
         { section = "Actions", name = "Find files",   action = "Telescope find_files" },
         { section = "Actions", name = "Search",       action = "Telescope live_grep" },
-        {
-          section = "Actions",
-          name = "Load previous session",
-          action = function() require("persistence").select() end,
-        },
-        { section = "Actions", name = "Quit",                      action = "qa" },
+        { section = "Actions", name = "Quit",         action = "qa" },
 
-        { section = "Tools",   name = "Edit Config",               action = "e $MYVIMRC" },
-        { section = "Tools",   name = "Check Health",              action = "checkhealth" },
-        { section = "Tools",   name = "Lazy.nvim: manage plugins", action = "Lazy" },
-
+        starter.sections.sessions(5, true),
         starter.sections.recent_files(5, false),
+
+        { section = "Tools", name = "Edit Config",               action = "e $MYVIMRC" },
+        { section = "Tools", name = "Check Health",              action = "checkhealth" },
+        { section = "Tools", name = "Lazy.nvim: manage plugins", action = "Lazy" },
       },
       content_hooks = {
         starter.gen_hook.aligning("center", "center"),
-        starter.gen_hook.adding_bullet("🡒 "),
+        starter.gen_hook.adding_bullet("⪧ "),
       },
       footer = function()
         local version = vim.version()
@@ -66,13 +66,5 @@ return {
         return string.format("%s • %s\n%s", os.date("%A, %B %d %Y • %I:%M %p"), nvim_version, cwd)
       end,
     })
-
-    vim.api.nvim_set_hl(0, "MiniStarterHeader",     { link = "Define" })
-    vim.api.nvim_set_hl(0, "MiniStarterFooter",     { link = "LineNr" })
-    vim.api.nvim_set_hl(0, "MiniStarterQuery",      { link = "IncSearch" })
-    vim.api.nvim_set_hl(0, "MiniStarterItemPrefix", { link = "Keyword" })
-    vim.api.nvim_set_hl(0, "MiniStarterItemBullet", { link = "LineNr" })
-    vim.api.nvim_set_hl(0, "MiniStarterCurrent",    { link = "CursorLine" })
-    vim.api.nvim_set_hl(0, "MiniStarterSection",    { link = "MsgSeparator" })
   end,
 }

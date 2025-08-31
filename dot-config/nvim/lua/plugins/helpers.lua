@@ -3,13 +3,13 @@
 
 return {
   {
-    "echasnovski/mini.pairs",
+    "nvim-mini/mini.pairs",
     event = "InsertEnter",
     version = false,
     config = true,
   },
   {
-    "echasnovski/mini.surround",
+    "nvim-mini/mini.surround",
     event = "ModeChanged *:[vV\x16]*", -- Load on Visual
     version = false,
     config = true,

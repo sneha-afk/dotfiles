@@ -64,6 +64,7 @@ require("core.filetypes")
 require("core.commands")
 require("core.keymaps")
 require("core.terminal")
+require("core.highlights")
 require("core.lazy")
 
 -- Hack to work to launch in any environment that may load the UI later (e.g. WSL starts a server)

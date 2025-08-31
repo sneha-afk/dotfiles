@@ -21,17 +21,6 @@ return {
     },
     config = function(_, opts)
       require("mini.diff").setup(opts)
-
-      vim.api.nvim_set_hl(0, "MiniDiffSignAdd",        { link = "DiffAdd" })
-      vim.api.nvim_set_hl(0, "MiniDiffSignChange",     { link = "DiffChange" })
-      vim.api.nvim_set_hl(0, "MiniDiffSignDelete",     { link = "DiffDelete" })
-
-      vim.api.nvim_set_hl(0, "MiniDiffOverAdd",        { link = "DiffAdd" })
-      vim.api.nvim_set_hl(0, "MiniDiffOverChange",     { link = "DiffChange" })
-      vim.api.nvim_set_hl(0, "MiniDiffOverChangeBuf",  { link = "Comment" })
-      vim.api.nvim_set_hl(0, "MiniDiffOverContext",    { link = "Comment" })
-      vim.api.nvim_set_hl(0, "MiniDiffOverContextBuf", { link = "Comment" })
-      vim.api.nvim_set_hl(0, "MiniDiffOverDelete",     { link = "DiffDelete" })
     end,
   },
 
