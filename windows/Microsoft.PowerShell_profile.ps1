@@ -126,7 +126,6 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
     }
 
      function nvim_reset {
-        if (Test-Path $nvimConfig) { Remove-Item -Recurse -Force $nvimConfig -ErrorAction SilentlyContinue }
         if (Test-Path $nvimData)   { Remove-Item -Recurse -Force $nvimData   -ErrorAction SilentlyContinue }
         Write-Host "Neovim has been completely reset (folders removed)." -ForegroundColor Green
     }

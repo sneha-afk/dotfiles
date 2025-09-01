@@ -74,6 +74,7 @@ return {
       { "<leader>u", group = "UI" },
       { "<leader>W", group = "Workspace" },
       { "<leader>l", group = "LSP" },
+      { "<leader>L", group = "LaTeX" },
       { "<leader>[", group = "Previous" },
       { "<leader>]", group = "Next" },
     })

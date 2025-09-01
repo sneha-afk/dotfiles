@@ -10,8 +10,14 @@ return {
   config = function()
     vim.g.tex_flavor = "latex"
 
+    vim.g.vimtex_quickfix_open_on_warning = 0
+    vim.g.vimtex_quickfix_ignore_filters = {
+      "Underfull",
+      "Overfull",
+    }
+
     if vim.fn.has("wsl") == 1 then
-      vim.g.vimtex_view_general_viewer = os.getenv("PDF_READER_EXE")
+      vim.g.vimtex_view_general_viewer = os.getenv("PDF_READER_EXE") or "xdg-open"
     else
       vim.g.vimtex_view_general_viewer = "SumatraPDF"
     end
@@ -26,6 +32,8 @@ return {
         options = {
           "--keep-logs",
           "--synctex",
+          "-Z",
+          "shell-escape",
         },
       }
 
@@ -54,8 +62,14 @@ return {
     vim.api.nvim_create_autocmd("FileType", {
       pattern = { "tex", "latex", "bib" },
       callback = function()
-        vim.keymap.set("n", "<leader>Lc", "<cmd>VimtexCompile<cr>", { desc = "[L]aTeX: [C]ompile" })
-        vim.keymap.set("n", "<leader>Lv", "<cmd>VimtexView<cr>",    { desc = "[L]aTeX: [V]iew" })
+        vim.keymap.set("n", "<leader>Lc", "<cmd>VimtexCompile<cr>",   { desc = "[L]aTeX: [C]ompile" })
+        vim.keymap.set("n", "<leader>Lv", "<cmd>VimtexTocToggle<cr>", { desc = "[L]aTeX: Toggle [T]OC" })
+        vim.keymap.set("n", "<leader>Lv", "<cmd>VimtexView<cr>",      { desc = "[L]aTeX: [V]iew" })
+
+        -- Ensure output directory exists
+        if vim.fn.isdirectory(out_dir) == 0 then
+          vim.fn.mkdir(out_dir, "p")
+        end
 
         -- Compile on start: if using latexmk, this also starts continuous mode
         vim.cmd("VimtexCompile")
