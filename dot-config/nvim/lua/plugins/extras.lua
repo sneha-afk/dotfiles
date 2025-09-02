@@ -43,14 +43,13 @@ return {
         ["leetcode.nvim"] = true,
       }
 
-
       vim.api.nvim_create_autocmd("User", {
         pattern = "VeryLazy",
         callback = function()
           if excluded_filetypes[vim.bo.filetype] then
             return
           end
-          MiniMap.open()
+          minimap.open()
         end,
       })
     end,
@@ -59,7 +58,7 @@ return {
   -- Dropbar breadcrumb menu at top of screen
   {
     "Bekaboo/dropbar.nvim",
-    lazy = false,
+    event = "UIEnter",
     dependencies = {
       { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     },

@@ -67,14 +67,14 @@ require("lazy").setup({
     title = " lazy.nvim ",
     size = { width = 0.8, height = 0.85 },
   },
-  checker = {
-    enabled = true,    -- Enable plugin version checking
+  checker = {          -- Detect changes to plugins
+    enabled = false,
     frequency = 86400, -- Check every 86,400 seconds (24 hours)
     concurrency = 5,   -- Max parallel update checks
   },
-  change_detection = {
-    enabled = true, -- Monitor plugin files for changes
-    notify = false, -- Disable "plugins modified" alerts
+  change_detection = { -- Detect changes to config
+    enabled = true,
+    notify = false,
   },
   performance = {
     cache = { enabled = true },
@@ -87,6 +87,9 @@ require("lazy").setup({
         "tutor",
         "zipPlugin",   -- Archive handling
         "rplugin",     -- Legacy remote plugin system
+        "matchit",
+        "matchparen",
+        "osc52",
       },
     },
   },

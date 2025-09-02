@@ -53,11 +53,15 @@ return {
     -- https://github.com/nvim-telescope/telescope.nvim/wiki/Configuration-Recipes#find-files-from-project-git-root-with-fallback
     ---@return string Root to start searching from
     local function start_search_path()
-      if my_utils.is_git_repo() then
-        return my_utils.get_git_root()
-      else
-        return utils.buffer_dir()
+      local cwd = utils.buffer_dir()
+
+      -- Default to home if not in a real buffer/directory
+      if cwd:match("ministarter") or vim.fn.isdirectory(cwd) == 0 then
+        return vim.fn.expand("~")
       end
+
+      local git_root = my_utils.get_git_root()
+      return git_root or cwd
     end
 
     telescope.setup({

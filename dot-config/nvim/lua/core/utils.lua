@@ -37,15 +37,10 @@ function M.get_centered_dims()
   return { width, height, col, row }
 end
 
----@return boolean True if currently inside a Git repo
-function M.is_git_repo()
-  vim.fn.system("git rev-parse --is-inside-work-tree")
-  return vim.v.shell_error == 0
-end
-
----@return string Root of git repository (starting from CWD)
+---@return string|nil Git root path or nil if not inside a git repo
 function M.get_git_root()
   local dot_git_path = vim.fn.finddir(".git", ".;")
+  if dot_git_path == "" then return nil end
   return vim.fn.fnamemodify(dot_git_path, ":h")
 end
 

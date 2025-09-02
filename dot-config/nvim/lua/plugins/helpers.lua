@@ -1,6 +1,8 @@
 -- ./config/nvim/lua/plugins/helpers.lua
 -- Helpful utilities
 
+local colorizer_fts = { "css", "scss", "sass", "less", "html" }
+
 return {
   {
     "nvim-mini/mini.pairs",
@@ -16,21 +18,21 @@ return {
   },
   {
     "norcalli/nvim-colorizer.lua",
-    event = "VeryLazy",
+    ft = colorizer_fts,
     opts = {
       "*", -- Highlight all filetypes with default opts
       css = { rgb_fn = true },
       scss = { rgb_fn = true },
       sass = { rgb_fn = true },
-      html = { mode = "foreground" },
-      vue = { mode = "foreground" },
-      svelte = { mode = "foreground" },
     },
-    init = function()
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "VeryLazy",
-        callback = function()
-          vim.cmd("ColorizerAttachToBuffer")
+    config = function(_, opts)
+      local colorizer = require("colorizer")
+      colorizer.setup(opts)
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = colorizer_fts,
+        callback = function(args)
+          colorizer.attach_to_buffer(args.buf)
         end,
       })
     end,
