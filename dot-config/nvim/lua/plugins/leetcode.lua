@@ -44,7 +44,7 @@ return {
     require("leetcode").setup(opts)
 
     -- Needed to prevent localleader maps and other settings from leaking outside
-    vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+    vim.api.nvim_create_autocmd({ "BufEnter", "BufRead", "BufNewFile" }, {
       pattern = "*",
       callback = function(args)
         -- Need to allow manual folding so :Leet fold works

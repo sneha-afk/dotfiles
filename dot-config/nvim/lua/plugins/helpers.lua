@@ -18,6 +18,7 @@ return {
   },
   {
     "norcalli/nvim-colorizer.lua",
+    cmd = { "ColorizerAttachToBuffer", "ColorizerToggle" },
     ft = colorizer_fts,
     opts = {
       "*", -- Highlight all filetypes with default opts

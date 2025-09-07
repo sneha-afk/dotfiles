@@ -37,8 +37,24 @@ indent_style = tab
 [*.sh]
 indent_style = space
 indent_size = 2
-
 switch_case_indent = false  # like -ci
 space_redirects    = true  # like -sr
 keep_padding       = true  # like -kp
 never_split        = true  # like -ns
+
+[*.{ps1,psm1,psd1}]
+indent_style = space
+indent_size = 4
+max_line_length = 120
+end_of_line = crlf
+
+[*.{json,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.{md,txt}]
+trim_trailing_whitespace = false
+max_line_length = off
+
+[Makefile]
+indent_style = tab

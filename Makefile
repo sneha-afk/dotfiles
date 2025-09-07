@@ -6,12 +6,14 @@ HOME_PACKAGES := dot-home
 ZSH_PACKAGE := dot-zsh
 CONFIG_PACKAGES := dot-config
 
-.PHONY: all install install-home install-config zsh uninstall dry-run windows _check_stow
+APT_PACKAGES := build-essential git make ripgrep vim
 
-all: install
+.PHONY: all boostrap install-home install-config zsh uninstall dry-run windows _check_stow
+
+all: boostrap
 
 # Defaults to a bash installation
-install: _check_stow install-home install-config
+boostrap: _check_stow install-home install-config apt
 
 install-home:
 	$(STOW) --restow --target $(TARGET_HOME) $(HOME_PACKAGES)
@@ -34,14 +36,12 @@ dry-run:
 _check_stow:
 	@command -v stow >/dev/null || { echo "'stow' not found. Please install it."; exit 1; }
 
+apt:
+	sudo apt-get update
+	sudo apt-get install -y $(APT_PACKAGES)
+
+# Chicken-and-egg problem: this can't be run until running the bootstrap script at least once.
 windows:
 	powershell -NoProfile -ExecutionPolicy Bypass -Command "& { \
-		try { \
-			Unblock-File -Path '.\\windows\\install_windows.ps1'; \
-			.\windows\install_windows.ps1 \
-			Write-Host 'install_windows.ps1 executed successfully' -ForegroundColor Green \
-		} catch { \
-			Write-Warning 'Failed to execute install_windows.ps1'; \
-			Write-Warning $_.Exception.Message \
-		} \
+		.\windows\bootstrap.ps1 \
 	}"

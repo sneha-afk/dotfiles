@@ -1,11 +1,9 @@
 <#
 .SYNOPSIS
-  Bootstrap installer for Tectonic (Windows).
+  Bootstrap installer for Tectonic (Windows). Does not require any TeX distribution.
 .DESCRIPTION
-  Downloads Tectonic using the official bootstrap script,
-  shows old version (if any), removes old binary,
-  installs new one into ~/.local/bin, and reminds user to check PATH.
-  Prereqs: at least a "minimal scheme" from TeX Live.
+  Downloads Tectonic using the official bootstrap script into ~/.local/bin.
+  Sets TECTONIC_CACHE_DIR to %LOCALAPPDATA%\TectonicProject\Tectonic.
 #>
 
 $binDir = "$HOME\.local\bin"

@@ -4,7 +4,7 @@
 
 * Shell configs: `dot-bash/`, `dot-zsh/`
 * Neovim: [`dot-config/nvim`](./dot-config/nvim)
-* PowerShell: `windows\Microsoft.PowerShell_profile.ps1`
+* PowerShell: `windows\profile\Microsoft.PowerShell_profile.ps1`
 * WSL: `windows\.wslconfig`
 * Windows Terminal with [Geist Mono](https://vercel.com/font)
     * Built in: Segoe UI Emoji
@@ -15,7 +15,8 @@
 ### ✅ Recommended: GNU `stow`
 
 ```bash
-make         # Symlink all configs
+sudo apt-get install git make stow
+make         # Boostrap symlinks, installs, etc.
 ```
 - `make delete` to remove all symlinks
 - `make dry-run` to preview changes without applying them
@@ -35,19 +36,15 @@ ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 ## 🪟 Windows
 ### ✅ Recommended: PowerShell Script
 
-```bash
-make windows
-```
-
-which expands to:
-
 ```powershell
-Unblock-File -Path .\install_windows.ps1
-.\install_windows.ps1
+.\windows\bootstrap.ps1
 ```
 
-[`install_windows.ps1`](./windows/install_windows.ps1) should automatically elevate to an Admin shell, but if not, first do `Start-Process wt -Verb RunAs`.
-
+Setting up symlinks requires admin, which should automatically happen in the bootstrap. If not,
+run the boostrap in an elevated shell:
+```powershell
+Start-Process wt -Verb RunAs -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$PWD\windows\bootstrap.ps1`""
+```
 
 ### 🔗 Manual
 
@@ -71,4 +68,18 @@ New-Item -ItemType SymbolicLink `
   -Path "$env:LOCALAPPDATA\nvim" `
   -Target "$(Resolve-Path .\dot-config\nvim)" `
   -Force
+```
+
+### On `$PROFILE`
+
+The default `$PROFILE` is located in OneDrive, and this is *deeply* integrated within the registry. While this is
+fine for just keeping some light configuration files, installing any modules or adding to the config
+unncessarily pollutes OneDrive, and is not portable. We can forward to the real `$PROFILE` that will
+be stored in user-level Documents.
+
+> Do NOT attempt to change the registry entries related to OneDrive.. been there done that.
+
+A light script that sets `$PROFILE` to `Documents\WindowsPowerShell` is copied to OneDrive in bootstrap.ps1`:
+```powershell
+Copy-Item -Path ".\windows\utils\fix_profile_path.ps1" -Destination (Join-Path $env:OneDrive "Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1") -Force
 ```
