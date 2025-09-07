@@ -28,8 +28,32 @@ function Test-CommandExists-Cache {
     return $exists
 }
 
-Import-Module helpers -DisableNameChecking
+Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
+    if (-not $global:__PROFILE_HELPERS_LOADED) {
+        $global:__PROFILE_HELPERS_LOADED = $true
+        Import-Module helpers -DisableNameChecking
+    }
+}
 
+#endregion
+
+# ========================[ Region: Utility Functions ]========================
+#region Utilities
+
+function Reload-Profile { . $PROFILE }
+function Edit-Profile { $PROFILE | Invoke-Item }
+
+function mkcd {
+    param([Parameter(Mandatory)][string]$Path)
+    New-Item -ItemType Directory -Path $Path -ErrorAction SilentlyContinue | Out-Null
+    Set-Location $Path
+}
+
+# Measure word/line/char (like wc)
+function wc {
+    if ($args) { Get-Content @args | Measure-Object -Line -Word -Character }
+    else       { $input       | Measure-Object -Line -Word -Character }
+}
 #endregion
 
 # ========================[ Region: Aliases ]==================================
@@ -53,16 +77,6 @@ Set-Alias -Name wslk -Value WSL-Kill
 function dotfiles { Set-Location "~\dotfiles" }
 #endregion
 
-# ========================[ Region: Git Shortcuts ]===========================
-#region Git
-function gs { git status }
-function gco { git checkout @args }
-function gaa { git add . }
-function gcm { git commit -m @args }
-function gp  { git push }
-function gl  { git log --oneline -10 }
-#endregion
-
 # ========================[ Region: Editor Selection ]=========================
 #region Editor
 if (-not $script:EditorCache) {
@@ -71,8 +85,8 @@ if (-not $script:EditorCache) {
     }
     if (-not $script:EditorCache) { $script:EditorCache = 'notepad' }
 }
-$EDITOR = $script:EditorCache
-Set-Alias vim $EDITOR
+$env:EDITOR = $script:EditorCache
+Set-Alias vim $script:EditorCache
 #endregion
 
 # ========================[ Region: Color Config ]===========================

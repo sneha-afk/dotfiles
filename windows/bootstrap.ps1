@@ -29,15 +29,11 @@ param(
 # ========================[ Script Initialization ]========================
 #region Initialization
 
-$script:Version = "1.0.0"
-$script:StartTime = Get-Date
+$script:Version         = "1.0.1"
+$script:StartTime       = Get-Date
 
-$script:ScriptDir = $PSScriptRoot
-$script:RepoDir = Split-Path -Path $ScriptDir -Parent
-$script:UtilsDir = Join-Path $ScriptDir "utils"
-$script:ProfileDir = Join-Path $script:RepoDir "windows\profile"
-
-. (Join-Path $script:UtilsDir "bootstrap_helpers.ps1")
+$script:WindowsDir      = $PSScriptRoot
+. (Join-Path $script:WindowsDir "utils\bootstrap_helpers.ps1")
 Fix-ProfilePath
 
 $ErrorActionPreference = "Stop"

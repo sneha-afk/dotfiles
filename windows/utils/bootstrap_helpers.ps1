@@ -1,4 +1,24 @@
-# windows/utils/bootstrap_helpers.ps1
+# windows\utils\bootstrap_helpers.ps1
+
+# ========================[ Region: Dotfile Refs ]=========================
+#region Dotfiles
+# We're in: windows\utils\bootstrap_helpers.ps1
+
+$script:UtilsDir          = $PSScriptRoot
+$script:WindowsDir        = Split-Path -Path $UtilsDir -Parent
+$script:ProfileDir        = Join-Path $WindowsDir "profile"
+$script:RepoDir           = Split-Path -Path $WindowsDir -Parent
+
+function Get-BootstrapDirs {
+    return @{
+        UtilsDir    = $script:UtilsDir
+        WindowsDir  = $script:WindowsDir
+        ProfileDir  = $script:ProfileDir
+        RepoDir     = $script:RepoDir
+    }
+}
+#endregion
+
 
 # ========================[ Region: Admin & Elevated ]=========================
 # Copied from main helpers module to avoid circular dependency

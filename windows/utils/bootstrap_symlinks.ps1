@@ -1,24 +1,21 @@
 # windows/utils/symlinks.ps1
 
-#region Directories
-$script:ScriptDir           = $PSScriptRoot
-$script:WindowsDir          = Split-Path -Path $ScriptDir -Parent
-$script:RepoDir             = Split-Path -Path $WindowsDir -Parent
+$script:UtilsDir          = $PSScriptRoot
+. (Join-Path $script:UtilsDir "bootstrap_helpers.ps1")
+Fix-ProfilePath
 
-$script:UtilsDir            = Join-Path $WindowsDir "utils"
-$script:DotfilesProfile     = Join-Path $WindowsDir "profile"
-$script:DotfilesModulesDir  = Join-Path $DotfilesProfile "Modules"
-$script:ScriptsDir          = Join-Path $WindowsDir "scripts"
+#region Directories
+
+$script:Directories = Get-BootstrapDirs
+
+$script:DotfilesProfile     = $script:Directories.ProfileDir
 
 $script:AppDataLocal        = $env:LOCALAPPDATA
 $script:AppDataRoaming      = [System.Environment]::GetFolderPath("ApplicationData")
 
-. (Join-Path $script:UtilsDir "bootstrap_helpers.ps1")
-Fix-ProfilePath
 
 $PROFILE = "$env:UserProfile\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
 $script:ProfileDir          = Split-Path -Path $PROFILE -Parent
-$script:ProfileModulesDir   = Join-Path $ProfileDir "Modules"
 
 #endregion
 
@@ -26,12 +23,11 @@ $script:ProfileModulesDir   = Join-Path $ProfileDir "Modules"
 $symlinks = @()
 
 # Symlink all files inside dotfiles\windows\profile (recursive)
-$ProfileFiles = Get-ChildItem -Path $DotfilesProfile -Recurse -File
-foreach ($file in $ProfileFiles) {
-    $relativePath = $file.FullName.Substring($DotfilesProfile.Length).TrimStart('\','/')
+Get-ChildItem -Path $DotfilesProfile -Recurse -File | ForEach-Object {
+    $relativePath = $_.FullName.Substring($DotfilesProfile.Length).TrimStart('\', '/')
     $symlinks += @{
         Path   = Join-Path $ProfileDir $relativePath
-        Target = $file.FullName
+        Target = $_.FullName
     }
 }
 
@@ -39,23 +35,27 @@ foreach ($file in $ProfileFiles) {
 $symlinks += @(
     @{
         Path   = Join-Path $env:UserProfile ".wslconfig"
-        Target = Join-Path $WindowsDir ".wslconfig"
+        Target = Join-Path $script:Directories.WindowsDir ".wslconfig"
     },
     @{
         Path   = Join-Path $HOME "_vimrc"
-        Target = Join-Path $RepoDir "dot-home\.vimrc"
+        Target = Join-Path $script:Directories.RepoDir "dot-home\.vimrc"
+    },
+    @{
+        Path   = Join-Path $HOME ".gitconfig"
+        Target = Join-Path $script:Directories.RepoDir "dot-home\.gitconfig"
     },
     @{
         Path   = Join-Path $AppDataLocal "nvim"
-        Target = Join-Path $RepoDir "dot-config\nvim"
+        Target = Join-Path $script:Directories.RepoDir "dot-config\nvim"
     },
     @{
         Path   = Join-Path $AppDataRoaming "alacritty"
-        Target = Join-Path $RepoDir "dot-config\alacritty"
+        Target = Join-Path $script:Directories.RepoDir "dot-config\alacritty"
     },
     @{
         Path   = Join-Path $HOME "scripts"
-        Target = $ScriptsDir
+        Target = Join-Path $script:Directories.WindowsDir "scripts"
     }
 )
 

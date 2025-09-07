@@ -1,0 +1,37 @@
+[user]
+    name = Sneha De
+    email = 55897319+sneha-afk@users.noreply.github.com
+
+[init]
+	defaultBranch = main
+
+[core]
+    editor = nvim
+
+[diff]
+    tool = nvimdiff
+[difftool]
+    prompt = false
+[difftool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
+
+[merge]
+    tool = nvimdiff
+[mergetool]
+    prompt = true
+    keepBackup = false
+[mergetool "nvimdiff"]
+    cmd = "nvim -d \"$LOCAL\" \"$REMOTE\" \"$MERGED\" -c '$wincmd w' -c 'wincmd J'"
+
+[http]
+    postBuffer = 1048576000
+
+[alias]
+    gs = status
+    gco = checkout
+    gaa = add .
+    gcm = commit -m
+    gp  = push
+    gl  = log --oneline -10
+    gdt = difftool
+    gmt = mergetool

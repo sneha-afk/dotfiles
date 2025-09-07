@@ -47,26 +47,6 @@ function Test-CommandExists {
 
 #endregion
 
-# ========================[ Region: Utility Functions ]========================
-#region Utilities
-
-function Edit-Profile { $PROFILE | Invoke-Item }
-
-function mkcd {
-    param([Parameter(Mandatory)][string]$Path)
-    New-Item -ItemType Directory -Path $Path -ErrorAction SilentlyContinue | Out-Null
-    Set-Location $Path
-}
-
-function Reload-Profile { . $PROFILE }
-
-# Measure word/line/char (like wc)
-function wc {
-    if ($args) { Get-Content @args | Measure-Object -Line -Word -Character }
-    else       { $input       | Measure-Object -Line -Word -Character }
-}
-#endregion
-
 # ========================[ Region: WSL Helpers ]==============================
 #region WSL
 function WSL-Restart {
@@ -161,7 +141,6 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
 #region Exports
 Export-ModuleMember -Function `
     Admin, Require-Admin, Test-CommandExists, `
-    Edit-Profile, mkcd, Reload-Profile, wc, `
     Neovide-WSL, To-WSLPath, WSL-Restart, WSL-Kill, `
     Enter-NvimConfig, Remove-NvimSwap, Start-NvimServer, Start-Leetcode, Reset-Nvim, Get-NvimSize `
     -Alias su, vim, nvide
