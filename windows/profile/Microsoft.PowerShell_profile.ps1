@@ -1,3 +1,5 @@
+# $PROFILE, user-scoped at Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1
+
 # ========================[ Initialization ]===================================
 #region Init
 # $script variables are persistent across function calls
@@ -79,42 +81,43 @@ function dotfiles { Set-Location "~\dotfiles" }
 
 # ========================[ Region: Editor Selection ]=========================
 #region Editor
-if (-not $script:EditorCache) {
-    $script:EditorCache = foreach ($e in 'nvim','pvim','vim','vi','code','notepad++','sublime_text') {
-        if (Test-CommandExists-Cache $e) { $e; break }
+if (-not $env:EDITOR -or [string]::IsNullOrWhiteSpace($env:EDITOR)) {
+    foreach ($e in 'nvim','vim','vi','code','notepad++','sublime_text','notepad') {
+        if (Test-CommandExists-Cache $e) {
+            $env:EDITOR = $e
+            [Environment]::SetEnvironmentVariable('EDITOR', $env:EDITOR, 'User')
+            break
+        }
     }
-    if (-not $script:EditorCache) { $script:EditorCache = 'notepad' }
 }
-$env:EDITOR = $script:EditorCache
-Set-Alias vim $script:EditorCache
+
+Set-Alias vim $env:EDITOR
 #endregion
 
 # ========================[ Region: Color Config ]===========================
 #region Colors
-$global:Esc   = [char]27
-$global:Reset = "${Esc}[0m"
-$global:Bold  = "${Esc}[1m"
+$script:Esc   = [char]27
+$script:Reset = "${script:Esc}[0m"
+$script:Bold  = "${script:Esc}[1m"
 
-$global:FG = @{
-    Red     = "${Esc}[31m"
-    Green   = "${Esc}[32m"
-    Yellow  = "${Esc}[33m"
-    Blue    = "${Esc}[34m"
-    Magenta = "${Esc}[35m"
-    Cyan    = "${Esc}[36m"
-    Gray    = "${Esc}[90m"
+$script:FG = @{
+    Red     = "${script:Esc}[31m"
+    Green   = "${script:Esc}[32m"
+    Yellow  = "${script:Esc}[33m"
+    Blue    = "${script:Esc}[34m"
+    Magenta = "${script:Esc}[35m"
+    Cyan    = "${script:Esc}[36m"
+    Gray    = "${script:Esc}[90m"
 }
 
-function global:Color($color, $text, [switch]$BoldText) {
-    $prefix = if ($BoldText) { $global:Bold } else { "" }
-    return "$prefix$($FG[$color])$text$Reset"
+function Script:Color($color, $text, [switch]$BoldText) {
+    $prefix = if ($BoldText) { $script:Bold } else { "" }
+    return "$prefix$($script:FG[$color])$text$script:Reset"
 }
 #endregion
 
-
 # ========================[ Region: Prompt ]===========================
 #region Prompt
-
 function Get-GitInfo {
     $cwd = Get-Location
     if ($script:GitCache.ContainsKey($cwd)) { return $script:GitCache[$cwd] }
@@ -123,7 +126,9 @@ function Get-GitInfo {
         if (-not (git rev-parse --is-inside-work-tree 2>$null)) { return $null }
         $branch = git rev-parse --abbrev-ref HEAD 2>$null
         if (-not $branch) { return $null }
-        $dirty  = (git status --porcelain 2>$null | Select-Object -First 1)
+
+        git diff --quiet --ignore-submodules HEAD 2>$null; $dirty = -not $?
+
         $info = @{ Branch = $branch; Dirty = $dirty }
         $script:GitCache[$cwd] = $info
         return $info

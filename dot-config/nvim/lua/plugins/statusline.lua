@@ -5,9 +5,9 @@ return {
   event = "VeryLazy",
   opts = {
     options = {
-      theme = "auto",
-      icons_enabled = false,
-      disabled_filetypes = {
+      theme               = "auto",
+      icons_enabled       = false,
+      disabled_filetypes  = {
         "starter",
         "ministarter",
         "help",
@@ -35,6 +35,7 @@ return {
         },
       },
       lualine_y = {
+        "encoding",
         {
           "fileformat",
           icons_enabled = true,

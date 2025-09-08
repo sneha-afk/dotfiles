@@ -80,15 +80,17 @@ map("n", "<leader>bc", function()
   local current = vim.api.nvim_get_current_buf()
   local buffers = vim.api.nvim_list_bufs()
 
+  local num_deleted = 0
   for _, buf in ipairs(buffers) do
     if buf ~= current and vim.api.nvim_buf_is_loaded(buf) then
       local buf_type = vim.api.nvim_get_option_value("buftype", { buf = buf })
       if buf_type == "" or buf_type == "help" then -- Only close normal/help buffers
         vim.api.nvim_buf_delete(buf, { force = true })
+        num_deleted = num_deleted + 1
       end
     end
   end
-  vim.notify("Deleted other buffers", vim.log.levels.INFO)
+  vim.notify("Deleted other open buffers (total: " .. num_deleted .. ")", vim.log.levels.INFO)
 end, { desc = "[B]uffer: [C]lose all others" })
 
 --  TAB OPERATIONS
@@ -114,8 +116,7 @@ map("n", "<leader>[d", function() diagnostic.jump({ count = -1, float = true }) 
 map("n", "<leader>]d", function() diagnostic.jump({ count = 1, float = true }) end,  { desc = "Next diagnostic" })
 map("n", "<leader>dv",
   function() diagnostic.config({ virtual_text = not diagnostic.config().virtual_text }) end,
-  { desc = "[D]iagnostics: toggle [V]irtual text" }
-)
+  { desc = "[D]iagnostics: toggle [V]irtual text" })
 
 --  LSP NAVIGATION
 -- map("n", "gd", lsp.buf.definition, { desc = "[G]oto [d]efinition" })

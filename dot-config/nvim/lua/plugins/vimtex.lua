@@ -1,14 +1,31 @@
 -- .config/nvim/lua/plugins/vimtex.lua
 
+---@return string|nil Returns nil if no compiler is found
+local function detect_compiler()
+  if vim.fn.executable("tectonic") == 1 then
+    return "tectonic"
+  elseif vim.fn.executable("latexmk") == 1 then
+    return "latexmk"
+  elseif vim.fn.executable("pdflatex") == 1 then
+    return "pdflatex"
+  else
+    vim.notify("No LaTeX compiler found", vim.log.levels.WARN, { title = "VimTeX" })
+    return nil
+  end
+end
+
+local fts = { "tex", "latex", "bib" }
+
 return {
   "lervag/vimtex",
-  enabled = (vim.fn.executable("tectonic") == 1) or (vim.fn.executable("pdflatex") == 1),
-  ft = { "tex", "latex", "bib" },
+  enabled = detect_compiler() ~= nil,
+  ft = fts,
   dependencies = {
     "erooke/blink-cmp-latex",
   },
   config = function()
     vim.g.tex_flavor = "latex"
+    vim.g.vimtex_complete_enabled = 1
 
     vim.g.vimtex_quickfix_open_on_warning = 0
     vim.g.vimtex_quickfix_ignore_filters = {
@@ -24,7 +41,7 @@ return {
     vim.g.vimtex_view_general_options = "-reuse-instance -forward-search @tex @line @pdf"
 
     local out_dir = "./build"
-    vim.g.vimtex_compiler_method = vim.g.is_windows and "tectonic" or "latexmk"
+    vim.g.vimtex_compiler_method = detect_compiler()
 
     if vim.g.vimtex_compiler_method == "tectonic" then
       vim.g.vimtex_compiler_tectonic = {
@@ -60,10 +77,13 @@ return {
     end
 
     vim.api.nvim_create_autocmd("FileType", {
-      pattern = { "tex", "latex", "bib" },
+      pattern = fts,
       callback = function()
         vim.keymap.set("n", "<leader>Lc", "<cmd>VimtexCompile<cr>",   { desc = "[L]aTeX: [C]ompile" })
-        vim.keymap.set("n", "<leader>Lv", "<cmd>VimtexTocToggle<cr>", { desc = "[L]aTeX: Toggle [T]OC" })
+        vim.keymap.set("n", "<leader>Le", "<cmd>VimtexErrors<cr>",    { desc = "[L]aTeX: [E]rrors" })
+        vim.keymap.set("n", "<leader>Li", "<cmd>VimtexInfo<cr>",      { desc = "[L]aTeX: [I]nfo" })
+        vim.keymap.set("n", "<leader>Ls", "<cmd>VimtexStatus<cr>",    { desc = "[L]aTeX: [S]tatus" })
+        vim.keymap.set("n", "<leader>Lt", "<cmd>VimtexTocToggle<cr>", { desc = "[L]aTeX: Toggle [T]OC" })
         vim.keymap.set("n", "<leader>Lv", "<cmd>VimtexView<cr>",      { desc = "[L]aTeX: [V]iew" })
 
         -- Ensure output directory exists

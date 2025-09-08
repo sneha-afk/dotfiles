@@ -1,68 +1,61 @@
 <#
 .SYNOPSIS
-  Bootstrap installer for Tectonic (Windows). Does not require any TeX distribution.
+  Bootstrap installer for Tectonic (Windows).
 .DESCRIPTION
-  Downloads Tectonic using the official bootstrap script into ~/.local/bin.
-  Sets TECTONIC_CACHE_DIR to %LOCALAPPDATA%\TectonicProject\Tectonic.
+  Installs Tectonic (via Scoop if available, else bootstrap) and Pygments (via pip).
+  Scoop handles PATH automatically; fallback installs into ~/.local/bin.
 #>
 
-$binDir = "$HOME\.local\bin"
-$exe = "tectonic.exe"
+$binDir  = "$HOME\.local\bin"
+$exe     = "tectonic.exe"
 $exePath = Join-Path $binDir $exe
+$cache   = "$env:LOCALAPPDATA\TectonicProject\Tectonic"
 
-Write-Host ">>> Preparing to install/update Tectonic..." -ForegroundColor Cyan
+Write-Host ">>> Checking for Scoop..." -ForegroundColor Cyan
+$scoopInstalled = Get-Command scoop -ErrorAction SilentlyContinue
 
-# Remove old installation
-if (Test-Path $exePath) {
-    try {
-        $oldVersion = & $exePath --version
-        Write-Host "Found existing Tectonic: $oldVersion" -ForegroundColor Yellow
-    } catch {
-        Write-Host "Found old tectonic.exe, but could not get version." -ForegroundColor Yellow
-    }
-    Write-Host "Removing old $exe from $binDir..." -ForegroundColor Yellow
-    Remove-Item -Force $exePath
-}
-
-# https://tectonic-typesetting.github.io/en-US/install.html
-Write-Host ">>> Downloading latest Tectonic bootstrap..." -ForegroundColor Cyan
-[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-iex ((New-Object System.Net.WebClient).DownloadString('https://drop-ps1.fullyjustified.net'))
-
-# Ensure ~/.local/bin exists
-if (-not (Test-Path $binDir)) {
-    New-Item -ItemType Directory -Force -Path $binDir | Out-Null
-    Write-Host "Created $binDir"
-}
-
-# Move new binary
-if (Test-Path $exe) {
-    Move-Item -Force $exe $binDir
-    Write-Host ">>> Installed tectonic.exe into $binDir" -ForegroundColor Green
+if ($scoopInstalled) {
+    Write-Host ">>> Scoop found. Installing Tectonic with Scoop..." -ForegroundColor Green
+    scoop install tectonic
 } else {
-    Write-Host "! Could not find $exe after bootstrap install." -ForegroundColor Red
-    exit 1
+    Write-Host ">>> Scoop not found. Installing Tectonic via bootstrap..." -ForegroundColor Yellow
+
+    # Ensure ~/.local/bin exists
+    if (-not (Test-Path $binDir)) {
+        New-Item -ItemType Directory -Force -Path $binDir | Out-Null
+    }
+
+    # Remove old binary
+    if (Test-Path $exePath) {
+        Remove-Item -Force $exePath
+    }
+
+    # Download and run bootstrap script
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    iex ((New-Object System.Net.WebClient).DownloadString('https://drop-ps1.fullyjustified.net'))
+
+    # Move binary
+    if (Test-Path $exe) {
+        Move-Item -Force $exe $binDir
+    } else {
+        Write-Host "! Failed: tectonic.exe not found after bootstrap." -ForegroundColor Red
+        exit 1
+    }
 }
 
-# Show new version
+# Set cache directory
+[Environment]::SetEnvironmentVariable('TECTONIC_CACHE_DIR', $cache, 'User')
+
+# Install Pygments (always via Python)
+Write-Host ">>> Installing Pygments (pip)..." -ForegroundColor Cyan
 try {
-    $newVersion = & $exePath --version
-    Write-Host "Now installed: $newVersion" -ForegroundColor Green
+    python -m pip install --user --upgrade pip
+    python -m pip install --user pygments
 } catch {
-    Write-Host "! Could not check version of new tectonic.exe" -ForegroundColor Red
+    Write-Host "! Failed to install Pygments" -ForegroundColor Red
 }
 
-try {
-    [Environment]::SetEnvironmentVariable('TECTONIC_CACHE_DIR', "$env:LOCALAPPDATA\TectonicProject\Tectonic", 'User')
-    Write-Host ">>> Successfully set TECTONIC_CACHE_DIR to: $env:LOCALAPPDATA\TectonicProject\Tectonic" -ForegroundColor Green
-}
-catch {
-    Write-Host "! Failed to set TECTONIC_CACHE_DIR: $($_.Exception.Message)" -ForegroundColor Red
-}
-
-# Post-install message
-Write-Host "`nNext steps:" -ForegroundColor Cyan
-Write-Host "  1. Ensure $binDir is in your PATH."
-Write-Host "     Example (PowerShell):`n"
-Write-Host "         [Environment]::SetEnvironmentVariable('Path', `$env:Path + ';$binDir', 'User')" -ForegroundColor DarkGray
-Write-Host "`n  2. Restart your terminal and run: tectonic --version"
+# Confirm installs
+Write-Host "`n>>> Installation complete. Versions:" -ForegroundColor Cyan
+try { tectonic --version } catch { Write-Host "! Tectonic not working" -ForegroundColor Red }
+try { pygmentize -V } catch { Write-Host "! Pygments not working" -ForegroundColor Red }

@@ -13,6 +13,7 @@ function Bootstrap-WingetPrograms {
         "Vim.Vim",
         "Python.Python",
         "Microsoft.PowerToys"
+        "SumatraPDF.SumatraPDF"
     )
 
     foreach ($pkg in $packages) {
