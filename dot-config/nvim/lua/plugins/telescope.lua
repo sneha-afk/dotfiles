@@ -54,9 +54,10 @@ return {
     ---@return string Root to start searching from
     local function start_search_path()
       local cwd = utils.buffer_dir()
+      if cwd:match("ministarter") then cwd = vim.fn.getcwd() end
 
-      -- Default to home if not in a real buffer/directory
-      if cwd:match("ministarter") or vim.fn.isdirectory(cwd) == 0 then
+      -- Default to home if not in a directory
+      if vim.fn.isdirectory(cwd) == 0 then
         return vim.fn.expand("~")
       end
 

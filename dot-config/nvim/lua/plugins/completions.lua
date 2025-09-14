@@ -81,7 +81,8 @@ return {
     -- C-k: Toggle signature help (if signature.enabled = true)
     keymap = {
       preset = "default",
-      ["<Enter>"] = { "accept", "fallback" }, -- Both <C-y> and Enter will accept
+      ["<C-c>"] = { "show", "show_documentation", "hide_documentation" }, -- Duplicate C-space in case of terminal issues
+      ["<Enter>"] = { "accept", "fallback" },                             -- Both <C-y> and Enter will accept
       ["<C-j>"] = { "scroll_documentation_down", "fallback" },
       ["<C-k>"] = { "scroll_documentation_up", "fallback" },
       ["<C-h>"] = { "snippet_backward", "fallback" },
