@@ -9,7 +9,6 @@ local function detect_compiler()
   elseif vim.fn.executable("pdflatex") == 1 then
     return "pdflatex"
   else
-    vim.notify("No LaTeX compiler found", vim.log.levels.WARN, { title = "VimTeX" })
     return nil
   end
 end

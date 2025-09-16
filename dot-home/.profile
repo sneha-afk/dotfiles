@@ -39,6 +39,7 @@ export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME/bundle"
 export GOPATH="$HOME/go"
 export GOMODCACHE="$XDG_CACHE_HOME/go/mod"
 
+export NVM_DIR="$HOME/.config/nvm"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm"
 
