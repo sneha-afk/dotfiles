@@ -15,12 +15,22 @@ local organize_imports = function()
   })
 end
 
+vim.api.nvim_create_user_command("OrganizeImports", organize_imports,
+  { desc = "Organize imports via LSP (if supported)" })
+
 ---@type table<string, function>
 local setup_funcs = {
   gopls = function()
     map("n", "<leader>oi", organize_imports, { desc = "Go: [O]rganize [I]mports" })
   end,
-  pyright = function() map("n", "<leader>oi", "<cmd>LspPyrightOrganizeImports<cr>", { desc = "Python: [O]rganize [I]mports" }) end,
+  basedpyright = function()
+    map("n", "<leader>oi", "<cmd>LspPyrightOrganizeImports<cr>",
+      { desc = "Python: [O]rganize [I]mports" })
+  end,
+  pyright = function()
+    map("n", "<leader>oi", "<cmd>LspPyrightOrganizeImports<cr>",
+      { desc = "Python: [O]rganize [I]mports" })
+  end,
   clangd = function()
     map("n", "<leader>si", "<cmd>LspClangdShowSymbolInfo<cr>",     { desc = "C: show [S]ymbol [I]nfo" })
     map("n", "<leader>sh", "<cmd>LspClangdSwitchSourceHeader<cr>", { desc = "C: switch [S]ource/[H]eader" })

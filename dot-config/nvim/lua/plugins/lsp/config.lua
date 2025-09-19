@@ -1,36 +1,13 @@
 -- .config/nvim/plugins/lsp/config.lua
 -- Global configurations applied to all LSPs
 
-local format_config = {
-  -- Toggle for auto-formatting on save (all LSPs)
-  auto_format_on_save = false,
-
-  --- Filetypes that should NEVER be formatted externally
-  never_format_filetypes = {
-    markdown = true,
-  },
-
-  -- Servers that bypass global toggle
-  always_format_servers = {
-    lua_ls = true,
-    gopls = true,
-  },
-
-  -- Filetypes that bypass global toggle
-  always_format_filetypes = {
-    typescript = true,
-    typescriptreact = true,
-    javascript = true,
-    javascriptreact = true,
-    html = true,
-    htmldjango = true,
-    css = true,
-    scss = true,
-  },
-}
-
 -- LSP-specific keymaps that should be attached once the client is known
 local lsp_keymap_config = require("plugins.lsp.server_keymaps")
+
+local disable_formatting = {
+  ts_ls = true,
+  tsserver = true,
+}
 
 vim.api.nvim_create_augroup("LspFormatting", { clear = true })
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -41,20 +18,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     lsp_keymap_config(client)
 
-    local should_format = not format_config.never_format_filetypes[filetype]
-        and (
-          format_config.auto_format_on_save
-          or (format_config.always_format_servers[client.name] and client:supports_method("textDocument/formatting", bufnr))
-          or format_config.always_format_filetypes[filetype]
-        )
-    if should_format then
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        group = "LspFormatting",
-        buffer = bufnr,
-        callback = function()
-          vim.lsp.buf.format({ async = false })
-        end,
-      })
+    if disable_formatting[client.name] then
+      client.server_capabilities.documentFormattingProvider = false
+      client.server_capabilities.documentRangeFormattingProvider = false
+      client.server_capabilities.documentOnTypeFormattingProvider = false
     end
 
     -- From Neovim docs: prefer LSP folding if available

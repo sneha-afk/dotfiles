@@ -89,6 +89,9 @@ fi
 # Load shell-helper utility functions
 [ -f "$HOME/.shell_helpers" ] && source "$HOME/.shell_helpers"
 
+# WSL-Specific Configuration
+[ -f "$HOME/.wsl_env" ] && source "$HOME/.wsl_env"
+
 # ========================================================
 # Aliases
 # ========================================================

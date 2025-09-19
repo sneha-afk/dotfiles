@@ -38,7 +38,7 @@ return {
     -- C-k: Toggle signature help (if signature.enabled = true)
     keymap = {
       preset = "default",
-      ["<C-c>"] = { "show", "show_documentation", "hide_documentation" }, -- Duplicate C-space in case of terminal issues
+      ["<C-f>"] = { "show", "show_documentation", "hide_documentation" }, -- Duplicate C-space in case of terminal issues
       ["<Enter>"] = { "accept", "fallback" },                             -- Both <C-y> and Enter will accept
       ["<C-j>"] = { "scroll_documentation_down", "fallback" },
       ["<C-k>"] = { "scroll_documentation_up", "fallback" },
@@ -52,6 +52,7 @@ return {
         lua = { inherit_defaults = true, "lazydev" },
       },
       providers = {
+        buffer = { score_offset = -5 },
         lazydev = {
           name = "LazyDev",
           module = "lazydev.integrations.blink",
@@ -60,8 +61,7 @@ return {
         latex = {
           name = "Latex",
           module = "blink-cmp-latex",
-          opts = {
-            -- set to true to insert the latex command instead of the symbol
+          opts = { -- True: insert the LaTeX command instead of the symbol
             insert_command = true,
           },
         },
