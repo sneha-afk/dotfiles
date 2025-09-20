@@ -20,8 +20,8 @@ export CMD_EXE="$SYSTEM32_DIR/cmd.exe"
 export BROWSER="powershell.exe /C start"
 
 export VSCODE_EXE="$WINDOWS_PROG_FILES/Microsoft VS Code/bin/code"
-export SUBLIME_EXE="$WINDOWS_PROG_FILES/Sublime Text/sublime_text.exe"
-export PDF_READER_EXE="$WINDOWS_LOCALAPPDATA/SumatraPDF/SumatraPDF.exe"
+export SUBLIME_EXE="powershell.exe -NoProfile -Command Start-Process -FilePath 'sublime_text.exe' -ArgumentList"
+export PDF_READER_EXE="powershell.exe -NoProfile -Command Start-Process -FilePath 'SumatraPDF.exe' -ArgumentList"
 
 alias codewsl='"$VSCODE_EXE"'
 alias sublwsl='"$SUBLIME_EXE"'
@@ -57,12 +57,8 @@ explorer() {
     ("$CMD_EXE" /c "explorer.exe $win_path" &> /dev/null &) && echo "📂 Opening: $win_path"
 }
 
-# PDF opener
+# PDF opener, can also use as $PDF_READER_EXE <pdf>
 openpdf() {
-    [ ! -f "$PDF_READER" ] && {
-        echo "PDF Reader not found at $PDF_READER" >&2
-        return 1
-    }
     [ $# -eq 0 ] && {
         echo "Usage: openpdf <file.pdf>" >&2
         return 1
@@ -71,16 +67,16 @@ openpdf() {
         echo "Invalid WSL path: $1" >&2
         return 1
     }
-    ("$PDF_READER" "$file_path" > /dev/null 2>&1 &) && echo "🔖 Opened PDF: ${1##*/}"
+    # ("$PDF_READER_EXE" "$file_path" > /dev/null 2>&1 &) && echo "🔖 Opened PDF: ${1##*/}"
+    eval "$PDF_READER_EXE @('$file_path')" > /dev/null 2>&1
+    echo "🔖 Opened PDF: ${1##*/}"
 }
 
 # Sublime Text
 subl() {
-    [ ! -f "$SUBLIME_TEXT_EXE" ] && {
-        echo "Sublime Text not found at $SUBLIME_TEXT_EXE" >&2
-        return 1
-    }
-    ("$SUBLIME_TEXT_EXE" "$@" > /dev/null 2>&1 &) && echo "✏️ Opened in Sublime: $*"
+    [ $# -eq 0 ] && set -- "$(wslpath -w "$PWD")"
+    eval "$SUBLIME_EXE @('$@')" > /dev/null 2>&1
+    echo "✏️ Opened in Sublime: $*"
 }
 
 # VS Code
@@ -94,13 +90,15 @@ code() {
 
 # Run a Neovide instance (where installation is on Windows) from CWD
 nvim_nvide() {
-    local server_port="localhost:6666"
-    local neovide_path="$WINDOWS_PROG_FILES/Neovide/neovide.exe"
+    local port="6666"
+    local server_port="localhost:$port"
 
     (nvim --headless --listen "$server_port" > /dev/null 2>&1 &)
-    echo "[nvim_nvide] Starting Neovim server in background..."
-    echo "[nvim_nvide] Launching Neovide..."
-    echo "  ├─ Server address: $server_port"
-    echo "  └─ Opening: $*"
-    "$neovide_path" --server "$server_port" "$*"
+
+    echo "→ Neovim server: $server_port"
+    echo "→ Launching Neovide${*:+ ($*)}"
+
+    local args="--server $server_port"
+    [[ $# -gt 0 ]] && args="$args $(printf ' "%s"' "$@")"
+    powershell.exe -NoProfile -Command "Start-Process neovide -ArgumentList '$args'"
 }
