@@ -67,7 +67,6 @@ openpdf() {
         echo "Invalid WSL path: $1" >&2
         return 1
     }
-    # ("$PDF_READER_EXE" "$file_path" > /dev/null 2>&1 &) && echo "🔖 Opened PDF: ${1##*/}"
     eval "$PDF_READER_EXE @('$file_path')" > /dev/null 2>&1
     echo "🔖 Opened PDF: ${1##*/}"
 }

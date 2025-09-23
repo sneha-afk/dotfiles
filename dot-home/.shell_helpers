@@ -5,24 +5,41 @@
 
 # vim: set ft=sh ts=4 sts=4 sw=4 et:
 
-# Fast searching with ripgrep
-alias search="rg --smart-case --hidden --follow"
+search() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: search <pattern> [files...]"
+        echo "Search for pattern in files using rg/ag/grep fallback"
+        return 1
+    fi
+
+    if command -v rg >/dev/null 2>&1; then
+        rg --smart-case --hidden --follow --no-heading --line-number \
+           --glob '!.git' --glob '!.vscode-server' --glob '!.cache' --glob '!.cargo' --glob '!.svn' \
+           --glob '!node_modules' --glob '!venv' --glob '!.venv' --glob '!env' --glob '!.env' \
+           "$@"
+    elif command -v ag >/dev/null 2>&1; then
+        ag --smart-case --hidden --follow \
+           --ignore .git --ignore .vscode-server --ignore .cache --ignore .cargo --ignore .svn \
+           --ignore node_modules --ignore venv --ignore .venv --ignore env --ignore .env \
+           "$@"
+    else
+        grep -r --color=auto \
+             --exclude-dir={.git,.vscode-server,.cache,.cargo,.svn,node_modules,venv,.venv,env,.env} \
+             "$@" .
+    fi
+}
 
 # Get public IP
 alias myip='curl ifconfig.me'
 
 mkcd() {
-    mkdir -p "$1" && cd "$1" || return 1
+    (mkdir -p "$1" && cd "$1") || return 1
 }
 
 # Find files quickly
 ff() {
-    find . -type f -name "*$1*"
-}
-
-# Find directories quickly
-fd() {
-    find . -type d -name "*$1*"
+    [[ $# -eq 0 ]] && { echo "Usage: ff <pattern> [path]" >&2; return 1; }
+    find "${2:-.}" -type f -iname "*$1*" 2>/dev/null
 }
 
 # Get C and C++ includes
@@ -35,8 +52,7 @@ show_includes() {
 
 # Usage: weather [city] (default: based off IP)
 weather() {
-    if [[ $# -ge 0 ]]; then
-        # local location=$1
+    if [[ $# -gt 0 ]]; then
         local location=${1// /%20}
         curl -s --max-time 3 "wttr.in/~${location}?0" || echo "Error: Couldn't fetch weather for ${location}"
     else
@@ -52,6 +68,18 @@ sysinfo() {
     echo "CPU: $(cat /proc/cpuinfo | grep 'model name' | uniq | cut -d ':' -f2 | xargs)"
     echo "Memory:"
     free -h
+}
+
+# System monitoring
+mon() {
+    case "${1:-help}" in
+        cpu) htop 2>/dev/null || top ;;
+        mem) free -h ;;
+        disk) df -h ;;
+        io) iostat 1 3 2>/dev/null || echo "iostat not available" ;;
+        net) ss -tuln ;;
+        *) echo "Usage: mon [cpu|mem|disk|io|net]" ;;
+    esac
 }
 
 # Extract multiple types of archive files
@@ -95,7 +123,12 @@ genpass() {
         echo "Error: Password length must be a positive integer" >&2
         return 1
     fi
-    LC_ALL=C tr -dc "$charset" < /dev/urandom | head -c "$length"
+
+    if command -v openssl >/dev/null 2>&1; then
+        openssl rand -base64 48 | tr -dc "$charset" | head -c "$length"
+    else
+        LC_ALL=C tr -dc "$charset" < /dev/urandom | head -c "$length"
+    fi
     echo
 }
 
@@ -108,7 +141,7 @@ verify_checksum() {
     fi
 
     local file="$1"
-    local expected="$2"
+     local expected="${2#sha256:}"
 
     if [[ ! -f "$file" ]]; then
         echo "Error: File '$file' does not exist"
@@ -131,8 +164,12 @@ verify_checksum() {
 # Usage: dezones [optional: directory]
 dezones() {
     local dir="${1:-.}"
-    find "$dir" -type f -name "*:Zone.Identifier" -delete 2> /dev/null
-    echo "Removed all Zone.Identifier files under $dir"
+    local count=$(find "$dir" -type f -name "*:Zone.Identifier" -delete -print 2> /dev/null | wc -l)
+    if [ "$count" -gt 0 ]; then
+        echo "Removed $count Zone.Identifier file(s) under $dir"
+    else
+        echo "No Zone.Identifier files found under $dir"
+    fi
 }
 
 # Kills the process occupying a certain port

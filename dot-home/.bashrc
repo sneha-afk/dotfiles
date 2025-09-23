@@ -92,6 +92,14 @@ fi
 # WSL-Specific Configuration
 [ -f "$HOME/.wsl_env" ] && source "$HOME/.wsl_env"
 
+# pnpm
+export PNPM_HOME="~/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
 # ========================================================
 # Aliases
 # ========================================================
