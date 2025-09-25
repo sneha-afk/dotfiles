@@ -3,16 +3,10 @@
 # ========================[ Initialization ]===================================
 #region Init
 # $script variables are persistent across function calls
-if (-not $script:CommandCache) { $script:CommandCache = @{} }
+$script:IsWSL = [bool]$env:WSL_DISTRO_NAME
 
-if (-not $script:GitCache) { $script:GitCache = @{} }
-if (-not $script:VenvCache) { $script:VenvCache = if ($env:VIRTUAL_ENV) { Split-Path -Leaf $env:VIRTUAL_ENV } else { $null } }
-if (-not $script:IsWSL) { $script:IsWSL = [bool]$env:WSL_DISTRO_NAME }
-
-if (-not $script:PreferredShell) {
-    $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
-    $script:PreferredShell = if ($pwsh) { "pwsh.exe" } else { "powershell.exe" }
-}
+$pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
+$script:PreferredShell = if ($pwsh) { "pwsh.exe" } else { "powershell.exe" }
 
 # Source other profile scripts or modules
 $script:ProfileDir = Split-Path -Path $PROFILE -Parent
@@ -20,14 +14,6 @@ $script:ProfileModulesDir = Join-Path $script:ProfileDir "Modules"
 
 if ($env:PSModulePath -notlike "*$ProfileModulesDir*") {
     $env:PSModulePath = "$ProfileModulesDir;$env:PSModulePath"
-}
-
-function Test-CommandExists-Cache {
-    param([Parameter(Mandatory)]$Command)
-    if ($script:CommandCache.ContainsKey($Command)) { return $script:CommandCache[$Command] }
-    $exists = $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
-    $script:CommandCache[$Command] = $exists
-    return $exists
 }
 
 Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
@@ -43,7 +29,7 @@ Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
 #region Utilities
 
 function Reload-Profile { . $PROFILE }
-function Edit-Profile { $PROFILE | Invoke-Item }
+function Edit-Profile   { Invoke-Item $PROFILE }
 
 function mkcd {
     param([Parameter(Mandatory)][string]$Path)
@@ -56,6 +42,11 @@ function wc {
     if ($args) { Get-Content @args | Measure-Object -Line -Word -Character }
     else       { $input       | Measure-Object -Line -Word -Character }
 }
+
+function which($name) { Get-Command $name -All | Select-Object -ExpandProperty Source }
+function touch($path) { New-Item -ItemType File -Path $path -Force | Out-Null }
+function open($path)  { Invoke-Item $path }
+
 #endregion
 
 # ========================[ Region: Aliases ]==================================
@@ -68,7 +59,6 @@ if (Test-Path $aliasesFile) { . $aliasesFile}
 Set-Alias   ll    Get-ChildItem
 function la { Get-ChildItem -Force }
 Set-Alias   grep  Select-String
-Set-Alias   which Get-Command
 function .. { Set-Location .. }
 function home { Set-Location $env:USERPROFILE }
 
@@ -83,7 +73,7 @@ function dotfiles { Set-Location "~\dotfiles" }
 #region Editor
 if (-not $env:EDITOR -or [string]::IsNullOrWhiteSpace($env:EDITOR)) {
     foreach ($e in 'nvim','vim','vi','code','notepad++','sublime_text','notepad') {
-        if (Test-CommandExists-Cache $e) {
+        if (Get-Command $e -ErrorAction SilentlyContinue) {
             $env:EDITOR = $e
             [Environment]::SetEnvironmentVariable('EDITOR', $env:EDITOR, 'User')
             break
@@ -118,9 +108,14 @@ function Script:Color($color, $text, [switch]$BoldText) {
 
 # ========================[ Region: Prompt ]===========================
 #region Prompt
+
+$script:LastGitCheck = [datetime]::MinValue
+$script:GitInfo = $null
+
 function Get-GitInfo {
-    $cwd = Get-Location
-    if ($script:GitCache.ContainsKey($cwd)) { return $script:GitCache[$cwd] }
+    if ((Get-Date) - $script:LastGitCheck -lt [timespan]::FromSeconds(2)) {
+        return $script:GitInfo
+    }
 
     try {
         if (-not (git rev-parse --is-inside-work-tree 2>$null)) { return $null }
@@ -128,32 +123,35 @@ function Get-GitInfo {
         if (-not $branch) { return $null }
 
         git diff --quiet --ignore-submodules HEAD 2>$null; $dirty = -not $?
+        $script:GitInfo = @{ Branch = $branch; Dirty = $dirty }
+    } catch { $script:GitInfo = $null }
 
-        $info = @{ Branch = $branch; Dirty = $dirty }
-        $script:GitCache[$cwd] = $info
-        return $info
-    } catch { return $null }
+    $script:LastGitCheck = Get-Date
+    return $script:GitInfo
+}
+
+function Get-VenvInfo {
+    if ($env:VIRTUAL_ENV) { "($(Split-Path -Leaf $env:VIRTUAL_ENV))" }
 }
 
 function global:prompt {
-    $status_indicator = if ($? -eq $true) { (Color 'Green' '+') } else { (Color 'Red' '-') }
+    $status_indicator = if ($?) { (Color 'Green' '+') } else { (Color 'Red' '-') }
 
     $hostStr = "$env:USERNAME@$env:COMPUTERNAME"
     if ($script:IsWSL) { $hostStr += " (wsl)" }
     $userHost = (Color 'Blue' $hostStr)
 
-    $cwd = Split-Path -Leaf (Get-Location) -ErrorAction SilentlyContinue
+    $cwd = (Get-Location).Path -replace [regex]::Escape($HOME), '~'
     if ([string]::IsNullOrEmpty($cwd)) { $cwd = (Get-Location).Path }
     $pathSeg = (Color 'Green' $cwd)
 
-    $venvSeg = if ($script:VenvCache) { " " + (Color 'Magenta' "($script:VenvCache)") } else { "" }
+    $venvSeg = if ($venv = Get-VenvInfo) { " " + (Color 'Magenta' $venv) } else { "" }
 
     $gitSeg = ""
-    $git = Get-GitInfo
-    if ($git) {
+    if ($git = Get-GitInfo) {
         $branchColor = (Color 'Yellow' $git.Branch)
-        $dirtyFlag = if ($git.Dirty) { (Color 'Red' '*') } else { "" }
-        $gitSeg = " ($branchColor$dirtyFlag)"
+        $dirtyFlag   = if ($git.Dirty) { " " + (Color 'Red' '*') } else { "" }
+        $gitSeg      = " | $branchColor$dirtyFlag "
     }
 
     "$userHost [$pathSeg]$gitSeg$venvSeg`nPS $status_indicator "

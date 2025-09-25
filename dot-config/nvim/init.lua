@@ -1,11 +1,8 @@
 --[[
-NEOVIM CONFIGURATION
+sneha's neovim config
 ------------------------------------
-Where to store these files:
-  Linux/macOS: ~/.config/nvim/init.lua
-  Windows:     ~/AppData/Local/nvim/init.lua
-
-See README for configuring information.
+  Linux:    ~/.config/nvim/init.lua
+  Windows:  ~/AppData/Local/nvim/init.lua
 --]]
 
 vim.g.mapleader = ","

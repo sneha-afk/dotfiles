@@ -19,9 +19,7 @@ return {
         signs = { add = "┃", change = "┇", delete = "━" },
       },
     },
-    config = function(_, opts)
-      require("mini.diff").setup(opts)
-    end,
+    config = true,
   },
 
   -- Rainbow brackets/delimiters for clarity

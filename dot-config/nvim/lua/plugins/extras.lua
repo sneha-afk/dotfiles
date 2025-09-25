@@ -4,7 +4,7 @@
 return {
   {
     "echasnovski/mini.map",
-    event = "UIEnter",
+    event = "VeryLazy",
     version = false,
     keys = {
       { "<leader>mt", function() MiniMap.toggle() end,       desc = "Mini[M]ap: [T]oggle" },
@@ -43,19 +43,17 @@ return {
         ["leetcode.nvim"] = true,
       }
 
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "VeryLazy",
-        callback = function()
-          if excluded_filetypes[vim.bo.filetype] then
-            return
-          end
-          minimap.open()
-        end,
-      })
+      local function open_map()
+        if excluded_filetypes[vim.bo.filetype] then
+          return
+        end
+        minimap.open()
+      end
+
+      open_map()
     end,
   },
 
-  -- Dropbar breadcrumb menu at top of screen
   {
     "Bekaboo/dropbar.nvim",
     event = "UIEnter",
