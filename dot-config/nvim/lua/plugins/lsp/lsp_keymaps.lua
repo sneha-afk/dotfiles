@@ -1,4 +1,4 @@
--- .config/nvim/lua/plugins/lsp/keymaps.lua
+-- .config/nvim/lua/lsp/lsp_keymaps.lua
 -- Set LSP specific keymaps once LspAttach occurs
 
 local map = vim.keymap.set

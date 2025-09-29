@@ -1,6 +1,6 @@
 return {
   "nvim-mini/mini.sessions",
-  event = "BufReadPre",
+  event = { "BufReadPre", "BufNewFile" },
   version = false,
   config = function()
     local sessions = require("mini.sessions")

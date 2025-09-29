@@ -1,4 +1,4 @@
--- .config/nvim/lua/plugins/lsp/server_configs.lua
+-- .config/nvim/lua/lsp/lsp_server_configs.lua
 
 -- To use the default configurations supplied by nvim-lspconfig, simply add to
 --    the vim.lsp.enable table in lsp/init.lua
