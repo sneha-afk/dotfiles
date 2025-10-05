@@ -86,17 +86,6 @@ return {
         end,
       })
 
-      -- Taken from https://neovim.io/doc/user/lsp.html#LspDetach
-      vim.api.nvim_create_autocmd("LspDetach", {
-        callback = function(args)
-          vim.api.nvim_clear_autocmds({
-            group = "LspFormatting",
-            event = "BufWritePre",
-            buffer = args.buf,
-          })
-        end,
-      })
-
       -- Shared configurations + capabilities
       ---@type vim.lsp.Config
       local global_configs = {

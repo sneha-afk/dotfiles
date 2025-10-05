@@ -2,18 +2,32 @@
 
 return {
   {
-    "webhooked/kanso.nvim",
+    "AlexvZyl/nordic.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme("kanso-ink")
+      local nordic = require("nordic")
+      nordic.setup({
+        bold_keywords = true,
+        italic_comments = true,
+        reduced_blue = true,
+        swap_backgrounds = true,
+        on_highlight = function(highlights, palette)
+          -- Distinguish cursorline from Visual
+          highlights.Visual = {
+            bg = palette.gray1,
+          }
+        end,
+      })
+      vim.cmd.colorscheme("nordic")
     end,
   },
+
   {
-    "thesimonho/kanagawa-paper.nvim",
+    "webhooked/kanso.nvim",
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme("kanagawa-paper-ink")
+      vim.cmd.colorscheme("kanso-zen")
     end,
   },
 }

@@ -18,6 +18,9 @@ return {
       },
       always_show_tabline = false,
     },
+    refresh = {
+      refresh_time = 32,
+    },
     -- A, B, C are left; X, Y, Z are right
     sections = {
       lualine_a = { "mode" },
@@ -31,6 +34,7 @@ return {
       lualine_x = {
         {
           "lsp_status",
+          icon = "",
           ignore_lsp = {},
         },
       },
@@ -62,7 +66,8 @@ return {
       },
     },
   },
-  init = function()
+  config = function(_, opts)
+    require("lualine").setup(opts)
     vim.opt.showmode = false
   end,
 }

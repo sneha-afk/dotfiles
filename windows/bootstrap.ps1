@@ -33,7 +33,8 @@ $script:Version         = "1.0.1"
 $script:StartTime       = Get-Date
 
 $script:WindowsDir      = $PSScriptRoot
-. (Join-Path $script:WindowsDir "utils\bootstrap_helpers.ps1")
+$script:UtilsDir        = Join-Path $script:WindowsDir "utils"
+. (Join-Path $script:UtilsDir "bootstrap_helpers.ps1")
 Fix-ProfilePath
 
 $ErrorActionPreference = "Stop"
@@ -52,7 +53,7 @@ trap {
     continue
 }
 
-function Invoke-Safe([scriptblock]$Action, [string]$Description, [switch]$Admin) {
+function Invoke-Safe([scriptblock]$Action, [string]$Description) {
     Write-LogSection $Description
     try {
         & $Action
@@ -71,8 +72,8 @@ Write-LogInfo "Started at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 #region Symlinks
 if (-not $SkipSymlinks) {
     Invoke-Safe {
-        Bootstrap-Require-Admin { . (Join-Path $script:UtilsDir "bootstrap_symlinks.ps1") }
-    } "Setting up symlinks" -Admin
+        Script-Require-Admin -ScriptPath (Join-Path $script:UtilsDir "bootstrap_symlinks.ps1") -NoExit
+    } "Setting up symlinks"
 }
 #endregion
 

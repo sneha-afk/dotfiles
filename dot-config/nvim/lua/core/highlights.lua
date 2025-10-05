@@ -1,32 +1,35 @@
 -- .config/nvim/lua/core/highlights.lua
 -- Since 0.11.3, these highlights don't seem to stick when set in the plugin config
 
-local function highlights()
-  vim.api.nvim_set_hl(0, "DropBarIconUISeparator", { link = "Constant" })
-  vim.api.nvim_set_hl(0, "DropBarMenuHoverEntry",  { link = "Search" })
+local function set_highlights()
+  local hl = vim.api.nvim_set_hl
 
-  vim.api.nvim_set_hl(0, "MiniDiffSignAdd",        { link = "DiffAdd" })
-  vim.api.nvim_set_hl(0, "MiniDiffSignChange",     { link = "DiffChange" })
-  vim.api.nvim_set_hl(0, "MiniDiffSignDelete",     { link = "DiffDelete" })
+  hl(0, "DropBarIconUISeparator", { link = "Constant" })
+  hl(0, "DropBarMenuHoverEntry",  { link = "Search" })
 
-  vim.api.nvim_set_hl(0, "MiniDiffOverAdd",        { link = "DiffAdd" })
-  vim.api.nvim_set_hl(0, "MiniDiffOverChange",     { link = "DiffChange" })
-  vim.api.nvim_set_hl(0, "MiniDiffOverChangeBuf",  { link = "Comment" })
-  vim.api.nvim_set_hl(0, "MiniDiffOverContext",    { link = "Comment" })
-  vim.api.nvim_set_hl(0, "MiniDiffOverContextBuf", { link = "Comment" })
-  vim.api.nvim_set_hl(0, "MiniDiffOverDelete",     { link = "DiffDelete" })
+  hl(0, "MiniDiffSignAdd",        { link = "DiffAdd" })
+  hl(0, "MiniDiffSignChange",     { link = "DiffChange" })
+  hl(0, "MiniDiffSignDelete",     { link = "DiffDelete" })
 
-  vim.api.nvim_set_hl(0, "MiniStarterHeader",      { link = "Define" })
-  vim.api.nvim_set_hl(0, "MiniStarterFooter",      { link = "LineNr" })
-  vim.api.nvim_set_hl(0, "MiniStarterQuery",       { link = "IncSearch" })
-  vim.api.nvim_set_hl(0, "MiniStarterItemPrefix",  { link = "Keyword" })
-  vim.api.nvim_set_hl(0, "MiniStarterItemBullet",  { link = "LineNr" })
-  vim.api.nvim_set_hl(0, "MiniStarterCurrent",     { link = "CursorLine" })
-  vim.api.nvim_set_hl(0, "MiniStarterSection",     { link = "Directory" })
+  hl(0, "MiniDiffOverAdd",        { link = "DiffAdd" })
+  hl(0, "MiniDiffOverChange",     { link = "DiffChange" })
+  hl(0, "MiniDiffOverChangeBuf",  { link = "Comment" })
+  hl(0, "MiniDiffOverContext",    { link = "Comment" })
+  hl(0, "MiniDiffOverContextBuf", { link = "Comment" })
+  hl(0, "MiniDiffOverDelete",     { link = "DiffDelete" })
+
+  hl(0, "MiniStarterHeader",      { link = "Define" })
+  hl(0, "MiniStarterFooter",      { link = "LineNr" })
+  hl(0, "MiniStarterQuery",       { link = "IncSearch" })
+  hl(0, "MiniStarterItemPrefix",  { link = "Keyword" })
+  hl(0, "MiniStarterItemBullet",  { link = "LineNr" })
+  hl(0, "MiniStarterCurrent",     { link = "CursorLine" })
+  hl(0, "MiniStarterSection",     { link = "Directory" })
 end
 
-vim.api.nvim_create_autocmd("UIEnter", {
+vim.api.nvim_create_autocmd({ "ColorScheme", "UIEnter" }, {
+  group = vim.api.nvim_create_augroup("UserCustomHighlights", { clear = true }),
   callback = function()
-    vim.schedule(highlights)
+    vim.schedule(set_highlights)
   end,
 })

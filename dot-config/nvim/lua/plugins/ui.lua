@@ -25,7 +25,7 @@ return {
   -- Rainbow brackets/delimiters for clarity
   {
     "HiPhish/rainbow-delimiters.nvim",
-    lazy = false,
+    event = { "BufReadPost", "BufNewFile" },
     ---@module "rainbow-delimiters"
     ---@type rainbow_delimiters.config
     opts = {

@@ -81,21 +81,29 @@ vim.lsp.config("gopls", {
   },
 })
 
+-- Detect nearest build directory with compile_commands.json
+local function find_compile_commands_dir()
+  local dirs = { "build", "out", "compile_commands" }
+  for _, dir in ipairs(dirs) do
+    if vim.fn.filereadable(dir .. "/compile_commands.json") == 1 then
+      return dir
+    end
+  end
+  return "."
+end
+
 vim.lsp.config("clangd", {
   cmd = {
     "clangd",
-    "--all-scopes-completion",
     "--background-index",
-    "--clang-tidy",
-    "--compile-commands-dir=build",
-    "--completion-style=detailed",
-    "--cross-file-rename",
-    "--enable-config",
-    "--function-arg-placeholders",
-    "--header-insertion=iwyu",
-    "--malloc-trim",
-    "--offset-encoding=utf-16",
-    "--pch-storage=disk",
+    "--clang-tidy",                -- Run clang-tidy diagnostics
+    "--completion-style=detailed", -- Rich completion info
+    "--header-insertion=iwyu",     -- Insert headers automatically
+    "--function-arg-placeholders", -- Placeholders in snippets
+    "--all-scopes-completion",     -- Complete across all visible scopes
+    "--enable-config",             -- Read .clangd config if present
+    "--pch-storage=memory",        -- Use memory for faster startup (good for SSD/RAM)
+    "--compile-commands-dir=" .. find_compile_commands_dir(),
   },
   init_options = {
     fallbackFlags = { "-Wall", "-Wextra", "-Wpedantic" },

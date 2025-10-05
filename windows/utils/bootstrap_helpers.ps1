@@ -35,21 +35,33 @@ function Bootstrap-Admin {
     }
 }
 
-function Bootstrap-Require-Admin {
+function Script-Require-Admin {
     param(
-        [Parameter(Mandatory)]
-        [scriptblock]$Action
+        [string]$ScriptPath = $MyInvocation.ScriptName,
+        [switch]$NoExit = $false
     )
 
-    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
-               ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    $currentPrincipal = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
+    $isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
-    if ($isAdmin) {
-        & $Action
-    } else {
-        Write-Host "Restarting action as administrator..." -ForegroundColor Yellow
-        Start-Process wt -Verb RunAs -ArgumentList "powershell -NoProfile -NoExit -Command `"& { $Action }`""
+    if (-not $isAdmin) {
+        Write-Host "Elevating to administrator privileges..." -ForegroundColor Yellow
+
+        Start-Process powershell.exe -Verb RunAs -ArgumentList (
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            "`"$ScriptPath`""
+        ) -Wait
+
+        if (-not $NoExit) {
+            Write-Host "Exiting non-admin session." -ForegroundColor Yellow
+            exit
+        }
     }
+
+    Write-Host "Running with administrator privileges..." -ForegroundColor Green
 }
 
 function Test-CommandExists {

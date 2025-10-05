@@ -137,11 +137,113 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
 }
 #endregion
 
+# ========================[ Utilities ]=========================
+#region Utilities
+function Search {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [string]$Pattern,
+
+        [Parameter(Position=1, ValueFromRemainingArguments=$true)]
+        [string[]]$Files
+    )
+
+    if ($Pattern -eq "") {
+        Write-Host "Usage: Search <pattern> [files...]"
+        Write-Host "Search for pattern in files using rg/Select-String fallback"
+        return
+    }
+
+    $searchPath = if ($Files.Count -gt 0) { $Files } else { "." }
+
+    $excludePatterns = @(
+        '!.git', '!.svn', '!.hg', '!CVS',
+
+        '!.vscode-server', '!.vscode/extensions', '!.idea', '!.vs', '!*.swp', '!*.swo',
+
+        '!node_modules', '!.npm', '!.yarn', '!bower_components',
+        '!.cargo', '!target/', '!Cargo.lock',
+        '!__pycache__', '!*.pyc', '!venv', '!.venv', '!.python-version',
+        '!.mvn', '!target/', '!gradle/', '!.gradle',
+        '!.nuget', '!packages/', '!bin/', '!obj/',
+        '!_build/', '!.elixir_ls/', '!deps/',
+
+        '!env', '!.env', '!.env.*', '!local.env',
+
+        '!.cache', '!cache/', '!tmp/', '!temp/', '!*.tmp', '!*.temp',
+
+        '!Thumbs.db', '!.DS_Store', '!*.lnk',
+        '!*AppData/*', '!*ntuser*',
+
+        '!*.log', '!logs/'
+    )
+
+    if (Get-Command rg -ErrorAction SilentlyContinue) {
+        $rgArgs = @(
+            "--smart-case",
+            "--hidden",
+            "--follow",
+            "--no-heading",
+            "--line-number"
+        )
+
+        foreach ($pattern in $excludePatterns) {
+            $rgArgs += "--glob"
+            $rgArgs += $pattern
+        }
+
+        $rgArgs += $Pattern
+        $rgArgs += $searchPath
+
+        rg @rgArgs
+    }
+    else {
+        $psExclude = $excludePatterns | Where-Object { $_ -match '^!(.+)$' } | ForEach-Object {
+            $matches[1] -replace '^\.', '*' -replace '/$', '*'
+        }
+
+        Get-ChildItem -Path $searchPath -Recurse -File | Where-Object {
+            $filePath = $_.FullName
+            $shouldInclude = $true
+            foreach ($pattern in $psExclude) {
+                if ($filePath -like "*$pattern*") {
+                    $shouldInclude = $false
+                    break
+                }
+            }
+            $shouldInclude
+        } | Select-String -Pattern $Pattern
+    }
+}
+
+function Update-All {
+    if (Get-Command scoop -ErrorAction SilentlyContinue) {
+        Write-Host "Updating Scoop and all installed packages..." -ForegroundColor Cyan
+        scoop update --all
+    } else {
+        Write-Host "Scoop is not installed. Skipping Scoop update." -ForegroundColor Yellow
+    }
+
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        Write-Host "Updating Winget packages..." -ForegroundColor Cyan
+        winget upgrade --all --accept-source-agreements --accept-package-agreements
+    } else {
+        Write-Host "Winget is not installed. Skipping Winget update." -ForegroundColor Yellow
+    }
+
+    if (Get-Command uv -ErrorAction SilentlyContinue) {
+        uv self update
+    }
+}
+#endregion
+
 # ========================[ Exports ]=========================
 #region Exports
 Export-ModuleMember -Function `
     Admin, Require-Admin, Test-CommandExists, `
     Neovide-WSL, To-WSLPath, WSL-Restart, WSL-Kill, `
-    Enter-NvimConfig, Remove-NvimSwap, Start-NvimServer, Start-Leetcode, Reset-Nvim, Get-NvimSize `
+    Enter-NvimConfig, Remove-NvimSwap, Start-NvimServer, Start-Leetcode, Reset-Nvim, Get-NvimSize, `
+    Search, Update-All `
     -Alias su, vim, nvide
 #endregion

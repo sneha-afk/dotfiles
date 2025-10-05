@@ -1,8 +1,13 @@
 # windows/utils/symlinks.ps1
 
-$script:UtilsDir          = $PSScriptRoot
-. (Join-Path $script:UtilsDir "bootstrap_helpers.ps1")
-Fix-ProfilePath
+$script:UtilsDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$bootstrapHelpersPath = Join-Path $script:UtilsDir "bootstrap_helpers.ps1"
+if (Test-Path $bootstrapHelpersPath) {
+    . $bootstrapHelpersPath
+    Fix-ProfilePath
+} else {
+    Write-Warning "bootstrap_helpers.ps1 not found at $bootstrapHelpersPath"
+}
 
 #region Directories
 

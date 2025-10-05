@@ -33,6 +33,7 @@ function Bootstrap-ScoopPrograms {
         "ripgrep"
         "fd"
         "fastfetch"
+        "tree-sitter"
     )
 
     Write-Host "Installing packages: $($packages -join ', ')"

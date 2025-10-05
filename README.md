@@ -9,6 +9,7 @@
 * Windows Terminal with [Geist Mono](https://vercel.com/font)
     * Built in: Segoe UI Emoji
     * Optionally: [Symbols Nerd Font Mono](https://www.nerdfonts.com/font-downloads)
+    * In the Font face: `Geist  Mono, Segoe UI Emoji, Symbols Nerd Font Mono`
 
 ##  Setup
 ## 🐧 Unix
