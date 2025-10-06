@@ -1,19 +1,7 @@
--- ~/.config/nvim/lua/core/utils.lua
+-- ~/.config/nvim/lua/core/utils/buffers_and_windows.lua
 -- Module of utility functions and constants
 
 local M = {}
-
----Touch a file, creating if it does not exist
----@param filepath string
----@return boolean True on success
-function M.touch_file(filepath)
-  local file = io.open(filepath, "a")
-  if file then
-    file:close()
-    return true
-  end
-  return false
-end
 
 ---Creates and returns the id of a new scratch buffer
 ---@param content? string[] Content to place into buffer
@@ -35,13 +23,6 @@ function M.get_centered_dims()
   local col = (vim.o.columns - width) / 2
   local row = (vim.o.lines - height) / 2
   return { width, height, col, row }
-end
-
----@return string|nil Git root path or nil if not inside a git repo
-function M.get_git_root()
-  local dot_git_path = vim.fn.finddir(".git", ".;")
-  if dot_git_path == "" then return nil end
-  return vim.fn.fnamemodify(dot_git_path, ":h")
 end
 
 ---Opens a buffer within a floating window

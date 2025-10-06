@@ -16,7 +16,7 @@ return {
   lazy = "leetcode.nvim" ~= vim.fn.argv()[1],
   build = ":TSUpdate html",
   dependencies = {
-    "nvim-telescope/telescope.nvim",
+    vim.g.picker_source,
     "nvim-treesitter/nvim-treesitter",
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
@@ -26,9 +26,6 @@ return {
   opts = {
     ---@type lc.lang
     lang = "python3",
-
-    ---@type lc.picker
-    picker = { provider = "telescope" },
 
     keys = {
       toggle = { "q" },

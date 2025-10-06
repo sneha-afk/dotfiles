@@ -16,6 +16,9 @@ if vim.g.is_windows then
   vim.opt.shellcmdflag = "-NoLogo -ExecutionPolicy RemoteSigned -Command"
 end
 
+-- Swap out pickers and any plugins using them
+vim.g.picker_source = "folke/snacks.nvim"
+
 -- Taken from folke: override vim.keymap.set
 -- Default to silent, non-recursive keymaps
 local orig_keymap_set = vim.keymap.set

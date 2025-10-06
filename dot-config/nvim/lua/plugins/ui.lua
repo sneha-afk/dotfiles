@@ -3,7 +3,7 @@
 return {
   -- Display diff signs in gutter
   {
-    "echasnovski/mini.diff",
+    "nvim-mini/mini.diff",
     version = false,
     event = "UIEnter",
     keys = {
@@ -43,15 +43,7 @@ return {
         latex = 210,
         lua = 210,
       },
-      -- Defines list of highlights to cycle through
-      highlight = {
-        "Statement",
-        "Character",
-        "Special",
-        "Number",
-        "Type",
-        "Boolean",
-      },
+      highlight = require("core.utils.ui").color_cycle,
     },
     main = "rainbow-delimiters.setup",
   },

@@ -41,7 +41,7 @@ return {
   {
     "brianhuster/live-preview.nvim",
     cmd = { "LivePreview", "LivePreviewPortChange" },
-    dependencies = { "nvim-telescope/telescope.nvim" },
+    dependencies = { vim.g.picker_source },
     opts = {
       port = 8000,
     },

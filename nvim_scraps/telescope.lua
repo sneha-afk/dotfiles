@@ -3,6 +3,7 @@
 return {
   "nvim-telescope/telescope.nvim",
   event = "VeryLazy",
+  enabled = false,
   cmd = "Telescope",
   keys = {
     { "<leader>fb", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "[F]ind: within [B]uffer" },
@@ -49,21 +50,6 @@ return {
     local actions = require("telescope.actions")
     local utils = require("telescope.utils")
     local my_utils = require("core.utils")
-
-    -- https://github.com/nvim-telescope/telescope.nvim/wiki/Configuration-Recipes#find-files-from-project-git-root-with-fallback
-    ---@return string Root to start searching from
-    local function start_search_path()
-      local cwd = utils.buffer_dir()
-      if cwd:match("ministarter") then cwd = vim.fn.getcwd() end
-
-      -- Default to home if not in a directory
-      if vim.fn.isdirectory(cwd) == 0 then
-        return vim.fn.expand("~")
-      end
-
-      local git_root = my_utils.get_git_root()
-      return git_root or cwd
-    end
 
     telescope.setup({
       defaults = {
@@ -112,11 +98,12 @@ return {
     pcall(telescope.load_extension, "file_browser")
 
     -- Dynamic cwd: either top of git repo, or from cwd
+    -- https://github.com/nvim-telescope/telescope.nvim/wiki/Configuration-Recipes#find-files-from-project-git-root-with-fallback
     vim.keymap.set("n", "<leader>ff", function()
-      builtin.find_files({ cwd = start_search_path() })
+      builtin.find_files({ cwd = my_utils.start_search_path() })
     end, { desc = "[F]ind: [F]iles" })
     vim.keymap.set("n", "<leader>fg", function()
-      builtin.live_grep({ cwd = start_search_path() })
+      builtin.live_grep({ cwd = my_utils.start_search_path() })
     end, { desc = "[F]ind: live [G]rep" })
   end,
 }

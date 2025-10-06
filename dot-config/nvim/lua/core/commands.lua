@@ -1,7 +1,7 @@
 -- .config/nvim/lua/core/commands.lua
 -- Set user commands, autocommands, etc.
 
-local utils = require("core.utils")
+local buf_utils = require("core.utils.buffers_and_windows")
 
 vim.api.nvim_create_user_command("EnvVariables", function()
   local env_vars = vim.fn.environ()
@@ -31,12 +31,12 @@ vim.api.nvim_create_user_command("EnvVariables", function()
     table.insert(lines, v)
   end
 
-  local buf = utils.create_scratch_buf(lines)
+  local buf = buf_utils.create_scratch_buf(lines)
   vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
   vim.keymap.set("n", "<Esc>", "<cmd>q<cr>", { buffer = buf })
   local h = math.floor(vim.o.lines / 1.5)
   local r = (vim.o.lines - h) / 2
-  utils.open_float_win(buf, " Environment Variables ", {
+  buf_utils.open_float_win(buf, " Environment Variables ", {
     height = h,
     row = r,
   })

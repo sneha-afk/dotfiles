@@ -15,6 +15,7 @@ return {
         "mason",
         "oil",
         "leetcode.nvim",
+        "snacks_picker_list",
       },
       always_show_tabline = false,
     },

@@ -13,11 +13,12 @@ return {
   ---@module "which-key"
   ---@type wk.Opts
   opts = {
-    preset = "modern",
+    preset = "helix",
     ---@type wk.Win.opts
     win = {
       border = "rounded",
-      height = { min = 4, max = 25 },
+      width = { min = vim.o.columns / 5, max = vim.o.columns / 2 },
+      height = { min = 4, max = vim.o.lines / 2 },
       title = " Keybindings ",
     },
     keys = {
@@ -28,18 +29,18 @@ return {
       mappings = false,
       rules = false,
       keys = {
-        Up = "^ ",
-        Down = "v ",
-        Left = "< ",
-        Right = "> ",
-        C = "^-",
+        Up = "↑ ",
+        Down = "↓ ",
+        Left = "← ",
+        Right = "→ ",
+        C = "c-",
         M = "m-",
         D = "dd",
         S = "s-",
         CR = "cr",
         Esc = "esc ",
-        ScrollWheelDown = "v",
-        ScrollWheelUp = "^ ",
+        ScrollWheelDown = "↓",
+        ScrollWheelUp = "↑ ",
         NL = "nl",
         BS = "bs",
         Space = "_",
@@ -70,6 +71,7 @@ return {
       { "<leader>v", group = "Vertical" },
       { "<leader>f", group = "File/Find" },
       { "<leader>g", group = "Git" },
+      { "<leader>s", group = "Search" },
       { "<leader>t", group = "Tabs" },
       { "<leader>u", group = "UI" },
       { "<leader>W", group = "Workspace" },

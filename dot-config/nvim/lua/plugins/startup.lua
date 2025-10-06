@@ -31,6 +31,7 @@ return {
   event = function() return vim.fn.argc() == 0 and "VimEnter" or nil end,
   version = false,
   dependencies = {
+    vim.g.picker_source,
     "nvim-mini/mini.sessions",
   },
   config = function()
@@ -42,9 +43,10 @@ return {
       header = function() return HEADER_ART .. "\n" .. greeting .. ", " .. username .. ".\n" end,
       items = {
         { section = "Actions", name = "New File",     action = "ene | startinsert" },
-        { section = "Actions", name = "Browse files", action = "Telescope file_browser" },
-        { section = "Actions", name = "Find files",   action = "Telescope find_files" },
-        { section = "Actions", name = "Search",       action = "Telescope live_grep" },
+        { section = "Actions", name = "Browse files", action = function() Snacks.explorer() end },
+        { section = "Actions", name = "Find files",   action = require("core.utils.fileops").snacks_find_files },
+        { section = "Actions", name = "Smart find",   action = function() Snacks.picker.smart() end },
+        { section = "Actions", name = "Search",       action = function() Snacks.picker.grep() end },
         { section = "Actions", name = "Quit",         action = "qa" },
 
         starter.sections.sessions(5, true),

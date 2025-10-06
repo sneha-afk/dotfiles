@@ -1,7 +1,7 @@
 -- .config/nvim/lua/core/keymaps.lua
 -- Globally available keymaps
 
-local utils = require("core.utils")
+local buf_utils = require("core.utils.buffers_and_windows")
 
 local map = vim.keymap.set
 local lsp = vim.lsp
@@ -25,10 +25,10 @@ map("n", "<leader>uh", function() lsp.inlay_hint.enable(not lsp.inlay_hint.is_en
 map("n", "<leader>sb", function() vim.api.nvim_set_current_buf(utils.create_scratch_buf()) end,
   { desc = "[S]cratch: empty [B]uffer" })
 map("n", "<leader>sm", function()
-  local buf = utils.create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
+  local buf = buf_utils.create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
   vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
   vim.keymap.set("n", "<Esc>", "<cmd>q<cr>", { buffer = buf })
-  utils.open_float_win(buf, " Messages ")
+  buf_utils.open_float_win(buf, " Messages ")
 end, { desc = "[S]cratch: view [M]essages" })
 vim.keymap.set("n", "<leader>ss", function()
   vim.notify("Starting server at localhost:3000", vim.log.levels.INFO, { title = "npx serve" })
