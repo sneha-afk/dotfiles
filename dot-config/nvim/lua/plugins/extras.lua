@@ -78,7 +78,7 @@ return {
           },
         },
         kinds = {
-          symbols = require("core.utils.ui").ascii_icons,
+          symbols = require("core.utils.ui").get_icon_set(),
         },
       },
     },

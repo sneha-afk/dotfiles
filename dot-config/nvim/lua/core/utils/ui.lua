@@ -85,4 +85,26 @@ M.color_cycle = {
   "Boolean",
 }
 
+function M.icons_supported()
+  -- Set in top level init.lua
+  if not vim.g.use_icons then return false end
+
+  if vim.g.neovide or vim.g.goneovim or vim.g.gtk or vim.g.GuiLoaded then
+    return true
+  end
+
+  local term = os.getenv("TERM") or ""
+  local colorterm = os.getenv("COLORTERM") or ""
+  if term:match("xterm") or term:match("kitty") or term:match("alacritty") or colorterm:match("truecolor") then
+    return true
+  end
+
+  return vim.g.use_icons
+end
+
+-- Usually {} can be used to use defaults
+function M.get_icon_set()
+  return M.icons_supported() and {} or M.ascii_icons
+end
+
 return M

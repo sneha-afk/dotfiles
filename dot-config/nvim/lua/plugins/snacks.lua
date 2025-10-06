@@ -84,7 +84,14 @@ return {
     picker = {
       enabled = true,
       icons = {
-        kinds = require("core.utils.ui").ascii_icons,
+        kinds = require("core.utils.ui").get_icon_set(),
+      },
+      layout = {
+        layout = {
+          max_width = math.floor(vim.o.columns / 1.05),
+          max_height = math.floor(vim.o.lines / 1.05),
+          height = 0.85,
+        },
       },
     },
     scope = { enabled = true },

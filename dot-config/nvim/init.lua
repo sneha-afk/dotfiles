@@ -19,6 +19,9 @@ end
 -- Swap out pickers and any plugins using them
 vim.g.picker_source = "folke/snacks.nvim"
 
+-- Should (non-essential) icons be used?
+vim.g.use_icons = true
+
 -- Taken from folke: override vim.keymap.set
 -- Default to silent, non-recursive keymaps
 local orig_keymap_set = vim.keymap.set
@@ -34,23 +37,6 @@ vim.keymap.set = function(mode, lhs, rhs, opts)
   opts.silent = opts.silent ~= false
   orig_keymap_set(mode, lhs, rhs, opts)
 end
-
----@type vim.diagnostic.Opts
-local diagnostic_opts = {
-  update_in_insert = true,
-  virtual_text = {
-    spacing = 2,
-    source = "if_many",
-  },
-  severity_sort = true,
-  float = {
-    border = "rounded",
-    header = "",
-    title = " Diagnostics ",
-    source = "if_many",
-  },
-}
-vim.diagnostic.config(diagnostic_opts)
 
 -- Disable provider warnings
 vim.g.loaded_python3_provider = 0

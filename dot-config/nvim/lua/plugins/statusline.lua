@@ -1,12 +1,15 @@
 -- .config/nvim/lua/plugins/statusline.lua
 
+local enable_icons = require("core.utils.ui").icons_supported()
+
 return {
   "nvim-lualine/lualine.nvim",
   event = "VeryLazy",
+  dependencies = enable_icons and { "nvim-mini/mini.icons" } or {},
   opts = {
     options = {
       theme               = "auto",
-      icons_enabled       = false,
+      icons_enabled       = enable_icons,
       disabled_filetypes  = {
         "starter",
         "ministarter",

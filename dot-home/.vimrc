@@ -233,7 +233,7 @@ set list
 set listchars=tab:▸\ ,trail:·,nbsp:␣
 set fillchars=foldopen:▾,foldsep:│,foldclose:▸
 
-set guifont=Geist_Mono,Consolas,Segoe_UI_Emoji,Symbols_Nerd_Font_Mono:h10
+set guifont=Geist_Mono:h10,Consolas:h10,Segoe_UI_Emoji:h10,Symbols_Nerd_Font_Mono:h10
 
 " Set true color if available
 if has("termguicolors")

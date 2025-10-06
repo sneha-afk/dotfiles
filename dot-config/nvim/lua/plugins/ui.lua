@@ -1,6 +1,20 @@
 -- .config/nvim/lua/plugins/ui.lua
 
 return {
+  {
+    "nvim-mini/mini.icons",
+    enabled = vim.g.use_icons,
+    version = false,
+    lazy = true,
+    opts = {
+      style = require("core.utils.ui").icons_supported() and "glyph" or "ascii",
+    },
+    config = function(_, opts)
+      local icons = require("mini.icons")
+      icons.setup(opts)
+      icons.mock_nvim_web_devicons()
+    end,
+  },
   -- Display diff signs in gutter
   {
     "nvim-mini/mini.diff",

@@ -19,8 +19,9 @@ vim.opt.undofile       = true     -- Keep persisitent undo history between sessi
 vim.opt.undodir        = vim.fn.stdpath("data") .. "/undo"
 
 -- https://github.com/LazyVim/LazyVim/discussions/4112
+vim.opt.clipboard      = ""
 vim.schedule(function()
-  vim.opt.clipboard = "unnamedplus"
+  vim.opt.clipboard = vim.env.SSH_TTY and "" or "unnamedplus"
 end)
 
 -- ===================================================================
@@ -34,7 +35,6 @@ vim.opt.signcolumn    = "yes"
 vim.opt.colorcolumn   = "120"
 vim.opt.pumheight     = 15 -- Popup menu height limit
 vim.opt.pumblend      = 10 -- Popup menu transparency
--- vim.opt.winborder      = "rounded" -- Border for windows
 
 vim.o.guifont         = "Geist_Mono,Consolas,Segoe_UI_Emoji,Symbols_Nerd_Font_Mono:h10"
 vim.opt.wrap          = true -- Enable line wrapping
