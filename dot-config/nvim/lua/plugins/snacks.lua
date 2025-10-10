@@ -5,7 +5,6 @@ return {
   lazy = false,
   priority = 1000,
   dependencies = { "nvim-mini/mini.diff" },
-  build = ":TSUpdate regex",
   keys = {
     { "<leader>hn", function() Snacks.notifier.show_history() end,         desc = "[H]istory: [N]otifications" },
     { "<leader>.",  function() Snacks.scratch() end,                       desc = "Toggle scratch buffer" },

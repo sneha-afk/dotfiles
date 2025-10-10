@@ -24,12 +24,6 @@ mkdir -p "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"
 export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
 export SQLITE_HISTORY="$XDG_DATA_HOME/sqlite_history"
 
-export PYTHONPATH="$HOME/python_libs:${PYTHONPATH:-}"
-export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
-export PIP_CONFIG_FILE="$XDG_CONFIG_HOME/pip/pip.conf"
-export PIP_LOG_FILE="$XDG_CACHE_HOME/pip/log"
-export PYLINTHOME="$XDG_CACHE_HOME/pylint"
-
 export GEM_HOME="$HOME/gems"
 export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
 export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME/bundle"
