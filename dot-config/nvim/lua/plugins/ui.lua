@@ -39,6 +39,7 @@ return {
   -- Rainbow brackets/delimiters for clarity
   {
     "HiPhish/rainbow-delimiters.nvim",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
     event = { "BufReadPost", "BufNewFile" },
     ---@module "rainbow-delimiters"
     ---@type rainbow_delimiters.config

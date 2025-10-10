@@ -18,6 +18,11 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     lazy = false,
+    enabled = function()
+      if vim.fn.executable("tree-sitter") == 1 then return true end
+      vim.notify("nvim-treesitter: 'tree-sitter' CLI not found; disabling plugin", vim.log.levels.WARN)
+      return false
+    end,
     branch = "main",
     build = ":TSUpdate",
     ---@module "nvim-treesitter.config"

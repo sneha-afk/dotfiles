@@ -35,7 +35,11 @@ function M.start_search_path()
 end
 
 function M.snacks_find_files()
-  Snacks.picker.files({ dirs = { M.start_search_path() } })
+  Snacks.picker.files({
+    dirs = { M.start_search_path() },
+    hidden = true,
+    ignore = false,
+  })
 end
 
 return M
