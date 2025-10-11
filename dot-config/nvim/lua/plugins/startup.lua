@@ -44,7 +44,7 @@ return {
       items = {
         { section = "Actions", name = "New File",     action = "ene | startinsert" },
         { section = "Actions", name = "Browse files", action = function() Snacks.explorer() end },
-        { section = "Actions", name = "Find files",   action = require("core.utils.fileops").snacks_find_files },
+        { section = "Actions", name = "Find files",   action = function() Snacks.picker.files() end },
         { section = "Actions", name = "Smart find",   action = function() Snacks.picker.smart() end },
         { section = "Actions", name = "Search",       action = function() Snacks.picker.grep() end },
         { section = "Actions", name = "Quit",         action = "qa" },

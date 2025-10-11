@@ -16,7 +16,6 @@ return {
         "help",
         "lazy",
         "mason",
-        "oil",
         "leetcode.nvim",
         "snacks_picker_list",
       },
@@ -34,7 +33,12 @@ return {
           path = 4, -- Parent directory + current file
         },
       },
-      lualine_c = { "branch", "diff", "diagnostics" },
+      lualine_c = { "branch", "diff",
+        {
+          "diagnostics",
+          symbols = { error = "E:", warn = "W:", info = "I:", hint = "H:" },
+        },
+      },
       lualine_x = {
         {
           "lsp_status",
