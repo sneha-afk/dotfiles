@@ -18,6 +18,7 @@ local fts = { "tex", "latex", "bib" }
 return {
   "lervag/vimtex",
   enabled = detect_compiler() ~= nil,
+  cmd = { "VimtexCompile", "VimtexInverseSearch" },
   ft = fts,
   dependencies = {
     "erooke/blink-cmp-latex",
@@ -32,12 +33,15 @@ return {
       "Overfull",
     }
 
-    if vim.fn.has("wsl") == 1 then
+    if vim.g.is_windows then
+      vim.g.vimtex_view_general_viewer = "SumatraPDF"
+      vim.g.vimtex_view_general_options = "-reuse-instance -forward-search @tex @line @pdf"
+    elseif vim.fn.has("wsl") == 1 then
       vim.g.vimtex_view_general_viewer = os.getenv("PDF_READER_EXE") or "xdg-open"
     else
-      vim.g.vimtex_view_general_viewer = "SumatraPDF"
+      vim.g.vimtex_view_general_viewer = "xdg-open"
+      vim.g.vimtex_view_general_options = ""
     end
-    vim.g.vimtex_view_general_options = "-reuse-instance -forward-search @tex @line @pdf"
 
     local out_dir = "./build"
     vim.g.vimtex_compiler_method = detect_compiler()
@@ -81,6 +85,7 @@ return {
         vim.keymap.set("n", "<leader>Lc", "<cmd>VimtexCompile<cr>",   { desc = "[L]aTeX: [C]ompile" })
         vim.keymap.set("n", "<leader>Le", "<cmd>VimtexErrors<cr>",    { desc = "[L]aTeX: [E]rrors" })
         vim.keymap.set("n", "<leader>Li", "<cmd>VimtexInfo<cr>",      { desc = "[L]aTeX: [I]nfo" })
+        vim.keymap.set("n", "<leader>Ll", "<cmd>VimtexLog<cr>",       { desc = "[L]aTeX: [L]og" })
         vim.keymap.set("n", "<leader>Ls", "<cmd>VimtexStatus<cr>",    { desc = "[L]aTeX: [S]tatus" })
         vim.keymap.set("n", "<leader>Lt", "<cmd>VimtexTocToggle<cr>", { desc = "[L]aTeX: Toggle [T]OC" })
         vim.keymap.set("n", "<leader>Lv", "<cmd>VimtexView<cr>",      { desc = "[L]aTeX: [V]iew" })
@@ -89,8 +94,13 @@ return {
         if vim.fn.isdirectory(out_dir) == 0 then
           vim.fn.mkdir(out_dir, "p")
         end
+      end,
+    })
 
-        -- Compile on start: if using latexmk, this also starts continuous mode
+    -- Compile on start: if using latexmk, this also starts continuous mode
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "VimtexEventInitPost",
+      callback = function()
         vim.cmd("VimtexCompile")
       end,
     })

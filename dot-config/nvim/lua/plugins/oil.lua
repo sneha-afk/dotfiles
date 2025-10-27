@@ -65,13 +65,10 @@ return {
     cleanup_delay_ms = 2000,
     constrain_cursor = "name",
 
-
-    -- Unified filtering across all features
-    view_options = {
+    view_options = { -- Unified filtering across all features
       show_hidden = true,
       is_always_hidden = ignore_files,
     },
-    -- Column display
     columns = {
       -- "icon",
       -- "permissions",
@@ -95,7 +92,6 @@ return {
       },
     },
 
-
     buf_options = {
       buflisted = false,
       bufhidden = "hide",
@@ -112,6 +108,7 @@ return {
 
     keymaps = {
       ["<localleader>p"] = "actions.preview",
+      ["q"] = { "actions.close", mode = "n" }, -- C-c or q to close
     },
   },
 }

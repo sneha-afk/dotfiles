@@ -76,4 +76,35 @@ return {
       })
     end,
   },
+  {
+    "folke/todo-comments.nvim",
+    event = "VeryLazy",
+    keys = {
+      { "<leader>st", function() Snacks.picker.todo_comments() end, desc = "[S]earch: ToDo" },
+      {
+        "<leader>sT",
+        function()
+          Snacks.picker.todo_comments({
+            keywords = { "TODO", "FIX", "FIXME", "HACK" },
+          })
+        end,
+        desc = "[S]earch: ToDo/Fix",
+      },
+    },
+    dependencies = {
+      -- "nvim-lua/plenary.nvim", -- not needed if using a picker?
+      vim.g.picker_source,
+    },
+    opts = {
+      keywords = {
+        FIX = { icon = "F " },
+        TODO = { icon = "T " },
+        HACK = { icon = "! " },
+        WARN = { icon = "W " },
+        PERF = { icon = "P " },
+        NOTE = { icon = "N " },
+        TEST = { icon = "⏵" },
+      },
+    },
+  },
 }

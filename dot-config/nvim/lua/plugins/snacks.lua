@@ -31,19 +31,23 @@ return {
     { "<leader>sk", function() Snacks.picker.keymaps() end,               desc = "[S]earch: [K]eymaps" },
     { "<leader>sM", function() Snacks.picker.man() end,                   desc = "[S]earch: [M]an pages" },
     { "<leader>sp", function() Snacks.picker.pickers() end,               desc = "[S]earch: [P]ickers" },
+    { "<leader>sq", function() Snacks.picker.qflist() end,                desc = "[S]earch: [Q]uickfix List" },
 
     -- LSP operations
     { "gd",         function() Snacks.picker.lsp_definitions() end,       desc = "Goto Definition" },
     { "gD",         function() Snacks.picker.lsp_declarations() end,      desc = "Goto Declaration" },
-    { "gR",         function() Snacks.picker.lsp_references() end,        desc = "Goto references",           nowait = true },
+    { "gR",         function() Snacks.picker.lsp_references() end,        desc = "Goto references",             nowait = true },
     { "gi",         function() Snacks.picker.lsp_implementations() end,   desc = "Goto Implementation" },
     { "gy",         function() Snacks.picker.lsp_type_definitions() end,  desc = "Goto T[y]pe Definition" },
+    { "gI",         function() Snacks.picker.lsp_incoming_calls() end,    desc = "Goto [I]ncoming Calls" },
+    { "gO",         function() Snacks.picker.lsp_outgoing_calls() end,    desc = "Goto [O]utgoing Calls" },
     { "<leader>lc", function() Snacks.picker.lsp_config() end,            desc = "[L]SP: [C]onfig" },
     { "<leader>ls", function() Snacks.picker.lsp_symbols() end,           desc = "[L]SP: document [S]ymbols" },
     { "<leader>lS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "[L]SP: workspace [S]ymbols" },
 
     -- Git operations
     { "<leader>gb", function() Snacks.picker.git_branches() end,          desc = "[G]it: [B]ranches" },
+    { "<leader>gB", function() Snacks.picker.git_log_line() end,          desc = "[G]it: [B]lame/Log Curr Line" },
     { "<leader>gD", function() Snacks.picker.git_diff() end,              desc = "[G]it: [D]iff (Overview)" },
     { "<leader>gl", function() Snacks.picker.git_log() end,               desc = "[G]it: Log" },
     { "<leader>gs", function() Snacks.picker.git_status() end,            desc = "[G]it: [S]tatus" },
