@@ -4,6 +4,7 @@ sneha's neovim config
   Linux:    ~/.config/nvim/init.lua
   Windows:  ~/AppData/Local/nvim/init.lua
 --]]
+vim.loader.enable()
 
 vim.g.mapleader = ","
 vim.g.maplocalleader = "\\"

@@ -16,12 +16,22 @@ if ($env:PSModulePath -notlike "*$ProfileModulesDir*") {
     $env:PSModulePath = "$ProfileModulesDir;$env:PSModulePath"
 }
 
+# Load modules on idle to speed up initial shell launch
 Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
     if (-not $global:__PROFILE_HELPERS_LOADED) {
         $global:__PROFILE_HELPERS_LOADED = $true
         Import-Module helpers -DisableNameChecking
     }
 }
+
+# Launch elevated shell (admin/sudo)
+function Admin {
+    param([string[]]$Command)
+    $argList = if ($Command) { "$script:PreferredShell -NoExit -Command $($Command -join ' ')" } else { $script:PreferredShell }
+    Start-Process wt -Verb RunAs -ArgumentList $argList
+}
+Set-Alias su Admin
+Set-Alias sudo Admin
 
 #endregion
 
@@ -37,15 +47,70 @@ function mkcd {
     Set-Location $Path
 }
 
-# Measure word/line/char (like wc)
-function wc {
-    if ($args) { Get-Content @args | Measure-Object -Line -Word -Character }
-    else       { $input       | Measure-Object -Line -Word -Character }
+# Don't overshadow GNU coreutils if installed
+if (-not (Get-Command wc -ErrorAction SilentlyContinue)) {
+    function wc {
+        if ($args) { Get-Content @args | Measure-Object -Line -Word -Character }
+        else { $input | Measure-Object -Line -Word -Character }
+    }
 }
 
-function which($name) { Get-Command $name -All | Select-Object -ExpandProperty Source }
-function touch($path) { New-Item -ItemType File -Path $path -Force | Out-Null }
-function open($path)  { Invoke-Item $path }
+if (-not (Get-Command touch -ErrorAction SilentlyContinue)) {
+    function touch($path) { New-Item -ItemType File -Path $path -Force | Out-Null }
+}
+
+# 'open' conflicts with browser open command on some systems
+if (-not (Get-Command open -ErrorAction SilentlyContinue)) {
+    Set-Alias open Invoke-Item
+}
+
+# Export like Bash 'export NAME=value'; on PowerShell it is '$env:NAME = "value"'
+function Export {
+    param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [string]$Assignment
+    )
+
+    # Split into NAME and VALUE
+    if ($Assignment -match '^(?<name>[^=]+)=(?<value>.*)$') {
+        $name  = $matches['name'].Trim()
+        $value = $matches['value'].Trim()
+
+        # Remove optional surrounding quotes
+        if ($value -match '^"(.*)"$') {
+            $value = $matches[1]
+        } elseif ($value -match "^'(.*)'$") {
+            $value = $matches[1]
+        }
+
+        # Expand $env:VAR or other PowerShell variables inside
+        $expanded = (Invoke-Expression "`"$value`"")
+
+        # Set environment variable
+        Set-Item -Path "Env:$name" -Value $expanded
+    }
+    else { Write-Error "Usage: export NAME=value" }
+}
+
+# Usage: Copy bash command -> Run 'cfb' -> Paste
+function ConvertFrom-BashCommand {
+    $clip = Get-Clipboard -Raw
+    $backtick = [char]96
+    $converted = $clip -replace '\\\s*[\r]?\n\s*', "$backtick "
+    $converted | Set-Clipboard
+    Write-Host "Converted bash line continuations to PowerShell backticks. Paste again." -ForegroundColor Green
+}
+Set-Alias -Name cfb -Value ConvertFrom-BashCommand
+
+# Usage: Alt+V to paste with automatic conversion
+# Converts \ to ` and preserves line breaks with indentation for readability
+Set-PSReadLineKeyHandler -Chord 'Alt+v' -ScriptBlock {
+    $clip = Get-Clipboard -Raw
+    $backtick = [char]96
+    # Replace backslash + newline with backtick + newline + 2 spaces
+    $converted = $clip -replace '\\\s*[\r]?\n\s*', "$backtick`n  "
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert($converted)
+}
 
 #endregion
 
@@ -61,10 +126,7 @@ function la { Get-ChildItem -Force }
 Set-Alias   grep  Select-String
 function .. { Set-Location .. }
 function home { Set-Location $env:USERPROFILE }
-
-# WSL aliases
-Set-Alias -Name wslr -Value WSL-Restart
-Set-Alias -Name wslk -Value WSL-Kill
+Set-Alias which Get-Command
 
 function dotfiles { Set-Location "~\dotfiles" }
 #endregion
@@ -100,38 +162,26 @@ $script:FG = @{
     Gray    = "${script:Esc}[90m"
 }
 
-function Script:Color($color, $text, [switch]$BoldText) {
-    $prefix = if ($BoldText) { $script:Bold } else { "" }
-    return "$prefix$($script:FG[$color])$text$script:Reset"
-}
+function Script:Color($color, $text) { return "$($script:FG[$color])$text$script:Reset" }
 #endregion
 
 # ========================[ Region: Prompt ]===========================
 #region Prompt
 
-$script:LastGitCheck = [datetime]::MinValue
-$script:GitInfo = $null
-
 function Get-GitInfo {
-    if ((Get-Date) - $script:LastGitCheck -lt [timespan]::FromSeconds(2)) {
-        return $script:GitInfo
-    }
-
     try {
         if (-not (git rev-parse --is-inside-work-tree 2>$null)) { return $null }
+
         $branch = git rev-parse --abbrev-ref HEAD 2>$null
         if (-not $branch) { return $null }
 
-        git diff --quiet --ignore-submodules HEAD 2>$null; $dirty = -not $?
-        $script:GitInfo = @{ Branch = $branch; Dirty = $dirty }
-    } catch { $script:GitInfo = $null }
+        git diff --quiet --ignore-submodules HEAD 2>$null
+        $dirty = -not $?
 
-    $script:LastGitCheck = Get-Date
-    return $script:GitInfo
-}
-
-function Get-VenvInfo {
-    if ($env:VIRTUAL_ENV) { "($(Split-Path -Leaf $env:VIRTUAL_ENV))" }
+        return @{ Branch = $branch; Dirty = $dirty }
+    } catch {
+        return $null
+    }
 }
 
 function global:prompt {
@@ -145,8 +195,6 @@ function global:prompt {
     if ([string]::IsNullOrEmpty($cwd)) { $cwd = (Get-Location).Path }
     $pathSeg = (Color 'Green' $cwd)
 
-    $venvSeg = if ($venv = Get-VenvInfo) { " " + (Color 'Magenta' $venv) } else { "" }
-
     $gitSeg = ""
     if ($git = Get-GitInfo) {
         $branchColor = (Color 'Yellow' $git.Branch)
@@ -154,6 +202,9 @@ function global:prompt {
         $gitSeg      = " | $branchColor$dirtyFlag "
     }
 
-    "$userHost [$pathSeg]$gitSeg$venvSeg`nPS $status_indicator "
+    "$userHost [$pathSeg]$gitSeg`nPS $status_indicator "
 }
 #endregion
+
+# Start in home directory
+Set-Location $HOME

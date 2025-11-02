@@ -9,18 +9,6 @@ if (-not $script:PreferredShell) {
     $script:PreferredShell = if ($pwsh) { "pwsh.exe" } else { "powershell.exe" }
 }
 
-function Admin {
-    param([string[]]$Command)
-
-    if ($Command) {
-        $argList = $Command -join ' '
-        Start-Process wt -Verb RunAs -ArgumentList "$script:PreferredShell -NoExit -Command $argList"
-    } else {
-        Start-Process wt -Verb RunAs -ArgumentList $script:PreferredShell
-    }
-}
-Set-Alias su Admin
-
 # Use like: Require-Admin { <scriptblock> }
 function Require-Admin {
     param(
@@ -39,12 +27,6 @@ function Require-Admin {
     }
 }
 
-function Test-CommandExists {
-    param([Parameter(Mandatory)]$Command)
-    $exists = $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
-    return $exists
-}
-
 #endregion
 
 # ========================[ Region: WSL Helpers ]==============================
@@ -58,11 +40,14 @@ function WSL-Restart {
 }
 
 function WSL-Kill {
-    Require-Admin $MyInvocation.MyCommand.Name
-
-    Get-Process wslservice -ErrorAction SilentlyContinue | Stop-Process -Force
-    Write-Host "WSL service stopped" -ForegroundColor Green
+    Require-Admin {
+        Get-Process wslservice -ErrorAction SilentlyContinue | Stop-Process -Force
+        Write-Host "WSL service stopped" -ForegroundColor Green
+    }
 }
+
+Set-Alias -Name wslr -Value WSL-Restart
+Set-Alias -Name wslk -Value WSL-Kill
 
 function Neovide-WSL { Start-Process neovide.exe --server localhost:6666 }
 
@@ -82,6 +67,7 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
     $nvimTS     = "$nvimLazy\nvim-treesitter\parser"
     $nvimCache  = "$nvimData\cache"
     $nvimSwap   = "$nvimData\swap"
+    $nvimShada  = "$nvimData\shada"
 
     Set-Alias vim nvim
     Set-Alias nvide neovide
@@ -92,6 +78,13 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
         if (Test-Path $nvimSwap) {
             Remove-Item -Recurse -Force "$nvimSwap\*" -ErrorAction SilentlyContinue
             Write-Host "Neovim swap files cleared." -ForegroundColor Green
+        }
+    }
+
+    function Remove-NvimShada {
+        if (Test-Path $nvimShada) {
+            Remove-Item -Recurse -Force "$nvimShada\*" -ErrorAction SilentlyContinue
+            Write-Host "Neovim shada files cleared." -ForegroundColor Green
         }
     }
 
@@ -236,14 +229,28 @@ function Update-All {
         uv self update
     }
 }
+
+function unzip {
+    param([string]$file)
+    if (-not (Test-Path $file)) { Write-Host "File not found: $file" -ForegroundColor Red; return }
+    switch -Regex ($file) {
+        '\.tar\.gz$' { tar -xzf $file; break }
+        '\.zip$'     { Expand-Archive $file -DestinationPath (Split-Path $file -Parent); break }
+        '\.tar$'     { tar -xf $file; break }
+        '\.7z$'      { 7z x $file; break }
+        default      { Write-Host "Unsupported archive type." -ForegroundColor Yellow }
+    }
+}
+Set-Alias extract unzip
+
 #endregion
 
 # ========================[ Exports ]=========================
 #region Exports
 Export-ModuleMember -Function `
-    Admin, Require-Admin, Test-CommandExists, `
+    Require-Admin, `
     Neovide-WSL, To-WSLPath, WSL-Restart, WSL-Kill, `
-    Enter-NvimConfig, Remove-NvimSwap, Start-NvimServer, Start-Leetcode, Reset-Nvim, Get-NvimSize, `
-    Search, Update-All `
-    -Alias su, vim, nvide
+    Enter-NvimConfig, Remove-NvimSwap, Remove-NvimShada, Start-NvimServer, Start-Leetcode, Reset-Nvim, Get-NvimSize, `
+    Search, Update-All, unzip `
+    -Alias wslr, wslk, vim, nvide, extract
 #endregion

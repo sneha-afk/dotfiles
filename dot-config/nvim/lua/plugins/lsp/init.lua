@@ -49,7 +49,7 @@ return {
   -- LSP configurations: both externally installed and from Mason
   {
     "neovim/nvim-lspconfig",
-    event = { "VeryLazy", "InsertEnter" },
+    event = { "BufReadPre", "BufNewFile" },
     keys = {
       { "<leader>li", "<cmd>LspInfo<cr>",    desc = "[L]SP: [I]nfo" },
       { "<leader>lr", "<cmd>LspRestart<cr>", desc = "[L]SP: [R]estart active" },

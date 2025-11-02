@@ -5,7 +5,18 @@
 Upon opening for the first time, you will be prompted on whether to install Lazy.nvim and the plugins
 listed in `plugins/`.
 
-### Configuration
+## Cloning *just* this config
+Powershell:
+```powershell
+git clone --depth 1 --filter=blob:none --sparse https://github.com/sneha-afk/dotfiles $env:TEMP\dotfiles; cd $env:TEMP\dotfiles; git sparse-checkout set dot-config/nvim; Copy-Item -Recurse dot-config/nvim $env:LOCALAPPDATA\nvim -Force
+```
+
+Bash:
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/sneha-afk/dotfiles /tmp/dotfiles && cd /tmp/dotfiles && git sparse-checkout set dot-config/nvim && cp -r dot-config/nvim ~/.config/nvim
+```
+
+## Configuration
 
 ```
 ~/.config/nvim/

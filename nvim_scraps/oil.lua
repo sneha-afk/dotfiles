@@ -1,47 +1,6 @@
 -- .config/nvim/lua/plugins/oil.lua
 
-local function ignore_files(name)
-  local ignores = {
-    static = {
-      [".git"] = true,
-      ["node_modules"] = true,
-      ["__pycache__"] = true,
-      [".DS_Store"] = true,
-      ["package-lock.json"] = true,
-      ["yarn.lock"] = true,
-      ["Cargo.lock"] = true,
-      ["pnpm-lock.yaml"] = true,
-    },
-    patterns = {
-      "%.lock$", "%.tmp$", "%.bak$", "%.sw[po]$", "%.py[co]$",
-      "^%..*%.swp$", "^[dD]ebug$", "^[rR]elease$", "^target$",
-      "^dist$", "^build$", "^venv$", "^%.venv$", "^%.cache$",
-      "^%.idea$", "^%.vscode$", "^%.history$",
-    },
-  }
-
-  -- O(1) lookup -> fast path
-  if ignores.static[name] then
-    return true
-  end
-
-  -- Compile + cache regexes upon first call
-  if not ignores.compiled then
-    local compiled = {}
-    for _, pattern in ipairs(ignores.patterns) do
-      table.insert(compiled, { pattern = pattern, re = vim.regex(pattern) })
-    end
-    ignores.compiled = compiled
-  end
-
-  for _, item in ipairs(ignores.compiled) do
-    if item.re:match_str(name) then
-      return true
-    end
-  end
-
-  return false
-end
+local fileopts = require("core.utils.fileops")
 
 return {
   "stevearc/oil.nvim",
@@ -67,7 +26,7 @@ return {
 
     view_options = { -- Unified filtering across all features
       show_hidden = true,
-      is_always_hidden = ignore_files,
+      is_always_hidden = fileopts.ignore,
     },
     columns = {
       -- "icon",

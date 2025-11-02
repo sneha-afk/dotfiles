@@ -3,13 +3,13 @@
 ## 📁 Info
 
 * Shell configs: `dot-bash/`, `dot-zsh/`
-* Neovim: [`dot-config/nvim`](./dot-config/nvim)
+* Neovim: See it's `README.md` for more (including only cloning that): [`dot-config/nvim`](./dot-config/nvim)
 * PowerShell: `windows\profile\Microsoft.PowerShell_profile.ps1`
 * WSL: `windows\.wslconfig`
 * Windows Terminal with [Geist Mono](https://vercel.com/font)
     * Built in: Segoe UI Emoji
     * Optionally: [Symbols Nerd Font Mono](https://www.nerdfonts.com/font-downloads)
-    * In the Font face: `Geist  Mono, Segoe UI Emoji, Symbols Nerd Font Mono`
+    * In the Font face section of settings: `Geist  Mono, Segoe UI Emoji, Symbols Nerd Font Mono`
 
 ##  Setup
 ## 🐧 Unix
