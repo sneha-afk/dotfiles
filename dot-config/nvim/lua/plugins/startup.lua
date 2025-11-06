@@ -42,12 +42,20 @@ return {
     starter.setup({
       header = function() return HEADER_ART .. "\n" .. greeting .. ", " .. username .. ".\n" end,
       items = {
-        { section = "Actions", name = "New File",     action = "ene | startinsert" },
-        { section = "Actions", name = "Browse files", action = function() Snacks.explorer() end },
-        { section = "Actions", name = "Find files",   action = function() Snacks.picker.files() end },
-        { section = "Actions", name = "Smart find",   action = function() Snacks.picker.smart() end },
-        { section = "Actions", name = "Search",       action = function() Snacks.picker.grep() end },
-        { section = "Actions", name = "Quit",         action = "qa" },
+        { section = "Actions", name = "New File",   action = "ene | startinsert" },
+        {
+          section = "Actions",
+          name = "Browse files",
+          action = function()
+            Snacks.explorer({
+              layout = { preset = "default", layout = { width = 0.95 } },
+            })
+          end,
+        },
+        { section = "Actions", name = "Find files", action = function() Snacks.picker.files() end },
+        { section = "Actions", name = "Smart find", action = function() Snacks.picker.smart() end },
+        { section = "Actions", name = "Search",     action = function() Snacks.picker.grep() end },
+        { section = "Actions", name = "Quit",       action = "qa" },
 
         starter.sections.sessions(5, true),
         starter.sections.recent_files(5, false),

@@ -18,6 +18,15 @@ return {
       desc = "[F]ile: [E]xplorer",
     },
     {
+      "<leader>fE",
+      function()
+        Snacks.explorer({
+          layout = { preset = "default", layout = { width = 0.95 } },
+        })
+      end,
+      desc = "[F]ile: [E]xplorer (fullscreen)",
+    },
+    {
       "<leader>ff",
       function()
         Snacks.picker.files({

@@ -31,7 +31,7 @@ return {
         },
         window = {
           show_integration_count = false,
-          width = 10,
+          width = 8,
         },
       })
 
@@ -56,7 +56,7 @@ return {
 
   {
     "Bekaboo/dropbar.nvim",
-    event = "UIEnter",
+    event = { "BufReadPost", "BufNewFile" },
     ---@module "dropbar"
     ---@type dropbar_configs_t
     opts = {
