@@ -15,21 +15,21 @@ all: boostrap
 # Defaults to a bash installation
 boostrap: _check_stow install-home install-config apt
 
-install-home:
+install-home: _check_stow
 	$(STOW) --restow --target $(TARGET_HOME) $(HOME_PACKAGES)
 
-install-config:
+install-config: _check_stow
 	mkdir -p $(TARGET_CONFIG)
 	$(STOW) --restow --target $(TARGET_CONFIG) $(CONFIG_PACKAGES)
 
-zsh:
+zsh: _check_stow
 	$(STOW) --restow --target $(TARGET_HOME) $(ZSH_PACKAGE)
 
-delete:
+delete: _check_stow
 	$(STOW) --delete --target $(TARGET_HOME) $(HOME_PACKAGES) $(ZSH_PACKAGE)
 	$(STOW) --delete --target $(TARGET_CONFIG) $(CONFIG_PACKAGES)
 
-dry-run:
+dry-run: _check_stow
 	$(STOW) --simulate --restow --target $(TARGET_HOME) $(HOME_PACKAGES)
 	$(STOW) --simulate --restow --target $(TARGET_CONFIG) $(CONFIG_PACKAGES)
 
@@ -40,7 +40,6 @@ apt:
 	sudo apt-get update
 	sudo apt-get install -y $(APT_PACKAGES)
 
-# Chicken-and-egg problem: this can't be run until running the bootstrap script at least once.
 windows:
 	powershell -NoProfile -ExecutionPolicy Bypass -Command "& { \
 		.\windows\bootstrap.ps1 \

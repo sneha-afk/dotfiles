@@ -4,7 +4,7 @@
 ---@return lsp.ClientCapabilities
 local function get_capabilities_source()
   if pcall(require, "blink.cmp") then
-    return require("blink.cmp").get_lsp_capabilities({}, false)
+    return require("blink.cmp").get_lsp_capabilities({}, true)
   elseif pcall(require, "cmp_nvim_lsp") then
     return require("cmp_nvim_lsp").default_capabilities()
   else
@@ -49,7 +49,7 @@ return {
   -- LSP configurations: both externally installed and from Mason
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
+    event = "VeryLazy",
     keys = {
       { "<leader>li", "<cmd>LspInfo<cr>",    desc = "[L]SP: [I]nfo" },
       { "<leader>lr", "<cmd>LspRestart<cr>", desc = "[L]SP: [R]estart active" },

@@ -6,7 +6,6 @@ return {
   "folke/snacks.nvim",
   lazy = false,
   priority = 1000,
-  dependencies = { "nvim-mini/mini.diff" },
   keys = {
     {
       "<leader>fe",

@@ -19,7 +19,7 @@ return {
   {
     "nvim-mini/mini.diff",
     version = false,
-    event = "UIEnter",
+    event = "VeryLazy",
     keys = {
       {
         "<leader>gd",

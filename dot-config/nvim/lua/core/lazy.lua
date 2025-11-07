@@ -43,8 +43,8 @@ require("lazy").setup({
     { import = "plugins" },
   },
   defaults = {
-    lazy = true,
     version = false,
+    event = "VeryLazy",
   },
   rocks = { enabled = false },
   ui = {

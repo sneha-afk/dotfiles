@@ -50,7 +50,7 @@ return {
         minimap.open()
       end
 
-      open_map()
+      vim.schedule(open_map)
     end,
   },
 
