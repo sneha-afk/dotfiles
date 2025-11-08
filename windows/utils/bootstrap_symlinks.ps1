@@ -61,6 +61,10 @@ $symlinks += @(
     @{
         Path   = Join-Path $HOME "scripts"
         Target = Join-Path $script:Directories.WindowsDir "scripts"
+    },
+    @{
+        Path   = Join-Path $HOME ".wezterm.lua"
+        Target = Join-Path $script:Directories.RepoDir "dot-home\.wezterm.lua"
     }
 )
 
