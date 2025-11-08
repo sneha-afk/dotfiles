@@ -1,30 +1,35 @@
+
 # dotfiles
 
-## 📁 Info
+## 📁 structure
 
-* Shell configs: `dot-bash/`, `dot-zsh/`
-* Neovim: See it's `README.md` for more (including only cloning that): [`dot-config/nvim`](./dot-config/nvim)
-* PowerShell: `windows\profile\Microsoft.PowerShell_profile.ps1`
-* WSL: `windows\.wslconfig`
-* Windows Terminal with [Geist Mono](https://vercel.com/font)
-    * Built in: Segoe UI Emoji
-    * Optionally: [Symbols Nerd Font Mono](https://www.nerdfonts.com/font-downloads)
-    * In the Font face section of settings: `Geist  Mono, Segoe UI Emoji, Symbols Nerd Font Mono`
+| Area           | Location / Notes                                           |
+| -------------- | ---------------------------------------------------------- |
+| **Shells**     | **`dot-bash/`**, `dot-zsh/`                                |
+| **Neovim**     | `dot-config/nvim` — see its `README.md` for more info      |
+| **PowerShell** | `windows\profile\Microsoft.PowerShell_profile.ps1`         |
+| **WSL**        | `windows\.wslconfig`, `dot-home/.wsl_env`                  |
+| **Terminals**  | Windows Terminal & [WezTerm](https://wezterm.org/)         |
+| **Fonts**      | [Geist Mono](https://vercel.com/font), Segoe UI Emoji (built-in), optional [Symbols Nerd Font Mono](https://www.nerdfonts.com/font-downloads) |
 
-##  Setup
-## 🐧 Unix
-### ✅ Recommended: GNU `stow`
+Other helpful files in `dot-config -> .config` and `dot-home`.
+
+---
+
+## ⚙️ Setup
+### 🐧 UNIX
+
+**Recommended**: using GNU `stow`
 
 ```bash
 sudo apt-get install git make stow
-make         # Boostrap symlinks, installs, etc.
+make         # Bootstrap symlinks, installs, etc.
+make delete  # Remove all symlinks
+make dry-run # Preview changes
 ```
-- `make delete` to remove all symlinks
-- `make dry-run` to preview changes without applying them
 
-### 🔗 Manual
-
-Without `stow`, create symlinks with `ln -sf <src/target> <dst/real>`:
+<details>
+<summary>Manual Symlinks</summary>
 
 ```bash
 ln -sf "$(pwd)/dot-config/nvim" "$HOME/.config/nvim"
@@ -32,34 +37,45 @@ ln -sf "$(pwd)/dot-vim/.vimrc" "$HOME/.vimrc"
 ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 ```
 
+</details>
+
 ---
 
-## 🪟 Windows
-### ✅ Recommended: PowerShell Script
+### 🪟 Windows
+
+**Recommended**: using the bootstrap script
 
 ```powershell
 .\windows\bootstrap.ps1
 ```
 
-Setting up symlinks requires admin, which should automatically happen in the bootstrap. If not,
-run the boostrap in an elevated shell:
+<details>
+<summary>Elevated permissions for bootstrap</summary>
+
+If the bootstrap happens to fail, start in an elevated shell
+
 ```powershell
 Start-Process wt -Verb RunAs -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$PWD\windows\bootstrap.ps1`""
 ```
+</details>
 
-### 🔗 Manual
+<details>
+<summary>Manual Symlinks</summary>
 
 ```powershell
+# PowerShell profile
 New-Item -ItemType SymbolicLink `
   -Path $PROFILE `
   -Target "$(Resolve-Path .\windows\Microsoft.PowerShell_profile.ps1)" `
   -Force
 
+# WSL config
 New-Item -ItemType SymbolicLink `
   -Path "$env:USERPROFILE\.wslconfig" `
   -Target "$(Resolve-Path .\windows\.wslconfig)" `
   -Force
 
+# Vim / Neovim
 New-Item -ItemType SymbolicLink `
   -Path "$HOME\_vimrc" `
   -Target "$(Resolve-Path .\dot-home\.vimrc)" `
@@ -70,17 +86,22 @@ New-Item -ItemType SymbolicLink `
   -Target "$(Resolve-Path .\dot-config\nvim)" `
   -Force
 ```
+</details>
 
-### On `$PROFILE`
+#### ⚠️ On `$PROFILE`
 
-The default `$PROFILE` is located in OneDrive, and this is *deeply* integrated within the registry. While this is
-fine for just keeping some light configuration files, installing any modules or adding to the config
-unncessarily pollutes OneDrive, and is not portable. We can forward to the real `$PROFILE` that will
-be stored in user-level Documents.
+* Default `$PROFILE` points to OneDrive (deep registry integration).
+* Pollutes OneDrive, reduces portability, and constant network polling
 
-> Do NOT attempt to change the registry entries related to OneDrive.. been there done that.
+<details>
+<summary>Solution: point elsewhere</summary>
+Forward `$PROFILE` to `Documents\WindowsPowerShell` and pwsh's directory.
 
-A light script that sets `$PROFILE` to `Documents\WindowsPowerShell` is copied to OneDrive in bootstrap.ps1`:
 ```powershell
-Copy-Item -Path ".\windows\utils\fix_profile_path.ps1" -Destination (Join-Path $env:OneDrive "Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1") -Force
+Copy-Item -Path ".\windows\utils\fix_profile_path.ps1" `
+        -Destination (Join-Path $env:OneDrive "Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1") `
+        -Force
 ```
+</details>
+
+> ⚠️ Do **not** attempt to change the registry entries related to OneDrive.. been there done that.

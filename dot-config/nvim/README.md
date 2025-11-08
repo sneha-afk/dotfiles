@@ -20,40 +20,48 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/sneha-afk/dot
 
 ```
 ~/.config/nvim/
+├── README.md
 ├── init.lua
-├── lua/
-│   ├── core/
+├── lazy-lock.json
+├── lua
+│   ├── core
 │   │   ├── commands.lua
 │   │   ├── filetypes.lua
+│   │   ├── highlights.lua
 │   │   ├── keymaps.lua
 │   │   ├── lazy.lua
+│   │   ├── neovide.lua
 │   │   ├── options.lua
 │   │   ├── terminal.lua
-│   │   └── utils.lua
-│   └── plugins/
+│   │   └── utils
+│   │       ├── buffers_and_windows.lua
+│   │       ├── fileops.lua
+│   │       └── ui.lua
+│   └── plugins
 │       ├── colorscheme.lua
 │       ├── completions.lua
 │       ├── extras.lua
 │       ├── formatter.lua
 │       ├── hardtime.lua
 │       ├── helpers.lua
-│       ├── live_preview.lua
-│       ├── lsp/
-│       │   ├── config.lua
+│       ├── lsp
 │       │   ├── init.lua
-│       │   ├── server_configs.lua
-│       │   └── server_keymaps.lua
-│       ├── oil.lua
+│       │   ├── lsp_keymaps.lua
+│       │   └── lsp_server_configs.lua
 │       ├── sessions.lua
 │       ├── snacks.lua
 │       ├── startup.lua
 │       ├── statusline.lua
-│       ├── telescope.lua
 │       ├── treesitter.lua
 │       ├── ui.lua
 │       ├── vimtex.lua
 │       └── which_key.lua
-└── snippets/
+├── snippets
+│   ├── go.json
+│   ├── latex.json
+│   ├── package.json
+│   └── python.json
+└── spell
 ```
 
 ### Modifying
@@ -71,9 +79,8 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/sneha-afk/dot
 | File | Purpose |
 |------|---------|
 | `plugins/lsp/init.lua` | Specs for LSP related plugins, where `vim.lsp.enable` is called |
-| `plugins/lsp/config.lua`  | Configure shared settings for all LSPs, `LspAttach`, and `LspDetach` |
-| `plugins/lsp/server_configs.lua` | Set up any extensions/overrides of LSP settings |
-| `plugins/lsp/server_keymaps.lua` | Map server-specific commands, detected on `LspAttach` |
+| `plugins/lsp/lsp_server_configs.lua` | Set up any extensions/overrides of LSP settings |
+| `plugins/lsp/lsp_keymaps.lua` | Map server-specific commands, detected on `LspAttach` |
 
 To add a new server:
 1. If *globally* installed in the system, not through Mason, add the name to the list of `vim.lsp.enable` in `lsp/init.lua`

@@ -18,9 +18,21 @@ if ($env:PSModulePath -notlike "*$ProfileModulesDir*") {
 
 # Load modules on idle to speed up initial shell launch
 Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
-    if (-not $global:__PROFILE_HELPERS_LOADED) {
-        $global:__PROFILE_HELPERS_LOADED = $true
-        Import-Module helpers -DisableNameChecking
+    if ($global:__PROFILE_HELPERS_LOADED) { return }
+    $global:__PROFILE_HELPERS_LOADED = $true
+
+    if (-not (Test-Path $script:ProfileModulesDir)) { return }
+
+    # Import folder modules
+    Get-ChildItem -Path $script:ProfileModulesDir -Directory | ForEach-Object {
+        try { Import-Module $_.Name -DisableNameChecking -ErrorAction Stop }
+        catch { }
+    }
+
+    # Import standalone .psm1 files
+    Get-ChildItem -Path $script:ProfileModulesDir -File -Filter *.psm1 | ForEach-Object {
+        try { Import-Module $_.FullName -DisableNameChecking -ErrorAction Stop }
+        catch { }
     }
 }
 
@@ -62,6 +74,20 @@ if (-not (Get-Command touch -ErrorAction SilentlyContinue)) {
 # 'open' conflicts with browser open command on some systems
 if (-not (Get-Command open -ErrorAction SilentlyContinue)) {
     Set-Alias open Invoke-Item
+}
+
+if (-not (Get-Command time -ErrorAction SilentlyContinue)) {
+    function time {
+        param(
+            [Parameter(Mandatory=$true, ValueFromRemainingArguments=$true)]
+            [string[]]$Command
+        )
+
+        $scriptBlock = [scriptblock]::Create(($Command -join ' '))
+        $result = Measure-Command { & $scriptBlock }
+
+        Write-Host ("real  {0:N3}s" -f $result.TotalSeconds)
+    }
 }
 
 # Export like Bash 'export NAME=value'; on PowerShell it is '$env:NAME = "value"'
