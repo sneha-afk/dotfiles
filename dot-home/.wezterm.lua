@@ -8,6 +8,9 @@ local config = wezterm.config_builder()
 local is_windows = wezterm.target_triple:find("windows")
 -------------
 ---==== HELPERS
+--- Check if an executable exists in the system PATH
+---@param executable string Name of the executable
+---@return boolean True if the executable exists
 local function exe_exists(executable)
   local cmd
   if is_windows then
@@ -22,22 +25,19 @@ end
 if is_windows then
   config.default_prog = { exe_exists("pwsh") and "pwsh.exe" or "powershell.exe", "-NoLogo" }
   config.launch_menu = {
-    { label = "Launch WSL",     args = { "wsl.exe", "~" } },
     { label = "Command Prompt", args = { "cmd.exe" } },
     { label = "Git Bash",       args = { "C:\\Program Files\\Git\\bin\\bash.exe", "-i", "-l" } },
   }
 end
 
-config.front_end    = "WebGpu"
+config.front_end = "WebGpu"
 
 --==== KEYBINDINGS
 -- https:/wezterm.org/config/default-keys.html
-config.leader       = { key = ",", mods = "CTRL", timeout_milliseconds = 2000 }
-config.keys         = {
+config.leader    = { key = ",", mods = "CTRL", timeout_milliseconds = 2000 }
+config.keys      = {
   { key = "l",          mods = "ALT",        action = action.ShowLauncher },
   { key = "p",          mods = "CTRL|SHIFT", action = action.ActivateCommandPalette },
-  { key = "s",          mods = "CTRL|SHIFT", action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-  { key = "v",          mods = "CTRL|SHIFT", action = action.SplitVertical({ domain = "CurrentPaneDomain" }) },
   { key = "q",          mods = "CTRL|SHIFT", action = wezterm.action.QuitApplication },
 
   { key = "c",          mods = "CTRL|SHIFT", action = action.CopyTo("Clipboard") },
@@ -48,6 +48,9 @@ config.keys         = {
   { key = "q",          mods = "LEADER",     action = action.CloseCurrentPane { confirm = true } },
   { key = "r",          mods = "LEADER",     action = action.ReloadConfiguration },
   { key = "f",          mods = "LEADER",     action = action.Search("CurrentSelectionOrEmptyString") },
+  { key = "z",          mods = "LEADER",     action = action.TogglePaneZoomState },
+  { key = "s",          mods = "LEADER",     action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+  { key = "v",          mods = "LEADER",     action = action.SplitVertical({ domain = "CurrentPaneDomain" }) },
 
   -- pane navigation (Ctrl+Alt+hjkl)
   { key = "h",          mods = "CTRL|ALT",   action = action.ActivatePaneDirection("Left") },
@@ -61,6 +64,10 @@ config.keys         = {
   { key = "UpArrow",    mods = "CTRL|SHIFT", action = action.AdjustPaneSize({ "Up", 1 }) },
   { key = "DownArrow",  mods = "CTRL|SHIFT", action = action.AdjustPaneSize({ "Down", 1 }) },
 }
+
+if is_windows then
+  table.insert(config.keys, { key = "w", mods = "LEADER", action = action.SpawnTab { DomainName = "WSL:Ubuntu" } })
+end
 
 --==== APPEARANCE
 config.font         = wezterm.font("Geist Mono")
@@ -112,7 +119,7 @@ config.colors            = {
     background = adjust_brightness(bg, darker_2x),
     active_tab = { bg_color = adjust_brightness(bg, brighter_2x), fg_color = fg },
     inactive_tab = { bg_color = adjust_brightness(bg, darker_2x), fg_color = adjust_brightness(fg, -15) },
-    inactive_tab_hover = { bg_color = adjust_brightness(bg, is_dark and 5 or -5), fg_color = adjust_brightness(fg, 5) },
+    inactive_tab_hover = { bg_color = adjust_brightness(bg, darker_hover), fg_color = adjust_brightness(fg, 5) },
     new_tab = { bg_color = adjust_brightness(bg, darker_2x), fg_color = adjust_brightness(fg, -25) },
     new_tab_hover = { bg_color = adjust_brightness(bg, brighter_hover), fg_color = fg },
   },
@@ -129,19 +136,22 @@ wezterm.on("format-tab-title", function(tab)
 end)
 
 --==== WINDOW
-config.initial_cols       = 120
-config.initial_rows       = 28
+config.initial_cols         = 120
+config.initial_rows         = 28
 
-config.inactive_pane_hsb  = { saturation = 0.9, brightness = 0.7 }
+config.inactive_pane_hsb    = { saturation = 0.9, brightness = 0.7 }
 
-config.window_decorations = "RESIZE"
-config.window_frame       = {
+config.max_fps              = 120
+config.default_cursor_style = "BlinkingBar"
+
+config.window_decorations   = "RESIZE"
+config.window_frame         = {
   active_titlebar_bg = adjust_brightness(bg, brighter),
   inactive_titlebar_bg = adjust_brightness(bg, darker),
   font = wezterm.font("Geist"),
 }
 
-local leader_mode_colors  = {
+local leader_mode_colors    = {
   bg_color = adjust_brightness(bg, brighter_2x),
   fg_color = fg,
   accent   = adjust_brightness(fg, 25),

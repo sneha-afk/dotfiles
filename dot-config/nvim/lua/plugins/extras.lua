@@ -4,6 +4,7 @@
 return {
   {
     "echasnovski/mini.map",
+    enabled = false,
     event = "VeryLazy",
     version = false,
     keys = {

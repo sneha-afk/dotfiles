@@ -1,6 +1,7 @@
 -- .config/nvim/lua/plugins/snacks.lua
 
 local fileopts = require("core.utils.fileops")
+local ui_utils = require("core.utils.ui")
 
 return {
   "folke/snacks.nvim",
@@ -78,7 +79,7 @@ return {
     { "<leader>gs", function() Snacks.picker.git_status() end,            desc = "[G]it: [S]tatus" },
     { "<leader>gS", function() Snacks.picker.git_stash() end,             desc = "[G]it: [S]tash" },
     { "<leader>go", function() Snacks.gitbrowse() end,                    desc = "[G]it: [O]pen in browser" },
-
+    { "<leader>gg", function() Snacks.lazygit.open() end,                 desc = "[G]it: open Lazy[G]it" },
   },
   init = function()
     vim.api.nvim_create_autocmd("User", {
@@ -110,20 +111,28 @@ return {
           vertical = "│",
           arrow = "🞂",
         },
-        hl = require("core.utils.ui").color_cycle,
+        hl = ui_utils.color_cycle,
       },
       scope = {
-        hl = require("core.utils.ui").color_cycle,
+        hl = ui_utils.color_cycle,
       },
     },
     input = {
       enabled = true,
       icon = " ",
     },
+    lazygit = {
+      enabled = true,
+      config = {
+        gui = {
+          nerdFontsVersion = ui_utils.icons_supported() and "3" or "",
+        },
+      },
+    },
     picker = {
       enabled = true,
       icons = {
-        kinds = require("core.utils.ui").get_icon_set(),
+        kinds = ui_utils.get_icon_set(),
       },
       layout = {
         layout = {

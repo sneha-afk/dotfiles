@@ -29,11 +29,12 @@ param(
 # ========================[ Script Initialization ]========================
 #region Initialization
 
-$script:Version         = "1.0.1"
-$script:StartTime       = Get-Date
+$script:Version = "2.0.0"
+$script:StartTime = Get-Date
 
-$script:WindowsDir      = $PSScriptRoot
-$script:UtilsDir        = Join-Path $script:WindowsDir "utils"
+$script:WindowsDir = $PSScriptRoot
+$script:UtilsDir = Join-Path $script:WindowsDir "utils"
+$script:ScriptsDir = Join-Path $script:WindowsDir "scripts"
 . (Join-Path $script:UtilsDir "bootstrap_helpers.ps1")
 Fix-ProfilePath
 
@@ -80,8 +81,25 @@ if (-not $SkipSymlinks) {
 #region Winget
 if (-not $SkipWinget) {
     Invoke-Safe {
-        . (Join-Path $UtilsDir "winget_programs.ps1")
-        Bootstrap-WingetPrograms
+        $packages = @(
+            "Git.Git",
+            "Neovim.Neovim",
+            "Vim.Vim",
+            "Python.Python",
+            "Microsoft.PowerToys"
+            "SumatraPDF.SumatraPDF"
+        )
+
+        foreach ($pkg in $packages) {
+            Write-Host "Installing/updating $pkg..." -ForegroundColor Yellow
+            try {
+                winget install --id $pkg --silent --accept-package-agreements --accept-source-agreements
+                Write-Host "  SUCCESS $pkg" -ForegroundColor Green
+            } catch {
+                $errorMsg = $_.Exception.Message
+                Write-Warning "Failed to install/update $pkg`: $errorMsg"
+            }
+        }
     } "Winget package installation"
 }
 #endregion
@@ -89,9 +107,26 @@ if (-not $SkipWinget) {
 #region Scoop
 if (-not $SkipScoop) {
     Invoke-Safe {
-        . (Join-Path $UtilsDir "scoop_programs.ps1")
-        Install-Scoop -Force:$Force
-        Bootstrap-ScoopPrograms
+        . (Join-Path $ScriptsDir "install_scoop.ps1")
+
+        $packages = @(
+            "coreutils"
+            "gcc"           # Includes g++
+            "make"
+            "ripgrep"
+            "fd"
+            "fastfetch"
+            "tree-sitter"
+        )
+
+        Write-Host "Installing packages: $($packages -join ', ')"
+        scoop update
+
+        # Can't pass in an array directly, so loop
+        foreach ($pkg in $packages) { scoop install $pkg }
+        Write-Host "Packages installed successfully." -ForegroundColor Green
+
+        if ($packages -contains "gcc") { . (Join-Path $ScriptsDir "generate_global_clangd.ps1") }
     } "Scoop package installation"
 }
 #endregion
@@ -118,11 +153,11 @@ Write-LogInfo "Running final checks..."
 
 $toCheck = @{
     "$PROFILE" = Test-Path $PROFILE
-    "Git" = Test-CommandExists "git"
-    "Neovim" = Test-CommandExists "nvim"
-    "scoop" = Test-CommandExists "scoop"
-    "gcc" = Test-CommandExists "gcc"
-    "make" = Test-CommandExists "make"
+    "Git"      = Test-CommandExists "git"
+    "Neovim"   = Test-CommandExists "nvim"
+    "scoop"    = Test-CommandExists "scoop"
+    "gcc"      = Test-CommandExists "gcc"
+    "make"     = Test-CommandExists "make"
 }
 foreach ($check in $toCheck.GetEnumerator()) {
     if ($check.Value) {

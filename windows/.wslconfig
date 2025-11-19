@@ -5,11 +5,8 @@
 # Set to whole numbers using GB/MB
 memory=8GB
 
-# Number of virtual processors
-processors=8
-
-# Sets amount of swap storage space, default is 25% of available RAM
-swap=8GB
+# Number of virtual processors, default is all logical processors
+# processors=8
 
 # Turn off default connection to bind WSL 2 localhost to Windows localhost
 localhostforwarding=true

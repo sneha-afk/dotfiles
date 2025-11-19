@@ -2,18 +2,15 @@
 
 # ========================[ Initialization ]===================================
 #region Init
-# $script variables are persistent across function calls
 $script:IsWSL = [bool]$env:WSL_DISTRO_NAME
-
 $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
 $script:PreferredShell = if ($pwsh) { "pwsh.exe" } else { "powershell.exe" }
 
-# Source other profile scripts or modules
-$script:ProfileDir = Split-Path -Path $PROFILE -Parent
-$script:ProfileModulesDir = Join-Path $script:ProfileDir "Modules"
+# Setup module paths
+$global:ProfileModulesDir = Join-Path (Split-Path $PROFILE -Parent) "Modules"
 
-if ($env:PSModulePath -notlike "*$ProfileModulesDir*") {
-    $env:PSModulePath = "$ProfileModulesDir;$env:PSModulePath"
+if ($env:PSModulePath -notlike "*$global:ProfileModulesDir*") {
+    $env:PSModulePath = "$global:ProfileModulesDir;$env:PSModulePath"
 }
 
 # Load modules on idle to speed up initial shell launch
@@ -21,18 +18,18 @@ Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
     if ($global:__PROFILE_HELPERS_LOADED) { return }
     $global:__PROFILE_HELPERS_LOADED = $true
 
-    if (-not (Test-Path $script:ProfileModulesDir)) { return }
+    if (-not (Test-Path $global:ProfileModulesDir)) { return }
 
     # Import folder modules
-    Get-ChildItem -Path $script:ProfileModulesDir -Directory | ForEach-Object {
+    Get-ChildItem -Path $global:ProfileModulesDir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
         try { Import-Module $_.Name -DisableNameChecking -ErrorAction Stop }
-        catch { }
+        catch { Write-Host "Failed to load module $($_.Name): $($_.Exception.Message)" -ForegroundColor Red }
     }
 
     # Import standalone .psm1 files
-    Get-ChildItem -Path $script:ProfileModulesDir -File -Filter *.psm1 | ForEach-Object {
+    Get-ChildItem -Path $global:ProfileModulesDir -File -Filter *.psm1 -ErrorAction SilentlyContinue | ForEach-Object {
         try { Import-Module $_.FullName -DisableNameChecking -ErrorAction Stop }
-        catch { }
+        catch { Write-Host "Failed to load module $($_.Name): $($_.Exception.Message)" -ForegroundColor Red }
     }
 }
 
@@ -231,6 +228,3 @@ function global:prompt {
     "$userHost [$pathSeg]$gitSeg`nPS $status_indicator "
 }
 #endregion
-
-# Start in home directory
-Set-Location $HOME
