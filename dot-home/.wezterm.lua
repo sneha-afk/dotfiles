@@ -70,7 +70,7 @@ if is_windows then
 end
 
 --==== APPEARANCE
-config.font         = wezterm.font("Geist Mono")
+config.font         = wezterm.font_with_fallback({ "Geist Mono", "Segoe UI Emoji" })
 config.font_size    = 10
 
 config.color_scheme = "iceberg-dark"

@@ -1,31 +1,62 @@
 -- .config/nvim/lua/plugins/snacks.lua
 
-local fileopts = require("core.utils.fileops")
-local ui_utils = require("core.utils.ui")
+local fileopts = require("utils.fileops")
+local ui_utils = require("utils.ui")
+
+local HEADER_ART = [[
+███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
+████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
+██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
+██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
+██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
+╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
+]]
+
+local function get_greeting()
+  local hour = tonumber(os.date("%H"))
+  local greetings = {
+    { max = 5, msg = "Sleep well", emoji = "🌙" },
+    { max = 12, msg = "Good morning", emoji = "🌅" },
+    { max = 18, msg = "Good afternoon", emoji = "🌞" },
+    { max = 22, msg = "Good evening", emoji = "🌆" },
+    { max = 24, msg = "Good night", emoji = "✨" },
+  }
+
+  for _, greeting in ipairs(greetings) do
+    if hour < greeting.max then return greeting.emoji .. " " .. greeting.msg end
+  end
+  return "Hello"
+end
+
+local function get_footer()
+  local version = vim.version()
+  local nvim_version = string.format("NVIM v%d.%d.%d", version.major, version.minor, version.patch)
+  local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+
+  return string.format("%s • %s\n%s", os.date("%A, %B %d %Y • %I:%M %p"), nvim_version, cwd)
+end
+
+local explorer_sidebar = function()
+  Snacks.explorer({
+    layout = { preset = "sidebar", layout = { position = "right" } },
+    cwd = Snacks.git.get_root() or vim.uv.cwd(),
+  })
+end
+
+local explorer_fullscreen = function()
+  Snacks.explorer({
+    layout = { preset = "default", layout = { width = 0.95 } },
+    cwd = Snacks.git.get_root() or vim.uv.cwd(),
+  })
+end
 
 return {
   "folke/snacks.nvim",
   lazy = false,
   priority = 1000,
   keys = {
-    {
-      "<leader>fe",
-      function()
-        Snacks.explorer({
-          layout = { preset = "sidebar", layout = { position = "right" } },
-        })
-      end,
-      desc = "[F]ile: [E]xplorer",
-    },
-    {
-      "<leader>fE",
-      function()
-        Snacks.explorer({
-          layout = { preset = "default", layout = { width = 0.95 } },
-        })
-      end,
-      desc = "[F]ile: [E]xplorer (fullscreen)",
-    },
+    { "<leader>fe", explorer_sidebar,    desc = "[F]ile: [E]xplorer" },
+    { "<leader>fE", explorer_fullscreen, desc = "[F]ile: [E]xplorer (fullscreen)" },
     {
       "<leader>ff",
       function()
@@ -220,6 +251,33 @@ return {
         backdrop = {
           transparent = true,
           blend = 15,
+        },
+      },
+    },
+    dashboard = {
+      enabled = true,
+      preset = {
+        keys = {
+          { icon = "📄", key = "n", desc = "New File", action = ":ene | startinsert" },
+          { icon = "🧭", key = "b", desc = "Browse Files", action = explorer_fullscreen },
+          { icon = "📁", key = "f", desc = "Find Files", action = function() Snacks.picker.files() end },
+          { icon = "✨", key = "s", desc = "Smart Find", action = function() Snacks.picker.smart() end },
+          { icon = "🔍", key = "/", desc = "Search", action = function() Snacks.picker.grep() end },
+          { icon = "💾", key = "S", desc = "Sessions", action = "<leader>sl" },
+          { icon = "⚙️", key = "c", desc = "Edit Config", action = ":lua Snacks.explorer({cwd = vim.fn.stdpath('config')})" },
+          { icon = "🚪", key = "q", desc = "Quit", action = ":qa" },
+        },
+        header = HEADER_ART .. "\n" .. get_greeting() .. ", "
+            .. (os.getenv("USER") or os.getenv("USERNAME") or "User") .. ".",
+      },
+      sections = {
+        { section = "header" },
+        { section = "keys", padding = 1 },
+        { section = "recent_files", padding = 1, indent = 2, limit = 5, title = "Recent files", icon = "🕘" },
+        { section = "startup" },
+        {
+          padding = { 0, 2 },
+          text = { { get_footer(), hl = "Comment" } },
         },
       },
     },

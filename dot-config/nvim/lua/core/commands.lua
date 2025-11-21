@@ -1,7 +1,7 @@
 -- .config/nvim/lua/core/commands.lua
 -- Set user commands, autocommands, etc.
 
-local buf_utils = require("core.utils.buffers_and_windows")
+local buf_utils = require("utils.buffers_and_windows")
 
 vim.api.nvim_create_user_command("EnvVariables", function()
   local env_vars = vim.fn.environ()

@@ -1,7 +1,7 @@
 -- .config/nvim/lua/core/keymaps.lua
 -- Globally available keymaps
 
-local buf_utils = require("core.utils.buffers_and_windows")
+local buf_utils = require("utils.buffers_and_windows")
 
 local map = vim.keymap.set
 local lsp = vim.lsp

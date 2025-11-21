@@ -1,6 +1,6 @@
 -- .config/nvim/lua/plugins/statusline.lua
 
-local enable_icons = require("core.utils.ui").icons_supported()
+local enable_icons = require("utils.ui").icons_supported()
 
 return {
   "nvim-lualine/lualine.nvim",
@@ -18,6 +18,7 @@ return {
         "mason",
         "leetcode.nvim",
         "snacks_picker_list",
+        "snacks_dashboard",
       },
       always_show_tabline = false,
     },

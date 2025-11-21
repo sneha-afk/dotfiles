@@ -7,7 +7,7 @@ return {
     version = false,
     lazy = true,
     opts = {
-      style = require("core.utils.ui").icons_supported() and "glyph" or "ascii",
+      style = require("utils.ui").icons_supported() and "glyph" or "ascii",
     },
     config = function(_, opts)
       local icons = require("mini.icons")
@@ -58,7 +58,7 @@ return {
         latex = 210,
         lua = 210,
       },
-      highlight = require("core.utils.ui").color_cycle,
+      highlight = require("utils.ui").color_cycle,
     },
     main = "rainbow-delimiters.setup",
   },

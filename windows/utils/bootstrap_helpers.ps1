@@ -65,12 +65,6 @@ function Script-Require-Admin {
     Write-Host "Running with administrator privileges..." -ForegroundColor Green
 }
 
-function Test-CommandExists {
-    param([Parameter(Mandatory)]$Command)
-    $exists = $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
-    return $exists
-}
-
 #endregion
 
 

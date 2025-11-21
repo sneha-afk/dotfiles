@@ -135,7 +135,7 @@ if (-not $SkipScoop) {
 if (-not $SkipMisc) {
     Invoke-Safe {
         # astral-sh/uv for Python
-        if ((Test-CommandExists "uv") -and (-not $Force)) {
+        if ((Get-Command "uv" -ErrorAction SilentlyContinue) -and (-not $Force)) {
             uv self update
         } else {
             powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
@@ -153,11 +153,11 @@ Write-LogInfo "Running final checks..."
 
 $toCheck = @{
     "$PROFILE" = Test-Path $PROFILE
-    "Git"      = Test-CommandExists "git"
-    "Neovim"   = Test-CommandExists "nvim"
-    "scoop"    = Test-CommandExists "scoop"
-    "gcc"      = Test-CommandExists "gcc"
-    "make"     = Test-CommandExists "make"
+    "Git"      = Get-Command "git" -ErrorAction SilentlyContinue
+    "Neovim"   = Get-Command "nvim" -ErrorAction SilentlyContinue
+    "scoop"    = Get-Command "scoop" -ErrorAction SilentlyContinue
+    "gcc"      = Get-Command "gcc" -ErrorAction SilentlyContinue
+    "make"     = Get-Command "make" -ErrorAction SilentlyContinue
 }
 foreach ($check in $toCheck.GetEnumerator()) {
     if ($check.Value) {
