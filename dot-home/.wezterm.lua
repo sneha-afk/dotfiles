@@ -46,6 +46,7 @@ config.keys      = {
   { key = "t",          mods = "LEADER",     action = action.SpawnTab("CurrentPaneDomain") },
   { key = "x",          mods = "LEADER",     action = action.CloseCurrentTab { confirm = true } },
   { key = "q",          mods = "LEADER",     action = action.CloseCurrentPane { confirm = true } },
+  { key = "w",          mods = "LEADER",     action = action.CloseCurrentPane { confirm = false } },
   { key = "r",          mods = "LEADER",     action = action.ReloadConfiguration },
   { key = "f",          mods = "LEADER",     action = action.Search("CurrentSelectionOrEmptyString") },
   { key = "z",          mods = "LEADER",     action = action.TogglePaneZoomState },
@@ -70,15 +71,22 @@ if is_windows then
 end
 
 --==== APPEARANCE
-config.font         = wezterm.font_with_fallback({ "Geist Mono", "Segoe UI Emoji" })
-config.font_size    = 10
+-- WezTerm comes with JetBrains Mono, symbols, and emojis; but added after this list,
+-- so keep JetBrains Mono above the emoji set
+config.font              = wezterm.font_with_fallback({
+  "Geist Mono",
+  "JetBrains Mono",
+  "Segoe UI Emoji",
+})
+config.font_size         = 10
+config.harfbuzz_features = { "calt=1", "clig=0", "liga=0" }
 
-config.color_scheme = "iceberg-dark"
-local scheme        = wezterm.color.get_builtin_schemes()[config.color_scheme or "Default Dark (base16)"]
+config.color_scheme      = "iceberg-dark"
+local scheme             = wezterm.color.get_builtin_schemes()[config.color_scheme or "Default Dark (base16)"]
 
 --== COLOR HELPERS
-local bg            = scheme.background or "#1e1e2e"
-local fg            = scheme.foreground or "#c0caf5"
+local bg                 = scheme.background or "#1e1e2e"
+local fg                 = scheme.foreground or "#c0caf5"
 
 --- Adjust color brightness by percentage (-100 to 100)
 ---@param hex string Hex color code
@@ -107,9 +115,10 @@ end
 
 local is_dark            = is_dark_theme(bg)
 local brighter           = is_dark and 15 or -15
-local brighter_2x        = is_dark and 30 or -30
+local brighter_2x        = is_dark and 35 or -35
+local brighter_3x        = is_dark and 50 or -50
 local darker             = is_dark and -15 or 15
-local darker_2x          = is_dark and -30 or 30
+local darker_2x          = is_dark and -25 or 25
 local brighter_hover     = is_dark and 5 or -5
 local darker_hover       = is_dark and -5 or 5
 
@@ -117,22 +126,39 @@ local darker_hover       = is_dark and -5 or 5
 config.colors            = {
   tab_bar = {
     background = adjust_brightness(bg, darker_2x),
-    active_tab = { bg_color = adjust_brightness(bg, brighter_2x), fg_color = fg },
-    inactive_tab = { bg_color = adjust_brightness(bg, darker_2x), fg_color = adjust_brightness(fg, -15) },
-    inactive_tab_hover = { bg_color = adjust_brightness(bg, darker_hover), fg_color = adjust_brightness(fg, 5) },
-    new_tab = { bg_color = adjust_brightness(bg, darker_2x), fg_color = adjust_brightness(fg, -25) },
-    new_tab_hover = { bg_color = adjust_brightness(bg, brighter_hover), fg_color = fg },
+    active_tab = {
+      bg_color = adjust_brightness(bg, brighter_3x),
+      fg_color = fg,
+    },
+    inactive_tab = {
+      bg_color = adjust_brightness(bg, darker_2x),
+      fg_color = adjust_brightness(fg, -15),
+    },
+    inactive_tab_hover = {
+      bg_color = adjust_brightness(bg, darker_hover),
+      fg_color = adjust_brightness(fg, 5),
+    },
+    new_tab = {
+      bg_color = adjust_brightness(bg, darker_2x),
+      fg_color = adjust_brightness(fg, -25),
+    },
+    new_tab_hover = {
+      bg_color = adjust_brightness(bg, brighter_hover),
+      fg_color = fg,
+    },
   },
 }
 
 config.use_fancy_tab_bar = true
 config.tab_max_width     = 24
 
-wezterm.on("format-tab-title", function(tab)
-  local title = tab.active_pane.title
-  title = title:gsub(".*[\\/]", "") -- strip path
+wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
+  local title = tab.active_pane.title:gsub(".*[\\/]", "")
   if title == "" then title = "shell" end
-  return title
+
+  local idx = (tab.tab_index or 0) + 1
+  local label = string.format("%d: %s", idx, title)
+  return label
 end)
 
 --==== WINDOW
@@ -142,13 +168,21 @@ config.initial_rows         = 28
 config.inactive_pane_hsb    = { saturation = 0.9, brightness = 0.7 }
 
 config.max_fps              = 120
-config.default_cursor_style = "BlinkingBar"
+config.default_cursor_style = "SteadyBar"
+config.enable_scroll_bar    = true
 
 config.window_decorations   = "RESIZE"
 config.window_frame         = {
   active_titlebar_bg = adjust_brightness(bg, brighter),
   inactive_titlebar_bg = adjust_brightness(bg, darker),
-  font = wezterm.font("Geist"),
+  font = wezterm.font_with_fallback({
+    { family = "Geist" },
+    { family = "Roboto", weight = "Bold" }, -- default
+  }),
+}
+config.window_padding       = {
+  top = "0.5cell",
+  bottom = "0.25cell",
 }
 
 local leader_mode_colors    = {

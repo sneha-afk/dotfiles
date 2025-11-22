@@ -2,8 +2,8 @@
 
 **Minimum version required**: `v0.11.0`
 
-Upon opening for the first time, you will be prompted on whether to install Lazy.nvim and the plugins
-listed in `plugins/`.
+Upon opening for the first time, you will be prompted on whether to install `lazy.nvim` as the package manager being used
+and the plugins listed in `plugins/`.
 
 ## Cloning *just* this config
 Powershell:
@@ -23,49 +23,44 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/sneha-afk/dot
 ├── README.md
 ├── init.lua
 ├── lazy-lock.json
+├── lsp
+│   └── (server-specific configs)
 ├── lua
-│   ├── core
-│   │   ├── commands.lua
-│   │   ├── filetypes.lua
-│   │   ├── highlights.lua
-│   │   ├── keymaps.lua
-│   │   ├── lazy.lua
-│   │   ├── neovide.lua
-│   │   ├── options.lua
-│   │   ├── terminal.lua
-│   │   └── utils
-│   │       ├── buffers_and_windows.lua
-│   │       ├── fileops.lua
-│   │       └── ui.lua
-│   └── plugins
-│       ├── colorscheme.lua
-│       ├── completions.lua
-│       ├── extras.lua
-│       ├── formatter.lua
-│       ├── hardtime.lua
-│       ├── helpers.lua
-│       ├── lsp
-│       │   ├── init.lua
-│       │   ├── lsp_keymaps.lua
-│       │   └── lsp_server_configs.lua
-│       ├── sessions.lua
-│       ├── snacks.lua
-│       ├── startup.lua
-│       ├── statusline.lua
-│       ├── treesitter.lua
-│       ├── ui.lua
-│       ├── vimtex.lua
-│       └── which_key.lua
+│   ├── core
+│   │   ├── commands.lua
+│   │   ├── filetypes.lua
+│   │   ├── highlights.lua
+│   │   ├── keymaps.lua
+│   │   ├── lazy.lua
+│   │   ├── neovide.lua
+│   │   ├── options.lua
+│   │   └── terminal.lua
+│   ├── plugins
+│   │   ├── colorscheme.lua
+│   │   ├── completions.lua
+│   │   ├── extras.lua
+│   │   ├── formatter.lua
+│   │   ├── helpers.lua
+│   │   ├── lsp
+│   │   │   ├── init.lua
+│   │   │   └── lsp_keymaps.lua
+│   │   ├── snacks.lua
+│   │   ├── statusline.lua
+│   │   ├── treesitter.lua
+│   │   ├── ui.lua
+│   │   ├── vimtex.lua
+│   │   └── which_key.lua
+│   └── utils
+│       ├── buffers_and_windows.lua
+│       ├── fileops.lua
+│       └── ui.lua
 ├── snippets
-│   ├── go.json
-│   ├── latex.json
-│   ├── package.json
-│   └── python.json
+│   └── (snippets per language)
 └── spell
 ```
 
 ### Modifying
-- Leader key set to `,` and localleader set to `\` in `.config/nvim/init.lua`
+Leader key set to `,` and localleader set to `\` in `.config/nvim/init.lua`
 
 | File | Purpose |
 |------|---------|
@@ -73,17 +68,17 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/sneha-afk/dot
 | `core/keymaps.lua`   | Global keybindings and mappings |
 | `core/options.lua`   | Basic Neovim settings (tabs, line numbers, etc.) |
 
-
 #### LSP Configuration
 
 | File | Purpose |
 |------|---------|
 | `plugins/lsp/init.lua` | Specs for LSP related plugins, where `vim.lsp.enable` is called |
-| `plugins/lsp/lsp_server_configs.lua` | Set up any extensions/overrides of LSP settings |
 | `plugins/lsp/lsp_keymaps.lua` | Map server-specific commands, detected on `LspAttach` |
+| `lsp/server_name.lua` | Server-specific configuration overrides (0.11+) |
 
 To add a new server:
-1. If *globally* installed in the system, not through Mason, add the name to the list of `vim.lsp.enable` in `lsp/init.lua`
-    - Mason will automatically enable servers installed through its interface
-1. Optional: extend/override default `nvim-lspconfig` configurations with `vim.lsp.config` in `lsp/server_configs.lua`
-1. Optional: define keymaps for when the LSP is active in `lsp/server_keymaps.lua`
+1. If *globally* installed in the system (not through Mason), add the name to the list of `vim.lsp.enable` in `plugins/lsp/init.lua`
+    - Mason will automatically enable servers installed through its interface (recommended!)
+2. Optional: override default `nvim-lspconfig` configurations by creating `.config/nvim/lsp/server_name.lua` (preferred) or using `vim.lsp.config`
+    - Using a dedicated file in the `lsp/` directory prevents timing issues with lazy loading configurations (preferred in 0.11+)
+3. Optional: define keymaps for when the LSP is active in `plugins/lsp/lsp_keymaps.lua`

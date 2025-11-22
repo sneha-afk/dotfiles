@@ -85,7 +85,7 @@ if (-not $SkipWinget) {
             "Git.Git",
             "Neovim.Neovim",
             "Vim.Vim",
-            "Python.Python",
+            "Python.PythonInstallManager",
             "Microsoft.PowerToys"
             "SumatraPDF.SumatraPDF"
         )

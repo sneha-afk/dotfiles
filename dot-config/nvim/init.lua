@@ -45,6 +45,23 @@ vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_node_provider = 0
 
+---@type vim.diagnostic.Opts
+local diagnostic_opts = {
+  update_in_insert = true,
+  virtual_text = {
+    spacing = 2,
+    source = "if_many",
+  },
+  severity_sort = true,
+  float = {
+    border = "rounded",
+    header = "",
+    title = " Diagnostics ",
+    source = "if_many",
+  },
+}
+vim.diagnostic.config(diagnostic_opts)
+
 -- Load core configurations in this order
 require("core.options")
 require("core.filetypes")

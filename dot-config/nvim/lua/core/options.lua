@@ -18,10 +18,9 @@ vim.opt.foldnestmax    = 4        -- How many levels deep to nest
 vim.opt.undofile       = true     -- Keep persisitent undo history between sessions
 vim.opt.undodir        = vim.fn.stdpath("data") .. "/undo"
 
--- https://github.com/LazyVim/LazyVim/discussions/4112
 vim.opt.clipboard      = ""
 vim.schedule(function()
-  vim.opt.clipboard = vim.env.SSH_TTY and "" or "unnamedplus"
+  vim.opt.clipboard = "unnamedplus"
 end)
 
 -- ===================================================================

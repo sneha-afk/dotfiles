@@ -66,6 +66,11 @@ return {
       end,
       desc = "[F]ind: [F]iles",
     },
+    {
+      "<leader>tf",
+      function() Snacks.terminal.toggle(nil, { win = { position = "float" } }) end,
+      desc = "[T]erminal: toggle [F]loating",
+    },
 
     { "<leader>hn", function() Snacks.notifier.show_history() end,        desc = "[H]istory: [N]otifications" },
     { "<leader>.",  function() Snacks.scratch() end,                      desc = "Toggle scratch buffer" },
@@ -210,6 +215,9 @@ return {
       enabled = true,
       fold = { open = true },
     },
+    terminal = {
+      enabled = true,
+    },
     toggle = {
       enabled = true,
     },
@@ -244,6 +252,11 @@ return {
         width = 0.85,
         height = 0.75,
         relative = "editor",
+      },
+      terminal = {
+        relative = "editor",
+        width = 0.9,
+        height = 0.9,
       },
       zen = {
         relative = "editor",

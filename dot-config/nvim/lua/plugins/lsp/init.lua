@@ -100,8 +100,9 @@ return {
       }
       vim.lsp.config("*", global_configs)
 
-      -- Use vim.lsp.config for further configuration
-      require("plugins.lsp.lsp_server_configs")
+      -- To have server-specific configurations, either create a file in
+      --   .config/nvim/lsp/server_name.lua (preferred), or set up using vim.lsp.config.
+      -- Using the former prevents timing issues with lazy loading configurations.
 
       -- Enable LSPs to attach when their respective filetypes are opened
       -- Need to explicitly add to this list if not installed via Mason
@@ -109,29 +110,13 @@ return {
         "lua_ls",
         "gopls",
         "clangd",
+        "basedpyright",
         "pyright",
         "ts_ls",
         "bashls",
       })
 
       vim.lsp.inlay_hint.enable()
-
-      ---@type vim.diagnostic.Opts
-      local diagnostic_opts = {
-        update_in_insert = true,
-        virtual_text = {
-          spacing = 2,
-          source = "if_many",
-        },
-        severity_sort = true,
-        float = {
-          border = "rounded",
-          header = "",
-          title = " Diagnostics ",
-          source = "if_many",
-        },
-      }
-      vim.diagnostic.config(diagnostic_opts)
     end,
   },
 }

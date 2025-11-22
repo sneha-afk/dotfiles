@@ -48,7 +48,6 @@ end
 vim.keymap.set({ "n", "i", "v", "t" }, "<leader>uf", toggle_fullscreen, { desc = "[U]I: toggle [f]ullscreen" })
 vim.keymap.set({ "n", "i", "v", "t" }, "<F11>",      toggle_fullscreen, { silent = true })
 
-local toggle_profiler = function()
+vim.keymap.set({ "n", "i", "v", "t" }, "<leader>uP", function()
   vim.g.neovide_profiler = not vim.g.neovide_profiler
-end
-vim.keymap.set({ "n", "i", "v", "t" }, "<leader>uP", toggle_profiler, { desc = "[U]I: toggle [P]rofiler" })
+end, { desc = "[U]I: toggle [P]rofiler" })

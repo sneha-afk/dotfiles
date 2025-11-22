@@ -22,7 +22,7 @@ map("n", "<leader>uw", "<cmd>set wrap!<cr>",  { desc = "[U]I: toggle line [W]rap
 map("n", "<leader>us", "<cmd>set spell!<cr>", { desc = "[U]I: toggle [S]pell check" })
 map("n", "<leader>uh", function() lsp.inlay_hint.enable(not lsp.inlay_hint.is_enabled()) end,
   { desc = "[U]I: toggle inlay [H]int" })
-map("n", "<leader>sb", function() vim.api.nvim_set_current_buf(utils.create_scratch_buf()) end,
+map("n", "<leader>sb", function() vim.api.nvim_set_current_buf(buf_utils.create_scratch_buf()) end,
   { desc = "[S]cratch: empty [B]uffer" })
 map("n", "<leader>sm", function()
   local buf = buf_utils.create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
@@ -54,6 +54,7 @@ map("t", "<C-w>j",     "<C-\\><C-n><C-w>j",       { desc = "Move down from termi
 map("t", "<C-w>k",     "<C-\\><C-n><C-w>k",       { desc = "Move up from terminal" })
 map("t", "<C-w>l",     "<C-\\><C-n><C-w>l",       { desc = "Move right from terminal" })
 map("t", "<C-w>q",     "<C-\\><C-n>:q<CR>",       { desc = "Close terminal" })
+map("t", "<M-3>",      "<C-\\><C-n>:q<CR>",       { desc = "Close terminal" }) -- Alt/Meta + 3
 map("t", "<C-j>",      "<C-\\><C-n><C-d>",        { desc = "Half page down" })
 map("t", "<C-k>",      "<C-\\><C-n><C-u>",        { desc = "Half page up" })
 

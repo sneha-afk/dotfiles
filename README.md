@@ -6,7 +6,7 @@
 | Area           | Location / Notes                                           |
 | -------------- | ---------------------------------------------------------- |
 | **Shells**     | **`dot-bash/`**, `dot-zsh/`                                |
-| **Neovim**     | `dot-config/nvim` — see its `README.md` for more info      |
+| **Neovim**     | `dot-config/nvim` — see its [`README.md`](./dot-config/nvim/) for more info      |
 | **PowerShell** | `windows\profile\Microsoft.PowerShell_profile.ps1`         |
 | **WSL**        | `windows\.wslconfig`, `dot-home/.wsl_env`                  |
 | **Terminals**  | Windows Terminal & [WezTerm](https://wezterm.org/)         |
@@ -14,10 +14,17 @@
 
 Other helpful files in `dot-config -> .config` and `dot-home`.
 
+### 💻 my hardware
+- **Laptop**: ThinkPad X1 Carbon Gen 10 (2022)
+  - Intel Core i7-1260P (12th Gen)
+  - Intel Iris Xe Graphics
+- **OS**: Windows 11 Pro with WSL2 (Ubuntu)
+- **Monitor**: Dell U2723QE
+
 ---
 
 ## ⚙️ Setup
-### 🐧 UNIX
+### 🐧 Linux
 
 **Recommended**: using GNU `stow`
 
@@ -44,19 +51,20 @@ ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 ### 🪟 Windows
 
 **Recommended**: using the bootstrap script
-
 ```powershell
 .\windows\bootstrap.ps1
+# Skip components: -SkipScoop, -SkipWinget, -SkipSymlinks, etc.
 ```
 
 <details>
-<summary>Elevated permissions for bootstrap</summary>
+<summary>Run with elevated permissions</summary>
 
-If the bootstrap happens to fail, start in an elevated shell
-
+If bootstrap fails, run in elevated PowerShell (auto-elevation should handle this):
 ```powershell
-Start-Process wt -Verb RunAs -ArgumentList "powershell -NoProfile -ExecutionPolicy Bypass -File `"$PWD\windows\bootstrap.ps1`""
+Start-Process wt -Verb RunAs -ArgumentList `
+  "powershell -NoProfile -ExecutionPolicy Bypass -File `"$PWD\windows\bootstrap.ps1`""
 ```
+
 </details>
 
 <details>
@@ -90,8 +98,10 @@ New-Item -ItemType SymbolicLink `
 
 #### ⚠️ On `$PROFILE`
 
-* Default `$PROFILE` points to OneDrive (deep registry integration).
-* Pollutes OneDrive, reduces portability, and constant network polling
+The default `$PROFILE` location points to OneDrive, which causes:
+- Unnecessary OneDrive pollution
+- Reduced portability
+- Constant network syncing overhead
 
 <details>
 <summary>Solution: point elsewhere</summary>
