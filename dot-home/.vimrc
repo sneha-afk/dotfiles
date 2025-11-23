@@ -50,29 +50,28 @@ if g:is_windows
 endif
 
 " =======================================
-" Plugin Management
+" Plugin Management: https://github.com/junegunn/vim-plug
 " =======================================
 if g:have_plugins
-    " Install vim-plug if not installed
     let s:autoload_dir = expand(g:vim_home . '/autoload')
     let s:plugged_dir = expand(g:vim_home . '/plugged')
     let s:plug_file = expand(s:autoload_dir . '/plug.vim')
-    let s:url = 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
     " Bootstrap vim-plug if missing
     if empty(glob(s:plug_file))
-        if g:is_windows
-            let s:file = substitute(s:plug_file, '\\', '/', 'g')
+        call mkdir(s:autoload_dir, 'p')
 
-            " Ensure UNIX endings when its downloaded
-            silent execute '!powershell -Command "' .
-                \ 'iwr -useb ' . s:url . ' -OutFile \"' . s:file . '\"; ' .
-                \ '(gc \"' . s:file . '\" -Raw) -replace \"`r`n\",\"`n\" | sc \"' . s:file . '\" -NoNewline"'
+        if g:is_windows
+            silent execute '!powershell -Command "'
+                \ . 'iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim '
+                \ . '-OutFile ' . shellescape(s:plug_file)
+                \ . '"'
         else
-            silent execute '!curl -fLo ' . shellescape(s:plug_file) . ' --create-dirs ' . s:url
+            silent execute '!curl -fLo ' . shellescape(s:plug_file)
+                \ . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim '
         endif
 
-        echo 'vim-plug installed, please restart Vim.'
+        echo 'vim-plug installed — restart Vim'
         finish
     endif
 
@@ -81,6 +80,7 @@ if g:have_plugins
         Plug 'itchyny/lightline.vim', { 'as': 'lightline' }
         Plug 'jiangmiao/auto-pairs'
         Plug 'tpope/vim-commentary'
+        Plug 'tpope/vim-surround'
         Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTreeCWD'] }
     call plug#end()
 
