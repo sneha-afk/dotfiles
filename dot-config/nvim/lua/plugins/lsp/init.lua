@@ -27,6 +27,7 @@ return {
 
   -- Mason configuration (LSP installer)
   -- Installed to "$HOME/.local/share/nvim/mason/bin"
+  --              "%USERPROFILE%\AppData\Local\nvim-data\mason\bin"
   {
     "mason-org/mason.nvim",
     lazy = true,

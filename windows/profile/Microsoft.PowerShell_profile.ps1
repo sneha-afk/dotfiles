@@ -165,8 +165,6 @@ if (-not $env:EDITOR -or [string]::IsNullOrWhiteSpace($env:EDITOR)) {
         }
     }
 }
-
-Set-Alias vim $env:EDITOR
 #endregion
 
 # ========================[ Region: Color Config ]===========================

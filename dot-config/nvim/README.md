@@ -74,11 +74,12 @@ Leader key set to `,` and localleader set to `\` in `.config/nvim/init.lua`
 |------|---------|
 | `plugins/lsp/init.lua` | Specs for LSP related plugins, where `vim.lsp.enable` is called |
 | `plugins/lsp/lsp_keymaps.lua` | Map server-specific commands, detected on `LspAttach` |
-| `lsp/server_name.lua` | Server-specific configuration overrides (0.11+) |
+| `after/lsp/server_name.lua` | Server-specific configuration overrides (0.11+) |
 
 To add a new server:
 1. If *globally* installed in the system (not through Mason), add the name to the list of `vim.lsp.enable` in `plugins/lsp/init.lua`
     - Mason will automatically enable servers installed through its interface (recommended!)
-2. Optional: override default `nvim-lspconfig` configurations by creating `.config/nvim/lsp/server_name.lua` (preferred) or using `vim.lsp.config`
-    - Using a dedicated file in the `lsp/` directory prevents timing issues with lazy loading configurations (preferred in 0.11+)
+2. Optional: override default `nvim-lspconfig` configurations by creating `.config/nvim/after/lsp/server_name.lua` (preferred) or using `vim.lsp.config`
+    - Using a dedicated file in the `after/lsp/` directory prevents timing issues with lazy loading configurations (preferred in 0.11+)
+    - `lsp/` vs. `after/lsp` is to ensure overrides of `nvim-lspconfig` are *always* sourced at the end (see [related PR](https://github.com/neovim/nvim-lspconfig/pull/4212))
 3. Optional: define keymaps for when the LSP is active in `plugins/lsp/lsp_keymaps.lua`

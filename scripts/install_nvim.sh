@@ -101,7 +101,7 @@ trap - EXIT
 # =========[ Extras ]=========
 echo "> Installing utilities..."
 sudo apt-get update -y
-sudo apt-get install -y ripgrep
+sudo apt-get install -y ripgrep fd-find
 
 if grep -qi microsoft /proc/version 2>/dev/null; then
     echo "> WSL detected. Installing xclip..."

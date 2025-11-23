@@ -24,40 +24,69 @@ set foldmethod=manual
 set foldlevel=99
 set foldlevelstart=10
 set foldnestmax=4
-set undofile                     " Persistent undo history across sessions
-set undodir=~/.local/share/nvim/undo
+set belloff=all
+
+let g:is_windows = has('win32') || has('win64')
+let g:vim_home = g:is_windows ? expand('$HOME/vimfiles') : expand('~/.vim')
+
+if has('persistent_undo')
+    set undofile
+    let &undodir = has('nvim') ? stdpath('data').'/undo' : expand(g:vim_home . '/undo')
+    call mkdir(&undodir, 'p', 0700)
+endif
+
+" =======================================
+" Windows-specific settings
+" =======================================
+if g:is_windows
+    set shell=powershell.exe
+
+    " Open CMD via commands (H/V mappings)
+    command! TermCmd set shell=cmd | terminal
+    command! VTermCmd set shell=cmd | vertical terminal
+
+    nnoremap <leader>Ht :TermCmd<CR>
+    nnoremap <leader>Vt :VTermCmd<CR>
+endif
 
 " =======================================
 " Plugin Management
 " =======================================
 if g:have_plugins
     " Install vim-plug if not installed
-    let s:vim_home = has('win32') || has('win64') ? expand('$HOME/vimfiles') : expand('~/.vim')
-    let s:autoload_dir = expand(s:vim_home . '/autoload')
-    let s:plugged_dir = expand(s:vim_home . '/plugged')
+    let s:autoload_dir = expand(g:vim_home . '/autoload')
+    let s:plugged_dir = expand(g:vim_home . '/plugged')
     let s:plug_file = expand(s:autoload_dir . '/plug.vim')
+    let s:url = 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
+    " Bootstrap vim-plug if missing
     if empty(glob(s:plug_file))
-        execute 'silent !curl -fLo ' . shellescape(s:plug_file) . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+        if g:is_windows
+            let s:file = substitute(s:plug_file, '\\', '/', 'g')
+
+            " Ensure UNIX endings when its downloaded
+            silent execute '!powershell -Command "' .
+                \ 'iwr -useb ' . s:url . ' -OutFile \"' . s:file . '\"; ' .
+                \ '(gc \"' . s:file . '\" -Raw) -replace \"`r`n\",\"`n\" | sc \"' . s:file . '\" -NoNewline"'
+        else
+            silent execute '!curl -fLo ' . shellescape(s:plug_file) . ' --create-dirs ' . s:url
+        endif
+
+        echo 'vim-plug installed, please restart Vim.'
+        finish
     endif
 
-    " Initialize plugin system
     call plug#begin(s:plugged_dir)
-    " Status line
-    Plug 'itchyny/lightline.vim', { 'as': 'lightline' }
-
-    " Editor enhancements
-    Plug 'jiangmiao/auto-pairs'     " Auto-pair brackets, quotes, etc.
-    Plug 'tpope/vim-commentary'     " Comment code easily
-    Plug 'preservim/nerdtree'       " File explorer
-
-    " Color scheme
-    Plug 'ghifarit53/tokyonight-vim', { 'as': 'tokyonight' }
+        Plug 'ghifarit53/tokyonight-vim', { 'as': 'tokyonight' }
+        Plug 'itchyny/lightline.vim', { 'as': 'lightline' }
+        Plug 'jiangmiao/auto-pairs'
+        Plug 'tpope/vim-commentary'
+        Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTreeCWD'] }
     call plug#end()
 
     " Run PlugInstall if there are missing plugins
     autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
-        \| PlugInstall --sync | source $MYVIMRC
+        \| PlugInstall --sync
         \| endif
 endif
 
@@ -70,7 +99,6 @@ endfunction
 " Leader key mappings
 " =======================================
 let mapleader = ","      " Leader key set to comma
-nnoremap <leader> :echoerr "Unmapped leader key"<CR>
 
 " SHORTCUTS
 nnoremap <leader>q :q<CR>
@@ -92,12 +120,6 @@ nnoremap <leader>bl :ls<CR>:buffer<Space>
 nnoremap ]b :bnext<CR>                          " Next buffer
 nnoremap [b :bprevious<CR>                      " Previous buffer
 nnoremap <leader>bd :bdelete<CR>                " Delete current buffer
-nnoremap <leader>ba :ball<CR>                   " Open all buffers in splits
-
-" Quick jump to buffer by number (1-9)
-for i in range(1, 9)
-  execute 'nnoremap <leader>' . i . ' :' . i . 'buffer<CR>'
-endfor
 
 " TAB OPERATIONS
 nnoremap <leader>tn :tabnew<CR>              " [T]ab: [N]ew
@@ -107,10 +129,12 @@ nnoremap ]t :tabnext<CR>                     " Go to next tab
 nnoremap [t :tabprevious<CR>                 " Go to previous tab
 nnoremap <leader>tm :tabmove<CR>             " [T]ab: [M]ove current to last
 nnoremap <leader>tl :tablast<CR>             " [T]ab: jump to [L]ast open
-nnoremap <leader>t1 1gt                      " [T]ab: go to [1]
-nnoremap <leader>t2 2gt                      " [T]ab: go to [2]
-nnoremap <leader>t3 3gt                      " [T]ab: go to [3]
-nnoremap <leader>t4 4gt                      " [T]ab: go to [4]
+
+" Shortcut buffers and tabs
+for i in range(1, 3)
+  execute 'nnoremap <leader>b' . i . ' :' . i . 'b<CR>'
+  execute 'nnoremap <leader>t' . i . ' ' . i . 'gt'
+endfor
 
 " TERMINAL OPERATIONS
 tnoremap <Esc> <C-\><C-n>                    " Exit terminal mode
@@ -118,12 +142,12 @@ tnoremap <C-w>h <C-\><C-n><C-w>h             " Move left from terminal
 tnoremap <C-w>j <C-\><C-n><C-w>j             " Move down from terminal
 tnoremap <C-w>k <C-\><C-n><C-w>k             " Move up from terminal
 tnoremap <C-w>l <C-\><C-n><C-w>l             " Move right from terminal
-tnoremap <C-w>q <C-\><C-n>:q<CR>             " Close terminal
+tnoremap <C-w>q <C-\><C-n>:bd!<CR>           " Close terminal
 tnoremap <C-j> <C-\><C-n><C-d>               " Half page down
 tnoremap <C-k> <C-\><C-n><C-u>               " Half page up
 " Horizontal and vertical splits
 nnoremap <leader>ht :terminal<CR>
-nnoremap <leader>vt :terminal<Esc><C-w>L
+nnoremap <leader>vt :vertical terminal<CR>
 
 " FILE EXPLORER
 if IsPluginAvailable('nerdtree')
@@ -135,18 +159,18 @@ if IsPluginAvailable('nerdtree')
     let NERDTreeIgnore = ['\.pyc$', '\.swp$', '\.git$']
     let NERDTreeWinSize = 35
 
-    nnoremap <leader>n :NERDTreeToggle<CR>  " Toggle file explorer
+    nnoremap <leader>e :NERDTreeToggle<CR>  " Toggle file explorer
     nnoremap - :NERDTreeToggle<CR>
-    nnoremap <leader>N :NERDTreeFind<CR>    " Reveal current file in explorer
+    nnoremap <leader>E :NERDTreeFind<CR>    " Reveal current file in explorer
     nnoremap <leader>. :NERDTreeCWD<CR>     " Go up to parent directory
 else
     let g:netrw_winsize = 35                " Set width to 35 pixels
     let g:netrw_liststyle = 3               " Tree view
     let g:netrw_keepdir = 0                 " Keep current dir consistent
 
-    nnoremap <leader>n :Lexplore<CR>        " Open file explorer
+    nnoremap <leader>e :Lexplore<CR>        " Open file explorer
     nnoremap - :Lexplore<CR>
-    nnoremap <leader>N :Lexplore %:p:h<CR>  " Open in current file's directory
+    nnoremap <leader>E :Lexplore %:p:h<CR>  " Open in current file's directory
     nnoremap <leader>. :Explore ..<CR>      " Go up to parent directory
 endif
 
@@ -234,20 +258,27 @@ set listchars=tab:▸\ ,trail:·,nbsp:␣
 set fillchars=foldopen:▾,foldsep:│,foldclose:▸
 
 set guifont=Geist_Mono:h10,Consolas:h10,Segoe_UI_Emoji:h10,Symbols_Nerd_Font_Mono:h10
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
 
 " Set true color if available
-if has("termguicolors")
+if has('termguicolors') && ($COLORTERM ==# 'truecolor' || $COLORTERM ==# '24bit')
     set termguicolors
 endif
 
 " Color scheme
-if IsPluginAvailable('tokyonight')
-    let g:tokyonight_style = 'night' " available: night, storm
-    let g:tokyonight_enable_italic = 1
-    colorscheme tokyonight
-else
-    colorscheme sorbet
-endif
+let s:schemes = ['tokyonight', 'sorbet', 'slate', 'default']
+for s:scheme in s:schemes
+    try
+        if s:scheme ==# 'tokyonight'
+            let g:tokyonight_style = 'night'
+            let g:tokyonight_enable_italic = 1
+        endif
+
+        execute 'colorscheme ' . s:scheme
+        break
+    catch " continue to next
+    endtry
+endfor
 
 " =======================================
 " Window and Buffer Management
@@ -281,6 +312,7 @@ set breakindentopt=shift:4       " Indent wrapped lines by 4 spaces
 set ignorecase          " Case-insensitive search
 set smartcase           " Case-sensitive if uppercase
 set hlsearch           " Highlight matches
+set incsearch
 
 " =======================================
 " Completion and Command Line
@@ -292,7 +324,6 @@ set completeopt=menu,menuone,noselect " Completion options
 " =======================================
 " Performance Optimizations
 " =======================================
-set ttyfast             " Optimize performance for fast terminals
 set lazyredraw          " Faster macro execution
 set synmaxcol=300       " Limit syntax highlighting after some columns
 
@@ -373,45 +404,3 @@ augroup remove_whitespace
         \ call winrestview(view) |
       \ endif
 augroup END
-
-" =======================================
-" Windows-specific settings
-" =======================================
-if has('win32') || has('win64')
-    let g:default_shell = &shell
-    let g:default_shellcmdflag = &shellcmdflag
-    let g:default_shellquote = &shellquote
-    let g:default_shellxquote = &shellxquote
-    let g:default_shellpipe = &shellpipe
-    let g:default_shellredir = &shellredir
-
-    function! SetDefaultShell()
-        let &shell = g:default_shell
-        let &shellcmdflag = g:default_shellcmdflag
-        let &shellquote = g:default_shellquote
-        let &shellxquote = g:default_shellxquote
-        let &shellpipe = g:default_shellpipe
-        let &shellredir = g:default_shellredir
-    endfunction
-
-    function! SetPowerShell()
-        set shell=powershell
-        set shellcmdflag=-NoLogo\ -NoProfile\ -ExecutionPolicy\ RemoteSigned\ -Command
-        set shellquote=\"
-        set shellxquote=
-        set shellpipe=|
-        set shellredir=>
-    endfunction
-
-    " Windows Terminal cursor shaping
-    if exists('$WT_SESSION')
-        let &t_SI = "\<Esc>[6 q"  " Vertical bar in Insert mode
-        let &t_EI = "\<Esc>[2 q"  " Block in Normal mode
-    endif
-
-    command! Term call SetPowerShell() | term
-    command! VTerm call SetPowerShell() | vertical terminal
-
-    nnoremap <leader>Ht :Term<CR>
-    nnoremap <leader>Vt :VTerm<CR>
-endif

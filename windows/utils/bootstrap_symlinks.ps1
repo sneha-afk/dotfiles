@@ -26,6 +26,7 @@ $Dirs = Get-BootstrapDirs
 $DotfilesProfile = $Dirs.ProfileDir
 $DotHomeDir = Join-Path $Dirs.RepoDir "dot-home"
 $DotConfigDir = Join-Path $Dirs.RepoDir "dot-config"
+$HomeConfigDir = Join-Path $env:UserProfile ".config"
 
 $AppDataLocal = $env:LOCALAPPDATA
 $AppDataRoaming = [System.Environment]::GetFolderPath("ApplicationData")
@@ -50,6 +51,7 @@ $Symlinks = @(
     @{ Path = Join-Path $AppDataLocal   "nvim"; Target = Join-Path $DotConfigDir "nvim" }
     @{ Path = Join-Path $AppDataRoaming "alacritty"; Target = Join-Path $DotConfigDir "alacritty" }
     @{ Path = Join-Path $HOME "scripts"; Target = Join-Path $Dirs.WindowsDir "scripts" }
+    @{ Path = Join-Path $HomeConfigDir "fastfetch" ; Target = Join-Path $DotConfigDir "fastfetch" }
 )
 
 # Symlink all files inside dotfiles\windows\profile (recursive)
