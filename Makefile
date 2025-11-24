@@ -6,14 +6,14 @@ HOME_PACKAGES := dot-home
 ZSH_PACKAGE := dot-zsh
 CONFIG_PACKAGES := dot-config
 
-APT_PACKAGES := build-essential git make ripgrep vim
+APT_PACKAGES := build-essential git make ripgrep vim fd-find
 
-.PHONY: all boostrap install-home install-config zsh uninstall dry-run windows _check_stow
+.PHONY: all boostrap install-home install-config zsh uninstall dry-run windows windows-symlinks _check_stow
 
 all: boostrap
 
 # Defaults to a bash installation
-boostrap: _check_stow install-home install-config apt
+bootstrap: _check_stow install-home install-config apt
 
 install-home: _check_stow
 	$(STOW) --restow --target $(TARGET_HOME) $(HOME_PACKAGES)
@@ -43,4 +43,9 @@ apt:
 windows:
 	powershell -NoProfile -ExecutionPolicy Bypass -Command "& { \
 		.\windows\bootstrap.ps1 \
+	}"
+
+windows-symlinks:
+	powershell -NoProfile -ExecutionPolicy Bypass -Command "& { \
+		.\windows\bootstrap.ps1 -SkipScoop -SkipWinget -SkipMisc \
 	}"

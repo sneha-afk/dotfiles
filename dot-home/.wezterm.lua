@@ -36,34 +36,52 @@ config.front_end = "WebGpu"
 -- https:/wezterm.org/config/default-keys.html
 config.leader    = { key = ",", mods = "CTRL", timeout_milliseconds = 2000 }
 config.keys      = {
-  { key = "l",          mods = "ALT",        action = action.ShowLauncher },
-  { key = "p",          mods = "CTRL|SHIFT", action = action.ActivateCommandPalette },
-  { key = "q",          mods = "CTRL|SHIFT", action = wezterm.action.QuitApplication },
+  { key = "l", mods = "ALT",          action = action.ShowLauncher },
+  { key = "p", mods = "CTRL|SHIFT",   action = action.ActivateCommandPalette },
+  { key = "q", mods = "CTRL|SHIFT",   action = wezterm.action.QuitApplication },
 
-  { key = "c",          mods = "CTRL|SHIFT", action = action.CopyTo("Clipboard") },
-  { key = "v",          mods = "CTRL|SHIFT", action = action.PasteFrom("Clipboard") },
-
-  { key = "t",          mods = "LEADER",     action = action.SpawnTab("CurrentPaneDomain") },
-  { key = "x",          mods = "LEADER",     action = action.CloseCurrentTab { confirm = true } },
-  { key = "q",          mods = "LEADER",     action = action.CloseCurrentPane { confirm = true } },
-  { key = "w",          mods = "LEADER",     action = action.CloseCurrentPane { confirm = false } },
-  { key = "r",          mods = "LEADER",     action = action.ReloadConfiguration },
-  { key = "f",          mods = "LEADER",     action = action.Search("CurrentSelectionOrEmptyString") },
-  { key = "z",          mods = "LEADER",     action = action.TogglePaneZoomState },
-  { key = "s",          mods = "LEADER",     action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-  { key = "v",          mods = "LEADER",     action = action.SplitVertical({ domain = "CurrentPaneDomain" }) },
+  { key = "t", mods = "LEADER",       action = action.SpawnTab("CurrentPaneDomain") },
+  { key = "x", mods = "LEADER",       action = action.CloseCurrentTab { confirm = true } },
+  { key = "q", mods = "LEADER",       action = action.CloseCurrentPane { confirm = true } },
+  { key = "w", mods = "LEADER",       action = action.CloseCurrentPane { confirm = false } },
+  { key = "r", mods = "LEADER",       action = action.ReloadConfiguration },
+  { key = "f", mods = "LEADER",       action = action.Search("CurrentSelectionOrEmptyString") },
+  { key = "z", mods = "LEADER",       action = action.TogglePaneZoomState },
+  { key = "s", mods = "LEADER",       action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+  { key = "v", mods = "LEADER",       action = action.SplitVertical({ domain = "CurrentPaneDomain" }) },
 
   -- pane navigation (Ctrl+Alt+hjkl)
-  { key = "h",          mods = "CTRL|ALT",   action = action.ActivatePaneDirection("Left") },
-  { key = "l",          mods = "CTRL|ALT",   action = action.ActivatePaneDirection("Right") },
-  { key = "k",          mods = "CTRL|ALT",   action = action.ActivatePaneDirection("Up") },
-  { key = "j",          mods = "CTRL|ALT",   action = action.ActivatePaneDirection("Down") },
+  { key = "h", mods = "CTRL|ALT",     action = action.ActivatePaneDirection("Left") },
+  { key = "l", mods = "CTRL|ALT",     action = action.ActivatePaneDirection("Right") },
+  { key = "k", mods = "CTRL|ALT",     action = action.ActivatePaneDirection("Up") },
+  { key = "j", mods = "CTRL|ALT",     action = action.ActivatePaneDirection("Down") },
 
-  -- resize panes (Ctrl+Shift+Arrow)
-  { key = "LeftArrow",  mods = "CTRL|SHIFT", action = action.AdjustPaneSize({ "Left", 3 }) },
-  { key = "RightArrow", mods = "CTRL|SHIFT", action = action.AdjustPaneSize({ "Right", 3 }) },
-  { key = "UpArrow",    mods = "CTRL|SHIFT", action = action.AdjustPaneSize({ "Up", 1 }) },
-  { key = "DownArrow",  mods = "CTRL|SHIFT", action = action.AdjustPaneSize({ "Down", 1 }) },
+  -- quick pane selection
+  { key = ",", mods = "LEADER",       action = action.PaneSelect },
+
+  -- rotate panes within current tab
+  { key = "o", mods = "LEADER",       action = action.RotatePanes("Clockwise") },
+  { key = "O", mods = "LEADER|SHIFT", action = action.RotatePanes("CounterClockwise") },
+
+  -- Copy when there is a selection, else send the Ctrl+C itself
+  -- https://github.com/wezterm/wezterm/issues/606
+  {
+    key = "c",
+    mods = "CTRL",
+    action = wezterm.action_callback(function(window, pane)
+      local sel = window:get_selection_text_for_pane(pane)
+      if (not sel or sel == "") then
+        window:perform_action(wezterm.action.SendKey { key = "c", mods = "CTRL" }, pane)
+      else
+        window:perform_action(wezterm.action { CopyTo = "ClipboardAndPrimarySelection" }, pane)
+      end
+    end),
+  },
+  { key = "v", mods = "CTRL",       action = action.PasteFrom("Clipboard") },
+
+  -- Linux variations of copy-paste
+  { key = "c", mods = "CTRL|SHIFT", action = action.CopyTo("Clipboard") },
+  { key = "v", mods = "CTRL|SHIFT", action = action.PasteFrom("Clipboard") },
 }
 
 if is_windows then
