@@ -13,8 +13,16 @@ vim.uv = vim.uv or vim.loop
 vim.g.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 
 if vim.g.is_windows then
-  vim.opt.shell = "powershell"
   vim.opt.shellcmdflag = "-NoLogo -ExecutionPolicy RemoteSigned -Command"
+
+  if vim.fn.executable("pwsh") == 1 then
+    vim.opt.shell = "pwsh"
+  elseif vim.fn.executable("powershell") == 1 then
+    vim.opt.shell = "powershell"
+  else
+    vim.opt.shell = "cmd"
+    vim.opt.shellcmdflag = "/s /c"
+  end
 end
 
 -- Swap out pickers and any plugins using them

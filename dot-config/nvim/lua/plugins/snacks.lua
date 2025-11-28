@@ -141,11 +141,11 @@ return {
       chunk = {
         enabled = true,
         char = {
-          corner_top = "╭",
+          corner_top    = "╭",
           corner_bottom = "╰",
-          horizontal = "─",
-          vertical = "│",
-          arrow = "🞂",
+          horizontal    = "─",
+          vertical      = "│",
+          arrow         = "⟩",
         },
         hl = ui_utils.color_cycle,
       },

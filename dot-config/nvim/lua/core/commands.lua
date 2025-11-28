@@ -68,6 +68,19 @@ local function augroup(name)
   return vim.api.nvim_create_augroup("Autocmds_" .. name, { clear = true })
 end
 
+-- Restore cursor position when reopening files
+vim.api.nvim_create_autocmd("BufReadPost", {
+  group = augroup("restore_cursor"),
+  desc = "Restore cursor to last position when reopening file",
+  callback = function(args)
+    local mark = vim.api.nvim_buf_get_mark(args.buf, '"')
+    local line_count = vim.api.nvim_buf_line_count(args.buf)
+    if mark[1] > 0 and mark[1] <= line_count then
+      vim.cmd('normal! g`"zz')
+    end
+  end,
+})
+
 vim.api.nvim_create_autocmd("BufWritePre", {
   group = augroup("remove_whitespace"),
   desc = "Remove trailing whitespace and extra newlines at EOF upon saves",
@@ -80,6 +93,8 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     local excluded_filetypes = {
       diff = true,
       gitcommit = true,
+      text = true,
+      markdown = true,
     }
     if excluded_filetypes[filetype] then return end
 
@@ -97,7 +112,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = augroup("hl_yank"),
   desc = "Highlight yanked lines",
-  callback = function() vim.hl.on_yank({ higroup = "Visual", timeout = 400 }) end,
+  callback = function() vim.hl.on_yank({ higroup = "Visual", timeout = 500 }) end,
 })
 
 vim.api.nvim_create_autocmd("VimEnter", {

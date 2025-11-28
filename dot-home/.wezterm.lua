@@ -85,16 +85,17 @@ config.keys      = {
 }
 
 if is_windows then
-  table.insert(config.keys, { key = "w", mods = "LEADER", action = action.SpawnTab { DomainName = "WSL:Ubuntu" } })
+  table.insert(config.keys, { key = "w", mods = "LEADER|ALT", action = action.SpawnTab { DomainName = "WSL:Ubuntu" } })
 end
 
 --==== APPEARANCE
 -- WezTerm comes with JetBrains Mono, symbols, and emojis; but added after this list,
--- so keep JetBrains Mono above the emoji set
+-- so keep JetBrains Mono above the emoji set (always put fonts above emojis)
 config.font              = wezterm.font_with_fallback({
   "Geist Mono",
   "JetBrains Mono",
   "Segoe UI Emoji",
+  "Symbols Nerd Font Mono",
 })
 config.font_size         = 10
 config.harfbuzz_features = { "calt=1", "clig=0", "liga=0" }

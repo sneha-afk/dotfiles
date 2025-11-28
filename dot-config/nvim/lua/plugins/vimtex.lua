@@ -60,8 +60,20 @@ return {
       -- Simulate continuous mode by recompiling on save
       vim.api.nvim_create_autocmd("BufWritePost", {
         pattern = "*.tex",
-        callback = function()
-          vim.cmd("VimtexCompile")
+        callback = function(args)
+          local bufnr = args.buf
+          local tick = vim.b[bufnr].changedtick
+
+          -- Keep track of last compiled tick for this buffer
+          if vim.b[bufnr].last_compiled_tick == nil then
+            vim.b[bufnr].last_compiled_tick = -1
+          end
+
+          -- Only compile if there is a detetcted change to write
+          if vim.b[bufnr].last_compiled_tick ~= tick then
+            vim.b[bufnr].last_compiled_tick = tick
+            vim.cmd("VimtexCompile")
+          end
         end,
       })
     else
