@@ -39,7 +39,7 @@ return {
     keymap = {
       preset = "default",
       ["<C-f>"] = { "show", "show_documentation", "hide_documentation" }, -- Duplicate C-space in case of terminal issues
-      ["<C-n>"] = { "show", "show_documentation", "hide_documentation" }, -- Default on Vim
+      -- ["<C-n>"] = { "show", "show_documentation", "hide_documentation" }, -- Default on Vim
       ["<Enter>"] = { "accept", "fallback" },                             -- Both <C-y> and Enter will accept
       ["<C-j>"] = { "scroll_documentation_down", "fallback" },
       ["<C-k>"] = { "scroll_documentation_up", "fallback" },

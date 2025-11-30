@@ -12,13 +12,13 @@ local is_windows = wezterm.target_triple:find("windows")
 ---@param executable string Name of the executable
 ---@return boolean True if the executable exists
 local function exe_exists(executable)
-  local cmd
+  local success
   if is_windows then
-    cmd = { "where.exe", "/Q", executable }
+    success = wezterm.run_child_process({ "where.exe", "/Q", executable })
   else
-    cmd = { "bash", "-c", "command -v " .. executable .. " >/dev/null 2>&1" }
+    success = wezterm.run_child_process({ "bash", "-c", "command -v " .. executable .. " >/dev/null 2>&1" })
   end
-  return wezterm.run_child_process(cmd)
+  return success == true
 end
 
 ---
@@ -28,6 +28,8 @@ if is_windows then
     { label = "Command Prompt", args = { "cmd.exe" } },
     { label = "Git Bash",       args = { "C:\\Program Files\\Git\\bin\\bash.exe", "-i", "-l" } },
   }
+  config.window_background_opacity = 0.75
+  config.win32_system_backdrop = "Mica"
 end
 
 config.front_end = "WebGpu"
@@ -38,7 +40,7 @@ config.leader    = { key = ",", mods = "CTRL", timeout_milliseconds = 2000 }
 config.keys      = {
   { key = "l", mods = "ALT",          action = action.ShowLauncher },
   { key = "p", mods = "CTRL|SHIFT",   action = action.ActivateCommandPalette },
-  { key = "q", mods = "CTRL|SHIFT",   action = wezterm.action.QuitApplication },
+  { key = "q", mods = "CTRL|SHIFT",   action = action.QuitApplication },
 
   { key = "t", mods = "LEADER",       action = action.SpawnTab("CurrentPaneDomain") },
   { key = "x", mods = "LEADER",       action = action.CloseCurrentTab { confirm = true } },
@@ -106,6 +108,7 @@ local scheme             = wezterm.color.get_builtin_schemes()[config.color_sche
 --== COLOR HELPERS
 local bg                 = scheme.background or "#1e1e2e"
 local fg                 = scheme.foreground or "#c0caf5"
+local accent             = scheme.brights and scheme.brights[2] or fg
 
 --- Adjust color brightness by percentage (-100 to 100)
 ---@param hex string Hex color code
@@ -133,58 +136,77 @@ local function is_dark_theme(hex)
 end
 
 local is_dark            = is_dark_theme(bg)
-local brighter           = is_dark and 15 or -15
-local brighter_2x        = is_dark and 35 or -35
-local brighter_3x        = is_dark and 50 or -50
-local darker             = is_dark and -15 or 15
-local darker_2x          = is_dark and -25 or 25
+local brighter           = is_dark and 15 or 10
+local brighter_2x        = is_dark and 35 or 20
+local brighter_3x        = is_dark and 50 or 30
+local darker             = is_dark and -15 or -15
+local darker_2x          = is_dark and -25 or -25
 local brighter_hover     = is_dark and 5 or -5
 local darker_hover       = is_dark and -5 or 5
 
 --== TAB BAR
 config.colors            = {
   tab_bar = {
-    background = adjust_brightness(bg, darker_2x),
     active_tab = {
       bg_color = adjust_brightness(bg, brighter_3x),
       fg_color = fg,
     },
     inactive_tab = {
       bg_color = adjust_brightness(bg, darker_2x),
-      fg_color = adjust_brightness(fg, -15),
+      fg_color = adjust_brightness(fg, darker_2x),
     },
     inactive_tab_hover = {
       bg_color = adjust_brightness(bg, darker_hover),
-      fg_color = adjust_brightness(fg, 5),
-    },
-    new_tab = {
-      bg_color = adjust_brightness(bg, darker_2x),
-      fg_color = adjust_brightness(fg, -25),
-    },
-    new_tab_hover = {
-      bg_color = adjust_brightness(bg, brighter_hover),
       fg_color = fg,
     },
+    new_tab = {
+      bg_color = adjust_brightness(bg, darker),
+      fg_color = adjust_brightness(fg, darker),
+    },
+    new_tab_hover = { bg_color = adjust_brightness(bg, brighter_2x), fg_color = fg },
   },
+  split = fg,
 }
 
 config.use_fancy_tab_bar = true
 config.tab_max_width     = 24
 
-wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
+---Bundled with Wezterm: https://www.nerdfonts.com/cheat-sheet
+---@param text string Search against for an icon
+---@return string Icon for the text (Nerd Font Symbol)
+local function get_icon(text)
+  local t = text:lower()
+  if t:find("local") then return "" end
+  if t:find("nvim") then return "" end
+  if t:find("git") then return " " end
+  if t:find("ubuntu") then return " " end
+  if t:find("debian") then return " " end
+  if t:find("arch") then return " " end
+  if t:find("fedora") then return " " end
+  if t:find("wsl") then return " " end
+  if t:find("bash") then return " " end
+  if t:find("zsh") then return " " end
+  if t:find("pwsh") then return " " end
+  if t:find("powershell") then return "󰨊 " end
+  if t:find("cmd.exe") then return " " end
+  if t:find("wezterm") then return "" end
+  if t:find("ssh") then return "󰣀 " end
+  return " "
+end
+
+wezterm.on("format-tab-title", function(tab)
   local title = tab.active_pane.title:gsub(".*[\\/]", "")
   if title == "" then title = "shell" end
 
   local idx = (tab.tab_index or 0) + 1
-  local label = string.format("%d: %s", idx, title)
-  return label
+  return string.format("%s %d: %s", get_icon(title), idx, title)
 end)
 
 --==== WINDOW
-config.initial_cols         = 120
-config.initial_rows         = 28
+config.initial_cols         = 128
+config.initial_rows         = 32
 
-config.inactive_pane_hsb    = { saturation = 0.9, brightness = 0.7 }
+config.inactive_pane_hsb    = { saturation = 0.85, brightness = 0.75 }
 
 config.max_fps              = 120
 config.default_cursor_style = "SteadyBar"
@@ -192,7 +214,7 @@ config.enable_scroll_bar    = true
 
 config.window_decorations   = "RESIZE"
 config.window_frame         = {
-  active_titlebar_bg = adjust_brightness(bg, brighter),
+  active_titlebar_bg = adjust_brightness(bg, darker),
   inactive_titlebar_bg = adjust_brightness(bg, darker),
   font = wezterm.font_with_fallback({
     { family = "Geist" },
@@ -200,26 +222,36 @@ config.window_frame         = {
   }),
 }
 config.window_padding       = {
-  top = "0.5cell",
-  bottom = "0.25cell",
+  left = "0.5cell",
+  right = "0.5cell",
+  top = "0.4cell",
+  bottom = "0.3cell",
 }
 
-local leader_mode_colors    = {
-  bg_color = adjust_brightness(bg, brighter_2x),
-  fg_color = fg,
-  accent   = adjust_brightness(fg, 25),
-}
+wezterm.on("update-right-status", function(window, pane)
+  local cells = {}
 
-wezterm.on("update-right-status", function(window, _)
-  local status = {}
-
+  -- leader mode indicator
   if window:leader_is_active() then
-    table.insert(status, { Background = { Color = leader_mode_colors.bg_color } })
-    table.insert(status, { Foreground = { Color = leader_mode_colors.accent } })
-    table.insert(status, { Text = " 🟢 LEADER " })
+    table.insert(cells, { Background = { Color = accent } })
+    table.insert(cells, { Foreground = { Color = "#000000" } })
+    table.insert(cells, { Text = " 󱐋 LEADER  " })
+    table.insert(cells, { Background = { Color = bg } })
+    table.insert(cells, { Foreground = { Color = accent } })
+  else
+    table.insert(cells, { Background = { Color = bg } })
+    table.insert(cells, { Foreground = { Color = fg } })
   end
 
-  window:set_right_status(wezterm.format(status))
+  table.insert(cells, { Text = " |  " })
+
+  local domain = pane:get_domain_name():lower()
+  table.insert(cells, { Text = get_icon(domain) .. "  | " })
+
+  local time = wezterm.strftime("%I:%M %p")
+  table.insert(cells, { Text = time .. " " })
+
+  window:set_right_status(wezterm.format(cells))
 end)
 
 config.adjust_window_size_when_changing_font_size = false
