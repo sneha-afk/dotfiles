@@ -33,7 +33,7 @@ search() {
 alias myip='curl ifconfig.me'
 
 mkcd() {
-    (mkdir -p "$1" && cd "$1") || return 1
+    { mkdir -p "$1" && cd "$1"; } || return 1
 }
 
 # Find files quickly

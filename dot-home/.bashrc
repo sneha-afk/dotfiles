@@ -120,6 +120,8 @@ alias gp='git push'
 alias gl='git log --oneline'
 alias glg='git log --graph --oneline --decorate --all'
 
+alias home='cd ~'
+
 # ========================================================
 # Completions
 # ========================================================
