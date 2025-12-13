@@ -36,8 +36,9 @@ local setup_funcs = {
     map("n", "<leader>sh", "<cmd>LspClangdSwitchSourceHeader<cr>", { desc = "C: switch [S]ource/[H]eader" })
   end,
   ts_ls = function()
-    map("n", "<leader>oi",  organize_imports,                     { desc = "JS/TS: [O]rganize [I]mports" })
-    map("n", "<leader>cas", "<cmd>LspTypescriptSourceAction<cr>", { desc = "JS/TS: [CA]ctions, [S]ource" })
+    map("n", "<leader>oi",  organize_imports,                             { desc = "JS/TS: [O]rganize [I]mports" })
+    map("n", "<leader>cas", "<cmd>LspTypescriptSourceAction<cr>",         { desc = "JS/TS: [CA]ctions, [S]ource" })
+    map("n", "<leader>gsd", "<cmd>LspTypescriptGoToSourceDefinition<cr>", { desc = "JS/TS: [G]oto [S]ource [D]efinition" })
   end,
 }
 

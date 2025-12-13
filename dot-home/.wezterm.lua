@@ -28,7 +28,7 @@ if is_windows then
     { label = "Command Prompt", args = { "cmd.exe" } },
     { label = "Git Bash",       args = { "C:\\Program Files\\Git\\bin\\bash.exe", "-i", "-l" } },
   }
-  config.window_background_opacity = 0.75
+  config.window_background_opacity = 0.85
   config.win32_system_backdrop = "Mica"
 end
 
@@ -116,7 +116,7 @@ local accent             = scheme.brights and scheme.brights[2] or fg
 ---@return string Adjusted hex color
 local function adjust_brightness(hex, percent)
   local r, g, b = hex:match("#?(%x%x)(%x%x)(%x%x)")
-  if not r then return hex end
+  if not r or not percent then return hex end
 
   local factor = 1 + (percent / 100)
   local function clamp(val)
@@ -130,40 +130,49 @@ end
 ---@param hex string Hex color code
 ---@return boolean True if color is dark
 local function is_dark_theme(hex)
+  if not hex then return true end
   local r, g, b = hex:match("#?(%x%x)(%x%x)(%x%x)")
+  if not r then return true end
   local luminance = (tonumber(r, 16) * 0.299 + tonumber(g, 16) * 0.587 + tonumber(b, 16) * 0.114) / 255
   return luminance < 0.5
 end
 
 local is_dark            = is_dark_theme(bg)
-local brighter           = is_dark and 15 or 10
-local brighter_2x        = is_dark and 35 or 20
-local brighter_3x        = is_dark and 50 or 30
-local darker             = is_dark and -15 or -15
-local darker_2x          = is_dark and -25 or -25
-local brighter_hover     = is_dark and 5 or -5
-local darker_hover       = is_dark and -5 or 5
+
+-- Adjustment step values (positive = lighter, negative = darker)
+local step_xsmall        = is_dark and 10 or -10
+local step_small         = is_dark and 15 or -15
+local step_medium        = is_dark and 30 or -30
+local step_large         = is_dark and 50 or -50
+local step_xlarge        = is_dark and 75 or -75
+
+local step_neg_small     = is_dark and -15 or 15
+local step_neg_medium    = is_dark and -30 or 30
+local step_neg_large     = is_dark and -50 or 50
 
 --== TAB BAR
 config.colors            = {
   tab_bar = {
     active_tab = {
-      bg_color = adjust_brightness(bg, brighter_3x),
+      bg_color = adjust_brightness(bg, is_dark and step_xlarge or step_xsmall),
       fg_color = fg,
     },
     inactive_tab = {
-      bg_color = adjust_brightness(bg, darker_2x),
-      fg_color = adjust_brightness(fg, darker_2x),
+      bg_color = adjust_brightness(bg, is_dark and step_neg_medium or step_medium),
+      fg_color = adjust_brightness(fg, step_neg_small),
     },
     inactive_tab_hover = {
-      bg_color = adjust_brightness(bg, darker_hover),
+      bg_color = adjust_brightness(bg, step_small),
       fg_color = fg,
     },
     new_tab = {
-      bg_color = adjust_brightness(bg, darker),
-      fg_color = adjust_brightness(fg, darker),
+      bg_color = adjust_brightness(bg, step_small),
+      fg_color = fg,
     },
-    new_tab_hover = { bg_color = adjust_brightness(bg, brighter_2x), fg_color = fg },
+    new_tab_hover = {
+      bg_color = adjust_brightness(bg, step_neg_small),
+      fg_color = fg,
+    },
   },
   split = fg,
 }
@@ -211,15 +220,17 @@ config.inactive_pane_hsb    = { saturation = 0.85, brightness = 0.75 }
 config.max_fps              = 120
 config.default_cursor_style = "SteadyBar"
 config.enable_scroll_bar    = true
+config.scrollback_lines     = 10000
 
 config.window_decorations   = "RESIZE"
 config.window_frame         = {
-  active_titlebar_bg = adjust_brightness(bg, darker),
-  inactive_titlebar_bg = adjust_brightness(bg, darker),
+  active_titlebar_bg = adjust_brightness(bg, step_medium),
+  inactive_titlebar_bg = adjust_brightness(bg, step_large),
   font = wezterm.font_with_fallback({
     { family = "Geist" },
     { family = "Roboto", weight = "Bold" }, -- default
   }),
+  font_size = 9.0,
 }
 config.window_padding       = {
   left = "0.5cell",
@@ -235,7 +246,7 @@ wezterm.on("update-right-status", function(window, pane)
   if window:leader_is_active() then
     table.insert(cells, { Background = { Color = accent } })
     table.insert(cells, { Foreground = { Color = "#000000" } })
-    table.insert(cells, { Text = " 󱐋 LEADER  " })
+    table.insert(cells, { Text = " 󱐋 LEADER " })
     table.insert(cells, { Background = { Color = bg } })
     table.insert(cells, { Foreground = { Color = accent } })
   else
@@ -243,10 +254,10 @@ wezterm.on("update-right-status", function(window, pane)
     table.insert(cells, { Foreground = { Color = fg } })
   end
 
-  table.insert(cells, { Text = " |  " })
+  table.insert(cells, { Text = "  |  " })
 
   local domain = pane:get_domain_name():lower()
-  table.insert(cells, { Text = get_icon(domain) .. "  | " })
+  table.insert(cells, { Text = get_icon(domain) .. "  |  " })
 
   local time = wezterm.strftime("%I:%M %p")
   table.insert(cells, { Text = time .. " " })
@@ -255,6 +266,18 @@ wezterm.on("update-right-status", function(window, pane)
 end)
 
 config.adjust_window_size_when_changing_font_size = false
+
+-- https://wezterm.org/config/lua/config/hyperlink_rules.html
+config.hyperlink_rules = wezterm.default_hyperlink_rules()
+
+-- make username/project paths clickable. this implies paths like the following are for github.
+-- ( "nvim-treesitter/nvim-treesitter" | wbthomason/packer.nvim | wezterm/wezterm | "wezterm/wezterm.git" )
+-- as long as a full url hyperlink regex exists above this it should not match a full url to
+-- github or gitlab / bitbucket (i.e. https://gitlab.com/user/project.git is still a whole clickable url)
+table.insert(config.hyperlink_rules, {
+  regex = [[["]?([\w\d]{1}[-\w\d]+)(/){1}([-\w\d\.]+)["]?]],
+  format = "https://www.github.com/$1/$3",
+})
 
 -------------
 return config

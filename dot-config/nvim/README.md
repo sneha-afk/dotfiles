@@ -60,7 +60,7 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/sneha-afk/dot
 ```
 
 ### Modifying
-Leader key set to `,` and localleader set to `\` in `.config/nvim/init.lua`
+Leader key set to `,` and localleader set to `/` in `.config/nvim/init.lua`
 
 | File | Purpose |
 |------|---------|

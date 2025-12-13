@@ -36,16 +36,25 @@ return {
     end,
   },
   {
-    "nvim-mini/mini.pairs",
-    event = "InsertEnter",
-    version = false,
-    config = true,
-  },
-  {
     "nvim-mini/mini.surround",
     event = "ModeChanged *:[vV\x16]*", -- Load on Visual
     version = false,
     config = true,
+  },
+  {
+    "saghen/blink.pairs",
+    event = "InsertEnter",
+    version = "*",
+    dependencies = "saghen/blink.download",
+    --- @module 'blink.pairs'
+    --- @type blink.pairs.Config
+    opts = {
+      highlights = {
+        enabled = true,
+        groups = require("utils.ui").color_cycle,
+        matchparen = { enabled = true },
+      },
+    },
   },
   {
     "norcalli/nvim-colorizer.lua",
@@ -57,17 +66,6 @@ return {
       scss = { rgb_fn = true },
       sass = { rgb_fn = true },
     },
-    config = function(_, opts)
-      local colorizer = require("colorizer")
-      colorizer.setup(opts)
-
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = colorizer_fts,
-        callback = function(args)
-          colorizer.attach_to_buffer(args.buf)
-        end,
-      })
-    end,
   },
   {
     "brianhuster/live-preview.nvim",
@@ -93,8 +91,8 @@ return {
             return
           end
 
-          if port < 1024 or port > 49151 then
-            vim.notify("Port must be between 1024-49151", vim.log.levels.ERROR)
+          if port < 1024 or port > 65535 then
+            vim.notify("Port must be between 1024-65535", vim.log.levels.ERROR)
             return
           end
 
@@ -136,6 +134,19 @@ return {
         NOTE = { icon = "N " },
         TEST = { icon = "⏵" },
       },
+    },
+  },
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    ---@type Flash.Config
+    opts = {},
+    keys = {
+      { "s",     mode = { "n", "x", "o" }, function() require("flash").jump() end,              desc = "Flash" },
+      { "S",     mode = { "n", "x", "o" }, function() require("flash").treesitter() end,        desc = "Flash Treesitter" },
+      { "r",     mode = "o",               function() require("flash").remote() end,            desc = "Remote Flash" },
+      { "R",     mode = { "o", "x" },      function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+      { "<A-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
     },
   },
 }

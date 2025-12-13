@@ -13,23 +13,24 @@ vim.uv = vim.uv or vim.loop
 vim.g.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 
 if vim.g.is_windows then
-  vim.opt.shellcmdflag = "-NoLogo -ExecutionPolicy RemoteSigned -Command"
+  local shell = vim.fn.executable("pwsh") == 1 and "pwsh"
+      or vim.fn.executable("powershell") == 1 and "powershell"
+      or "cmd"
 
-  if vim.fn.executable("pwsh") == 1 then
-    vim.opt.shell = "pwsh"
-  elseif vim.fn.executable("powershell") == 1 then
-    vim.opt.shell = "powershell"
-  else
-    vim.opt.shell = "cmd"
-    vim.opt.shellcmdflag = "/s /c"
-  end
+  vim.opt.shell = shell
+  vim.opt.shellcmdflag = (shell == "cmd") and "/s /c" or "-NoLogo -ExecutionPolicy RemoteSigned -Command"
 end
+
+vim.g.is_wezterm = vim.fn.getenv("TERM_PROGRAM") == "WezTerm"
 
 -- Swap out pickers and any plugins using them
 vim.g.picker_source = "folke/snacks.nvim"
 
 -- Should (non-essential) icons be used?
 vim.g.use_icons = true
+
+-- WezTerm ships with Nerd Font Symbols, override to true
+vim.g.use_icons = vim.g.is_wezterm or vim.g.use_icons
 
 -- Taken from folke: override vim.keymap.set
 -- Default to silent, non-recursive keymaps
@@ -70,14 +71,13 @@ local diagnostic_opts = {
 }
 vim.diagnostic.config(diagnostic_opts)
 
--- Load core configurations in this order
 require("core.options")
+require("core.keymaps")
+require("core.lazy")
 require("core.filetypes")
 require("core.commands")
-require("core.keymaps")
 require("core.terminal")
 require("core.highlights")
-require("core.lazy")
 
 -- Hack to work to launch in any environment that may load the UI later (e.g. WSL starts a server)
 vim.api.nvim_create_autocmd("UIEnter", {

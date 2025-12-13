@@ -25,6 +25,7 @@ set foldlevel=99
 set foldlevelstart=10
 set foldnestmax=4
 set belloff=all
+set mouse=a
 
 let g:is_windows = has('win32') || has('win64')
 let g:vim_home = g:is_windows ? expand('$HOME/vimfiles') : expand('~/.vim')
