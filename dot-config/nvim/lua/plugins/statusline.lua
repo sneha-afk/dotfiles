@@ -8,9 +8,11 @@ return {
   dependencies = enable_icons and { "nvim-mini/mini.icons" } or {},
   opts = {
     options = {
-      theme               = "auto",
-      icons_enabled       = enable_icons,
-      disabled_filetypes  = {
+      theme                = "auto",
+      icons_enabled        = enable_icons,
+      section_separators   = { left = "", right = "" },
+      component_separators = { left = "", right = "" },
+      disabled_filetypes   = {
         "starter",
         "ministarter",
         "help",
@@ -20,10 +22,13 @@ return {
         "snacks_picker_list",
         "snacks_dashboard",
       },
-      always_show_tabline = false,
+      always_show_tabline  = false,
     },
     refresh = {
       refresh_time = 32,
+    },
+    extensions = {
+      "quickfix",
     },
     -- A, B, C are left; X, Y, Z are right
     sections = {
@@ -62,7 +67,14 @@ return {
       },
       lualine_z = { "progress", "location" },
     },
-    -- Inactive windows default: only show filename and location
+    inactive_sections = {
+      lualine_a = {},
+      lualine_b = {},
+      lualine_c = {},
+      lualine_x = { "location" },
+      lualine_y = {},
+      lualine_z = {},
+    },
     tabline = {
       lualine_a = {
         {
@@ -74,6 +86,13 @@ return {
         },
       },
     },
+    winbar = {
+      lualine_z = { "filename" },
+    },
+    inactive_winbar = {
+      lualine_z = { "filename" },
+    },
+
   },
   config = function(_, opts)
     require("lualine").setup(opts)

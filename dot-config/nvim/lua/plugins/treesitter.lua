@@ -61,6 +61,8 @@ return {
     branch = "main",
     event = "VeryLazy",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
+    ---@module "nvim-treesitter-textobjects"
+    ---@type TSTextObjects.UserConfig
     opts = {
     },
     config = function(_, opts)
@@ -70,6 +72,7 @@ return {
       local map    = vim.keymap.set
       local select = require("nvim-treesitter-textobjects.select")
       local move   = require("nvim-treesitter-textobjects.move")
+      local swap   = require("nvim-treesitter-textobjects.swap")
 
       local function map_select(lhs, query, desc)
         map({ "x", "o" }, lhs, function()
@@ -83,9 +86,6 @@ return {
         end, { desc = desc })
       end
 
-      -------------------------------------------------------------------------
-      -- SELECTIONS
-      ------------------------------------------------------------------------
       local selections = {
         ["af"] = { "@function.outer", "Select outer function" },
         ["if"] = { "@function.inner", "Select inner function" },
@@ -110,9 +110,6 @@ return {
         map_select(lhs, spec[1], spec[2])
       end
 
-      -------------------------------------------------------------------------
-      -- Movements
-      -------------------------------------------------------------------------
       local movements = {
         -- Next start
         ["]m"] = { move.goto_next_start, "@function.outer", "Next function start" },
@@ -139,5 +136,13 @@ return {
         map_move(lhs, spec[1], spec[2], spec[3])
       end
     end,
+  },
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = "VeryLazy",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    ---@module "treesitter-context"
+    ---@type TSContext.UserConfig
+    opts = {},
   },
 }

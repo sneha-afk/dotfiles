@@ -18,9 +18,18 @@ return {
     "folke/lazydev.nvim",
     ft = "lua",
     cmd = "LazyDev",
+    dependencies = {
+      {
+        "DrKJeff16/wezterm-types",
+        lazy = true,
+        version = false,
+        enabled = vim.fn.executable("wezterm") == 1,
+      },
+    },
     opts = {
       library = {
         { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+        { path = "wezterm-types",      mods = { "wezterm" } },
       },
     },
   },
