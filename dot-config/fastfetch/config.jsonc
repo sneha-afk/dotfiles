@@ -4,12 +4,6 @@
     "type": "small",
     "padding": {
       "top": 2
-    },
-    "color": {
-      "1": "blue",
-      "2": "green",
-      "3": "yellow",
-      "4": "red"
     }
   },
   "display": {
@@ -30,7 +24,10 @@
     "size": {
       "binaryPrefix": "si"
     },
-    "constants": ["sneha"]
+    // Constants indexed like #1, #2, ...
+    "constants": [
+      "sneha"
+    ]
   },
   "modules": [
     {

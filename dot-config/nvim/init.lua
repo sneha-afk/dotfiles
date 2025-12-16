@@ -27,10 +27,11 @@ vim.g.is_wezterm = vim.fn.getenv("TERM_PROGRAM") == "WezTerm"
 vim.g.picker_source = "folke/snacks.nvim"
 
 -- Should (non-essential) icons be used?
-vim.g.use_icons = true
+-- Manually set to true/false to override auto-detection (e.g. installed patched font)
+vim.g.use_icons_manual = true
 
--- WezTerm ships with Nerd Font Symbols, override to true
-vim.g.use_icons = vim.g.is_wezterm or vim.g.use_icons
+-- Fallbacks to manual setting above
+vim.g.use_icons = require("utils.ui").icons_supported()
 
 -- Taken from folke: override vim.keymap.set
 -- Default to silent, non-recursive keymaps
@@ -77,7 +78,6 @@ require("core.lazy")
 require("core.filetypes")
 require("core.commands")
 require("core.terminal")
-require("core.highlights")
 
 -- Hack to work to launch in any environment that may load the UI later (e.g. WSL starts a server)
 vim.api.nvim_create_autocmd("UIEnter", {

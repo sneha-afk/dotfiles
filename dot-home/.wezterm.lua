@@ -25,6 +25,7 @@ end
 if is_windows then
   config.default_prog = { exe_exists("pwsh") and "pwsh.exe" or "powershell.exe", "-NoLogo" }
   config.launch_menu = {
+    { label = "Admin",          args = { "powershell.exe", "-NoLogo", "-Command", "Start-Process powershell -Verb RunAs" } },
     { label = "Command Prompt", args = { "cmd.exe" } },
     { label = "Git Bash",       args = { "C:\\Program Files\\Git\\bin\\bash.exe", "-i", "-l" } },
   }
@@ -45,12 +46,16 @@ config.keys      = {
   { key = "t", mods = "LEADER",       action = action.SpawnTab("CurrentPaneDomain") },
   { key = "x", mods = "LEADER",       action = action.CloseCurrentTab { confirm = true } },
   { key = "q", mods = "LEADER",       action = action.CloseCurrentPane { confirm = true } },
-  { key = "w", mods = "LEADER",       action = action.CloseCurrentPane { confirm = false } },
   { key = "r", mods = "LEADER",       action = action.ReloadConfiguration },
   { key = "f", mods = "LEADER",       action = action.Search("CurrentSelectionOrEmptyString") },
   { key = "z", mods = "LEADER",       action = action.TogglePaneZoomState },
   { key = "s", mods = "LEADER",       action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
   { key = "v", mods = "LEADER",       action = action.SplitVertical({ domain = "CurrentPaneDomain" }) },
+
+  -- fuzzy launchers
+  { key = "t", mods = "LEADER|SHIFT", action = action.ShowLauncherArgs { flags = "TABS" } },
+  { key = "p", mods = "LEADER|SHIFT", action = action.ShowLauncherArgs { flags = "COMMANDS" } },
+  { key = "w", mods = "LEADER|SHIFT", action = action.ShowLauncherArgs { flags = "WORKSPACES" } },
 
   -- pane navigation (Ctrl+Alt+hjkl)
   { key = "h", mods = "CTRL|ALT",     action = action.ActivatePaneDirection("Left") },
@@ -207,8 +212,20 @@ wezterm.on("format-tab-title", function(tab)
   local title = tab.active_pane.title:gsub(".*[\\/]", "")
   if title == "" then title = "shell" end
 
+  local is_admin = false
+  if tab.active_pane.title:find("Administrator:") or
+  tab.active_pane.title:find("root") or
+  tab.active_pane.title:find("#") then
+    is_admin = true
+  end
+
   local idx = (tab.tab_index or 0) + 1
-  return string.format("%s %d: %s", get_icon(title), idx, title)
+  local icon = get_icon(title)
+  if is_admin then -- add a shield icon
+    return string.format(" 󰒙 %s %d: %s ", icon, idx, title)
+  else
+    return string.format("%s %d: %s", icon, idx, title)
+  end
 end)
 
 --==== WINDOW
@@ -227,10 +244,8 @@ config.window_frame         = {
   active_titlebar_bg = adjust_brightness(bg, step_medium),
   inactive_titlebar_bg = adjust_brightness(bg, step_large),
   font = wezterm.font_with_fallback({
-    { family = "Geist" },
     { family = "Roboto", weight = "Bold" }, -- default
   }),
-  font_size = 9.0,
 }
 config.window_padding       = {
   left = "0.5cell",

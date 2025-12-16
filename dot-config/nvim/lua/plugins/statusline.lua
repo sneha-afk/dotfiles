@@ -1,15 +1,13 @@
 -- .config/nvim/lua/plugins/statusline.lua
 
-local enable_icons = require("utils.ui").icons_supported()
-
 return {
   "nvim-lualine/lualine.nvim",
   event = "VeryLazy",
-  dependencies = enable_icons and { "nvim-mini/mini.icons" } or {},
+  dependencies = vim.g.use_icons and { "nvim-mini/mini.icons" } or {},
   opts = {
     options = {
       theme                = "auto",
-      icons_enabled        = enable_icons,
+      icons_enabled        = vim.g.use_icons,
       section_separators   = { left = "", right = "" },
       component_separators = { left = "", right = "" },
       disabled_filetypes   = {

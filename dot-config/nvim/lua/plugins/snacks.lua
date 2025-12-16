@@ -161,7 +161,7 @@ return {
       enabled = true,
       config = {
         gui = {
-          nerdFontsVersion = ui_utils.icons_supported() and "3" or "",
+          nerdFontsVersion = vim.g.use_icons and "3" or "",
         },
       },
     },

@@ -85,11 +85,12 @@ M.color_cycle = {
   "Boolean",
 }
 
+--- Check if icons can be used in the current UI/terminal
+--- Set once into vim.g.use_icons for global use, recommended to use that variable
+---@return boolean Use icons throughout nvim?
 function M.icons_supported()
-  -- Set in top level init.lua
-  if not vim.g.use_icons then return false end
-
-  if vim.g.neovide or vim.g.goneovim or vim.g.gtk or vim.g.GuiLoaded then
+  -- Neovide and WezTerm provide support for icons
+  if vim.g.wezterm or vim.g.neovide or vim.g.goneovim or vim.g.gtk or vim.g.GuiLoaded then
     return true
   end
 
@@ -99,12 +100,13 @@ function M.icons_supported()
     return true
   end
 
-  return vim.g.use_icons
+  -- Fallback to user manual setting
+  return vim.g.use_icons_manual
 end
 
--- Usually {} can be used to use defaults
+-- {} assuming icon set installed elsewhere, i.e an empty merge
 function M.get_icon_set()
-  return M.icons_supported() and {} or M.ascii_icons
+  return vim.g.use_icons and {} or M.ascii_icons
 end
 
 return M

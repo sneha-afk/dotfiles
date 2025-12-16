@@ -7,7 +7,7 @@ return {
     version = false,
     lazy = true,
     opts = {
-      style = require("utils.ui").icons_supported() and "glyph" or "ascii",
+      style = "glyph",
     },
     config = function(_, opts)
       local icons = require("mini.icons")
@@ -33,7 +33,21 @@ return {
         signs = { add = "┃", change = "┇", delete = "━" },
       },
     },
-    config = true,
+    config = function(_, opts)
+      require("mini.diff").setup(opts)
+
+      local hl = vim.api.nvim_set_hl
+      hl(0, "MiniDiffSignAdd",        { link = "DiffAdd" })
+      hl(0, "MiniDiffSignChange",     { link = "DiffChange" })
+      hl(0, "MiniDiffSignDelete",     { link = "DiffDelete" })
+
+      hl(0, "MiniDiffOverAdd",        { link = "DiffAdd" })
+      hl(0, "MiniDiffOverChange",     { link = "DiffChange" })
+      hl(0, "MiniDiffOverChangeBuf",  { link = "Comment" })
+      hl(0, "MiniDiffOverContext",    { link = "Comment" })
+      hl(0, "MiniDiffOverContextBuf", { link = "Comment" })
+      hl(0, "MiniDiffOverDelete",     { link = "DiffDelete" })
+    end,
   },
 
   -- Rainbow brackets/delimiters for clarity
