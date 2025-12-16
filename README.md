@@ -5,16 +5,18 @@
 
 | Area           | Location / Notes                                           |
 | -------------- | ---------------------------------------------------------- |
-| **Shells**     | **`dot-bash/`**, `dot-zsh/`                                |
-| **Neovim**     | `dot-config/nvim` — see its [`README.md`](./dot-config/nvim/) for more info      |
+| **Shells**     | :star: **`dot-bash/`**, `dot-zsh/`                                |
+| **Neovim**     | `dot-config/nvim` — see its [`README.md`](./dot-config/nvim/) |
 | **PowerShell** | `windows\profile\Microsoft.PowerShell_profile.ps1`         |
 | **WSL**        | `windows\.wslconfig`, `dot-home/.wsl_env`                  |
-| **Terminals**  | Windows Terminal & [WezTerm](https://wezterm.org/)         |
+| **Terminals**  | :star: [WezTerm](https://wezterm.org/), Windows Terminal          |
 | **Fonts**      | [Geist Mono](https://vercel.com/font), Segoe UI Emoji (built-in), optional [Symbols Nerd Font Mono](https://www.nerdfonts.com/font-downloads) |
 
-Other helpful files in `dot-config -> .config` and `dot-home`.
+Other helpful files in `dot-config -> .config` and `dot-home -> ~/*`.
 
-### 💻 my hardware
+<details>
+<summary>💻 my hardware</summary>
+
 - **Laptop**: ThinkPad X1 Carbon Gen 10 (2022)
   - Intel Core i7-1260P (12th Gen)
   - Intel Iris Xe Graphics
@@ -22,6 +24,8 @@ Other helpful files in `dot-config -> .config` and `dot-home`.
 - **Monitor**: Dell U2723QE
 
 ---
+
+</details>
 
 ## ⚙️ Setup
 ### 🐧 Linux
@@ -59,7 +63,7 @@ ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 <details>
 <summary>Run with elevated permissions</summary>
 
-If bootstrap fails, run in elevated PowerShell (auto-elevation should handle this):
+If bootstrap fails, run in elevated PowerShell (auto-elevation within script should handle this):
 ```powershell
 Start-Process wt -Verb RunAs -ArgumentList `
   "powershell -NoProfile -ExecutionPolicy Bypass -File `"$PWD\windows\bootstrap.ps1`""
@@ -105,7 +109,11 @@ The default `$PROFILE` location points to OneDrive, which causes:
 
 <details>
 <summary>Solution: point elsewhere</summary>
+
 Forward `$PROFILE` to `Documents\WindowsPowerShell` and pwsh's directory.
+
+Copy the utility script that simply sets `$PROFILE` into `Documents` permanently, this is the only file
+that would remain in OneDrive.
 
 ```powershell
 Copy-Item -Path ".\windows\utils\fix_profile_path.ps1" `
@@ -114,4 +122,4 @@ Copy-Item -Path ".\windows\utils\fix_profile_path.ps1" `
 ```
 </details>
 
-> ⚠️ Do **not** attempt to change the registry entries related to OneDrive.. been there done that.
+> Do **not** attempt to change the registry entries related to OneDrive.. been there done that.

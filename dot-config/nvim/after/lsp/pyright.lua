@@ -1,5 +1,6 @@
 -- .config/nvim/lsp/pyright.lua
 
+---@type vim.lsp.Config
 return {
   settings = {
     pyright = {

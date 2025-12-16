@@ -15,6 +15,7 @@ local function find_compile_commands_dir()
   return "." -- fallback to project root
 end
 
+---@type vim.lsp.Config
 return {
   cmd = {
     "clangd",

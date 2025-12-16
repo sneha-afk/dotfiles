@@ -1,18 +1,19 @@
 -- .config/nvim/lsp/gopls.lua
 
+---@type vim.lsp.Config
 return {
   settings = {
     gopls = {
+      directoryFilters = {
+        "-**/node_modules",
+        "-**/.git",
+        "-**/vendor",
+      },
       staticcheck = true,
       usePlaceholders = true,
       completeUnimported = true,
       semanticTokens = true,
       analyses = { -- See https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md
-        nilness = true,
-        unusedwrite = true,
-        unreachable = true,
-        unusedvariable = true,
-        fillreturns = true,
         QF1007 = true,
         S1002 = true,
         S1011 = true,
@@ -27,16 +28,6 @@ return {
         functionTypeParameters = true,
         parameterNames = true,
         rangeVariableTypes = true,
-      },
-      codelenses = {
-        gc_details = false,
-        generate = true,
-        regenerate_cgo = true,
-        run_govulncheck = true,
-        test = true,
-        tidy = true,
-        upgrade_dependency = true,
-        vendor = true,
       },
     },
   },

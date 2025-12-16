@@ -1,6 +1,7 @@
 -- .config/nvim/lsp/basedpyright.lua
 -- basedpyright has a superset of settings from pyright.
 
+---@type vim.lsp.Config
 return {
   settings = {
     basedpyright = {

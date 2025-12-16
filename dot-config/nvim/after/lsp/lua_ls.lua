@@ -1,5 +1,6 @@
 -- .config/nvim/lsp/lua_ls.lua
 
+---@type vim.lsp.Config
 return {
   settings = {
     Lua = {
