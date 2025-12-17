@@ -47,7 +47,8 @@ return {
       ["<C-l>"] = { "snippet_forward", "fallback" },
     },
     sources = {
-      default = { "lsp", "snippets", "path", "buffer" },
+      default = vim.g.enable_avante and { "avante", "lsp", "snippets", "path", "buffer" }
+          or { "lsp", "snippets", "path", "buffer" },
       per_filetype = {
         tex = { "snippets", "latex", "omni", "buffer" },
         lua = { inherit_defaults = true, "lazydev" },
@@ -60,10 +61,18 @@ return {
           score_offset = 100,
         },
         latex = {
+          enabled = function() return pcall(require, "blink-cmp-latex") end,
           name = "Latex",
           module = "blink-cmp-latex",
           opts = { -- True: insert the LaTeX command instead of the symbol
             insert_command = true,
+          },
+        },
+        avante = {
+          enabled = function() return vim.g.enable_avante end,
+          module = "blink-cmp-avante",
+          name = "Avante",
+          opts = {
           },
         },
       },
