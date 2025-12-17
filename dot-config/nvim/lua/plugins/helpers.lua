@@ -149,4 +149,106 @@ return {
       { "<A-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
     },
   },
+  {
+    "lewis6991/gitsigns.nvim",
+    event = "VeryLazy",
+    keys = {
+      { "<leader>gd", "<cmd>Gitsigns toggle_linehl<cr>", desc = "[G]it: toggle [D]iff Overlay" },
+    },
+    opts = {
+      signs = {
+        add          = { text = "┃" },
+        change       = { text = "┇" },
+        delete       = { text = "━" },
+        topdelete    = { text = "━" },
+        changedelete = { text = "┇" },
+        untracked    = { text = "┃" },
+      },
+      signs_staged = {
+        add          = { text = "┃" },
+        change       = { text = "┇" },
+        delete       = { text = "━" },
+        topdelete    = { text = "━" },
+        changedelete = { text = "┇" },
+        untracked    = { text = "┃" },
+      },
+      numhl = false,
+      linehl = false,
+      word_diff = false,
+      preview_config = {
+        border = "rounded",
+        style = "minimal",
+        relative = "cursor",
+      },
+      on_attach = function(bufnr)
+        local gitsigns = require("gitsigns")
+
+        local function map(mode, l, r, opts)
+          opts = opts or {}
+          opts.buffer = bufnr
+          vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Navigation
+        map("n", "]c", function()
+          if vim.wo.diff then
+            vim.cmd.normal({ "]c", bang = true })
+          else
+            gitsigns.nav_hunk("next")
+          end
+        end, { desc = "[G]it: next [C]hange (hunk)" })
+
+        map("n", "[c", function()
+          if vim.wo.diff then
+            vim.cmd.normal({ "[c", bang = true })
+          else
+            gitsigns.nav_hunk("prev")
+          end
+        end, { desc = "[G]it: prev [C]hange (hunk)" })
+
+        -- Hunk actions
+        map("n", "ghs", gitsigns.stage_hunk, { desc = "[G]it [H]unk: [S]tage" })
+        map("n", "ghr", gitsigns.reset_hunk, { desc = "[G]it [H]unk: [R]eset" })
+        map("v", "ghs", function()
+          gitsigns.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+        end, { desc = "[G]it [H]unk: [S]tage selection" })
+        map("v", "ghr", function()
+          gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+        end, { desc = "[G]it [H]unk: [R]eset selection" })
+
+        map("n", "ghS", gitsigns.stage_buffer,        { desc = "[G]it [H]unk: [S]tage buffer" })
+        map("n", "ghR", gitsigns.reset_buffer,        { desc = "[G]it [H]unk: [R]eset buffer" })
+
+        map("n", "ghp", gitsigns.preview_hunk,        { desc = "[G]it [H]unk: [P]review" })
+        map("n", "ghi", gitsigns.preview_hunk_inline, { desc = "[G]it [H]unk: preview [I]nline" })
+
+        map("n", "ghb", function()
+          gitsigns.blame_line({ full = true })
+        end, { desc = "[G]it [H]unk: [B]lame line" })
+
+        map("n", "ghd", gitsigns.diffthis,                     { desc = "[G]it [H]unk: [D]iff buffer" })
+        map("n", "ghD", function() gitsigns.diffthis("~") end, { desc = "[G]it [H]unk: [D]iff vs last commit" })
+
+        map("n", "ghQ", function() gitsigns.setqflist("all") end,
+          { desc = "[G]it [H]unk: populate [Q]uickfix (all)" })
+
+        map("n", "ghq", gitsigns.setqflist, {
+          desc = "[G]it [H]unk: populate [Q]uickfix (buffer)" })
+
+        map({ "o", "x" }, "ih", gitsigns.select_hunk, { desc = "Select Git [H]unk" })
+      end,
+    },
+    config = function(_, opts)
+      local gitsigns = require("gitsigns")
+      gitsigns.setup(opts)
+
+      local hl = vim.api.nvim_set_hl
+      hl(0, "GitSignsAdd",          { link = "DiffAdd" })
+      hl(0, "GitSignsChange",       { link = "DiffChange" })
+      hl(0, "GitSignsDelete",       { link = "DiffDelete" })
+      hl(0, "GitSignsChangedelete", { link = "DiffChange" })
+      hl(0, "GitSignsTopdelete",    { link = "DiffDelete" })
+      hl(0, "GitSignsUntracked",    { link = "Comment" })
+    end,
+  },
 }

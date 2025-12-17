@@ -79,6 +79,7 @@ return {
       { "<leader>L", group = "LaTeX" },
       { "<leader>[", group = "Previous" },
       { "<leader>]", group = "Next" },
+      { "gh",        group = "Git Hunks" },
     })
   end,
 }
