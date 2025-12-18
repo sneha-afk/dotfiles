@@ -16,6 +16,18 @@ return {
     "folke/snacks.nvim",
     "Kaiser-Yang/blink-cmp-avante",
     vim.g.use_icons and "nvim-mini/mini.icons" or "",
+    {
+      "MeanderingProgrammer/render-markdown.nvim",
+      lazy = true,
+      enabled = vim.g.use_icons,
+      opts = {
+        file_types = { "markdown", "Avante" },
+        heading = {
+          icons = { "# ", "## ", "### ", "#### ", "##### ", "###### " },
+        },
+      },
+      ft = { "markdown", "Avante" },
+    },
   },
   keys = {
     { "<leader>aa", "<cmd>AvanteAsk<cr>",            desc = "[A]I: Ask" },
@@ -48,6 +60,14 @@ return {
       provider_opts = {
         title = "Avante Input",
         icon = " ",
+      },
+    },
+    mappings = {
+      suggestion = { -- WezTerm uses M(A)-l
+        accept = "<C-l>",
+        next = "<M-]>",
+        prev = "<M-[>",
+        dismiss = "<C-]>",
       },
     },
 
