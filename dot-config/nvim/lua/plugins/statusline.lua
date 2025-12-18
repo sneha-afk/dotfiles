@@ -22,6 +22,8 @@ return {
         "Avante",
         "AvanteInput",
         "AvanteConnectedFiles",
+        "AvanteSelectedFiles",
+        "AvanteSelectedCode",
       },
       always_show_tabline  = false,
     },

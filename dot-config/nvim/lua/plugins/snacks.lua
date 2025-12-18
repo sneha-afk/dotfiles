@@ -200,10 +200,15 @@ return {
         explorer = {
           cycle = true,
           auto_close = true,
+          hidden = true,
+          ignore = false,
           -- View when opening up explorer on a directory
           -- Use preset = "sidebar" in specific invocations (such as keymap)
           layout = { preset = "default" },
-          include = { "dot-*" },
+          include = {
+            "dot-*",
+            ".env",
+          },
         },
       },
     },
