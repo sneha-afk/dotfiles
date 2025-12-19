@@ -15,29 +15,10 @@ return {
     "MunifTanjim/nui.nvim",
     "folke/snacks.nvim",
     "Kaiser-Yang/blink-cmp-avante",
-    vim.g.use_icons and "nvim-mini/mini.icons" or "",
-    {
-      "MeanderingProgrammer/render-markdown.nvim",
-      lazy = true,
-      enabled = vim.g.use_icons,
-      opts = {
-        file_types = { "markdown", "Avante" },
-        heading = {
-          icons = { "# ", "## ", "### ", "#### ", "##### ", "###### " },
-        },
-      },
-      ft = { "markdown", "Avante" },
-    },
+    "nvim-mini/mini.icons",
+    -- render-markdown.nvim setup elsewhere
   },
   keys = {
-    { "<leader>aa", "<cmd>AvanteAsk<cr>",            desc = "[A]I: Ask" },
-    { "<leader>ac", "<cmd>AvanteChat<cr>",           desc = "[A]I: Open Chat" },
-    { "<leader>an", "<cmd>AvanteChatNew<cr>",        desc = "[A]I: New Chat" },
-    { "<leader>ah", "<cmd>AvanteHistory<cr>",        desc = "[A]I: Chat History" },
-    { "<leader>at", "<cmd>AvanteToggle<cr>",         desc = "[A]I: Toggle Sidebar" },
-    { "<leader>as", "<cmd>AvanteStop<cr>",           desc = "[A]I: Stop AI Request" },
-    { "<leader>ap", "<cmd>AvanteSwitchProvider<cr>", desc = "[A]I: Switch Provider" },
-    { "<leader>ar", "<cmd>AvanteRefresh<cr>",        desc = "[A]I: Refresh Windows" },
   },
   ---@module 'avante'
   ---@type avante.Config
@@ -55,11 +36,14 @@ return {
     prompt_logger = {
       log_dir = vim.fn.stdpath("cache") .. "/avante_prompts",
     },
+    selector = {
+      --- @type avante.SelectorProvider
+      provider = "snacks",
+    },
     input = {
       provider = "snacks",
       provider_opts = {
         title = "Avante Input",
-        icon = " ",
       },
     },
     mappings = {

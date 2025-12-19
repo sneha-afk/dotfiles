@@ -10,6 +10,9 @@ return {
     ---@type CatppuccinOptions
     opts = {
       auto_integrations = true,
+      dim_inactive = {
+        enabled = true,
+      },
       styles = {
         functions = { "bold" },
         keywords = { "bold" },
@@ -24,9 +27,9 @@ return {
       color_overrides = {
         mocha = {
           text     = "#d8d9de",
-          surface2 = "#2f2f37",
-          surface1 = "#262630",
-          surface0 = "#202028",
+          surface2 = "#34343e",
+          surface1 = "#2b2b35",
+          surface0 = "#23232d",
           base     = "#181820",
           mantle   = "#12121a",
           crust    = "#0d0d14",

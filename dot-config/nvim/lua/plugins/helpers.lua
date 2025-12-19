@@ -251,4 +251,19 @@ return {
       hl(0, "GitSignsUntracked",    { link = "Comment" })
     end,
   },
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    lazy = true,
+    enabled = vim.g.use_icons,
+    ft = { "markdown", "Avante" },
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-mini/mini.icons" },
+    ---@module "render-markdown"
+    ---@type render.md.UserConfig
+    opts = {
+      file_types = { "markdown", "Avante" },
+      heading = {
+        icons = { "# ", "## ", "### ", "#### ", "##### ", "###### " },
+      },
+    },
+  },
 }

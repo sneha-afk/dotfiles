@@ -3,11 +3,10 @@
 return {
   {
     "nvim-mini/mini.icons",
-    enabled = vim.g.use_icons,
-    version = false,
     lazy = true,
+    version = false,
     opts = {
-      style = "glyph",
+      style = vim.g.use_icons and "glyph" or "ascii",
     },
     config = function(_, opts)
       local icons = require("mini.icons")
