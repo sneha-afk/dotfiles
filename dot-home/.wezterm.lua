@@ -25,7 +25,7 @@ end
 if is_windows then
   config.default_prog = { exe_exists("pwsh") and "pwsh.exe" or "powershell.exe", "-NoLogo" }
   config.launch_menu = {
-    { label = "Admin",          args = { "powershell.exe", "-NoLogo", "-Command", "Start-Process powershell -Verb RunAs" } },
+    { label = "Admin",          args = { "powershell.exe", "-NoLogo", "-Command", "Start-Process wt -Verb RunAs" } },
     { label = "Command Prompt", args = { "cmd.exe" } },
     { label = "Git Bash",       args = { "C:\\Program Files\\Git\\bin\\bash.exe", "-i", "-l" } },
   }
@@ -190,8 +190,8 @@ config.tab_max_width     = 24
 ---@return string Icon for the text (Nerd Font Symbol)
 local function get_icon(text)
   local t = text:lower()
-  if t:find("local") then return "" end
-  if t:find("nvim") then return "" end
+  if t:find("local") then return " " end
+  if t:find("nvim") then return " " end
   if t:find("git") then return " " end
   if t:find("ubuntu") then return " " end
   if t:find("debian") then return " " end
@@ -202,15 +202,20 @@ local function get_icon(text)
   if t:find("zsh") then return " " end
   if t:find("pwsh") then return " " end
   if t:find("powershell") then return "󰨊 " end
-  if t:find("cmd.exe") then return " " end
+  if t:find("cmd") then return " " end
   if t:find("wezterm") then return "" end
   if t:find("ssh") then return "󰣀 " end
   return " "
 end
 
 wezterm.on("format-tab-title", function(tab)
-  local title = tab.active_pane.title:gsub(".*[\\/]", "")
-  if title == "" then title = "shell" end
+  local title = tab.active_pane.title or "shell"
+  -- local prog  = tab.active_pane.foreground_process_name:lower() or ""
+
+  title       = title:gsub(".*[\\/]", "") -- strip path
+  title       = title:gsub("%.exe$", "")  -- remove .exe
+
+  if title:find("wsl") then title = "wsl" end
 
   local is_admin = false
   if tab.active_pane.title:find("Administrator:") or
@@ -221,11 +226,9 @@ wezterm.on("format-tab-title", function(tab)
 
   local idx = (tab.tab_index or 0) + 1
   local icon = get_icon(title)
-  if is_admin then -- add a shield icon
-    return string.format(" 󰒙 %s %d: %s ", icon, idx, title)
-  else
-    return string.format("%s %d: %s", icon, idx, title)
-  end
+  local tab_label = string.format("%s  %d: %s ", icon, idx, title)
+  if is_admin then tab_label = string.format(" 󰒙  %s", tab_label) end
+  return tab_label
 end)
 
 --==== WINDOW
@@ -244,14 +247,15 @@ config.window_frame         = {
   active_titlebar_bg = adjust_brightness(bg, step_medium),
   inactive_titlebar_bg = adjust_brightness(bg, step_large),
   font = wezterm.font_with_fallback({
+    { family = "Geist",  weight = "Medium" },
     { family = "Roboto", weight = "Bold" }, -- default
   }),
 }
 config.window_padding       = {
-  left = "0.5cell",
+  left = "0.75cell",
   right = "0.5cell",
-  top = "0.4cell",
-  bottom = "0.3cell",
+  top = "0.5cell",
+  bottom = "0.25cell",
 }
 
 wezterm.on("update-right-status", function(window, pane)
@@ -260,8 +264,8 @@ wezterm.on("update-right-status", function(window, pane)
   -- leader mode indicator
   if window:leader_is_active() then
     table.insert(cells, { Background = { Color = accent } })
-    table.insert(cells, { Foreground = { Color = "#000000" } })
-    table.insert(cells, { Text = " 󱐋 LEADER " })
+    table.insert(cells, { Foreground = { Color = bg } })
+    table.insert(cells, { Text = "  󱐋 LEADER  " })
     table.insert(cells, { Background = { Color = bg } })
     table.insert(cells, { Foreground = { Color = accent } })
   else
@@ -269,13 +273,14 @@ wezterm.on("update-right-status", function(window, pane)
     table.insert(cells, { Foreground = { Color = fg } })
   end
 
-  table.insert(cells, { Text = "  |  " })
-
-  local domain = pane:get_domain_name():lower()
-  table.insert(cells, { Text = get_icon(domain) .. "  |  " })
-
   local time = wezterm.strftime("%I:%M %p")
-  table.insert(cells, { Text = time .. " " })
+  local domain = pane:get_domain_name():lower()
+
+  table.insert(cells, { Text = " ┊  " })
+  table.insert(cells, { Text = get_icon(domain) })
+  table.insert(cells, { Text = " ┊  " })
+  table.insert(cells, { Text = time })
+  table.insert(cells, { Text = "  " })
 
   window:set_right_status(wezterm.format(cells))
 end)

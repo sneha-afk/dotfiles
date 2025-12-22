@@ -54,6 +54,9 @@ return {
   "folke/snacks.nvim",
   lazy = false,
   priority = 1000,
+  dependencies = {
+    "nvim-mini/mini.icons",
+  },
   keys = {
     { "<leader>fe", explorer_sidebar,    desc = "[F]ile: [E]xplorer" },
     { "<leader>fE", explorer_fullscreen, desc = "[F]ile: [E]xplorer (fullscreen)" },
@@ -61,7 +64,7 @@ return {
       "<leader>ff",
       function()
         Snacks.picker.files({
-          exclude = fileopts.exclude_globs,
+          -- exclude = fileopts.exclude_globs,
         })
       end,
       desc = "[F]ind: [F]iles",
@@ -85,6 +88,7 @@ return {
 
     { "<leader>fg", function() Snacks.picker.grep() end,                  desc = "[F]ind: live [G]rep" },
     { "<leader>fm", function() Snacks.picker.marks() end,                 desc = "[F]ind: [M]arks" },
+    { "<leader>fp", function() Snacks.picker.projects() end,              desc = "[F]ind: [P]rojects" },
     { "<leader>fr", function() Snacks.picker.recent() end,                desc = "[F]ind: [R]ecent files" },
     { "<leader>fs", function() Snacks.picker.smart() end,                 desc = "[F]ind: [S]mart" },
 
@@ -92,7 +96,7 @@ return {
     { "<leader>sH", function() Snacks.picker.help() end,                  desc = "[S]earch: [H]elp tags" },
     { "<leader>sk", function() Snacks.picker.keymaps() end,               desc = "[S]earch: [K]eymaps" },
     { "<leader>sM", function() Snacks.picker.man() end,                   desc = "[S]earch: [M]an pages" },
-    { "<leader>sp", function() Snacks.picker.pickers() end,               desc = "[S]earch: [P]ickers" },
+    { "<leader>sP", function() Snacks.picker.pickers() end,               desc = "[S]earch: [P]ickers" },
     { "<leader>sq", function() Snacks.picker.qflist() end,                desc = "[S]earch: [Q]uickfix List" },
 
     -- LSP operations
@@ -179,6 +183,7 @@ return {
       sources = {
         files = {
           dirs = { fileopts.start_search_path() },
+          exclude = fileopts.exclude_globs,
           hidden = true,
           ignore = false,
           layout = {
@@ -209,6 +214,9 @@ return {
             "dot-*",
             ".env",
           },
+        },
+        projects = {
+          dev = { "~/Repositories/", "~/dotfiles" },
         },
       },
     },
@@ -278,10 +286,11 @@ return {
       preset = {
         keys = {
           { icon = "📄", key = "n", desc = "New File", action = ":ene | startinsert" },
+          { icon = "🔍", key = "/", desc = "Search", action = function() Snacks.picker.grep() end },
           { icon = "🧭", key = "b", desc = "Browse Files", action = explorer_fullscreen },
           { icon = "📁", key = "f", desc = "Find Files", action = function() Snacks.picker.files() end },
           { icon = "✨", key = "s", desc = "Smart Find", action = function() Snacks.picker.smart() end },
-          { icon = "🔍", key = "/", desc = "Search", action = function() Snacks.picker.grep() end },
+          { icon = "📦", key = "p", desc = "Projects", action = function() Snacks.picker.projects() end },
           { icon = "💾", key = "S", desc = "Sessions", action = "<leader>sl" },
           { icon = "⚙️", key = "c", desc = "Edit Config", action = ":lua Snacks.explorer({cwd = vim.fn.stdpath('config')})" },
           { icon = "🚪", key = "q", desc = "Quit", action = ":qa" },
@@ -293,6 +302,7 @@ return {
         { section = "header" },
         { section = "keys", padding = 1 },
         { section = "recent_files", padding = 1, indent = 2, limit = 5, title = "Recent files", icon = "🕘" },
+        { section = "projects", padding = 1, indent = 2, limit = 5, title = "Recent projects", icon = "🗃️" },
         { section = "startup" },
         {
           padding = { 0, 2 },

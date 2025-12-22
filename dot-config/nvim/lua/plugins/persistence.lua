@@ -2,7 +2,6 @@
 
 return {
   "folke/persistence.nvim",
-  enabled = false,
   event = "BufReadPre",
   keys = {
     { "<leader>sl", function() require("persistence").select() end,              desc = "[S]essions: [L]oad session" },
@@ -13,18 +12,36 @@ return {
   },
   opts = {
     dir = vim.fn.stdpath("state") .. "/sessions/",
-    -- branch = not vim.g.is_windows,
   },
   config = function(_, opts)
-    local ft = vim.bo.filetype
-    if ft == "tex" or ft == "bib" then
-      return
-    end
-
     local persistence = require("persistence")
     persistence.setup(opts)
 
     local sessions_dir = opts.dir
+    local original_cwd = nil
+
+    -- Change to Git root or CWD before saving session
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "PersistenceSavePre",
+      callback = function()
+        original_cwd = vim.fn.getcwd()
+
+        local git_root = require("utils.fileops").start_search_path()
+        if git_root and git_root ~= "" then
+          vim.fn.chdir(git_root)
+        end
+      end,
+    })
+
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "PersistenceSavePost",
+      callback = function()
+        if original_cwd then
+          vim.fn.chdir(original_cwd)
+          original_cwd = nil
+        end
+      end,
+    })
 
     ---@return table|nil Filepaths of previous sessions
     local function get_sessions()

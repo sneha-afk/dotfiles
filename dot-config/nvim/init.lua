@@ -16,9 +16,18 @@ if vim.g.is_windows then
   local shell = vim.fn.executable("pwsh") == 1 and "pwsh"
       or vim.fn.executable("powershell") == 1 and "powershell"
       or "cmd"
-
   vim.opt.shell = shell
-  vim.opt.shellcmdflag = (shell == "cmd") and "/s /c" or "-NoLogo -ExecutionPolicy RemoteSigned -Command"
+
+  if shell ~= "cmd" then
+    vim.opt.shellcmdflag =
+    "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command $PSStyle.OutputRendering='PlainText';"
+    vim.opt.shellredir = "2>&1 | Out-File -Encoding utf8 %s; exit $LastExitCode"
+    vim.opt.shellpipe = "2>&1 | Out-File -Encoding utf8 %s; exit $LastExitCode"
+    vim.opt.shellquote = ""
+    vim.opt.shellxquote = ""
+  else
+    vim.opt.shellcmdflag = "/s /c"
+  end
 end
 
 vim.g.is_wezterm = vim.fn.getenv("TERM_PROGRAM") == "WezTerm"

@@ -1,4 +1,35 @@
 return {
+  {
+    "nvim-mini/mini.sessions",
+    enabled = false,
+    cmd = { "MiniSessions" },
+    event = { "BufReadPre", "BufNewFile" },
+    keys = {
+      { "<leader>sl", ":lua MiniSessions.select()<CR>",                  desc = "[S]ession: [L]oad" },
+      { "<leader>sd", ":lua MiniSessions.delete(nil, {force=true})<CR>", desc = "[S]ession: [D]elete" },
+      -- { "<leader>sw", ":lua MiniSessions.write()<CR>",                   desc = "[S]ession: [W]rite" },
+      {
+        "<leader>sw",
+        function()
+          local sessions = require("mini.sessions")
+          local ok, _ = pcall(sessions.write)
+          if ok then return end
+
+          -- Project name is either the Git repo name, or falls back to cwd
+          local project_name = vim.fn.fnamemodify(require("utils.fileops").start_search_path(), ":t")
+          sessions.write(project_name)
+        end,
+        desc = "[S]ession: [W]rite",
+      },
+    },
+    version = false,
+    opts = {
+      autoread = false,
+      autowrite = true,
+      directory = vim.fn.stdpath("state") .. "/sessions/",
+      verbose = { read = true, write = true, delete = true },
+    },
+  },
   -- Display diff signs in gutter
   {
     "nvim-mini/mini.diff",
