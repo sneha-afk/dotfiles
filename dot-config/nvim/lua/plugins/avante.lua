@@ -3,7 +3,7 @@
 -- See: https://github.com/yetone/avante.nvim
 
 -- Important: toggle used in completion setup
-vim.g.enable_avante = true
+vim.g.enable_avante = false
 
 return {
   "yetone/avante.nvim",

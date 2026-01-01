@@ -40,4 +40,28 @@ return {
     },
     main = "rainbow-delimiters.setup",
   },
+  {
+    "romgrk/barbar.nvim",
+    lazy = false,
+    dependencies = {
+      "lewis6991/gitsigns.nvim",
+      "nvim-mini/mini.icons",
+    },
+    keys = {
+      { "<Tab>",      "<CMD>BufferNext<CR>",     desc = "Next tab/buffer" },
+      { "<S-Tab>",    "<CMD>BufferPrevious<CR>", desc = "Prev tab/buffer" },
+      { "<leader>tp", "<CMD>BufferPin<CR>",      desc = "[T]abs: toggle [P]in" },
+    },
+    opts = {
+      animation = true,
+      icons = {
+        filetype = { enabled = vim.g.use_icons },
+        modified = { button = "●" },
+        pinned = { button = vim.g.use_icons and "" or "𝇪", filename = true },
+        button = "🞬",
+      },
+      -- exclude_ft = { "javascript" },
+      -- exclude_name = { "package.json" },
+    },
+  },
 }

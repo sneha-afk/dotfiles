@@ -2,9 +2,40 @@
 
 return {
   {
+    "topazape/oldtale.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      styles = {
+        comments = { italic = true },
+        keywords = { bold = true },
+        identifiers = {},
+        functions = { bold = true },
+        variables = {},
+        booleans = { bold = true },
+      },
+      integrations = {
+        blink = true,
+        gitsigns = true,
+        lazy = true,
+        lsp = true,
+        markdown = true,
+        mason = true,
+        notify = true,
+        rainbow_delimiters = true,
+        snacks = true,
+        treesitter = true,
+      },
+    },
+    config = function(_, opts)
+      require("oldtale").setup(opts)
+      vim.cmd.colorscheme("oldtale")
+    end,
+  },
+  {
     "catppuccin/nvim",
     name = "catppuccin",
-    lazy = false,
+    lazy = true,
     priority = 1000,
     build = ":CatppuccinCompile",
     ---@type CatppuccinOptions
@@ -55,7 +86,7 @@ return {
   },
   {
     "AlexvZyl/nordic.nvim",
-    enabled = false,
+    lazy = true,
     priority = 1000,
     config = function()
       local nordic = require("nordic")
@@ -64,6 +95,7 @@ return {
         italic_comments = true,
         reduced_blue = true,
         swap_backgrounds = true,
+        ts_context = { dark_background = false },
         on_highlight = function(highlights, palette)
           -- Distinguish cursorline from Visual
           highlights.Visual = {

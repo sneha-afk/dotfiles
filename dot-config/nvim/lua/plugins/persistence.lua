@@ -10,12 +10,16 @@ return {
     { "<leader>sd", "<cmd>DeleteSession<cr>",                                    desc = "[S]essions: [d]elete session" },
     { "<leader>sD", "<cmd>DeleteAllSessions<cr>",                                desc = "[S]essions: [D]elete all" },
   },
+  ---@module "persistence"
+  ---@type Persistence.Config
   opts = {
     dir = vim.fn.stdpath("state") .. "/sessions/",
   },
   config = function(_, opts)
     local persistence = require("persistence")
     persistence.setup(opts)
+
+    vim.opt.sessionoptions:append("globals")
 
     local sessions_dir = opts.dir
     local original_cwd = nil
@@ -30,6 +34,9 @@ return {
         if git_root and git_root ~= "" then
           vim.fn.chdir(git_root)
         end
+
+        -- barbar command to save buffer positions
+        vim.api.nvim_exec_autocmds("User", { pattern = "SessionSavePre" })
       end,
     })
 

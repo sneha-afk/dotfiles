@@ -28,6 +28,8 @@ local ft_opts       = {
   json      = small_tabs,
   html      = small_tabs,
   css       = small_tabs,
+  yaml      = small_tabs,
+  toml      = small_tabs,
 }
 
 vim.api.nvim_create_autocmd("FileType", {

@@ -41,7 +41,7 @@ return {
     cmd = { "LivePreview", "LivePreviewPortChange" },
     dependencies = { vim.g.picker_source },
     opts = {
-      port = 8000,
+      port = 5500,
     },
     config = function(_, opts)
       require("livepreview.config").set(opts)
@@ -49,7 +49,7 @@ return {
       vim.api.nvim_create_user_command("LivePreviewPortChange", function(_)
         vim.ui.input({
           prompt = "Set LivePreview Port: ",
-          default = "8000",
+          default = "5500",
           kind = "panel",
         }, function(input)
           if not input then return end
@@ -76,7 +76,7 @@ return {
   },
   {
     "folke/todo-comments.nvim",
-    event = "VeryLazy",
+    event = { "BufReadPost", "BufNewFile" },
     keys = {
       { "<leader>st", function() Snacks.picker.todo_comments() end, desc = "[S]earch: ToDo" },
       {

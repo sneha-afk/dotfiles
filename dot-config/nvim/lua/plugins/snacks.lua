@@ -58,17 +58,9 @@ return {
     "nvim-mini/mini.icons",
   },
   keys = {
-    { "<leader>fe", explorer_sidebar,    desc = "[F]ile: [E]xplorer" },
-    { "<leader>fE", explorer_fullscreen, desc = "[F]ile: [E]xplorer (fullscreen)" },
-    {
-      "<leader>ff",
-      function()
-        Snacks.picker.files({
-          -- exclude = fileopts.exclude_globs,
-        })
-      end,
-      desc = "[F]ind: [F]iles",
-    },
+    { "<leader>fe", explorer_sidebar,                     desc = "[F]ile: [E]xplorer" },
+    { "<leader>fE", explorer_fullscreen,                  desc = "[F]ile: [E]xplorer (fullscreen)" },
+    { "<leader>ff", function() Snacks.picker.files() end, desc = "[F]ind: [F]iles" },
     {
       "<leader>tf",
       function() Snacks.terminal.toggle(nil, { win = { position = "float" } }) end,
@@ -82,6 +74,7 @@ return {
     { "<leader>fb", function() Snacks.picker.lines() end,                 desc = "[F]ind: within [B]uffer" },
     { "<leader>fB", function() Snacks.picker.buffers() end,               desc = "[F]ind: open [B]uffers" },
     { "<leader>fd", function() Snacks.picker.diagnostics_buffer() end,    desc = "[F]ile: [D]iagnostics" },
+    { "<leader>fD", function() Snacks.picker.diagnostics() end,           desc = "[F]ile: [D]iagnostics (CWD)" },
 
     { "<leader>fc", function() Snacks.picker.commands() end,              desc = "[F]ind: [C]ommands" },
     { "<leader>fC", function() Snacks.picker.command_history() end,       desc = "[F]ind: [C]ommand History" },
@@ -102,7 +95,7 @@ return {
     -- LSP operations
     { "gd",         function() Snacks.picker.lsp_definitions() end,       desc = "Goto Definition" },
     { "gD",         function() Snacks.picker.lsp_declarations() end,      desc = "Goto Declaration" },
-    { "gR",         function() Snacks.picker.lsp_references() end,        desc = "Goto references",           nowait = true },
+    { "gR",         function() Snacks.picker.lsp_references() end,        desc = "Goto references",            nowait = true },
     { "gi",         function() Snacks.picker.lsp_implementations() end,   desc = "Goto Implementation" },
     { "gy",         function() Snacks.picker.lsp_type_definitions() end,  desc = "Goto T[y]pe Definition" },
     { "gI",         function() Snacks.picker.lsp_incoming_calls() end,    desc = "Goto [I]ncoming Calls" },
@@ -159,7 +152,7 @@ return {
     },
     input = {
       enabled = true,
-      icon = " ",
+      icon = ui_utils.prompt_icon,
     },
     lazygit = {
       enabled = true,
@@ -171,6 +164,7 @@ return {
     },
     picker = {
       enabled = true,
+      prompt = ui_utils.prompt_icon,
       icons = {
         kinds = ui_utils.get_icon_set(),
       },
@@ -204,7 +198,7 @@ return {
         },
         explorer = {
           cycle = true,
-          auto_close = true,
+          -- auto_close = true,
           hidden = true,
           ignore = false,
           -- View when opening up explorer on a directory
@@ -291,7 +285,8 @@ return {
           { icon = "📁", key = "f", desc = "Find Files", action = function() Snacks.picker.files() end },
           { icon = "✨", key = "s", desc = "Smart Find", action = function() Snacks.picker.smart() end },
           { icon = "📦", key = "p", desc = "Projects", action = function() Snacks.picker.projects() end },
-          { icon = "💾", key = "S", desc = "Sessions", action = "<leader>sl" },
+          { icon = "⏮️", key = "s", desc = "Last session", action = "<leader>sL" },
+          { icon = "💾", key = "S", desc = "Select session", action = "<leader>sl" },
           { icon = "⚙️", key = "c", desc = "Edit Config", action = ":lua Snacks.explorer({cwd = vim.fn.stdpath('config')})" },
           { icon = "🚪", key = "q", desc = "Quit", action = ":qa" },
         },

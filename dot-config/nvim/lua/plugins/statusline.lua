@@ -74,26 +74,26 @@ return {
       lualine_a = {},
       lualine_b = {},
       lualine_c = {},
-      lualine_x = { "location" },
-      lualine_y = {},
+      lualine_x = { "filename" },
+      lualine_y = { "location" },
       lualine_z = {},
     },
     tabline = {
-      lualine_a = {
-        {
-          "tabs",
-          tab_max_length = 60,
-          max_length = vim.o.columns,
-          mode = 2, -- Tab number and name
-          path = 1, -- Relative path
-        },
-      },
+      -- lualine_a = {
+      --   {
+      --     "tabs",
+      --     tab_max_length = 60,
+      --     max_length = vim.o.columns,
+      --     mode = 2, -- Tab number and name
+      --     path = 1, -- Relative path
+      --   },
+      -- },
     },
     winbar = {
-      lualine_z = { "filename" },
+      -- lualine_z = { "filename" },
     },
     inactive_winbar = {
-      lualine_z = { "filename" },
+      -- lualine_z = { "filename" },
     },
 
   },

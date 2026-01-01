@@ -76,6 +76,8 @@ M.ascii_icons = {
   WhileStatement = "while ",
 }
 
+M.prompt_icon = "❯ "
+
 M.color_cycle = {
   "Statement",
   "Character",
