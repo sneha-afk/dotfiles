@@ -76,8 +76,6 @@ M.ascii_icons = {
   WhileStatement = "while ",
 }
 
-M.prompt_icon = "❯ "
-
 M.color_cycle = {
   "Statement",
   "Character",
@@ -87,18 +85,27 @@ M.color_cycle = {
   "Boolean",
 }
 
+M.neovim_logo = [[
+███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
+████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
+██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
+██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
+██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
+╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
+]]
+
 --- Check if icons can be used in the current UI/terminal
 --- Set once into vim.g.use_icons for global use, recommended to use that variable
 ---@return boolean Use icons throughout nvim?
 function M.icons_supported()
   -- Neovide and WezTerm provide support for icons
-  if vim.g.wezterm or vim.g.neovide or vim.g.goneovim or vim.g.gtk or vim.g.GuiLoaded then
+  if vim.g.wezterm or vim.fn.has("gui_running") == 1 or vim.g.neovide or vim.g.goneovim or vim.g.gtk or vim.g.GuiLoaded then
     return true
   end
 
   local term = os.getenv("TERM") or ""
   local colorterm = os.getenv("COLORTERM") or ""
-  if term:match("xterm") or term:match("kitty") or term:match("alacritty") or colorterm:match("truecolor") then
+  if term:match("xterm") or term:match("kitty") or colorterm:match("truecolor") then
     return true
   end
 

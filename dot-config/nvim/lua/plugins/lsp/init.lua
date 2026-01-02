@@ -13,7 +13,7 @@ return {
         "DrKJeff16/wezterm-types",
         lazy = true,
         version = false,
-        enabled = vim.fn.executable("wezterm") == 1,
+        enabled = vim.g.is_wezterm or vim.fn.executable("wezterm") == 1,
       },
     },
     opts = {

@@ -3,14 +3,7 @@
 local fileopts = require("utils.fileops")
 local ui_utils = require("utils.ui")
 
-local HEADER_ART = [[
-███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
-████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
-██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
-██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
-██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
-╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
-]]
+local prompt_icon = vim.g.use_icons and " " or "> "
 
 local function get_greeting()
   local hour = tonumber(os.date("%H"))
@@ -156,7 +149,7 @@ return {
     },
     input = {
       enabled = true,
-      icon = ui_utils.prompt_icon,
+      icon = prompt_icon,
     },
     lazygit = {
       enabled = true,
@@ -168,7 +161,7 @@ return {
     },
     picker = {
       enabled = true,
-      prompt = ui_utils.prompt_icon,
+      prompt = prompt_icon,
       icons = {
         kinds = ui_utils.get_icon_set(),
       },
@@ -284,7 +277,7 @@ return {
           { icon = "⚙️", key = "c", desc = "Edit Config", action = ":lua Snacks.explorer({cwd = vim.fn.stdpath('config')})" },
           { icon = "🚪", key = "q", desc = "Quit", action = ":qa" },
         },
-        header = HEADER_ART .. "\n" .. get_greeting() .. ", "
+        header = ui_utils.neovim_logo .. "\n" .. get_greeting() .. ", "
             .. (os.getenv("USER") or os.getenv("USERNAME") or "User") .. ".",
       },
       sections = {

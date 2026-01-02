@@ -43,7 +43,7 @@ return {
   {
     "akinsho/bufferline.nvim",
     version = "*",
-    lazy = false,
+    event = "VeryLazy",
     dependencies = {
       "lewis6991/gitsigns.nvim",
       "nvim-mini/mini.icons",
@@ -69,20 +69,20 @@ return {
 
       return {
         options = {
-          mode = "buffers",
-          style_preset = bufferline.style_preset.no_italic,
-          separator_style = "slant",
+          mode               = "buffers",
+          style_preset       = bufferline.style_preset.no_italic,
+          separator_style    = "slant",
 
-          modified_icon = "●",
-          close_icon = "🞬",
-          buffer_close_icon = "🞬",
-          left_trunc_marker = "🡨 ",
-          right_trunc_marker = "🡪 ",
+          modified_icon      = "●",
+          close_icon         = vim.g.use_icons and "" or "x",
+          buffer_close_icon  = vim.g.use_icons and "" or "x",
+          left_trunc_marker  = vim.g.use_icons and " " or "<",
+          right_trunc_marker = vim.g.use_icons and " " or ">",
 
-          groups = {
+          groups             = {
             items = {
               groups.builtin.pinned:with({
-                icon = vim.g.use_icons and "󰐃" or "🟊",
+                icon = vim.g.use_icons and "󰐃" or "#",
               }),
               {
                 name = "tests",

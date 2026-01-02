@@ -28,6 +28,13 @@ Tested to work cross-platform, with platform-specifics guarded around constants 
 
 Leader key set to `,` and localleader set to `/` in `.config/nvim/init.lua`.
 
+If your terminal does not support Nerd Font Symbols, or a relevant font set is not installed, you should set
+```lua
+vim.g.use_icons_manual = false
+```
+
+within `init.lua`. This ensures many icons are replaced with ASCII/Unicode equivalents.
+
 
 | File | Purpose |
 |------|---------|
