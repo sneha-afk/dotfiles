@@ -1,16 +1,6 @@
 -- .config/nvim/lua/lsp/init.lua
 
----Figures out which completion environment is being used to extend capabilities
----@return lsp.ClientCapabilities
-local function get_capabilities_source()
-  if pcall(require, "blink.cmp") then
-    return require("blink.cmp").get_lsp_capabilities({}, true)
-  elseif pcall(require, "cmp_nvim_lsp") then
-    return require("cmp_nvim_lsp").default_capabilities()
-  else
-    return {}
-  end
-end
+local lsp_utils = require("utils.lsp_utils")
 
 return {
   -- Lazy-loads plugin completions
@@ -99,10 +89,7 @@ return {
       -- Shared configurations + capabilities
       ---@type vim.lsp.Config
       local global_configs = {
-        capabilities = vim.tbl_deep_extend("force",
-          vim.lsp.protocol.make_client_capabilities(),
-          get_capabilities_source()
-        ),
+        capabilities = lsp_utils.get_full_capabilities(),
         root_markers = { ".git" },
         settings = {
           telemetry = { enable = false },
