@@ -81,23 +81,40 @@ if (-not $SkipSymlinks) {
 #region Winget
 if (-not $SkipWinget) {
     Invoke-Safe {
-        $packages = @(
-            "Git.Git",
-            "Neovim.Neovim",
-            "Vim.Vim",
-            "Python.PythonInstallManager",
-            "Microsoft.PowerToys"
-            "SumatraPDF.SumatraPDF"
-        )
+        $manifestPath = Join-Path $WindowsDir "winget_packages.json"
 
-        foreach ($pkg in $packages) {
-            Write-Host "Installing/updating $pkg..." -ForegroundColor Yellow
-            try {
-                winget install --id $pkg --silent --accept-package-agreements --accept-source-agreements
-                Write-Host "  SUCCESS $pkg" -ForegroundColor Green
-            } catch {
-                $errorMsg = $_.Exception.Message
-                Write-Warning "Failed to install/update $pkg`: $errorMsg"
+        if (Test-Path $manifestPath) {
+            Write-Host "Importing Winget packages from $manifestPath..." -ForegroundColor Yellow
+            winget import `
+                --import-file $manifestPath `
+                --accept-package-agreements `
+                --accept-source-agreements
+        }
+        else {
+            Write-Warning "Winget manifest not found, falling back to manual package install."
+
+            $packages = @(
+                "Git.Git"
+                "Neovim.Neovim"
+                "Vim.Vim"
+                "Python.PythonInstallManager"
+                "Microsoft.PowerToys"
+                "SumatraPDF.SumatraPDF"
+            )
+
+            foreach ($pkg in $packages) {
+                Write-Host "Installing/updating $pkg..." -ForegroundColor Yellow
+                try {
+                    winget install `
+                        --id $pkg `
+                        --silent `
+                        --accept-package-agreements `
+                        --accept-source-agreements
+                    Write-Host "  SUCCESS $pkg" -ForegroundColor Green
+                }
+                catch {
+                    Write-Warning "Failed to install/update $pkg`: $($_.Exception.Message)"
+                }
             }
         }
     } "Winget package installation"
@@ -109,24 +126,38 @@ if (-not $SkipScoop) {
     Invoke-Safe {
         . (Join-Path $ScriptsDir "install_scoop.ps1")
 
-        $packages = @(
-            "coreutils"
-            "gcc"           # Includes g++
-            "make"
-            "ripgrep"
-            "fd"
-            "fastfetch"
-            "tree-sitter"
-        )
+        $manifestPath = Join-Path $WindowsDir "scoopfile.json"
 
-        Write-Host "Installing packages: $($packages -join ', ')"
+        if (Test-Path $manifestPath) {
+            Write-Host "Importing Scoop packages from $manifestPath..."
+            scoop import $manifestPath
+        }
+        else {
+            Write-Warning "Scoop manifest not found, falling back to manual package install."
+
+            $packages = @(
+                "coreutils"
+                "gcc"           # Includes g++
+                "make"
+                "ripgrep"
+                "fd"
+                "fastfetch"
+                "tree-sitter"
+            )
+
+            Write-Host "Installing packages: $($packages -join ', ')"
+            foreach ($pkg in $packages) {
+                scoop install $pkg
+            }
+        }
+
+        Write-Host "Updating Scoop packages and buckets..."
         scoop update
 
-        # Can't pass in an array directly, so loop
-        foreach ($pkg in $packages) { scoop install $pkg }
-        Write-Host "Packages installed successfully." -ForegroundColor Green
-
-        if ($packages -contains "gcc") { . (Join-Path $ScriptsDir "generate_global_clangd.ps1") }
+        # Only run generate_global_clangd if gcc exists in PATH
+        if (Get-Command gcc -ErrorAction SilentlyContinue) {
+            . (Join-Path $ScriptsDir "generate_global_clangd.ps1")
+        }
     } "Scoop package installation"
 }
 #endregion

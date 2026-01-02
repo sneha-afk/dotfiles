@@ -5,9 +5,9 @@
 
 | Area           | Location / Notes                                           |
 | -------------- | ---------------------------------------------------------- |
-| **Shells**     | :star: **`dot-bash/`**, `dot-zsh/`                                |
-| **Neovim**     | `dot-config/nvim` — see its [`README.md`](./dot-config/nvim/) |
+| **Shells**     | **`dot-bash/`**, `pswh`   |
 | **PowerShell** | `windows\profile\Microsoft.PowerShell_profile.ps1`         |
+| **Neovim**     | `dot-config/nvim` — see its [`README.md`](./dot-config/nvim/) |
 | **WSL**        | `windows\.wslconfig`, `dot-home/.wsl_env`                  |
 | **Terminals**  | :star: [WezTerm](https://wezterm.org/), Windows Terminal          |
 | **Fonts**      | [Geist Mono](https://vercel.com/font), Segoe UI Emoji (built-in), optional [Symbols Nerd Font Mono](https://www.nerdfonts.com/font-downloads) |
@@ -30,7 +30,7 @@ Other helpful files in `dot-config -> .config` and `dot-home -> ~/*`.
 ## ⚙️ Setup
 ### 🐧 Linux
 
-**Recommended**: using GNU `stow`
+**Recommended**: `Makefile` and using GNU `stow`
 
 ```bash
 sudo apt-get install git make stow
@@ -54,16 +54,22 @@ ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 
 ### 🪟 Windows
 
-**Recommended**: using the bootstrap script
+**Recommended**: using the bootstrap script to cover all setup
 ```powershell
 .\windows\bootstrap.ps1
 # Skip components: -SkipScoop, -SkipWinget, -SkipSymlinks, etc.
 ```
 
+Getting packages through manifests:
+```powershell
+winget import -i .\windows\winget_packages.json
+scoop import .\windows\scoopfile.json
+```
+
 <details>
 <summary>Run with elevated permissions</summary>
 
-If bootstrap fails, run in elevated PowerShell (auto-elevation within script should handle this):
+If bootstrap fails, run in elevated PowerShell (auto-elevation within the script should handle this):
 ```powershell
 Start-Process wt -Verb RunAs -ArgumentList `
   "powershell -NoProfile -ExecutionPolicy Bypass -File `"$PWD\windows\bootstrap.ps1`""
@@ -102,24 +108,26 @@ New-Item -ItemType SymbolicLink `
 
 #### ⚠️ On `$PROFILE`
 
-The default `$PROFILE` location points to OneDrive, which causes:
-- Unnecessary OneDrive pollution
-- Reduced portability
-- Constant network syncing overhead
+The default `$PROFILE` path resolves inside OneDrive, which leads to:
+
+* Unwanted OneDrive pollution when modules or profile-related files are created
+* Reduced portability across machines
+* Ongoing background sync overhead for files that don’t need it
 
 <details>
-<summary>Solution: point elsewhere</summary>
+<summary>Solution: relocate the PowerShell profile</summary>
 
-Forward `$PROFILE` to `Documents\WindowsPowerShell` and pwsh's directory.
+Redirect `$PROFILE` to a local path under `Documents\WindowsPowerShell` (and the equivalent directory for `pwsh`).
 
-Copy the utility script that simply sets `$PROFILE` into `Documents` permanently, this is the only file
-that would remain in OneDrive.
+A small utility script is used to redefine `$PROFILE`. This script is copied into the standard
+`Documents` directory and sourced automatically. As a result, **only this single profile file remains in OneDrive**, while the actual working profile lives locally.
 
 ```powershell
 Copy-Item -Path ".\windows\utils\fix_profile_path.ps1" `
-        -Destination (Join-Path $env:OneDrive "Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1") `
-        -Force
+          -Destination (Join-Path $env:OneDrive "Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1") `
+          -Force
 ```
+
 </details>
 
 > Do **not** attempt to change the registry entries related to OneDrive.. been there done that.

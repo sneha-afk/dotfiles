@@ -38,8 +38,9 @@ end
 
 local explorer_sidebar = function()
   Snacks.explorer({
-    layout = { preset = "sidebar", layout = { position = "right" } },
+    layout = { preset = "sidebar", layout = { position = "right", width = 0.25 } },
     cwd = Snacks.git.get_root() or vim.uv.cwd(),
+    auto_close = false,
   })
 end
 
@@ -113,6 +114,9 @@ return {
     { "<leader>gS", function() Snacks.picker.git_stash() end,             desc = "[G]it: [S]tash" },
     { "<leader>go", function() Snacks.gitbrowse() end,                    desc = "[G]it: [O]pen in browser" },
     { "<leader>gg", function() Snacks.lazygit.open() end,                 desc = "[G]it: open Lazy[G]it" },
+
+    { "]w",         function() Snacks.words.jump(1, true) end,            desc = "Next word occurrence" },
+    { "[w",         function() Snacks.words.jump(-1, true) end,           desc = "Prev word occurrence" },
   },
   init = function()
     vim.api.nvim_create_autocmd("User", {
@@ -170,8 +174,8 @@ return {
       },
       layout = {
         layout = {
-          max_width = math.floor(vim.o.columns / 1.05),
-          max_height = math.floor(vim.o.lines / 1.05),
+          width = 0.95,
+          height = 0.95,
         },
       },
       sources = {
@@ -180,25 +184,15 @@ return {
           exclude = fileopts.exclude_globs,
           hidden = true,
           ignore = false,
-          layout = {
-            layout = {
-              width = 0.9,
-            },
-          },
         },
         grep = {
           dirs = { fileopts.start_search_path() },
           hidden = true,
           ignore = false,
-          layout = {
-            layout = {
-              width = 0.9,
-            },
-          },
         },
         explorer = {
           cycle = true,
-          -- auto_close = true,
+          auto_close = true,
           hidden = true,
           ignore = false,
           -- View when opening up explorer on a directory
@@ -229,11 +223,11 @@ return {
     toggle = {
       enabled = true,
     },
+    words = {
+      enabled = true,
+    },
     zen = {
       enabled = true,
-      on_open = function(win)
-        vim.cmd("set nu!")
-      end,
     },
     notifier = {
       timeout = 3000,   -- in ms
@@ -268,7 +262,7 @@ return {
       },
       zen = {
         relative = "editor",
-        width = 0.75,
+        width = 0.85,
         backdrop = {
           transparent = true,
           blend = 15,

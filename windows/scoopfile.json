@@ -1,0 +1,87 @@
+{
+  "apps": [
+    {
+      "Name": "7zip",
+      "Source": "main",
+      "Info": "",
+      "Updated": "2025-09-20T10:51:06.2969818-07:00",
+      "Version": "25.01"
+    },
+    {
+      "Name": "fastfetch",
+      "Source": "main",
+      "Info": "",
+      "Updated": "2025-12-18T13:50:46.0673538-08:00",
+      "Version": "2.56.1"
+    },
+    {
+      "Name": "fd",
+      "Source": "main",
+      "Info": "",
+      "Updated": "2025-09-13T11:55:43.4873144-07:00",
+      "Version": "10.3.0"
+    },
+    {
+      "Name": "gcc",
+      "Source": "main",
+      "Info": "",
+      "Updated": "2026-01-01T16:39:17.551119-08:00",
+      "Version": "15.2.0"
+    },
+    {
+      "Name": "make",
+      "Source": "main",
+      "Info": "",
+      "Updated": "2025-06-19T19:30:30.4232108-07:00",
+      "Version": "4.4.1"
+    },
+    {
+      "Name": "ripgrep",
+      "Source": "main",
+      "Info": "",
+      "Updated": "2025-10-22T10:04:56.0107401-07:00",
+      "Version": "15.1.0"
+    },
+    {
+      "Name": "tree-sitter",
+      "Source": "main",
+      "Info": "",
+      "Updated": "2025-12-13T22:38:23.4235107-08:00",
+      "Version": "0.26.3"
+    },
+    {
+      "Name": "uutils-coreutils",
+      "Source": "main",
+      "Info": "",
+      "Updated": "2025-12-26T19:02:22.8126223-08:00",
+      "Version": "0.5.0"
+    },
+    {
+      "Name": "wezterm-nightly",
+      "Source": "versions",
+      "Info": "",
+      "Updated": "2025-11-10T17:32:54.1478271-08:00",
+      "Version": "nightly-20251110"
+    }
+  ],
+  "buckets": [
+    {
+      "Name": "main",
+      "Source": "https://github.com/ScoopInstaller/Main",
+      "Updated": "2026-01-01T12:29:55-08:00",
+      "Manifests": 1412
+    },
+    {
+      "Name": "extras",
+      "Source": "https://github.com/ScoopInstaller/Extras",
+      "Updated": "2026-01-01T12:29:25-08:00",
+      "Manifests": 2241
+    },
+    {
+      "Name": "versions",
+      "Source": "https://github.com/ScoopInstaller/Versions",
+      "Updated": "2026-01-01T12:41:17-08:00",
+      "Manifests": 551
+    }
+  ]
+}
