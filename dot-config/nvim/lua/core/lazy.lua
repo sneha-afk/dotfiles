@@ -87,7 +87,7 @@ require("lazy").setup({
         "tutor",
         "zipPlugin",   -- Archive handling
         "rplugin",     -- Legacy remote plugin system
-        "matchit",
+        "matchit",     -- Extended % matching (replaced by treesitter)
         "matchparen",
         "osc52",
       },

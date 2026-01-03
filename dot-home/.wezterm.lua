@@ -247,6 +247,7 @@ config.window_frame         = {
   active_titlebar_bg = adjust_brightness(bg, step_medium),
   inactive_titlebar_bg = adjust_brightness(bg, step_large),
   font = wezterm.font_with_fallback({
+    { family = "Inter",  weight = "Medium" },
     { family = "Geist",  weight = "Medium" },
     { family = "Roboto", weight = "Bold" }, -- default
   }),

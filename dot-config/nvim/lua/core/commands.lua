@@ -3,11 +3,28 @@
 
 local buf_utils = require("utils.buffers_and_windows")
 
+-- ============================================================================
+-- HELPER FUNCTIONS
+-- ============================================================================
+
+---Taken from LazyVim
+---Create an autocommand group with the given name
+---@param name string Group name
+---@return integer AutocmdGroup id
+local function augroup(name)
+  return vim.api.nvim_create_augroup("Autocmds_" .. name, { clear = true })
+end
+
+-- ============================================================================
+-- USER COMMANDS
+-- ============================================================================
+
 vim.api.nvim_create_user_command("EnvVariables", function()
   local env_vars = vim.fn.environ()
   local lines = { "# PATH VARIABLES", "" }
   local other_vars = {}
 
+  -- Separate PATH-like variables from others
   for k, v in pairs(env_vars) do
     if k:match("PATH$") then
       table.insert(lines, string.format("## %s", k))
@@ -51,7 +68,7 @@ vim.api.nvim_create_user_command("CrToLf", function()
       update
       silent! %s/\r$//e
       set fileformat=unix
-      write
+      noautocmd write
     ]])
 
     vim.fn.winrestview(view)
@@ -61,14 +78,10 @@ vim.api.nvim_create_user_command("CrToLf", function()
   end
 end, { desc = "Change CRLF line endings to LF" })
 
----Taken from LazyVim
----@param name string
----@return integer AutocmdGroup id
-local function augroup(name)
-  return vim.api.nvim_create_augroup("Autocmds_" .. name, { clear = true })
-end
+-- ============================================================================
+-- AUTO COMMANDS
+-- ============================================================================
 
--- Restore cursor position when reopening files
 vim.api.nvim_create_autocmd("BufReadPost", {
   group = augroup("restore_cursor"),
   desc = "Restore cursor to last position when reopening file",

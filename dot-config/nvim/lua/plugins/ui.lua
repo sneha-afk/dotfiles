@@ -69,17 +69,18 @@ return {
 
       return {
         options = {
-          mode               = "buffers",
-          style_preset       = bufferline.style_preset.no_italic,
-          separator_style    = "slant",
+          mode                   = "buffers",
+          style_preset           = bufferline.style_preset.no_italic,
+          separator_style        = "slant",
+          always_show_bufferline = false,
 
-          modified_icon      = "●",
-          close_icon         = vim.g.use_icons and "" or "x",
-          buffer_close_icon  = vim.g.use_icons and "" or "x",
-          left_trunc_marker  = vim.g.use_icons and " " or "<",
-          right_trunc_marker = vim.g.use_icons and " " or ">",
+          modified_icon          = "●",
+          close_icon             = vim.g.use_icons and "" or "x",
+          buffer_close_icon      = vim.g.use_icons and "" or "x",
+          left_trunc_marker      = vim.g.use_icons and " " or "<",
+          right_trunc_marker     = vim.g.use_icons and " " or ">",
 
-          groups             = {
+          groups                 = {
             items = {
               groups.builtin.pinned:with({
                 icon = vim.g.use_icons and "󰐃" or "#",
