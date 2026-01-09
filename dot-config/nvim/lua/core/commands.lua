@@ -78,6 +78,32 @@ vim.api.nvim_create_user_command("CrToLf", function()
   end
 end, { desc = "Change CRLF line endings to LF" })
 
+-- https://www.npmjs.com/package/serve
+vim.api.nvim_create_user_command("Serve", function()
+  if vim.fn.executable("npx") ~= 1 then
+    vim.notify(
+      "`npx` not found. Please install Node.js (which includes npx).",
+      vim.log.levels.ERROR,
+      { title = "npx serve" }
+    )
+    return
+  end
+
+  vim.notify(
+    "Starting server at http://localhost:3000",
+    vim.log.levels.INFO,
+    { title = "npx serve" }
+  )
+
+  vim.system(
+    { "npx", "serve" },
+    { detach = true },
+    function() end
+  )
+end, {
+  desc = "Start local static server using npx serve",
+})
+
 -- ============================================================================
 -- AUTO COMMANDS
 -- ============================================================================

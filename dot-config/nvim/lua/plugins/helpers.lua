@@ -78,15 +78,15 @@ return {
     "folke/todo-comments.nvim",
     event = { "BufReadPost", "BufNewFile" },
     keys = {
-      { "<leader>st", function() Snacks.picker.todo_comments() end, desc = "[S]earch: ToDo" },
+      { "<leader>ft", function() Snacks.picker.todo_comments() end, desc = "[F]ind: ToDos" },
       {
-        "<leader>sT",
+        "<leader>fT",
         function()
           Snacks.picker.todo_comments({
             keywords = { "TODO", "FIX", "FIXME", "HACK" },
           })
         end,
-        desc = "[S]earch: ToDo/Fix",
+        desc = "[F]ind: ToDos/Fix",
       },
     },
     dependencies = {
@@ -234,5 +234,55 @@ return {
         icons = { "# ", "## ", "### ", "#### ", "##### ", "###### " },
       },
     },
+  },
+  {
+    "stevearc/overseer.nvim",
+    cmd = { "OverseerToggle", "OverseerRun", "OverseerShell" },
+    ---@module 'overseer'
+    ---@type overseer.SetupOpts
+    opts = {},
+    config = function(_, opts)
+      local overseer = require("overseer")
+      overseer.setup(opts)
+
+      vim.api.nvim_create_user_command("OverseerRestartLast", function()
+        local task_list = require("overseer.task_list")
+        local tasks = overseer.list_tasks({
+          status = {
+            overseer.STATUS.SUCCESS,
+            overseer.STATUS.FAILURE,
+            overseer.STATUS.CANCELED,
+          },
+          sort = task_list.sort_finished_recently,
+        })
+        if vim.tbl_isempty(tasks) then
+          vim.notify("No tasks found", vim.log.levels.WARN)
+        else
+          local most_recent = tasks[1]
+          overseer.run_action(most_recent, "restart")
+        end
+      end, {})
+
+      vim.api.nvim_create_user_command("OverseerSeeLastOutput",
+        function()
+          overseer.create_task_output_view(0, {
+            list_task_opts = {
+              filter = function(task)
+                return task.time_start ~= nil
+              end,
+            },
+            select = function(self, tasks, task_under_cursor)
+              table.sort(tasks, function(a, b)
+                return a.time_start > b.time_start
+              end)
+              return tasks[1]
+            end,
+          })
+        end, {
+          desc = "See output of the most recently run task",
+          nargs = "*",
+          bang = true,
+        })
+    end,
   },
 }

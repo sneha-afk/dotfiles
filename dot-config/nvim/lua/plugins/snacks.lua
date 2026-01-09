@@ -61,9 +61,11 @@ return {
       desc = "[T]erminal: toggle [F]loating",
     },
 
+    { "<leader>r",  function() Snacks.picker.resume() end,                desc = "Picker: [R]esume" },
+
     { "<leader>hn", function() Snacks.notifier.show_history() end,        desc = "[H]istory: [N]otifications" },
     { "<leader>.",  function() Snacks.scratch() end,                      desc = "Toggle scratch buffer" },
-    { "<leader>sb", function() Snacks.scratch.select() end,               desc = "Select: [s]cratch [b]uffer" },
+    { "<leader>ss", function() Snacks.scratch.select() end,               desc = "[S]cratch: [S]elect" },
 
     { "<leader>fb", function() Snacks.picker.lines() end,                 desc = "[F]ind: within [B]uffer" },
     { "<leader>fB", function() Snacks.picker.buffers() end,               desc = "[F]ind: open [B]uffers" },
@@ -78,6 +80,7 @@ return {
     { "<leader>fp", function() Snacks.picker.projects() end,              desc = "[F]ind: [P]rojects" },
     { "<leader>fr", function() Snacks.picker.recent() end,                desc = "[F]ind: [R]ecent files" },
     { "<leader>fs", function() Snacks.picker.smart() end,                 desc = "[F]ind: [S]mart" },
+    { "<leader>ft", function() Snacks.picker.treesitter() end,            desc = "[F]ind: [T]reesitter" },
 
     { "<leader>sh", function() Snacks.picker.search_history() end,        desc = "[S]earch: [H]istory" },
     { "<leader>sH", function() Snacks.picker.help() end,                  desc = "[S]earch: [H]elp tags" },
@@ -85,6 +88,7 @@ return {
     { "<leader>sM", function() Snacks.picker.man() end,                   desc = "[S]earch: [M]an pages" },
     { "<leader>sP", function() Snacks.picker.pickers() end,               desc = "[S]earch: [P]ickers" },
     { "<leader>sq", function() Snacks.picker.qflist() end,                desc = "[S]earch: [Q]uickfix List" },
+    { "<leader>su", function() Snacks.picker.undo() end,                  desc = "[S]earch: [U]ndo History" },
 
     -- LSP operations
     { "gd",         function() Snacks.picker.lsp_definitions() end,       desc = "Goto Definition" },
@@ -205,6 +209,7 @@ return {
     scratch = {
       enabled = true,
       icon = "⚏",
+      ft = "markdown",
     },
     statuscolumn = {
       enabled = true,

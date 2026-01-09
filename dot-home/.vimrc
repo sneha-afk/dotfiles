@@ -53,12 +53,9 @@ set listchars=tab:▸\ ,trail:·,nbsp:␣ " Symbols for tab, trailing space, non
 set fillchars=foldopen:▾,foldsep:│,foldclose:▸ " Characters for fold display
 
 set guifont=Geist_Mono:h10,Consolas:h10,Segoe_UI_Emoji:h10
-set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr-o:hor20
 
-" True color support (Vim 8.2+)
-if has('termguicolors') && ($COLORTERM ==# 'truecolor' || $COLORTERM ==# '24bit')
-    set termguicolors
-endif
+set termguicolors
 
 " ============================================================================
 " WINDOWS & SPLITS

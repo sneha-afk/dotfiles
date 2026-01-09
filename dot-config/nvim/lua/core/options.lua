@@ -33,6 +33,12 @@ vim.opt.scrolloff     = 10    -- Keep context when scrolling
 vim.opt.shortmess:append("I") -- Disable intro message
 
 vim.o.guifont       = "Geist_Mono,Consolas,Segoe_UI_Emoji,Symbols_Nerd_Font_Mono:h10"
+vim.opt.guicursor   =
+    "a:blinkon0," ..    -- disable cursor blinking in all modes
+    "n-v-c:block," ..   -- normal/visual/command: solid block
+    "i-ci-ve:ver25," .. -- insert modes: vertical bar (25% width)
+    "r-cr:hor20," ..    -- replace modes: underline
+    "o:hor50"           -- operator-pending: thicker underline
 
 -- Wrapping
 vim.opt.wrap        = true

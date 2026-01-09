@@ -26,20 +26,14 @@ map("n", "<leader>uh", function() lsp.inlay_hint.enable(not lsp.inlay_hint.is_en
   { desc = "[U]I: toggle inlay [H]int" })
 
 -- Scratch buffers
-map("n", "<leader>sb", function() vim.api.nvim_set_current_buf(buf_utils.create_scratch_buf()) end,
-  { desc = "[S]cratch: empty [B]uffer" })
+map("n", "<leader>.", function() vim.api.nvim_set_current_buf(buf_utils.create_scratch_buf()) end,
+  { desc = "Toggle scratch buffer" }) -- would be overwritten by snacks
 map("n", "<leader>sm", function()
   local buf = buf_utils.create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
   vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
   vim.keymap.set("n", "<Esc>", "<cmd>q<cr>", { buffer = buf })
   buf_utils.open_float_win(buf, " Messages ")
 end, { desc = "[S]cratch: view [M]essages" })
-
--- Start local server (requires npx/serve)
-map("n", "<leader>ss", function()
-  vim.notify("Starting server at localhost:3000", vim.log.levels.INFO, { title = "npx serve" })
-  local handle = io.popen("npx serve & 2>&1") -- https://www.npmjs.com/package/serve
-end, { desc = "[S]tart live [s]erver" })
 
 -- Taken from ThePrimeagen, changed to gc to default to confirmation
 map("n", "<leader>sr", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gc<Left><Left><Left>]], {
@@ -166,9 +160,10 @@ map("n", "<leader>qc", "<cmd>cclose<cr>", { desc = "[Q]uickfix: [C]lose" })
 -- ============================================================================
 -- DIAGNOSTICS
 -- ============================================================================
-map("n", "<leader>dt", function() diagnostic.enable(not diagnostic.is_enabled()) end, { desc = "[D]iagnostics: [T]oggle" })
-map("n", "<leader>dl", diagnostic.open_float,                                         { desc = "[D]iagnostics: on this [L]ine" })
-map("n", "<leader>df", diagnostic.setloclist,                                         { desc = "[D]iagnostics: [F]ile-local list" })
+map("n", "<leader>dt", function() diagnostic.enable(not diagnostic.is_enabled()) end,
+  { desc = "[D]iagnostics: [T]oggle" })
+map("n", "<leader>dl", diagnostic.open_float, { desc = "[D]iagnostics: on this [L]ine" })
+map("n", "<leader>df", diagnostic.setloclist, { desc = "[D]iagnostics: [F]ile-local list" })
 map("n", "<leader>da", function() diagnostic.setqflist({ open = true }) end,
   { desc = "[D]iagnostics: [A]ll project-wide" })
 map("n", "<leader>[d", function() diagnostic.jump({ count = -1, float = true }) end, { desc = "Previous diagnostic" })
