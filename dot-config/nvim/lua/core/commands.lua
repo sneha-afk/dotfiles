@@ -19,6 +19,9 @@ end
 -- USER COMMANDS
 -- ============================================================================
 
+vim.api.nvim_create_user_command("VSCode",   "!code -g %:p",     { nargs = 0, desc = "Open current file in VSCode" })
+vim.api.nvim_create_user_command("IntelliJ", "!idea %:p --line", { nargs = 0, desc = "Open current file in IntelliJ" })
+
 vim.api.nvim_create_user_command("EnvVariables", function()
   local env_vars = vim.fn.environ()
   local lines = { "# PATH VARIABLES", "" }

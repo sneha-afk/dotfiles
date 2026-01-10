@@ -41,6 +41,10 @@ vim.keymap.set("n", "<leader>ll", "<cmd>Lazy<cr>", { desc = "Open Lazy plugin ma
 require("lazy").setup({
   spec = {
     { import = "plugins" },
+    -- if a "plugins_work" directory exists, load it in
+    vim.fn.isdirectory(vim.fn.stdpath("config") .. "/lua/plugins_work") == 1
+    and { import = "plugins_work" }
+    or nil,
   },
   defaults = {
     version = false,

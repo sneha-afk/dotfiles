@@ -13,11 +13,15 @@ HISTSIZE=10000         # Increase number of commands to remember
 HISTFILESIZE=20000     # Increase maximum size of history file
 
 # Set shell options:
-# histappend     - Append to history file instead of overwriting
-# cmdhist        - Save multi-line commands as single history entry
-# checkwinsize - Update LINES/COLUMNS after each command to maintain correct window size
-# dirspell     - Auto-correct minor spelling errors in directory names during completion
-shopt -s histappend cmdhist checkwinsize
+# histappend      - Append to history file instead of overwriting
+# cmdhist         - Save multi-line commands as single history entry
+# checkwinsize    - Update LINES/COLUMNS after each command
+# autocd          - Type directory name to cd into it
+# cdspell         - Auto-correct minor typos in cd commands
+# globstar        - Enable ** for recursive globbing (e.g., **/*.txt)
+# nocaseglob      - Case-insensitive glob matching
+# dotglob         - Include dotfiles in pathname expansion (use carefully)
+shopt -s histappend cmdhist checkwinsize autocd cdspell globstar nocaseglob
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -79,17 +83,16 @@ fi
 # -----------------------------------------------------------------------------
 
 # Fallback PATH if no .profile for extended setup
-if [[ -z "$PATH" ]]; then
-    export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-fi
+[[ -z "$PATH" ]] && export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-# Source Rust/Cargo env
+# Sets if not already
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-
-# Load shell-helper utility functions
 [ -f "$HOME/.shell_helpers" ] && source "$HOME/.shell_helpers"
-
-# WSL-Specific Configuration
 [ -f "$HOME/.wsl_env" ] && source "$HOME/.wsl_env"
 
 # pnpm
@@ -126,12 +129,12 @@ alias home='cd ~'
 # Completions
 # ========================================================
 
-if command -v uv > /dev/null 2>&1; then
-    eval "$(uv generate-shell-completion bash)"
-fi
+command -v uv >/dev/null 2>&1 && eval "$(uv generate-shell-completion bash)"
 
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+if [[ -n "${NVM_DIR:-}" ]]; then
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+fi
 
 # ========================================================
 # Prompt Customization
@@ -144,13 +147,13 @@ if [ "$color_prompt" != yes ]; then
 fi
 unset color_prompt force_color_prompt
 
-PS1_RESET='\[\033[0m\]'
-PS1_GREEN='\[\033[32m\]'
-PS1_BLUE='\[\033[34m\]'
-PS1_YELLOW='\[\033[33m\]'
-PS1_CYAN='\[\033[36m\]'
-PS1_RED='\[\033[31m\]'
-PS1_MAGENTA='\[\033[35m\]'
+PS1_RESET=$'\001\033[0m\002'
+PS1_GREEN=$'\001\033[32m\002'
+PS1_BLUE=$'\001\033[34m\002'
+PS1_YELLOW=$'\001\033[33m\002'
+PS1_RED=$'\001\033[31m\002'
+PS1_MAGENTA=$'\001\033[35m\002'
+PS1_CYAN=$'\001\033[36m\002'
 
 # Source git-prompt if available and not declared yet
 if ! declare -F __git_ps1 &> /dev/null; then
@@ -166,25 +169,22 @@ export GIT_PS1_SHOWDIRTYSTATE=1     # * for unstaged, + for staged
 export GIT_PS1_SHOWSTASHSTATE=1     # $ for stashed changes
 export GIT_PS1_SHOWUNTRACKEDFILES=1 # % for untracked files
 export GIT_PS1_SHOWUPSTREAM="auto"  # < > = for behind/ahead/diverged
+export GIT_PS1_SHOWCONFLICTSTATE="yes" # |CONFLICT when in conflict state
 export GIT_PS1_SHOWCOLORHINTS=1
 
+# Fast path: use git-prompt if available, else use a minimal version
 __git_info() {
     ! command -v git >/dev/null && return
     # Use git's built-in prompt function if available
     if type -t __git_ps1 > /dev/null; then
         printf " %s " "$(__git_ps1 "[%s]")"
     else
-        # Fast path: return empty string if not in a git repo
-        git rev-parse --is-inside-work-tree &> /dev/null || return
-
         local branch
-        branch=$(git symbolic-ref --short HEAD 2> /dev/null) || return
+        branch=$(git branch --show-current 2>/dev/null) || return
 
         # Add a "dirty symbol" if there are any changes to commit
         local status=""
-        if ! git diff --quiet --ignore-submodules HEAD 2> /dev/null; then
-            status=" *"
-        fi
+        [[ -n $(git status --porcelain 2>/dev/null) ]] && status="*"
 
         printf " %s " "${PS1_MAGENTA}[$branch$status]"
     fi
@@ -198,7 +198,7 @@ __set_prompt() {
     PS1=$PS1_BASE
     [[ -n "$VIRTUAL_ENV" ]] && PS1+=" ${PS1_YELLOW}($(basename "$VIRTUAL_ENV"))${PS1_RESET}"
     PS1+="$(__git_info)"
-    PS1+="${PS1_CYAN}\T"
+    [[ -n "${SSH_CONNECTION:-}" ]] && PS1+="${PS1_CYAN}[SSH]${PS1_RESET} "
     PS1+="\n"$([[ $last_status -eq 0 ]] && echo "${PS1_GREEN}+" || echo "${PS1_RED}-")
     PS1+="${PS1_RESET} "
 }
