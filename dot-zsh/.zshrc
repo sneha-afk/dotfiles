@@ -3,54 +3,29 @@
 
 # vim: set ft=sh ts=4 sts=4 sw=4 et:
 
-# ========================
+# Early exit for non-interactive shells
+[[ -o interactive ]] || return
+
+# ========================================================
 # Options
-# ========================
-# autolist: show completion options when ambiguous matches
-# correct: try to correct spelling; correctall: correct arguments
-setopt autolist correct
+# ========================================================
+setopt autolist
+setopt auto_cd
+setopt hist_ignore_dups hist_ignore_space share_history
+setopt prompt_subst
 
-autoload -U colors && colors
-
-# ========================
-# Completions
-# ========================
-autoload -Uz compinit
-
-# Only rebuild if cache is older than 24 hours
-if [ "$(date +'%j')" != "$(stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)" ]; then
-    compinit
-else
-    compinit -C
-fi
-
-zstyle ':completion:*' completer _expand _complete
-zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-zstyle ':completion:*' group-name ''
-zstyle ':completion:*' list-colors '=(#b) #([a-z]*|[0-9]*)=36'
-zstyle ':completion:*' rehash true
-zstyle ':completion:*' verbose false
-
-# =====================
+# ========================================================
 # History
-# =====================
+# ========================================================
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
-setopt hist_ignore_dups  # No duplicates
-setopt share_history     # Share history across sessions
-setopt hist_ignore_space  # Ignore commands starting with space
 
-# =====================
-# Key Bindings (Emacs mode)
-# =====================
-bindkey -e  # Emacs-style shortcuts (Ctrl+A, Ctrl+E, etc.)
-bindkey '^[[3~' delete-char  # Fix Delete key
+# ========================================================
+# Colors
+# ========================================================
+autoload -U colors && colors
 
-# =====================
-# Color support
-# =====================
 if [ -x /usr/bin/dircolors ]; then
     alias ls='ls --color=auto'
     alias dir='dir --color=auto'
@@ -61,33 +36,87 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # ========================================================
-# Aliases and Helpers
+# Completion system
 # ========================================================
-[ -f ~/.shell_helpers ] && source ~/.shell_helpers
-[ -f ~/.bash_aliases ] && source ~/.bash_aliases
+autoload -Uz compinit
+ZSH_COMPDUMP=$HOME/.zcompdump
 
-if command -v uv > /dev/null 2>&1; then
+# Rebuild completion dump if zshrc changes
+if [[ ! -f $ZSH_COMPDUMP || $ZSH_COMPDUMP -ot ~/.zshrc ]]; then
+    compinit
+else
+    compinit -C
+fi
+
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' rehash true
+zstyle ':completion:*' verbose false
+zstyle ':completion:*' list-colors '=(#b) #([a-z]*|[0-9]*)=36'
+
+# ========================================================
+# PATH safety fallback
+# ========================================================
+
+[[ -z $PATH ]] && export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Set if not already
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+
+export NVM_DIR="${NVM_DIR:-$HOME/.config/nvm}"
+
+# ========================================================
+# Environment loaders
+# ========================================================
+
+[[ -f $HOME/.shell_helpers ]] && source $HOME/.shell_helpers
+[[ -f $HOME/.bash_aliases ]] && source $HOME/.bash_aliases
+[[ -f $HOME/.wsl_env ]] && source $HOME/.wsl_env
+
+[[ -f $HOME/.cargo/env ]] && source $HOME/.cargo/env
+
+# pnpm
+export PNPM_HOME="~/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+if command -v uv >/dev/null 2>&1; then
     eval "$(uv generate-shell-completion zsh)"
 fi
 
-# Listing aliases
-alias ll='ls -alF' # Long format, show all except .
-alias la='ls -A'   # Show all except . and ..
-alias l1="la -1"   # Show all in vertical form
-alias l='ls -CF'   # Column format, classify files
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# Navigation alias
+# ========================================================
+# Aliases
+# ========================================================
+
+# Listing
+alias ll='ls -alF'
+alias la='ls -A'
+alias l1='la -1'
+alias l='ls -CF'
+
+# Navigation
 alias ..='cd ..'
+alias ...='cd ../..'
+alias home='cd ~'
 
 # Add an "alert" alias for long running commands. Example: sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-# Confirm destructive actions
+# Safety
 alias cp='nocorrect cp -iv'
 alias mv='nocorrect mv -iv'
+alias mkdir='nocorrect mkdir -pv'
 
-alias mkdir='nocorrect mkdir -pv' # Create parent directories and verbose
-alias ...='cd ../..'
+# Disk
 alias df='df -h' # Human-readable sizes
 alias du='du -h' # Human-readable sizes
 
@@ -99,36 +128,40 @@ alias gp='git push'
 alias gl='git log --oneline'
 alias glg='git log --graph --oneline --decorate --all'
 
-# =====================
+# ========================================================
 # Prompt
-# =====================
+# ========================================================
 
-__git_info() {
-    local branch
-    branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return 1
-    
-    local status=""
-    git diff-index --quiet HEAD -- 2>/dev/null || status="*"
-    
-    printf " [%s%s]" "$branch" "$status"
-}
+autoload -Uz vcs_info
+zstyle ':vcs_info:git:*' stagedstr='+'
+zstyle ':vcs_info:git:*' unstagedstr '*'
+zstyle ':vcs_info:git:*' check-for-changes true
 
-# Enable prompt substitution
-setopt prompt_subst
+zstyle ':vcs_info:git:*' formats ' [%b%u%c]'
+zstyle ':vcs_info:git:*' actionformats ' [%b|%a%u%c]'
+
+precmd_vcs() { vcs_info }
+precmd_functions+=(precmd_vcs)
 
 __set_prompt() {
     local last_status=$?
 
-    # user@host:path
-    PROMPT=$'\n'"%F{green}%n@%m%f:%F{blue}%~%f"
+    PROMPT=$'\n'
+    PROMPT+="%F{green}%n@%m%f:%F{blue}%~%f"
 
-    [[ -n $VIRTUAL_ENV ]] && PROMPT+=" %F{yellow}($(basename $VIRTUAL_ENV))%f"
-    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        PROMPT+="%F{magenta}$(__git_info)%f"
-    fi
+    [[ -n ${VIRTUAL_ENV:-} ]] && PROMPT+=" %F{yellow}($(basename $VIRTUAL_ENV))%f"
+    [[ -n $vcs_info_msg_0_ ]] && PROMPT+="%F{magenta}$vcs_info_msg_0_%f"
 
     # Green plus (last command succeeded), else red minus on a new line
-    PROMPT+=$'\n'"$([[ $last_status -eq 0 ]] && echo "%F{green}+" || echo "%F{red}-")%f "
+    PROMPT+=$'\n'
+    PROMPT+=$([[ $last_status -eq 0 ]] && echo "%F{green}+" || echo "%F{red}-")
+    PROMPT+="%f "
 }
 
 precmd_functions+=(__set_prompt)
+
+# ========================================================
+# Key Bindings (Emacs mode)
+# ========================================================
+bindkey -e  # Emacs-style shortcuts (Ctrl+A, Ctrl+E, etc.)
+bindkey '^[[3~' delete-char  # Fix Delete key

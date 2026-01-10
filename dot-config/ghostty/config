@@ -1,0 +1,33 @@
+# This is the configuration file for Ghostty.
+# Run ghostty +show-config --default --docs to view all options and defaults.
+# Docs: https://ghostty.org/docs/config
+# Reload configuration: Menu, or CMD + Shift + ,
+#
+# Config order: later files override earlier
+#   1. $XDG_CONFIG_HOME/ghostty/config
+#   2. $HOME/.config/ghostty/config (if XDG not specified)
+#   3. macOS only: $HOME/Library/Application\ Support/com.mitchellh.ghostty/config
+#
+
+# tried porting over things from my WezTerm config (imo best terminal)
+# https://github.com/sneha-afk/dotfiles/blob/main/dot-home/.wezterm.lua
+
+# cheat sheet: https://gist.github.com/hensg/43bc71c21d1f79385892352a390aa2ca
+
+# Appearance: ghostty ships with JetBrains Mono and symbols
+font-family = "Geist Mono"
+font-family = "Symbols Nerd Font Mono"
+font-size = 14
+theme = "Iceberg Dark"
+
+# Keybindings
+# See: https://ghostty.org/docs/config/keybind
+# Format: keybind = <modifiers+key>=<action>
+# Example: keybind = shift+enter=text:\x1b\r
+keybind = shift+enter=text:\x1b\r
+
+# Only copy if there is a selection made
+keybind = performable:ctrl+c=copy_to_clipboard
+keybind = ctrl+v=paste_from_clipboard
+
+# vim: set ft=conf ff=unix ts=2 sw=2 sts=2 et nowrap :
