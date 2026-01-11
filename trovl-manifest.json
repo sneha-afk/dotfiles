@@ -1,0 +1,88 @@
+{
+  "$schema": "https://github.com/sneha-afk/trovl/raw/main/docs/trovl_schema.json",
+  "links": [
+    {
+      "target": "./dot-config/nvim/",
+      "link": "~/.config/nvim/",
+      "platform_overrides": {
+        "windows": { "link": "%LOCALAPPDATA%\\nvim" }
+      }
+    },
+    {
+      "target": "./dot-home/.vimrc",
+      "link": "~/.vimrc",
+      "platforms": ["all"],
+      "platform_overrides": {
+        "windows": { "link": "~/_vimrc" }
+      }
+    },
+    {
+      "target": "./dot-home/.profile",
+      "link": "~/.profile",
+      "platforms": ["linux"]
+    },
+    {
+      "target": "./dot-home/.bashrc",
+      "link": "~/.bashrc",
+      "platforms": ["linux"]
+    },
+    {
+      "target": "./dot-home/.shell_helpers",
+      "link": "~/.shell_helpers",
+      "platforms": ["linux"]
+    },
+    {
+      "target": "./dot-home/.wsl_env",
+      "link": "~/.wsl_env",
+      "platforms": ["wsl"]
+    },
+    {
+      "target": "./dot-home/.clang-format",
+      "link": "~/.clang-format"
+    },
+    {
+      "target": "./dot-home/.gitconfig",
+      "link": "~/.gitconfig"
+    },
+    {
+      "target": "./dot-home/.wezterm.lua",
+      "link": "~/.wezterm.lua"
+    },
+    {
+      "target": "./dot-config/fastfetch/",
+      "link": "~/.config/fastfetch/"
+    },
+    {
+      "target": "./windows/.wslconfig",
+      "link": "~/.wslconfig",
+      "platforms": ["windows"]
+    },
+    {
+      "target": "./dot-config/alacritty/",
+      "link": "~/.config/alacritty",
+      "platform_overrides": {
+        "windows": { "link": "%APPDATA%\\alacritty" }
+      }
+    },
+    {
+      "target": "./windows/scripts/",
+      "link": "~/scripts",
+      "platforms": ["windows"]
+    },
+    {
+      "target": "./scripts/",
+      "link": "~/scripts",
+      "platforms": ["linux"]
+    },
+    {
+      "target": "./windows/profile/Microsoft.PowerShell_profile.ps1",
+      "link": "$PROFILE",
+      "platforms": ["windows"]
+    },
+    {
+      "target": "./windows/profile/Modules/helpers/helpers.psm1",
+      "link": "$PROFILE/../Modules/helpers/helpers.psm1",
+      "platforms": ["windows"]
+    }
+  ]
+}

@@ -1,15 +1,12 @@
-
 # dotfiles
-
 ## 📁 structure
-
 | Area           | Location / Notes                                           |
 | -------------- | ---------------------------------------------------------- |
-| **Shells**     | **`dot-bash/`**, `pswh`   |
+| **Shells**     | `dot-bash/`, `pswh`   |
 | **PowerShell** | `windows\profile\Microsoft.PowerShell_profile.ps1`         |
-| **Neovim**     | `dot-config/nvim` — see its [`README.md`](./dot-config/nvim/) |
+| **Neovim**     | `dot-config/nvim` — see its [README.md](./dot-config/nvim/) |
 | **WSL**        | `windows\.wslconfig`, `dot-home/.wsl_env`                  |
-| **Terminals**  | :star: [WezTerm](https://wezterm.org/), Windows Terminal          |
+| **Terminals**  | [WezTerm](https://wezterm.org/)          |
 | **Fonts**      | [Geist Mono](https://vercel.com/font), Segoe UI Emoji (built-in), optional [Symbols Nerd Font Mono](https://www.nerdfonts.com/font-downloads) |
 
 Other helpful files in `dot-config -> .config` and `dot-home -> ~/*`.
@@ -24,13 +21,41 @@ Other helpful files in `dot-config -> .config` and `dot-home -> ~/*`.
 - **Monitor**: Dell U2723QE
 
 ---
-
 </details>
 
 ## ⚙️ Setup
+
+### ⭐ Recommended: `trovl` for symlinks
+
+Use [trovl](https://github.com/sneha-afk/trovl) (my project :>) for simple, declarative symlink management across all platforms:
+
+```bash
+# Install trovl (using Go)
+go install github.com/sneha-afk/trovl@latest
+
+# Apply manifest: must be run from the root of this repo
+# Can add --overwrite and/or --backup
+trovl apply trovl-manifest.json
+
+# Preview changes
+trovl apply trovl-manifest.json --dry-run
+```
+
+Also see [manual installation methods](https://github.com/sneha-afk/trovl/blob/main/docs/install.md).
+
+The manifest file (`trovl-manifest.json`) is located at the root of this repo.
+
+---
+
 ### 🐧 Linux
 
-**Recommended**: `Makefile` and using GNU `stow`
+```go
+sudo apt-get install git make stow
+./scripts/install_nvim.sh
+```
+
+<details>
+<summary>Symlinks: Using GNU Stow</summary>
 
 ```bash
 sudo apt-get install git make stow
@@ -38,6 +63,7 @@ make         # Bootstrap symlinks, installs, etc.
 make delete  # Remove all symlinks
 make dry-run # Preview changes
 ```
+</details>
 
 <details>
 <summary>Manual Symlinks</summary>
@@ -47,14 +73,14 @@ ln -sf "$(pwd)/dot-config/nvim" "$HOME/.config/nvim"
 ln -sf "$(pwd)/dot-vim/.vimrc" "$HOME/.vimrc"
 ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 ```
-
 </details>
 
 ---
 
 ### 🪟 Windows
 
-**Recommended**: using the bootstrap script to cover all setup
+The bootstrap script goes through installing from `winget`, `scoop`, and symlinks (if not using `trovl`):
+
 ```powershell
 .\windows\bootstrap.ps1
 # Skip components: -SkipScoop, -SkipWinget, -SkipSymlinks, etc.
@@ -70,30 +96,27 @@ scoop import .\windows\scoopfile.json
 <summary>Run with elevated permissions</summary>
 
 If bootstrap fails, run in elevated PowerShell (auto-elevation within the script should handle this):
+
 ```powershell
 Start-Process wt -Verb RunAs -ArgumentList `
   "powershell -NoProfile -ExecutionPolicy Bypass -File `"$PWD\windows\bootstrap.ps1`""
 ```
-
 </details>
 
 <details>
 <summary>Manual Symlinks</summary>
 
 ```powershell
-# PowerShell profile
 New-Item -ItemType SymbolicLink `
   -Path $PROFILE `
   -Target "$(Resolve-Path .\windows\Microsoft.PowerShell_profile.ps1)" `
   -Force
 
-# WSL config
 New-Item -ItemType SymbolicLink `
   -Path "$env:USERPROFILE\.wslconfig" `
   -Target "$(Resolve-Path .\windows\.wslconfig)" `
   -Force
 
-# Vim / Neovim
 New-Item -ItemType SymbolicLink `
   -Path "$HOME\_vimrc" `
   -Target "$(Resolve-Path .\dot-home\.vimrc)" `
@@ -109,10 +132,9 @@ New-Item -ItemType SymbolicLink `
 #### ⚠️ On `$PROFILE`
 
 The default `$PROFILE` path resolves inside OneDrive, which leads to:
-
 * Unwanted OneDrive pollution when modules or profile-related files are created
 * Reduced portability across machines
-* Ongoing background sync overhead for files that don’t need it
+* Ongoing background sync overhead for files that don't need it
 
 <details>
 <summary>Solution: relocate the PowerShell profile</summary>
@@ -127,7 +149,6 @@ Copy-Item -Path ".\windows\utils\fix_profile_path.ps1" `
           -Destination (Join-Path $env:OneDrive "Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1") `
           -Force
 ```
-
 </details>
 
-> Do **not** attempt to change the registry entries related to OneDrive.. been there done that.
+> Do **not** attempt to change the registry entries related to OneDrive... been there done that.
