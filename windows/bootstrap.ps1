@@ -33,6 +33,7 @@ $script:Version = "2.0.0"
 $script:StartTime = Get-Date
 
 $script:WindowsDir = $PSScriptRoot
+$script:RepoDir = Split-Path -Parent $script:WindowsDir
 $script:UtilsDir = Join-Path $script:WindowsDir "utils"
 $script:ScriptsDir = Join-Path $script:WindowsDir "scripts"
 . (Join-Path $script:UtilsDir "bootstrap_helpers.ps1")
@@ -124,7 +125,7 @@ if (-not $SkipWinget) {
 #region Scoop
 if (-not $SkipScoop) {
     Invoke-Safe {
-        . (Join-Path $ScriptsDir "install_scoop.ps1")
+        . (Join-Path $UtilsDir "install_scoop.ps1")
 
         $manifestPath = Join-Path $WindowsDir "scoopfile.json"
 
@@ -156,7 +157,7 @@ if (-not $SkipScoop) {
 
         # Only run generate_global_clangd if gcc exists in PATH
         if (Get-Command gcc -ErrorAction SilentlyContinue) {
-            . (Join-Path $ScriptsDir "generate_global_clangd.ps1")
+            . (Join-Path $RepoDir "scripts" "generate_global_clangd.ps1")
         }
     } "Scoop package installation"
 }

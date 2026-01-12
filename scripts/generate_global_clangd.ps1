@@ -1,4 +1,5 @@
-# windows/scripts/generate_global_clangd.ps1
+# scripts/generate_global_clangd.ps1
+# Used for Windows gcc installation where clangd doesn't auto-detect the gcc toolchain
 
 $homeDir = $env:USERPROFILE
 if (-not $homeDir) { $homeDir = $HOME }

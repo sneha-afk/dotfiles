@@ -53,6 +53,10 @@
       "link": "~/.config/fastfetch/"
     },
     {
+      "target": "./scripts/",
+      "link": "~/scripts"
+    },
+    {
       "target": "./windows/.wslconfig",
       "link": "~/.wslconfig",
       "platforms": ["windows"]
@@ -63,16 +67,6 @@
       "platform_overrides": {
         "windows": { "link": "%APPDATA%\\alacritty" }
       }
-    },
-    {
-      "target": "./windows/scripts/",
-      "link": "~/scripts",
-      "platforms": ["windows"]
-    },
-    {
-      "target": "./scripts/",
-      "link": "~/scripts",
-      "platforms": ["linux"]
     },
     {
       "target": "./windows/profile/Microsoft.PowerShell_profile.ps1",

@@ -2,6 +2,7 @@
 -- Set user commands, autocommands, etc.
 
 local buf_utils = require("utils.buffers_and_windows")
+local file_utils = require("utils.fileops")
 
 -- ============================================================================
 -- HELPER FUNCTIONS
@@ -19,8 +20,26 @@ end
 -- USER COMMANDS
 -- ============================================================================
 
-vim.api.nvim_create_user_command("VSCode",   "!code -g %:p",     { nargs = 0, desc = "Open current file in VSCode" })
-vim.api.nvim_create_user_command("IntelliJ", "!idea %:p --line", { nargs = 0, desc = "Open current file in IntelliJ" })
+vim.api.nvim_create_user_command("VSCodeFile",   "!code -g %:p",     { nargs = 0, desc = "Open current file in VSCode" })
+vim.api.nvim_create_user_command("IntelliJFile", "!idea %:p --line", { nargs = 0, desc = "Open current file in IntelliJ" })
+
+vim.api.nvim_create_user_command("VSCodeRepo", function()
+  local repo = file_utils.get_git_root()
+  if repo then
+    vim.fn.jobstart({ "code", repo }, { detach = true })
+  else
+    print("Not inside a git repository!")
+  end
+end, { desc = "Open Git repo root in VSCode" })
+
+vim.api.nvim_create_user_command("IntelliJRepo", function()
+  local repo = file_utils.get_git_root()
+  if repo then
+    vim.fn.jobstart({ "idea", repo }, { detach = true })
+  else
+    print("Not inside a git repository!")
+  end
+end, { desc = "Open Git repo root in IntelliJ" })
 
 vim.api.nvim_create_user_command("EnvVariables", function()
   local env_vars = vim.fn.environ()
