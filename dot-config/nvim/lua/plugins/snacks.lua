@@ -29,9 +29,11 @@ local function get_footer()
   return string.format("%s • %s\n%s", os.date("%A, %B %d %Y • %I:%M %p"), nvim_version, cwd)
 end
 
+local right_sidebar = { preset = "sidebar", layout = { position = "right", width = 0.25 } }
+
 local explorer_sidebar = function()
   Snacks.explorer({
-    layout = { preset = "sidebar", layout = { position = "right", width = 0.25 } },
+    layout = right_sidebar,
     cwd = Snacks.git.get_root() or vim.uv.cwd(),
     auto_close = false,
   })
@@ -52,48 +54,43 @@ return {
     "nvim-mini/mini.icons",
   },
   keys = {
-    { "<leader>fe", explorer_sidebar,                     desc = "[F]ile: [E]xplorer" },
-    { "<leader>fE", explorer_fullscreen,                  desc = "[F]ile: [E]xplorer (fullscreen)" },
-    { "<leader>ff", function() Snacks.picker.files() end, desc = "[F]ind: [F]iles" },
-    {
-      "<leader>tf",
-      function() Snacks.terminal.toggle(nil, { win = { position = "float" } }) end,
-      desc = "[T]erminal: toggle [F]loating",
-    },
-
     { "<leader>r",  function() Snacks.picker.resume() end,                desc = "Picker: [R]esume" },
 
     { "<leader>hn", function() Snacks.notifier.show_history() end,        desc = "[H]istory: [N]otifications" },
     { "<leader>.",  function() Snacks.scratch() end,                      desc = "Toggle scratch buffer" },
     { "<leader>ss", function() Snacks.scratch.select() end,               desc = "[S]cratch: [S]elect" },
 
+    -- Find/file: current work and context, heavily used
     { "<leader>fb", function() Snacks.picker.lines() end,                 desc = "[F]ind: within [B]uffer" },
     { "<leader>fB", function() Snacks.picker.buffers() end,               desc = "[F]ind: open [B]uffers" },
-    { "<leader>fd", function() Snacks.picker.diagnostics_buffer() end,    desc = "[F]ile: [D]iagnostics" },
-    { "<leader>fD", function() Snacks.picker.diagnostics() end,           desc = "[F]ile: [D]iagnostics (CWD)" },
-
-    { "<leader>fc", function() Snacks.picker.commands() end,              desc = "[F]ind: [C]ommands" },
-    { "<leader>fC", function() Snacks.picker.command_history() end,       desc = "[F]ind: [C]ommand History" },
-
+    { "<leader>fd", function() Snacks.picker.diagnostics_buffer() end,    desc = "[F]ind: [D]iagnostics (buffer)" },
+    { "<leader>fD", function() Snacks.picker.diagnostics() end,           desc = "[F]ind: [D]iagnostics (workspace)" },
+    { "<leader>fe", explorer_sidebar,                                     desc = "[F]ile: [E]xplorer" },
+    { "<leader>fE", explorer_fullscreen,                                  desc = "[F]ile: [E]xplorer (fullscreen)" },
+    { "<leader>ff", function() Snacks.picker.files() end,                 desc = "[F]ind: [F]iles" },
     { "<leader>fg", function() Snacks.picker.grep() end,                  desc = "[F]ind: live [G]rep" },
-    { "<leader>fm", function() Snacks.picker.marks() end,                 desc = "[F]ind: [M]arks" },
+    { "<leader>fj", function() Snacks.picker.jumps() end,                 desc = "[F]ind: [J]umps" },
     { "<leader>fp", function() Snacks.picker.projects() end,              desc = "[F]ind: [P]rojects" },
     { "<leader>fr", function() Snacks.picker.recent() end,                desc = "[F]ind: [R]ecent files" },
     { "<leader>fs", function() Snacks.picker.smart() end,                 desc = "[F]ind: [S]mart" },
-    { "<leader>ft", function() Snacks.picker.treesitter() end,            desc = "[F]ind: [T]reesitter" },
 
+    -- Search operations: system-wide, less used
+    { "<leader>sc", function() Snacks.picker.commands() end,              desc = "[S]earch: [C]ommands" },
+    { "<leader>sC", function() Snacks.picker.command_history() end,       desc = "[S]earch: [C]ommand history" },
     { "<leader>sh", function() Snacks.picker.search_history() end,        desc = "[S]earch: [H]istory" },
     { "<leader>sH", function() Snacks.picker.help() end,                  desc = "[S]earch: [H]elp tags" },
     { "<leader>sk", function() Snacks.picker.keymaps() end,               desc = "[S]earch: [K]eymaps" },
+    { "<leader>sm", function() Snacks.picker.marks() end,                 desc = "[S]earch: [M]arks" },
     { "<leader>sM", function() Snacks.picker.man() end,                   desc = "[S]earch: [M]an pages" },
     { "<leader>sP", function() Snacks.picker.pickers() end,               desc = "[S]earch: [P]ickers" },
-    { "<leader>sq", function() Snacks.picker.qflist() end,                desc = "[S]earch: [Q]uickfix List" },
-    { "<leader>su", function() Snacks.picker.undo() end,                  desc = "[S]earch: [U]ndo History" },
+    { "<leader>sq", function() Snacks.picker.qflist() end,                desc = "[S]earch: [Q]uickfix list" },
+    { "<leader>st", function() Snacks.picker.treesitter() end,            desc = "[S]earch: [T]reesitter" },
+    { "<leader>su", function() Snacks.picker.undo() end,                  desc = "[S]earch: [U]ndo history" },
 
     -- LSP operations
     { "gd",         function() Snacks.picker.lsp_definitions() end,       desc = "Goto Definition" },
     { "gD",         function() Snacks.picker.lsp_declarations() end,      desc = "Goto Declaration" },
-    { "gR",         function() Snacks.picker.lsp_references() end,        desc = "Goto references",            nowait = true },
+    { "gR",         function() Snacks.picker.lsp_references() end,        desc = "Goto references",                  nowait = true },
     { "gi",         function() Snacks.picker.lsp_implementations() end,   desc = "Goto Implementation" },
     { "gy",         function() Snacks.picker.lsp_type_definitions() end,  desc = "Goto T[y]pe Definition" },
     { "gI",         function() Snacks.picker.lsp_incoming_calls() end,    desc = "Goto [I]ncoming Calls" },
@@ -106,7 +103,9 @@ return {
     { "<leader>gb", function() Snacks.picker.git_branches() end,          desc = "[G]it: [B]ranches" },
     { "<leader>gB", function() Snacks.git.blame_line() end,               desc = "[G]it: [B]lame Curr Line" },
     { "<leader>gD", function() Snacks.picker.git_diff() end,              desc = "[G]it: [D]iff (Overview)" },
+    { "<leader>gf", function() Snacks.picker.git_log_file() end,          desc = "[G]it: log [F]ile" },
     { "<leader>gl", function() Snacks.picker.git_log() end,               desc = "[G]it: Log" },
+    { "<leader>gL", function() Snacks.picker.git_log_line() end,          desc = "[G]it: log [L]ine" },
     { "<leader>gs", function() Snacks.picker.git_status() end,            desc = "[G]it: [S]tatus" },
     { "<leader>gS", function() Snacks.picker.git_stash() end,             desc = "[G]it: [S]tash" },
     { "<leader>go", function() Snacks.gitbrowse() end,                    desc = "[G]it: [O]pen in browser" },
@@ -203,6 +202,27 @@ return {
         projects = {
           dev = { "~/Repositories/", "~/dotfiles" },
         },
+        commands = {
+          layout = { preset = "select" },
+        },
+        diagnostics_buffer = {
+          layout = right_sidebar,
+          auto_close = false,
+        },
+        keymaps = {
+          layout = { preset = "vscode" },
+        },
+        lsp_symbols = {
+          layout = right_sidebar,
+          auto_close = false,
+        },
+        pickers = {
+          layout = { preset = "select" },
+        },
+        treesitter = {
+          layout = right_sidebar,
+          auto_close = false,
+        },
       },
     },
     scope = { enabled = true },
@@ -228,8 +248,7 @@ return {
       enabled = true,
     },
     notifier = {
-      timeout = 3000,   -- in ms
-      top_down = false, -- false for bottom up
+      timeout = 3000, -- in ms
       icons = {
         error = "[E] ",
         warn = "[W] ",
@@ -275,7 +294,7 @@ return {
           { icon = "🔍", key = "/", desc = "Search", action = function() Snacks.picker.grep() end },
           { icon = "🧭", key = "b", desc = "Browse Files", action = explorer_fullscreen },
           { icon = "📁", key = "f", desc = "Find Files", action = function() Snacks.picker.files() end },
-          { icon = "✨", key = "s", desc = "Smart Find", action = function() Snacks.picker.smart() end },
+          { icon = "✨", key = "m", desc = "Smart Find", action = function() Snacks.picker.smart() end },
           { icon = "📦", key = "p", desc = "Projects", action = function() Snacks.picker.projects() end },
           { icon = "⏮️", key = "s", desc = "Last session", action = "<leader>sL" },
           { icon = "💾", key = "S", desc = "Select session", action = "<leader>sl" },
