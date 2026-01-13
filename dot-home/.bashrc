@@ -147,21 +147,14 @@ if [ "$color_prompt" != yes ]; then
 fi
 unset color_prompt force_color_prompt
 
-# Only customize if PS1 contains typical default markers
-DEFAULT_PROMPTS=(
-    '\u@\h:\w\$ '
-    '\u@\h:\w\\\$ '
-    '${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-    '\s-\v\$ '
-)
-
+# Only customize if PS1 is default
 is_default=false
-for pattern in "${DEFAULT_PROMPTS[@]}"; do
-    if [[ "$PS1" == *"$pattern"* ]] || [[ "$PS1" =~ $(echo "$pattern" | sed 's/\\/\\\\/g') ]]; then
-        is_default=true
-        break
-    fi
-done
+case "$PS1" in
+    *'${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '*) is_default=true ;;
+    *'\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \$'*)     is_default=true ;;
+    *'\s-\v\$ '* | *"[\u@\h \W]\\$ "*)                 is_default=true ;;
+    *'\u@\h:\w\$ '*)                                   is_default=true ;;
+esac
 
 [[ "$is_default" == false ]] && return
 
