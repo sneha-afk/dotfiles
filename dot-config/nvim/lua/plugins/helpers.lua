@@ -285,4 +285,42 @@ return {
         })
     end,
   },
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    keys = {
+      { "<leader>tf", "<cmd>ToggleTerm direction=float<cr>",      desc = "[T]erminal: [F]loat" },
+      { "<leader>ht", "<cmd>ToggleTerm direction=horizontal<cr>", desc = "[H]orizontal [T]erminal" },
+      { "<leader>vt", "<cmd>ToggleTerm direction=vertical<cr>",   desc = "[V]ertical [T]erminal" },
+      { "<leader>tt", "<cmd>ToggleTerm direction=tab<cr>",        desc = "[T]erminal: [T]ab" },
+    },
+    opts = {
+      open_mapping = [[<c-\>]],
+      direction = "float",
+    },
+  },
+  {
+    "ojroques/nvim-osc52",
+    enabled = function()
+      return vim.env.SSH_CONNECTION ~= nil or vim.env.SSH_CLIENT ~= nil
+    end,
+    event = "VeryLazy",
+    config = function()
+      -- https://github.com/ojroques/nvim-osc52?tab=readme-ov-file#using-nvim-osc52-as-clipboard-provider
+      local function copy(lines, _)
+        require("osc52").copy(table.concat(lines, "\n"))
+      end
+
+      local function paste()
+        return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") }
+      end
+
+      vim.g.clipboard = {
+        name = "osc52",
+        copy = { ["+"] = copy, ["*"] = copy },
+        paste = { ["+"] = paste, ["*"] = paste },
+      }
+    end,
+  },
+
 }

@@ -89,7 +89,10 @@ vim.opt.incsearch   = true
 vim.opt.inccommand  = "nosplit"
 
 if vim.fn.executable("rg") == 1 then
-  vim.opt.grepprg = "rg --vimgrep"
+  vim.opt.grepprg = "rg --vimgrep --smart-case --hidden --follow " ..
+      "--glob '!.git' --glob '!node_modules' " ..
+      "--max-columns=150 --max-filesize=1M"
+  vim.opt.grepformat = "%f:%l:%c:%m,%f:%l:%m,%f:%m"
 end
 
 -- ============================================================================

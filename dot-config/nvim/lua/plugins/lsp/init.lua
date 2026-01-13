@@ -3,6 +3,11 @@
 local lsp_utils = require("utils.lsp_utils")
 
 return {
+  {
+    "j-hui/fidget.nvim",
+    event = "LspAttach",
+    config = true,
+  },
   -- Lazy-loads plugin completions
   {
     "folke/lazydev.nvim",

@@ -20,6 +20,8 @@ font-family = "Symbols Nerd Font Mono"
 font-size = 14
 theme = "Iceberg Dark"
 
+wait-after-command = true
+
 # Keybindings
 # See: https://ghostty.org/docs/config/keybind
 # Format: keybind = <modifiers+key>=<action>
