@@ -13,6 +13,7 @@ return {
   opts = {
     formatters_by_ft = {
       sh = { "shfmt" },
+      lua = { "stylua", "lua_ls", stop_after_first = true },
     },
     formatters = {
       shfmt = {
@@ -35,13 +36,16 @@ return {
       }
       if ignore_ft[vim.bo[bufnr].filetype] then return end
 
-      return { timeout_ms = 500, lsp_format = "fallback" }
+      return {
+        timeout_ms = 3500,
+        lsp_format = "fallback",
+      }
     end,
   },
   config = function(_, opts)
     for _, ft in ipairs({
       "angular", "css", "flow", "graphql", "html", "htmldjango", "javascript", "javascriptreact", "jsx",
-      "json", "jsonc", "less", "markdown", "scss", "typescript", "typescriptreact", "tsx", "vue", "yaml",
+      "json", "jsonc", "less", "scss", "typescript", "typescriptreact", "tsx", "vue", "yaml",
     }) do
       opts.formatters_by_ft[ft] = { "prettierd", "prettier", stop_after_first = true }
     end

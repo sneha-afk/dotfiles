@@ -72,6 +72,7 @@ return {
     { "<leader>fj", function() Snacks.picker.jumps() end,                 desc = "[F]ind: [J]umps" },
     { "<leader>fp", function() Snacks.picker.projects() end,              desc = "[F]ind: [P]rojects" },
     { "<leader>fr", function() Snacks.picker.recent() end,                desc = "[F]ind: [R]ecent files" },
+    { "<leader>fR", function() Snacks.explorer.reveal() end,              desc = "[F]ile: [R]eveal" },
     { "<leader>fs", function() Snacks.picker.smart() end,                 desc = "[F]ind: [S]mart" },
 
     -- Search operations: system-wide, less used

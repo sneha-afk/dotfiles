@@ -176,7 +176,7 @@ return {
         end, { desc = "[G]it: prev [C]hange (hunk)" })
 
         -- Hunk actions
-        map("n", "ghs", gitsigns.stage_hunk, { desc = "[G]it [H]unk: [S]tage" })
+        map("n", "ghs", gitsigns.stage_hunk, { desc = "[G]it [H]unk: Toggle [S]tage" })
         map("n", "ghr", gitsigns.reset_hunk, { desc = "[G]it [H]unk: [R]eset" })
         map("v", "ghs", function()
           gitsigns.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
@@ -288,6 +288,7 @@ return {
   {
     "akinsho/toggleterm.nvim",
     version = "*",
+    cmd = "TermSelect",
     keys = {
       { "<leader>tf", "<cmd>ToggleTerm direction=float<cr>",      desc = "[T]erminal: [F]loat" },
       { "<leader>ht", "<cmd>ToggleTerm direction=horizontal<cr>", desc = "[H]orizontal [T]erminal" },
@@ -297,6 +298,14 @@ return {
     opts = {
       open_mapping = [[<c-\>]],
       direction = "float",
+      float_opts = {
+        border = "rounded",
+        title_pos = "center",
+      },
+      highlights = {
+        FloatBorder = { link = "FloatBorder" },
+        NormalFloat = { link = "NormalFloat" },
+      },
     },
   },
   {

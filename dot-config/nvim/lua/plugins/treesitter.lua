@@ -8,10 +8,26 @@
 -- "ensure_installed" languages
 local langs = {
   "lua",
+  "vim",
+  "vimdoc",
   "markdown",
+  "markdown_inline",
+  "regex",
+  "comment",
   "c",
   "python",
   "go",
+  "ruby",
+  "java",
+  "yaml",
+  "json",
+  "toml",
+  "bash",
+  "html",
+  "css",
+  "javascript",
+  "typescript",
+  "tsx",
 }
 
 return {

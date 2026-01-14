@@ -28,12 +28,12 @@ map("n", "<leader>uh", function() lsp.inlay_hint.enable(not lsp.inlay_hint.is_en
 -- Scratch buffers
 map("n", "<leader>.", function() vim.api.nvim_set_current_buf(buf_utils.create_scratch_buf()) end,
   { desc = "Toggle scratch buffer" }) -- would be overwritten by snacks
-map("n", "<leader>sm", function()
+map("n", "<leader>hm", function()
   local buf = buf_utils.create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
   vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
   vim.keymap.set("n", "<Esc>", "<cmd>q<cr>", { buffer = buf })
   buf_utils.open_float_win(buf, " Messages ")
-end, { desc = "[S]cratch: view [M]essages" })
+end, { desc = "[H]istory: [M]essages" })
 
 -- Taken from ThePrimeagen, changed to gc to default to confirmation
 map("n", "<leader>sr", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gc<Left><Left><Left>]], {
@@ -206,6 +206,20 @@ map("v", "<leader>ca", function()
     only = { "quickfix", "refactor", "source" },
   })
 end, { desc = "Range [C]ode [A]ctions" })
+
+local organize_imports = function()
+  lsp.buf.code_action({
+    context = {
+      diagnostics = diagnostic.get(0),
+      only = { "source.organizeImports" },
+    },
+    apply = true,
+  })
+end
+
+map("n", "<leader>oi", organize_imports, { desc = "[O]rganize [I]mports" })
+vim.api.nvim_create_user_command("OrganizeImports", organize_imports,
+  { desc = "Organize imports via LSP (if supported)" })
 
 --  SYMBOLS
 map("n", "<leader>ls", lsp.buf.document_symbol,  { desc = "[L]SP: document [S]ymbols" })

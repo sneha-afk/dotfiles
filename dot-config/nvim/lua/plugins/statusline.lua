@@ -19,11 +19,6 @@ return {
         "leetcode.nvim",
         "snacks_picker_list",
         "snacks_dashboard",
-        "Avante",
-        "AvanteInput",
-        "AvanteConnectedFiles",
-        "AvanteSelectedFiles",
-        "AvanteSelectedCode",
       },
       always_show_tabline  = false,
     },
@@ -32,6 +27,10 @@ return {
     },
     extensions = {
       "quickfix",
+      "toggleterm",
+      "overseer",
+      "nvim-dap-ui",
+      vim.g.enable_avante and "avante" or nil,
     },
     -- A, B, C are left; X, Y, Z are right
     sections = {
