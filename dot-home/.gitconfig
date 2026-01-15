@@ -16,6 +16,9 @@
 [difftool "nvimdiff"]
     cmd = "nvim -d \"$LOCAL\" \"$REMOTE\""
 
+[push]
+    autoSetupRemote = true
+
 [merge]
     tool = nvimdiff
 [mergetool]
@@ -28,11 +31,21 @@
     postBuffer = 1048576000
 
 [alias]
-    gs = status
-    gco = checkout
-    gaa = add .
-    gcm = commit -m
-    gp  = push
-    gl  = log --oneline -10
-    gdt = difftool
-    gmt = mergetool
+    s   = status
+    sb  = status -sb
+    a   = add
+    aa  = add --all
+    c   = commit
+    cm  = commit -m
+    ca  = commit --amend --no-edit
+    co  = checkout
+    p   = push
+    pf  = push --force-with-lease
+    pr  = pull --rebase
+    lo  = log --oneline -n 10
+    lg  = log --graph --pretty=format:'%Cred%h%r %Creset%s %C(bold blue)<%an>%Creset %Cgreen(%cr)%Creset%C(auto)%d' --abbrev-commit --all
+    last = log -1 HEAD --stat
+    dt  = difftool
+    mt  = mergetool
+    standup = "!git log --all --author=\"$(git config user.name)\" --since='1 day ago' --oneline"
+    root = rev-parse --show-toplevel

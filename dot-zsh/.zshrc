@@ -12,7 +12,6 @@
 setopt autolist
 setopt auto_cd
 setopt hist_ignore_dups hist_ignore_space share_history
-setopt prompt_subst
 
 # ========================================================
 # History
@@ -90,8 +89,18 @@ if command -v uv >/dev/null 2>&1; then
     eval "$(uv generate-shell-completion zsh)"
 fi
 
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then
+    nvm() {
+        unset -f nvm node npm npx
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+        nvm "$@"
+    }
+
+    node() { nvm >/dev/null; node "$@"; }
+    npm()  { nvm >/dev/null; npm "$@"; }
+    npx()  { nvm >/dev/null; npx "$@"; }
+fi
 
 # ========================================================
 # Aliases
@@ -120,17 +129,10 @@ alias mkdir='nocorrect mkdir -pv'
 alias df='df -h' # Human-readable sizes
 alias du='du -h' # Human-readable sizes
 
-# Git Aliases
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gp='git push'
-alias gl='git log --oneline'
-alias glg='git log --graph --oneline --decorate --all'
-
 # ========================================================
 # Prompt
 # ========================================================
+setopt PROMPT_SUBST
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:git:*' stagedstr='+'
@@ -140,25 +142,24 @@ zstyle ':vcs_info:git:*' check-for-changes true
 zstyle ':vcs_info:git:*' formats ' [%b%u%c]'
 zstyle ':vcs_info:git:*' actionformats ' [%b|%a%u%c]'
 
-precmd_vcs() { vcs_info }
-precmd_functions+=(precmd_vcs)
-
 __set_prompt() {
     local last_status=$?
+    local indicators=""
 
-    PROMPT=$'\n'
-    PROMPT+="%F{green}%n@%m%f:%F{blue}%~%f"
+    [[ -n "$VIRTUAL_ENV" ]] && indicators+=" %F{yellow}(${VIRTUAL_ENV:t})%f"
+    [[ -n "$vcs_info_msg_0_" ]] && indicators+="%F{magenta}${vcs_info_msg_0_}%f"
+    [[ -n "$SSH_CONNECTION" ]] && indicators+=" %F{cyan}[SSH]%f"
 
-    [[ -n ${VIRTUAL_ENV:-} ]] && PROMPT+=" %F{yellow}($(basename $VIRTUAL_ENV))%f"
-    [[ -n $vcs_info_msg_0_ ]] && PROMPT+="%F{magenta}$vcs_info_msg_0_%f"
+    local status_line="%F{green}+%f"
+    if [[ $last_status -ne 0 ]]; then
+        indicators+=" %F{red}[exited: $last_status]%f"
+        status_line="%F{red}-%f"
+    fi
 
-    # Green plus (last command succeeded), else red minus on a new line
-    PROMPT+=$'\n'
-    PROMPT+=$([[ $last_status -eq 0 ]] && echo "%F{green}+" || echo "%F{red}-")
-    PROMPT+="%f "
+    PROMPT="${_PROMPT_PREPEND:-}%F{green}%n@%m%f:%F{blue}%~%f${indicators}"$'\n'"${status_line} "
 }
-
-precmd_functions+=(__set_prompt)
+typeset -gU precmd_functions
+precmd_functions+=(vcs_info __set_prompt)
 
 # ========================================================
 # Key Bindings (Emacs mode)

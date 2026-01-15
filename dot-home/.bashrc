@@ -109,19 +109,12 @@ esac
 # Confirm destructive actions
 alias cp='cp -iv'
 alias mv='mv -iv'
+alias rm='rm -i'
 
 alias mkdir='mkdir -pv' # Create parent directories and verbose
 alias ...='cd ../..'
 alias df='df -h' # Human-readable sizes
 alias du='du -h' # Human-readable sizes
-
-# Git Aliases
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gp='git push'
-alias gl='git log --oneline'
-alias glg='git log --graph --oneline --decorate --all'
 
 alias home='cd ~'
 
@@ -131,87 +124,116 @@ alias home='cd ~'
 
 command -v uv >/dev/null 2>&1 && eval "$(uv generate-shell-completion bash)"
 
-if [[ -n "${NVM_DIR:-}" ]]; then
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then
+    nvm() {
+        unset -f nvm node npm npx
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+        nvm "$@"
+    }
+
+    node() { nvm >/dev/null; node "$@"; }
+    npm()  { nvm >/dev/null; npm "$@"; }
+    npx()  { nvm >/dev/null; npx "$@"; }
 fi
 
 # ========================================================
 # Prompt Customization
 # ========================================================
-# Fallback to basic terminal if no color support
-if [ "$color_prompt" != yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-    unset color_prompt force_color_prompt
-    return
+# Configuration variables (set before sourcing to customize):
+#   _PROMPT_USE_CUSTOM=true              - Enable/disable custom prompt entirely
+#   _PROMPT_SHOW_GIT_STATUS=true         - Show git dirty state (* indicator)
+#   _PROMPT_USE_GIT_PROMPT_SCRIPT=true   - Use git-prompt.sh if available
+#   _PROMPT_PREPEND=""                   - Text to prepend to prompt
+# ========================================================
+
+# Control prompt behavior (defaults)
+_PROMPT_USE_CUSTOM=${_PROMPT_USE_CUSTOM:-true}
+_PROMPT_SHOW_GIT_STATUS=${_PROMPT_SHOW_GIT_STATUS:-true}
+_PROMPT_USE_GIT_PROMPT_SCRIPT=${_PROMPT_USE_GIT_PROMPT_SCRIPT:-true}
+
+# Exit early if custom prompt is disabled
+[[ "$_PROMPT_USE_CUSTOM" != "true" ]] && return
+
+if [ "$color_prompt" = yes ]; then
+    PS1_RESET=$'\001\033[0m\002'
+    PS1_GREEN=$'\001\033[32m\002'
+    PS1_BLUE=$'\001\033[34m\002'
+    PS1_YELLOW=$'\001\033[33m\002'
+    PS1_RED=$'\001\033[31m\002'
+    PS1_MAGENTA=$'\001\033[35m\002'
+    PS1_CYAN=$'\001\033[36m\002'
+else
+    PS1_RESET=''
+    PS1_GREEN=''
+    PS1_BLUE=''
+    PS1_YELLOW=''
+    PS1_RED=''
+    PS1_MAGENTA=''
+    PS1_CYAN=''
 fi
 unset color_prompt force_color_prompt
 
-# Only customize if PS1 is default
-is_default=false
-case "$PS1" in
-    *'${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '*) is_default=true ;;
-    *'\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \$'*)     is_default=true ;;
-    *'\s-\v\$ '* | *"[\u@\h \W]\\$ "*)                 is_default=true ;;
-    *'\u@\h:\w\$ '*)                                   is_default=true ;;
-esac
-
-[[ "$is_default" == false ]] && return
-
-PS1_RESET=$'\001\033[0m\002'
-PS1_GREEN=$'\001\033[32m\002'
-PS1_BLUE=$'\001\033[34m\002'
-PS1_YELLOW=$'\001\033[33m\002'
-PS1_RED=$'\001\033[31m\002'
-PS1_MAGENTA=$'\001\033[35m\002'
-PS1_CYAN=$'\001\033[36m\002'
-
-# Source git-prompt if available and not declared yet
-if ! declare -F __git_ps1 &> /dev/null; then
+# Source git-prompt if requested and available
+if [[ "$_PROMPT_USE_GIT_PROMPT_SCRIPT" == "true" ]] && ! declare -F __git_ps1 &>/dev/null; then
     for path in /usr/share/git-core/contrib/completion/git-prompt.sh \
                 /usr/lib/git-core/git-sh-prompt \
                 /usr/local/etc/bash_completion.d/git-prompt.sh; do
         [[ -f "$path" ]] && . "$path" && break
     done
+
+    # Configure git prompt features
+    export GIT_PS1_SHOWDIRTYSTATE=1     # * for unstaged, + for staged
+    export GIT_PS1_SHOWSTASHSTATE=1     # $ for stashed changes
+    export GIT_PS1_SHOWUNTRACKEDFILES=1 # % for untracked files
+    export GIT_PS1_SHOWUPSTREAM="auto"  # < > = for behind/ahead/diverged
+    export GIT_PS1_SHOWCONFLICTSTATE="yes" # |CONFLICT when in conflict state
+    export GIT_PS1_SHOWCOLORHINTS=1
 fi
 
-# Configure git prompt features
-export GIT_PS1_SHOWDIRTYSTATE=1     # * for unstaged, + for staged
-export GIT_PS1_SHOWSTASHSTATE=1     # $ for stashed changes
-export GIT_PS1_SHOWUNTRACKEDFILES=1 # % for untracked files
-export GIT_PS1_SHOWUPSTREAM="auto"  # < > = for behind/ahead/diverged
-export GIT_PS1_SHOWCONFLICTSTATE="yes" # |CONFLICT when in conflict state
-export GIT_PS1_SHOWCOLORHINTS=1
-
-# Fast path: use git-prompt if available, else use a minimal version
 __git_info() {
-    ! command -v git >/dev/null && return
-    # Use git's built-in prompt function if available
+    command -v git &>/dev/null || return
+    git rev-parse --is-inside-work-tree &>/dev/null || return
+
     if type -t __git_ps1 > /dev/null; then
-        printf " %s " "$(__git_ps1 "[%s]")"
-    else
-        local branch
-        branch=$(git branch --show-current 2>/dev/null) || return
-
-        # Add a "dirty symbol" if there are any changes to commit
-        local status=""
-        [[ -n $(git status --porcelain 2>/dev/null) ]] && status="*"
-
-        printf " %s " "${PS1_MAGENTA}[$branch$status]"
+        # printf " %s " "$(__git_ps1 "[%s]")"
+        __git_ps1 " [%s]"
+        return
     fi
+
+    local branch
+    branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null) || return
+
+    local status=""
+    if [[ "$_PROMPT_SHOW_GIT_STATUS" == "true" ]]; then
+        if ! git diff-index --quiet HEAD -- 2>/dev/null || \
+           ! git diff-files --quiet -- 2>/dev/null; then
+            status="*"
+        fi
+    fi
+
+    printf " %s" "${PS1_MAGENTA}[$branch$status]${PS1_RESET}"
 }
 
-# Construct prompt: username@hostname, CWD, virtualenv, Git, last status
-PS1_BASE="\n${PS1_GREEN}\u@\h:${PS1_BLUE}\w${PS1_RESET}"
 __set_prompt() {
     local last_status=$?
+    local indicators=""
+    # Green + for no error on last command, else red -
+    local status_line="${PS1_GREEN}+${PS1_RESET}"
 
-    PS1=$PS1_BASE
-    [[ -n "$VIRTUAL_ENV" ]] && PS1+=" ${PS1_YELLOW}($(basename "$VIRTUAL_ENV"))${PS1_RESET}"
-    PS1+="$(__git_info)"
-    [[ -n "${SSH_CONNECTION:-}" ]] && PS1+="${PS1_CYAN}[SSH]${PS1_RESET} "
-    PS1+="\n"$([[ $last_status -eq 0 ]] && echo "${PS1_GREEN}+" || echo "${PS1_RED}-")
-    PS1+="${PS1_RESET} "
+    [[ -n "$VIRTUAL_ENV" ]] && indicators+=" ${PS1_YELLOW}(${VIRTUAL_ENV##*/})${PS1_RESET}"
+    indicators+="$(__git_info)"
+    [[ -n "$SSH_CONNECTION" ]] && indicators+=" ${PS1_CYAN}[SSH]${PS1_RESET}"
+
+    if [[ $last_status -ne 0 ]]; then
+        indicators+=" ${PS1_RED}[exited: $last_status]${PS1_RESET}"
+        status_line="${PS1_RED}-${PS1_RESET}"
+    fi
+
+    PS1="${_PROMPT_PREPEND:-}${PS1_GREEN}\u@\h${PS1_RESET}:${PS1_BLUE}\w${PS1_RESET}${indicators}\n${status_line} "
 }
 
-PROMPT_COMMAND=__set_prompt
+# Appending to PROMPT_COMMAND to preserve existing commands
+if [[ "$PROMPT_COMMAND" != *"__set_prompt"* ]]; then
+    PROMPT_COMMAND="__set_prompt${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+fi

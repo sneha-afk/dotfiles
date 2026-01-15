@@ -188,16 +188,37 @@ function Script:Color($color, $text) { return "$($script:FG[$color])$text$script
 
 # ========================[ Region: Prompt ]===========================
 #region Prompt
+# Configuration variables (set before sourcing to customize):
+#   $PROMPT_USE_CUSTOM = $true           - Enable/disable custom prompt entirely
+#   $PROMPT_SHOW_GIT_STATUS = $true      - Show git dirty state (* indicator)
+#   $PROMPT_PREPEND = ""                 - Text to prepend to prompt
+
+# Control prompt behavior (defaults)
+if (-not (Test-Path variable:PROMPT_USE_CUSTOM)) {
+    $global:PROMPT_USE_CUSTOM = $true
+}
+if (-not (Test-Path variable:PROMPT_SHOW_GIT_STATUS)) {
+    $global:PROMPT_SHOW_GIT_STATUS = $true
+}
+if (-not (Test-Path variable:PROMPT_PREPEND)) {
+    $global:PROMPT_PREPEND = ""
+}
+
+# Exit early if custom prompt is disabled
+if (-not $PROMPT_USE_CUSTOM) { return }
 
 function Get-GitInfo {
     try {
         if (-not (git rev-parse --is-inside-work-tree 2>$null)) { return $null }
 
-        $branch = git rev-parse --abbrev-ref HEAD 2>$null
-        if (-not $branch) { return $null }
+        $branch = git symbolic-ref --short HEAD 2>$null
+        if (-not $branch) { $branch = git rev-parse --short HEAD 2>$null }
 
-        git diff --quiet --ignore-submodules HEAD 2>$null
-        $dirty = -not $?
+        $dirty = $false
+        if ($global:PROMPT_SHOW_GIT_STATUS) {
+            git diff-index --quiet --ignore-submodules HEAD 2>$null
+            $dirty = -not $?
+        }
 
         return @{ Branch = $branch; Dirty = $dirty }
     } catch {
@@ -223,6 +244,6 @@ function global:prompt {
         $gitSeg      = " | $branchColor$dirtyFlag "
     }
 
-    "$userHost [$pathSeg]$gitSeg`nPS $status_indicator "
+    "$global:PROMPT_PREPEND$userHost [$pathSeg]$gitSeg`nPS $status_indicator "
 }
 #endregion
