@@ -132,9 +132,9 @@ if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then
         nvm "$@"
     }
 
-    node() { nvm >/dev/null; node "$@"; }
-    npm()  { nvm >/dev/null; npm "$@"; }
-    npx()  { nvm >/dev/null; npx "$@"; }
+    node() { unset -f node; nvm >/dev/null; node "$@"; }
+    npm()  { unset -f npm; nvm >/dev/null; npm "$@"; }
+    npx()  { unset -f npx; nvm >/dev/null; npx "$@"; }
 fi
 
 # ========================================================
@@ -181,22 +181,21 @@ if [[ "$_PROMPT_USE_GIT_PROMPT_SCRIPT" == "true" ]] && ! declare -F __git_ps1 &>
                 /usr/local/etc/bash_completion.d/git-prompt.sh; do
         [[ -f "$path" ]] && . "$path" && break
     done
-
-    # Configure git prompt features
-    export GIT_PS1_SHOWDIRTYSTATE=1     # * for unstaged, + for staged
-    export GIT_PS1_SHOWSTASHSTATE=1     # $ for stashed changes
-    export GIT_PS1_SHOWUNTRACKEDFILES=1 # % for untracked files
-    export GIT_PS1_SHOWUPSTREAM="auto"  # < > = for behind/ahead/diverged
-    export GIT_PS1_SHOWCONFLICTSTATE="yes" # |CONFLICT when in conflict state
-    export GIT_PS1_SHOWCOLORHINTS=1
 fi
+
+# Configure git prompt features
+export GIT_PS1_SHOWDIRTYSTATE=1     # * for unstaged, + for staged
+export GIT_PS1_SHOWSTASHSTATE=1     # $ for stashed changes
+export GIT_PS1_SHOWUNTRACKEDFILES=1 # % for untracked files
+export GIT_PS1_SHOWUPSTREAM="auto"  # < > = for behind/ahead/diverged
+export GIT_PS1_SHOWCONFLICTSTATE="yes" # |CONFLICT when in conflict state
+export GIT_PS1_SHOWCOLORHINTS=1
 
 __git_info() {
     command -v git &>/dev/null || return
     git rev-parse --is-inside-work-tree &>/dev/null || return
 
     if type -t __git_ps1 > /dev/null; then
-        # printf " %s " "$(__git_ps1 "[%s]")"
         __git_ps1 " [%s]"
         return
     fi

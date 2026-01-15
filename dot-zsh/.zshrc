@@ -97,9 +97,9 @@ if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then
         nvm "$@"
     }
 
-    node() { nvm >/dev/null; node "$@"; }
-    npm()  { nvm >/dev/null; npm "$@"; }
-    npx()  { nvm >/dev/null; npx "$@"; }
+    node() { unset -f node; nvm >/dev/null; node "$@"; }
+    npm()  { unset -f npm; nvm >/dev/null; npm "$@"; }
+    npx()  { unset -f npx; nvm >/dev/null; npx "$@"; }
 fi
 
 # ========================================================
