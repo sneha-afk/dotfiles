@@ -7,7 +7,17 @@ TARGET_CONFIG := $(TARGET_HOME)/.config
 ARCH          := $(shell uname -m)
 
 LOCAL_BIN     := $(HOME)/.local/bin
-EGET_BIN      := $(LOCAL_BIN)
+EGET_BIN      := /usr/local/bin/
+EGET_ARCH := $(ARCH)
+ifeq ($(ARCH),x86_64)
+    EGET_ARCH := amd64
+endif
+ifeq ($(ARCH),aarch64)
+    EGET_ARCH := arm64
+endif
+
+EGET_ARCH_LINUX := linux/$(EGET_ARCH)
+
 SHELL_RC_FILES := $(HOME)/.bashrc $(HOME)/.zshrc
 
 NVIM_DIR      := /opt/nvim-linux-$(ARCH)
@@ -21,7 +31,7 @@ HOME_PACKAGES   := dot-home
 ZSH_PACKAGE     := dot-zsh
 CONFIG_PACKAGES := dot-config
 
-APT_PACKAGES := build-essential make git curl tar fd-find stow
+APT_PACKAGES := build-essential make git curl tar
 
 .PHONY: all bootstrap install-home install-config zsh delete dry-run apt eget nvim trovl \
         _check_stow _check_eget _check_local_bin
@@ -34,15 +44,11 @@ eget: _check_eget
 	@eget jesseduffield/lazygit --to $(LOCAL_BIN)
 	@eget tree-sitter/tree-sitter --to $(LOCAL_BIN)
 	@eget BurntSushi/ripgrep --to $(LOCAL_BIN)
-	@eget sharkdp/fd --to $(LOCAL_BIN)
+	@eget sharkdp/fd --system=$(EGET_ARCH_LINUX) --to $(LOCAL_BIN)
 
-	@eget neovim/neovim --to $(NVIM_BIN)
-	@for rc in $(SHELL_RC_FILES); do \
-		if [ -f $$rc ] && ! grep -q '$(NVIM_BIN)' $$rc; then \
-			echo 'export PATH="$$PATH:$(NVIM_BIN)"' >> $$rc; \
-			echo "Updated $$rc with Neovim PATH"; \
-		fi \
-	done
+	@sudo mkdir -p $(NVIM_BIN)
+	@sudo eget neovim/neovim --system=$(EGET_ARCH_LINUX) --to $(NVIM_BIN)/nvim
+	@echo "Neovim installed to $(NVIM_BIN)/nvim (make sure to add to PATH)"
 
 # These targets use GNU stow
 install-home: _check_stow
@@ -67,12 +73,6 @@ apt:
 	sudo apt-get update
 	sudo apt-get install -y $(APT_PACKAGES)
 
-eget: _check_eget
-	@for tool in $(EGET_TOOLS); do \
-		echo "Installing/Updating $$tool..."; \
-		eget $$tool --to $(EGET_BIN); \
-	done
-
 trovl: _check_local_bin _check_trovl
 	@echo "Applying trovl manifest..."
 	@$(TROVL_BIN) apply $(TROVL_MANIFEST)
@@ -91,7 +91,7 @@ _check_eget:
 		echo "eget not found. Installing..."; \
 		curl -fsSL https://zyedidia.github.io/eget.sh | sh; \
 		mkdir -p $(EGET_BIN); \
-		mv eget $(EGET_BIN); \
+		sudo mv eget $(EGET_BIN); \
 	}
 
 _check_trovl:
@@ -99,9 +99,9 @@ _check_trovl:
 		echo "trovl not found. Installing ($(ARCH))..."; \
 		tmp=$$(mktemp -d); \
 		cd $$tmp && \
-		curl -LO https://github.com/sneha-afk/trovl/releases/latest/download/trovl_linux_$(ARCH).tar.gz && \
-		tar -xzf trovl_linux_$(ARCH).tar.gz && \
-		mv trovl $(LOCAL_BIN)/ && \
+		curl -LO https://github.com/sneha-afk/trovl/releases/latest/download/trovl_linux_$(EGET_ARCH).tar.gz && \
+		tar -xzf trovl_linux_$(EGET_ARCH).tar.gz && \
+		mv * $(LOCAL_BIN)/ && \
 		chmod +x $(TROVL_BIN) && \
 		rm -rf $$tmp; \
 	}
