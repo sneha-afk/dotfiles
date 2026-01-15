@@ -18,7 +18,7 @@ return {
         "DrKJeff16/wezterm-types",
         lazy = true,
         version = false,
-        enabled = vim.g.is_wezterm or vim.fn.executable("wezterm") == 1,
+        enabled = vim.fn.has("wsl") == 0 and (vim.g.is_wezterm or vim.fn.executable("wezterm") == 1),
       },
     },
     opts = {

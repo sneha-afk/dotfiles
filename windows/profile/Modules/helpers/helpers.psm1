@@ -243,6 +243,18 @@ function unzip {
 }
 Set-Alias extract unzip
 
+
+function Go-Repo {
+    $repos = Get-ChildItem -Path "$HOME\Repositories" -Directory
+    if (-not $repos) { Write-Host "No repositories found."; return }
+
+    $selection = $repos | fzf --prompt "Repo> "
+    if ($selection) {
+        Set-Location $selection.FullName
+        Write-Host "Jumped to: $($selection.FullName)"
+    }
+}
+
 #endregion
 
 # ========================[ Exports ]=========================
@@ -251,6 +263,6 @@ Export-ModuleMember -Function `
     Require-Admin, `
     Neovide-WSL, To-WSLPath, WSL-Restart, WSL-Kill, `
     Enter-NvimConfig, Remove-NvimSwap, Remove-NvimShada, Start-NvimServer, Start-Leetcode, Reset-Nvim, Get-NvimSize, `
-    Search, Update-All, unzip `
+    Search, Update-All, unzip, Go-Repo `
     -Alias wslr, wslk, vim, nvide, extract
 #endregion

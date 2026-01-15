@@ -3,6 +3,8 @@
 # Installs the latest tree-sitter CLI binary to ~/.local/bin.
 # Ensures the directory exists and is added to the PATH.
 #
+# Don't use this on Windows, use scoop install tree-sitter
+#
 # Options:
 #   --skip-checksum   Skip SHA256 verification
 #   --uninstall       Remove Neovim and symlinks

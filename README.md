@@ -49,20 +49,23 @@ The manifest file (`trovl-manifest.json`) is located at the root of this repo.
 
 ### 🐧 Linux
 
-```go
-sudo apt-get install git make stow
-./scripts/install_nvim.sh
+```bash
+sudo apt-get install git make curl tar
+make trovl       # Installs trovl and applies manifest
+make eget        # Installs binary tools (lazygit, tree-sitter, ripgrep, fd, nvim, etc.)
 ```
 
 <details>
 <summary>Symlinks: Using GNU Stow</summary>
 
 ```bash
-sudo apt-get install git make stow
-make         # Bootstrap symlinks, installs, etc.
-make delete  # Remove all symlinks
-make dry-run # Preview changes
+make install-home    # Bootstrap home (~/*) symlinks
+make install-config  # Bootstrap config (~/.config) symlinks
+make zsh             # Bootstrap Zsh config
+make delete          # Remove all symlinks
+make dry-run         # Preview symlink changes without applying
 ```
+
 </details>
 
 <details>
