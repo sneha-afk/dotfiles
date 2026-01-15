@@ -1,4 +1,6 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc) for examples
+
 # vim: set ft=sh ts=4 sts=4 sw=4 et:
 
 # Only execute for interactive shells
