@@ -130,14 +130,38 @@ alias df='df -h' # Human-readable sizes
 alias du='du -h' # Human-readable sizes
 
 # ========================================================
+# Key Bindings (Emacs mode)
+# ========================================================
+bindkey -e  # Emacs-style shortcuts (Ctrl+A, Ctrl+E, etc.)
+bindkey '^[[3~' delete-char  # Fix Delete key
+
+# ========================================================
 # Prompt
 # ========================================================
+# Configuration variables (set before sourcing to customize):
+#   _PROMPT_USE_CUSTOM=true              - Enable/disable custom prompt entirely
+#   _PROMPT_SHOW_GIT_STATUS=true         - Show git dirty state (* indicator)
+#   _PROMPT_PREPEND=""                   - Text to prepend to prompt
+# ========================================================
+
+# Control prompt behavior (defaults)
+_PROMPT_USE_CUSTOM=${_PROMPT_USE_CUSTOM:-true}
+_PROMPT_SHOW_GIT_STATUS=${_PROMPT_SHOW_GIT_STATUS:-true}
+
+# Exit early if custom prompt is disabled
+[[ "$_PROMPT_USE_CUSTOM" != "true" ]] && return
+
 setopt PROMPT_SUBST
 
 autoload -Uz vcs_info
 zstyle ':vcs_info:git:*' stagedstr='+'
 zstyle ':vcs_info:git:*' unstagedstr '*'
-zstyle ':vcs_info:git:*' check-for-changes true
+
+if [[ "$_PROMPT_SHOW_GIT_STATUS" == "true" ]]; then
+    zstyle ':vcs_info:git:*' check-for-changes true
+else
+    zstyle ':vcs_info:git:*' check-for-changes false
+fi
 
 zstyle ':vcs_info:git:*' formats ' [%b%u%c]'
 zstyle ':vcs_info:git:*' actionformats ' [%b|%a%u%c]'
@@ -160,9 +184,3 @@ __set_prompt() {
 }
 typeset -gU precmd_functions
 precmd_functions+=(vcs_info __set_prompt)
-
-# ========================================================
-# Key Bindings (Emacs mode)
-# ========================================================
-bindkey -e  # Emacs-style shortcuts (Ctrl+A, Ctrl+E, etc.)
-bindkey '^[[3~' delete-char  # Fix Delete key
