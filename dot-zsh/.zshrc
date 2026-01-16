@@ -91,16 +91,8 @@ if command -v uv >/dev/null 2>&1; then
 fi
 
 if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then
-    nvm() {
-        unset -f nvm node npm npx
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-        nvm "$@"
-    }
-
-    node() { unset -f node; nvm >/dev/null; node "$@"; }
-    npm()  { unset -f npm; nvm >/dev/null; npm "$@"; }
-    npx()  { unset -f npx; nvm >/dev/null; npx "$@"; }
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 fi
 
 # ========================================================
