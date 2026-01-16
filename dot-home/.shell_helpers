@@ -8,7 +8,7 @@
 search() {
     if [ $# -eq 0 ]; then
         echo "Usage: search <pattern> [files...]"
-        echo "Search for pattern in files using rg/ag/grep fallback"
+        echo "Search for pattern in files using rg/grep fallback"
         return 1
     fi
 
@@ -16,11 +16,6 @@ search() {
         rg --smart-case --hidden --follow --no-heading --line-number \
            --glob '!.git' --glob '!.vscode-server' --glob '!.cache' --glob '!.cargo' --glob '!.svn' \
            --glob '!node_modules' --glob '!venv' --glob '!.venv' --glob '!env' --glob '!.env' \
-           "$@"
-    elif command -v ag >/dev/null 2>&1; then
-        ag --smart-case --hidden --follow \
-           --ignore .git --ignore .vscode-server --ignore .cache --ignore .cargo --ignore .svn \
-           --ignore node_modules --ignore venv --ignore .venv --ignore env --ignore .env \
            "$@"
     else
         grep -r --color=auto \

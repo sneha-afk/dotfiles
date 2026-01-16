@@ -49,6 +49,10 @@
       "link": "~/.wezterm.lua"
     },
     {
+      "target": "./dot-home/.ripgreprc",
+      "link": "~/.ripgreprc"
+    },
+    {
       "target": "./dot-config/fastfetch/",
       "link": "~/.config/fastfetch/"
     },
@@ -60,13 +64,6 @@
       "target": "./windows/.wslconfig",
       "link": "~/.wslconfig",
       "platforms": ["windows"]
-    },
-    {
-      "target": "./dot-config/alacritty/",
-      "link": "~/.config/alacritty",
-      "platform_overrides": {
-        "windows": { "link": "%APPDATA%\\alacritty" }
-      }
     },
     {
       "target": "./windows/profile/Microsoft.PowerShell_profile.ps1",

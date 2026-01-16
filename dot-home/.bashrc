@@ -105,6 +105,8 @@ case ":$PATH:" in
 esac
 # pnpm end
 
+[ -f "$HOME/.ripgreprc" ] && export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
 # ========================================================
 # Aliases
 # ========================================================
@@ -207,8 +209,7 @@ __git_info() {
 
     local status=""
     if [[ "$_PROMPT_SHOW_GIT_STATUS" == "true" ]]; then
-        if ! git diff-index --quiet HEAD -- 2>/dev/null || \
-           ! git diff-files --quiet -- 2>/dev/null; then
+        if [[ -n $(git status --porcelain --untracked-files=no --ignore-submodules=dirty 2>/dev/null) ]]; then
             status="*"
         fi
     fi

@@ -97,17 +97,11 @@ To prevent terminal lag, the prompt only reads the branch name from `.git/HEAD` 
 
 ### 🪟 Windows
 
-The bootstrap script goes through installing from `winget`, `scoop`, and symlinks (if not using `trovl`):
+The bootstrap script goes through installing from `winget`, `scoop`, and symlinks (prompts if want to use `trovl`):
 
 ```powershell
 .\windows\bootstrap.ps1
-# Skip components: -SkipScoop, -SkipWinget, -SkipSymlinks, etc.
-```
-
-Getting packages through manifests:
-```powershell
-winget import -i .\windows\winget_packages.json
-scoop import .\windows\scoopfile.json
+# Arguments: -SkipScoop, -SkipWinget, -SkipSymlinks, -SkipMisc
 ```
 
 <details>
@@ -146,6 +140,10 @@ New-Item -ItemType SymbolicLink `
   -Force
 ```
 </details>
+
+#### shell prompt customization
+
+The **same options shown [above](#shell-prompt-customization)** also exist for the PowerShell prompt.
 
 #### ⚠️ On `$PROFILE`
 

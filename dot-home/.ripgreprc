@@ -1,0 +1,60 @@
+# ~/.ripgreprc
+# Make sure to: export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
+--glob=!.ripgreprc
+
+# Search behavior
+--smart-case
+--hidden
+--follow
+--line-number
+
+# Version control
+--glob=!.git/
+--glob=!.svn/
+--glob=!.hg/
+--glob=!CVS/
+
+# IDEs
+--glob=!.vscode-server/
+--glob=!.vscode/extensions/
+--glob=!.idea/
+--glob=!.vs/
+--glob=!*.swp
+--glob=!*.swo
+
+# Dependencies
+--glob=!node_modules/
+--glob=!.npm/
+--glob=!.yarn/
+--glob=!bower_components/
+--glob=!.cargo/
+--glob=!target/
+--glob=!Cargo.lock
+--glob=!__pycache__/
+--glob=!*.pyc
+--glob=!venv/
+--glob=!.venv/
+--glob=!.nuget/
+--glob=!packages/
+--glob=!bin/
+--glob=!obj/
+
+# Environment
+--glob=!.env
+--glob=!.env.*
+--glob=!local.env
+
+# Cache/temp
+--glob=!.cache/
+--glob=!cache/
+--glob=!tmp/
+--glob=!temp/
+--glob=!*.tmp
+--glob=!*.log
+
+# OS files
+--glob=!Thumbs.db
+--glob=!.DS_Store
+
+# vim: set ft=conf :

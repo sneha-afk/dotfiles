@@ -17,11 +17,12 @@ function Require-Admin {
     )
 
     $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
-               ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
     if ($isAdmin) {
         & $Action
-    } else {
+    }
+    else {
         Write-Host "Restarting action as administrator..." -ForegroundColor Yellow
         Start-Process wt -Verb RunAs -ArgumentList "powershell -NoProfile -NoExit -Command `"& { $Action }`""
     }
@@ -61,13 +62,13 @@ function To-WSLPath {
 #region Neovim
 if (Get-Command nvim -ErrorAction SilentlyContinue) {
     $nvimConfig = "$env:LOCALAPPDATA\nvim"
-    $nvimData   = "$env:LOCALAPPDATA\nvim-data"
-    $nvimLazy   = "$nvimData\lazy"
-    $nvimMason  = "$nvimData\mason"
-    $nvimTS     = "$nvimLazy\nvim-treesitter\parser"
-    $nvimCache  = "$nvimData\cache"
-    $nvimSwap   = "$nvimData\swap"
-    $nvimShada  = "$nvimData\shada"
+    $nvimData = "$env:LOCALAPPDATA\nvim-data"
+    $nvimLazy = "$nvimData\lazy"
+    $nvimMason = "$nvimData\mason"
+    $nvimTS = "$nvimLazy\nvim-treesitter\parser"
+    $nvimCache = "$nvimData\cache"
+    $nvimSwap = "$nvimData\swap"
+    $nvimShada = "$nvimData\shada"
 
     Set-Alias vim nvim
     Set-Alias nvide neovide
@@ -102,7 +103,8 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
             if (Test-Path $path) {
                 $files = Get-ChildItem -Recurse -Force -File -ErrorAction SilentlyContinue $path
                 return ($files | Measure-Object -Property Length -Sum).Sum
-            } else {
+            }
+            else {
                 return 0
             }
         }
@@ -113,10 +115,10 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
         }
 
         $config_b = Get-FolderSizeBytes $nvimConfig
-        $lazy_b   = Get-FolderSizeBytes $nvimLazy
-        $mason_b  = Get-FolderSizeBytes $nvimMason
-        $ts_b     = Get-FolderSizeBytes $nvimTS
-        $cache_b  = Get-FolderSizeBytes $nvimCache
+        $lazy_b = Get-FolderSizeBytes $nvimLazy
+        $mason_b = Get-FolderSizeBytes $nvimMason
+        $ts_b = Get-FolderSizeBytes $nvimTS
+        $cache_b = Get-FolderSizeBytes $nvimCache
 
         $total_b = $config_b + $lazy_b + $mason_b + $ts_b + $cache_b
 
@@ -135,78 +137,24 @@ if (Get-Command nvim -ErrorAction SilentlyContinue) {
 function Search {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true, Position=0)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string]$Pattern,
 
-        [Parameter(Position=1, ValueFromRemainingArguments=$true)]
+        [Parameter(Position = 1, ValueFromRemainingArguments = $true)]
         [string[]]$Files
     )
 
-    if ($Pattern -eq "") {
-        Write-Host "Usage: Search <pattern> [files...]"
-        Write-Host "Search for pattern in files using rg/Select-String fallback"
-        return
-    }
-
-    $searchPath = if ($Files.Count -gt 0) { $Files } else { "." }
-
-    $excludePatterns = @(
-        '!.git', '!.svn', '!.hg', '!CVS',
-
-        '!.vscode-server', '!.vscode/extensions', '!.idea', '!.vs', '!*.swp', '!*.swo',
-
-        '!node_modules', '!.npm', '!.yarn', '!bower_components',
-        '!.cargo', '!target/', '!Cargo.lock',
-        '!__pycache__', '!*.pyc', '!venv', '!.venv', '!.python-version',
-        '!.mvn', '!target/', '!gradle/', '!.gradle',
-        '!.nuget', '!packages/', '!bin/', '!obj/',
-        '!_build/', '!.elixir_ls/', '!deps/',
-
-        '!env', '!.env', '!.env.*', '!local.env',
-
-        '!.cache', '!cache/', '!tmp/', '!temp/', '!*.tmp', '!*.temp',
-
-        '!Thumbs.db', '!.DS_Store', '!*.lnk',
-        '!*AppData/*', '!*ntuser*',
-
-        '!*.log', '!logs/'
-    )
-
     if (Get-Command rg -ErrorAction SilentlyContinue) {
-        $rgArgs = @(
-            "--smart-case",
-            "--hidden",
-            "--follow",
-            "--no-heading",
-            "--line-number"
-        )
-
-        foreach ($pattern in $excludePatterns) {
-            $rgArgs += "--glob"
-            $rgArgs += $pattern
+        if ($Files.Count -gt 0) {
+            rg $Pattern @Files
         }
-
-        $rgArgs += $Pattern
-        $rgArgs += $searchPath
-
-        rg @rgArgs
+        else {
+            rg $Pattern
+        }
     }
     else {
-        $psExclude = $excludePatterns | Where-Object { $_ -match '^!(.+)$' } | ForEach-Object {
-            $matches[1] -replace '^\.', '*' -replace '/$', '*'
-        }
-
-        Get-ChildItem -Path $searchPath -Recurse -File | Where-Object {
-            $filePath = $_.FullName
-            $shouldInclude = $true
-            foreach ($pattern in $psExclude) {
-                if ($filePath -like "*$pattern*") {
-                    $shouldInclude = $false
-                    break
-                }
-            }
-            $shouldInclude
-        } | Select-String -Pattern $Pattern
+        $searchPath = if ($Files.Count -gt 0) { $Files } else { "." }
+        Get-ChildItem -Path $searchPath -Recurse -File | Select-String -Pattern $Pattern
     }
 }
 
@@ -214,14 +162,16 @@ function Update-All {
     if (Get-Command scoop -ErrorAction SilentlyContinue) {
         Write-Host "Updating Scoop and all installed packages..." -ForegroundColor Cyan
         scoop update --all
-    } else {
+    }
+    else {
         Write-Host "Scoop is not installed. Skipping Scoop update." -ForegroundColor Yellow
     }
 
     if (Get-Command winget -ErrorAction SilentlyContinue) {
         Write-Host "Updating Winget packages..." -ForegroundColor Cyan
         winget upgrade --all --accept-source-agreements --accept-package-agreements
-    } else {
+    }
+    else {
         Write-Host "Winget is not installed. Skipping Winget update." -ForegroundColor Yellow
     }
 
@@ -235,16 +185,16 @@ function unzip {
     if (-not (Test-Path $file)) { Write-Host "File not found: $file" -ForegroundColor Red; return }
     switch -Regex ($file) {
         '\.tar\.gz$' { tar -xzf $file; break }
-        '\.zip$'     { Expand-Archive $file -DestinationPath (Split-Path $file -Parent); break }
-        '\.tar$'     { tar -xf $file; break }
-        '\.7z$'      { 7z x $file; break }
-        default      { Write-Host "Unsupported archive type." -ForegroundColor Yellow }
+        '\.zip$' { Expand-Archive $file -DestinationPath (Split-Path $file -Parent); break }
+        '\.tar$' { tar -xf $file; break }
+        '\.7z$' { 7z x $file; break }
+        default { Write-Host "Unsupported archive type." -ForegroundColor Yellow }
     }
 }
 Set-Alias extract unzip
 
 
-function Go-Repo {
+function Enter-Repo {
     $repos = Get-ChildItem -Path "$HOME\Repositories" -Directory
     if (-not $repos) { Write-Host "No repositories found."; return }
 
@@ -263,6 +213,6 @@ Export-ModuleMember -Function `
     Require-Admin, `
     Neovide-WSL, To-WSLPath, WSL-Restart, WSL-Kill, `
     Enter-NvimConfig, Remove-NvimSwap, Remove-NvimShada, Start-NvimServer, Start-Leetcode, Reset-Nvim, Get-NvimSize, `
-    Search, Update-All, unzip, Go-Repo `
+    Search, Update-All, unzip, Enter-Repo `
     -Alias wslr, wslk, vim, nvide, extract
 #endregion

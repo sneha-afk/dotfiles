@@ -1,6 +1,5 @@
 # $PROFILE, user-scoped at Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1
 
-# ========================[ Initialization ]===================================
 #region Init
 $script:IsWSL = [bool]$env:WSL_DISTRO_NAME
 $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
@@ -17,20 +16,23 @@ if ($env:PSModulePath -notlike "*$global:ProfileModulesDir*") {
 Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
     if ($global:__PROFILE_HELPERS_LOADED) { return }
     $global:__PROFILE_HELPERS_LOADED = $true
-
     if (-not (Test-Path $global:ProfileModulesDir)) { return }
 
-    # Import folder modules
-    Get-ChildItem -Path $global:ProfileModulesDir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
-        try { Import-Module $_.Name -DisableNameChecking -ErrorAction Stop }
-        catch { Write-Host "Failed to load module $($_.Name): $($_.Exception.Message)" -ForegroundColor Red }
+    # Folder modules and .psm1 files
+    Get-ChildItem $global:ProfileModulesDir -EA Silent | Where-Object {
+        $_.PSIsContainer -or $_.Extension -eq '.psm1'
+    } | ForEach-Object {
+        try { Import-Module $_.FullName -DisableNameChecking -EA Stop }
+        catch { Write-Host "Failed to load $($_.Name): $_" -ForegroundColor Red }
     }
+}
 
-    # Import standalone .psm1 files
-    Get-ChildItem -Path $global:ProfileModulesDir -File -Filter *.psm1 -ErrorAction SilentlyContinue | ForEach-Object {
-        try { Import-Module $_.FullName -DisableNameChecking -ErrorAction Stop }
-        catch { Write-Host "Failed to load module $($_.Name): $($_.Exception.Message)" -ForegroundColor Red }
-    }
+Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
+    if (Test-Path variable:__GIT_AVAILABLE) { return }
+    $ExecutionContext.SessionState.PSVariable.Set(
+        '__GIT_AVAILABLE',
+        [bool](Get-Command git -EA Silent)
+    )
 }
 
 # Launch elevated shell (admin/sudo)
@@ -44,75 +46,40 @@ Set-Alias sudo Admin
 
 #endregion
 
-# ========================[ Region: Utility Functions ]========================
 #region Utilities
 
 function Reload-Profile { . $PROFILE }
-function Edit-Profile   { Invoke-Item $PROFILE }
+function Edit-Profile { Invoke-Item $PROFILE }
+function mkcd($Path) { New-Item -Type Directory $Path -EA Silent | Out-Null; Set-Location $Path }
 
-function mkcd {
-    param([Parameter(Mandatory)][string]$Path)
-    New-Item -ItemType Directory -Path $Path -ErrorAction SilentlyContinue | Out-Null
-    Set-Location $Path
+# Unix-like commands (only if not already present)
+if (-not (Get-Command wc -EA Silent)) {
+    function wc { ($args ? (Get-Content @args) : $input) | Measure-Object -Line -Word -Character }
 }
-
-# Don't overshadow GNU coreutils if installed
-if (-not (Get-Command wc -ErrorAction SilentlyContinue)) {
-    function wc {
-        if ($args) { Get-Content @args | Measure-Object -Line -Word -Character }
-        else { $input | Measure-Object -Line -Word -Character }
-    }
+if (-not (Get-Command touch -EA Silent)) {
+    function touch($path) { New-Item -Type File $path -Force | Out-Null }
 }
-
-if (-not (Get-Command touch -ErrorAction SilentlyContinue)) {
-    function touch($path) { New-Item -ItemType File -Path $path -Force | Out-Null }
-}
-
-# 'open' conflicts with browser open command on some systems
-if (-not (Get-Command open -ErrorAction SilentlyContinue)) {
+if (-not (Get-Command open -EA Silent)) {
     Set-Alias open Invoke-Item
 }
-
-if (-not (Get-Command time -ErrorAction SilentlyContinue)) {
+if (-not (Get-Command time -EA Silent)) {
     function time {
-        param(
-            [Parameter(Mandatory=$true, ValueFromRemainingArguments=$true)]
-            [string[]]$Command
-        )
-
-        $scriptBlock = [scriptblock]::Create(($Command -join ' '))
-        $result = Measure-Command { & $scriptBlock }
-
+        param([Parameter(Mandatory, ValueFromRemainingArguments)][string[]]$Command)
+        $result = Measure-Command { & ([scriptblock]::Create(($Command -join ' '))) }
         Write-Host ("real  {0:N3}s" -f $result.TotalSeconds)
     }
 }
 
 # Export like Bash 'export NAME=value'; on PowerShell it is '$env:NAME = "value"'
-function Export {
-    param(
-        [Parameter(Mandatory=$true, Position=0)]
-        [string]$Assignment
-    )
-
-    # Split into NAME and VALUE
+function Export($Assignment) {
     if ($Assignment -match '^(?<name>[^=]+)=(?<value>.*)$') {
-        $name  = $matches['name'].Trim()
-        $value = $matches['value'].Trim()
-
-        # Remove optional surrounding quotes
-        if ($value -match '^"(.*)"$') {
-            $value = $matches[1]
-        } elseif ($value -match "^'(.*)'$") {
-            $value = $matches[1]
-        }
-
-        # Expand $env:VAR or other PowerShell variables inside
-        $expanded = (Invoke-Expression "`"$value`"")
-
-        # Set environment variable
-        Set-Item -Path "Env:$name" -Value $expanded
+        $name = $matches['name'].Trim()
+        $value = $matches['value'].Trim() -replace '^["'']|["'']$'
+        Set-Item "Env:$name" -Value (Invoke-Expression "`"$value`"")
     }
-    else { Write-Error "Usage: export NAME=value" }
+    else {
+        Write-Error "Usage: export NAME=value"
+    }
 }
 
 # Usage: Copy bash command -> Run 'cfb' -> Paste
@@ -141,23 +108,25 @@ Set-PSReadLineKeyHandler -Chord 'Alt+v' -ScriptBlock {
 #region Aliases
 # Source the aliases file if it exists
 $aliasesFile = "$HOME\.aliases.ps1"
-if (Test-Path $aliasesFile) { . $aliasesFile}
+if (Test-Path $aliasesFile) { . $aliasesFile }
 
 # Prefer Set-Alias to avoid function wrapping when possible
-Set-Alias   ll    Get-ChildItem
-function la { Get-ChildItem -Force }
-Set-Alias   grep  Select-String
-function .. { Set-Location .. }
-function home { Set-Location $env:USERPROFILE }
+Set-Alias ll Get-ChildItem
+Set-Alias grep Select-String
 Set-Alias which Get-Command
 
+function la { Get-ChildItem -Force }
+function .. { Set-Location .. }
+function home { Set-Location $env:USERPROFILE }
 function dotfiles { Set-Location "~\dotfiles" }
+
+if (Test-Path "$HOME\.ripgreprc") { $env:RIPGREP_CONFIG_PATH = "$HOME\.ripgreprc" }
+
 #endregion
 
-# ========================[ Region: Editor Selection ]=========================
 #region Editor
 if (-not $env:EDITOR -or [string]::IsNullOrWhiteSpace($env:EDITOR)) {
-    foreach ($e in 'nvim','vim','vi','code','notepad++','sublime_text','notepad') {
+    foreach ($e in 'nvim', 'vim', 'vi', 'code', 'notepad++', 'sublime_text', 'notepad') {
         if (Get-Command $e -ErrorAction SilentlyContinue) {
             $env:EDITOR = $e
             [Environment]::SetEnvironmentVariable('EDITOR', $env:EDITOR, 'User')
@@ -167,83 +136,71 @@ if (-not $env:EDITOR -or [string]::IsNullOrWhiteSpace($env:EDITOR)) {
 }
 #endregion
 
-# ========================[ Region: Color Config ]===========================
-#region Colors
-$script:Esc   = [char]27
-$script:Reset = "${script:Esc}[0m"
-$script:Bold  = "${script:Esc}[1m"
-
-$script:FG = @{
-    Red     = "${script:Esc}[31m"
-    Green   = "${script:Esc}[32m"
-    Yellow  = "${script:Esc}[33m"
-    Blue    = "${script:Esc}[34m"
-    Magenta = "${script:Esc}[35m"
-    Cyan    = "${script:Esc}[36m"
-    Gray    = "${script:Esc}[90m"
-}
-
-function Script:Color($color, $text) { return "$($script:FG[$color])$text$script:Reset" }
 #endregion
 
-# ========================[ Region: Prompt ]===========================
 #region Prompt
-# Configuration variables (set before sourcing to customize):
-#   $PROMPT_USE_CUSTOM = $true           - Enable/disable custom prompt entirely
-#   $PROMPT_SHOW_GIT_STATUS = $true      - Show git dirty state (* indicator)
-#   $PROMPT_PREPEND = ""                 - Text to prepend to prompt
+# Config: $PROMPT_USE_CUSTOM, $PROMPT_SHOW_GIT_STATUS, $PROMPT_PREPEND
+if (-not (Test-Path variable:PROMPT_USE_CUSTOM)) { $global:PROMPT_USE_CUSTOM = $true }
+if (-not (Test-Path variable:PROMPT_SHOW_GIT_STATUS)) { $global:PROMPT_SHOW_GIT_STATUS = $true }
+if (-not (Test-Path variable:PROMPT_PREPEND)) { $global:PROMPT_PREPEND = "" }
 
-# Control prompt behavior (defaults)
-if (-not (Test-Path variable:PROMPT_USE_CUSTOM)) {
-    $global:PROMPT_USE_CUSTOM = $true
-}
-if (-not (Test-Path variable:PROMPT_SHOW_GIT_STATUS)) {
-    $global:PROMPT_SHOW_GIT_STATUS = $true
-}
-if (-not (Test-Path variable:PROMPT_PREPEND)) {
-    $global:PROMPT_PREPEND = ""
-}
-
-# Exit early if custom prompt is disabled
 if (-not $PROMPT_USE_CUSTOM) { return }
+
+function Color($name, $text) {
+    $fg = $PSStyle.Foreground
+    switch ($name) {
+        'Red' { "$($fg.Red)$text$($PSStyle.Reset)" }
+        'Green' { "$($fg.Green)$text$($PSStyle.Reset)" }
+        'Yellow' { "$($fg.Yellow)$text$($PSStyle.Reset)" }
+        'Blue' { "$($fg.Blue)$text$($PSStyle.Reset)" }
+        default { $text }
+    }
+}
 
 function Get-GitInfo {
     try {
-        if (-not (git rev-parse --is-inside-work-tree 2>$null)) { return $null }
+        git rev-parse --is-inside-work-tree *> $null
+        if (-not $?) { return $null }
 
-        $branch = git symbolic-ref --short HEAD 2>$null
-        if (-not $branch) { $branch = git rev-parse --short HEAD 2>$null }
+        $branch = git symbolic-ref --quiet --short HEAD 2>$null
+        if (-not $?) {
+            $branch = git rev-parse --short HEAD 2>$null
+            if (-not $?) { return $null }
+        }
 
         $dirty = $false
         if ($global:PROMPT_SHOW_GIT_STATUS) {
-            git diff-index --quiet --ignore-submodules HEAD 2>$null
-            $dirty = -not $?
+            $output = git status --porcelain --untracked-files=no --ignore-submodules=dirty 2>$null
+            if (-not [string]::IsNullOrEmpty($output)) { $dirty = $true }
         }
 
-        return @{ Branch = $branch; Dirty = $dirty }
-    } catch {
+        @{
+            Branch = $branch.Trim()
+            Dirty  = $dirty
+        }
+    }
+    catch {
         return $null
     }
 }
 
 function global:prompt {
-    $status_indicator = if ($?) { (Color 'Green' '+') } else { (Color 'Red' '-') }
+    $ok = $?
+    $status = if ($ok) { Color Green '+' } else { Color Red '-' }
 
     $hostStr = "$env:USERNAME@$env:COMPUTERNAME"
     if ($script:IsWSL) { $hostStr += " (wsl)" }
-    $userHost = (Color 'Blue' $hostStr)
 
-    $cwd = (Get-Location).Path -replace [regex]::Escape($HOME), '~'
-    if ([string]::IsNullOrEmpty($cwd)) { $cwd = (Get-Location).Path }
-    $pathSeg = (Color 'Green' $cwd)
+    $cwd = $PWD.ProviderPath
+    if ($cwd.StartsWith($HOME)) { $cwd = '~' + $cwd.Substring($HOME.Length) }
 
     $gitSeg = ""
-    if ($git = Get-GitInfo) {
-        $branchColor = (Color 'Yellow' $git.Branch)
-        $dirtyFlag   = if ($git.Dirty) { " " + (Color 'Red' '*') } else { "" }
-        $gitSeg      = " | $branchColor$dirtyFlag "
+    $git = Get-GitInfo
+    if ($git) {
+        $dirtyFlag = if ($git.Dirty) { " $(Color Red '*')" } else { "" }
+        $gitSeg = " | $(Color Yellow $git.Branch)$dirtyFlag "
     }
 
-    "$global:PROMPT_PREPEND$userHost [$pathSeg]$gitSeg`nPS $status_indicator "
+    "$(Color Blue $hostStr) [$(Color Green $cwd)]$gitSeg`nPS $status "
 }
 #endregion
