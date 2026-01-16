@@ -38,14 +38,20 @@
     c   = commit
     cm  = commit -m
     ca  = commit --amend --no-edit
+    fix = commit --amend --no-edit
     co  = checkout
-    p   = push
-    pf  = push --force-with-lease
+    p    = pull
     pr  = pull --rebase
-    lo  = log --oneline -n 10
-    lg  = log --graph --pretty=format:'%Cred%h%r %Creset%s %C(bold blue)<%an>%Creset %Cgreen(%cr)%Creset%C(auto)%d' --abbrev-commit --all
+    P    = push
+    Pf   = push --force-with-lease
+    l  = log --graph --pretty=format:'%C(auto)%h %s %C(magenta)%cr%C(auto)%d' -n 15
+    lo = log --oneline -n 10
+    lg = log --graph --pretty=format:'%C(auto)%h %s %C(bold blue)<%an>%C(auto) %C(magenta)%cr%d' --abbrev-commit --all
     last = log -1 HEAD --stat
     dt  = difftool
     mt  = mergetool
     standup = "!git log --all --author=\"$(git config user.name)\" --since='1 day ago' --oneline"
     root = rev-parse --show-toplevel
+    unstage = reset HEAD --
+    undo = reset --soft HEAD~1
+    hard-undo = reset --hard HEAD~1

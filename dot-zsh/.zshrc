@@ -170,7 +170,7 @@ __set_prompt() {
     local last_status=$?
     local indicators=""
 
-    [[ -n "$VIRTUAL_ENV" ]] && indicators+=" %F{yellow}(${VIRTUAL_ENV:t})%f"
+    [[ -n "${VIRTUAL_ENV:-}" ]] && indicators+=" %F{yellow}(${VIRTUAL_ENV:t})%f"
     [[ -n "$vcs_info_msg_0_" ]] && indicators+="%F{magenta}${vcs_info_msg_0_}%f"
     [[ -n "$SSH_CONNECTION" ]] && indicators+=" %F{cyan}[SSH]%f"
 

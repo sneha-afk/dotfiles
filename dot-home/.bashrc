@@ -222,7 +222,7 @@ __set_prompt() {
     # Green + for no error on last command, else red -
     local status_line="${PS1_GREEN}+${PS1_RESET}"
 
-    [[ -n "$VIRTUAL_ENV" ]] && indicators+=" ${PS1_YELLOW}(${VIRTUAL_ENV##*/})${PS1_RESET}"
+    [[ -n "${VIRTUAL_ENV:-}" ]] && indicators+=" ${PS1_YELLOW}(${VIRTUAL_ENV##*/})${PS1_RESET}"
     indicators+="$(__git_info)"
     [[ -n "$SSH_CONNECTION" ]] && indicators+=" ${PS1_CYAN}[SSH]${PS1_RESET}"
 

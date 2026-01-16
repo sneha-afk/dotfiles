@@ -78,6 +78,21 @@ ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 ```
 </details>
 
+#### shell prompt customization
+
+The shell environment files have some customization options.
+
+Set these in the `.bashrc` or `.zshrc` **before** the prompt script is sourced:
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `_PROMPT_USE_CUSTOM` | `true` | Set to `false` to revert to the default system prompt. |
+| `_PROMPT_SHOW_GIT_STATUS` | `true` | Set to `false` to skip heavy `git diff` checks (Branch name only). |
+| (`.bashrc`) `_PROMPT_USE_GIT_PROMPT_SCRIPT` | `true` | Set to `false` to fallback to the basic status |
+| `_PROMPT_PREPEND` | `""` | Optional text/prefix to add to the start of the prompt. |
+
+To prevent terminal lag, the prompt only reads the branch name from `.git/HEAD` by default. If `_PROMPT_SHOW_GIT_STATUS` is enabled, it performs the extra I/O required to show staged (`+`) or unstaged (`*`) indicators. Turn this off as needed.
+
 ---
 
 ### 🪟 Windows
