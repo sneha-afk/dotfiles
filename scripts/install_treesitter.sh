@@ -4,22 +4,30 @@
 # Ensures the directory exists and is added to the PATH.
 #
 # Don't use this on Windows, use scoop install tree-sitter
-#
-# Options:
-#   --skip-checksum   Skip SHA256 verification
-#   --uninstall       Remove Neovim and symlinks
 
 set -euo pipefail
 
-# =========[ Flags ]=========
+usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo
+    echo "Installs latest tree-sitter CLI to ~/.local/bin"
+    echo
+    echo "Options:"
+    echo "  --skip-checksum   Skip SHA256 verification"
+    echo "  --uninstall       Remove tree-sitter binary"
+    echo "  -h, --help        Show this message"
+    exit 0
+}
+
 SKIP_CHECKSUM=false
 UNINSTALL=false
 
 for arg in "$@"; do
     case "$arg" in
+        --help|-h) usage ;;
         --skip-checksum) SKIP_CHECKSUM=true ;;
         --uninstall) UNINSTALL=true ;;
-        *) echo "Unknown option: $arg"; exit 1 ;;
+        *) echo "Unknown option: $arg"; usage ;;
     esac
 done
 
@@ -33,31 +41,27 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# =========[ Uninstall ]=========
 if $UNINSTALL; then
     echo "> Removing tree-sitter from $LOCAL_BIN..."
     rm -f "$INSTALL_PATH"
-    echo "> tree-sitter uninstalled."
+    echo "> Uninstalled."
     exit 0
 fi
 
-# =========[ Prereqs ]=========
-for cmd in curl gunzip awk; do
+for cmd in curl gunzip awk sha256sum; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
         echo "Error: missing required command '$cmd'."
         exit 1
     fi
 done
 
-# =========[ Setup Path ]=========
 mkdir -p "$LOCAL_BIN"
 if [[ ":$PATH:" != *":$LOCAL_BIN:"* ]]; then
     echo "> Adding $LOCAL_BIN to PATH for this session..."
     export PATH="$LOCAL_BIN:$PATH"
-    echo ">> REMINDER: Add 'export PATH=\"\$HOME/.local/bin:\$PATH\"' to your .bashrc!"
+    echo ">> REMINDER: Add 'export PATH=\"\$HOME/.local/bin:\$PATH\"' to your .bashrc"
 fi
 
-# =========[ Arch detection ]=========
 ARCH=$(uname -m)
 case "$ARCH" in
     x86_64)  TS_URL="https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-x64.gz" ;;
@@ -67,16 +71,15 @@ esac
 
 ARCHIVE=$(basename "$TS_URL")
 
-# =========[ Download ]=========
 echo "> Downloading tree-sitter ($ARCH)..."
 curl -LO "$TS_URL"
 
 if ! $SKIP_CHECKSUM; then
-    echo "> Paste SHA256 checksum from the release page (or press Enter to skip):"
+    echo "> Paste SHA256 checksum from release page (or press Enter to skip):"
     read -rp "> " EXPECTED_SHA
     if [[ -n "$EXPECTED_SHA" ]]; then
         EXPECTED_SHA=${EXPECTED_SHA#sha256:}
-        ACTUAL_SHA=$(sha256sum "$NVIM_ARCHIVE" | awk '{print $1}')
+        ACTUAL_SHA=$(sha256sum "$ARCHIVE" | awk '{print $1}')
         if [[ "$EXPECTED_SHA" != "$ACTUAL_SHA" ]]; then
             echo "Checksum mismatch!"
             exit 1
@@ -84,7 +87,6 @@ if ! $SKIP_CHECKSUM; then
     fi
 fi
 
-# =========[ Install ]=========
 echo "> Unpacking and installing to $INSTALL_PATH..."
 gunzip -c "$ARCHIVE" > "$INSTALL_PATH"
 chmod +x "$INSTALL_PATH"

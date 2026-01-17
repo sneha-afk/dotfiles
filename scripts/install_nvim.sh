@@ -8,25 +8,33 @@
 # Extras:
 #   - Installs `ripgrep` (recommended for plugins like Telescope).
 #   - Installs `xclip` only in WSL for clipboard support.
-#
-# Options:
-#   --skip-checksum   Skip SHA256 verification
-#   --skip-symlinks   Don’t create global `nvim` symlink
-#   --uninstall       Remove Neovim, its symlinks, and tree-sitter
 
 set -euo pipefail
 
-# =========[ Flags ]=========
+usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo
+    echo "Installs latest Neovim from GitHub to /opt/nvim"
+    echo
+    echo "Options:"
+    echo "  --skip-checksum   Skip SHA256 verification"
+    echo "  --skip-symlinks   Don't create global nvim symlink"
+    echo "  --uninstall       Remove Neovim, symlinks, and tree-sitter"
+    echo "  -h, --help        Show this message"
+    exit 0
+}
+
 SKIP_CHECKSUM=false
 SKIP_SYMLINKS=false
 UNINSTALL=false
 
 for arg in "$@"; do
     case "$arg" in
+        --help|-h) usage ;;
         --skip-checksum) SKIP_CHECKSUM=true ;;
         --skip-symlinks) SKIP_SYMLINKS=true ;;
         --uninstall) UNINSTALL=true ;;
-        *) echo "Unknown option: $arg"; exit 1 ;;
+        *) echo "Unknown option: $arg"; usage ;;
     esac
 done
 
@@ -39,7 +47,6 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# =========[ Uninstall ]=========
 if $UNINSTALL; then
     echo "> Uninstalling Neovim and tree-sitter..."
     sudo rm -rf "$INSTALL_DIR"/nvim*
@@ -49,7 +56,6 @@ if $UNINSTALL; then
     exit 0
 fi
 
-# =========[ Prereqs ]=========
 for cmd in curl sha256sum tar awk gunzip; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
         echo "Error: missing required command '$cmd'."
@@ -57,7 +63,6 @@ for cmd in curl sha256sum tar awk gunzip; do
     fi
 done
 
-# =========[ Arch detection ]=========
 ARCH=$(uname -m)
 case "$ARCH" in
     x86_64)
@@ -71,17 +76,15 @@ case "$ARCH" in
     *) echo "Unsupported arch: $ARCH"; exit 1 ;;
 esac
 
-# =========[ Local Bin Setup ]=========
 mkdir -p "$LOCAL_BIN"
 if [[ ":$PATH:" != *":$LOCAL_BIN:"* ]]; then
     echo "> Adding $LOCAL_BIN to PATH for this session..."
     export PATH="$LOCAL_BIN:$PATH"
-    echo ">> REMINDER: Add 'export PATH=\"\$HOME/.local/bin:\$PATH\"' to your .bashrc!"
+    echo ">> REMINDER: Add 'export PATH=\"\$HOME/.local/bin:\$PATH\"' to your .bashrc"
 fi
 
-# =========[ Install Tree-Sitter ]=========
 if ! command -v tree-sitter >/dev/null 2>&1; then
-    echo "> tree-sitter not found. Installing to $LOCAL_BIN..."
+    echo "> Installing tree-sitter to $LOCAL_BIN..."
     TS_ARCHIVE=$(basename "$TS_URL")
     curl -LO "$TS_URL"
     gunzip -c "$TS_ARCHIVE" > "$LOCAL_BIN/tree-sitter"
@@ -92,14 +95,12 @@ else
     echo "> tree-sitter already exists at $(which tree-sitter). Skipping."
 fi
 
-# =========[ Install Neovim ]=========
 NVIM_ARCHIVE=$(basename "$NVIM_URL")
 echo "> Downloading Neovim..."
 curl -LO "$NVIM_URL"
-trap 'rm -f "$NVIM_ARCHIVE"' EXIT
 
 if ! $SKIP_CHECKSUM; then
-    echo "> Paste SHA256 checksum from the neovim release page (or press Enter to skip):"
+    echo "> Paste SHA256 checksum from release page (or press Enter to skip):"
     read -rp "> " EXPECTED_SHA
     if [[ -n "$EXPECTED_SHA" ]]; then
         EXPECTED_SHA=${EXPECTED_SHA#sha256:}
@@ -121,10 +122,10 @@ if ! $SKIP_SYMLINKS; then
     sudo ln -s "$INSTALL_DIR"/nvim-linux-*/bin/nvim /usr/bin/nvim
 fi
 
-# =========[ Extras ]=========
 echo "> Installing utilities..."
 sudo apt-get update -y
-sudo apt-get install -y ripgrep fd-find
+command -v rg >/dev/null 2>&1 || sudo apt-get install -y ripgrep
+command -v fd >/dev/null 2>&1 || command -v fdfind >/dev/null 2>&1 || command -v fd-find >/dev/null 2>&1 || sudo apt-get install -y fd-find
 
 if grep -qi microsoft /proc/version 2>/dev/null; then
     echo "> WSL detected. Installing xclip..."
@@ -132,7 +133,6 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
 fi
 
 echo -e "-----------------------------------\n"
-
 printf "%-15s %-15s %s\n" "COMMAND" "VERSION" "PATH"
 printf "%-15s %-15s %s\n" "-------" "-------" "----"
 
@@ -148,5 +148,9 @@ RG_PATH=$(command -v rg || echo "NOT FOUND")
 RG_VER=$($RG_PATH --version | head -n 1 | awk '{print $2}' || echo "N/A")
 printf "%-15s %-15s %s\n" "ripgrep" "$RG_VER" "$RG_PATH"
 
+FD_PATH=$(command -v fd || command -v fdfind || command -v fd-find || echo "NOT FOUND")
+FD_VER=$($FD_PATH --version | head -n 1 | awk '{print $2}' || echo "N/A")
+printf "%-15s %-15s %s\n" "fd" "$FD_VER" "$FD_PATH"
+
 echo -e "-----------------------------------\n"
-echo "> Done! Please restart your shell or run: source ~/.bashrc"
+echo "> Done! Restart your shell or run: source ~/.bashrc"

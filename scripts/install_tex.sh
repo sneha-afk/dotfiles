@@ -3,13 +3,8 @@
 # TeX environment setup script for Linux
 # --------------------------------------
 # Default: Installs Tectonic (modern LaTeX engine)
-# Options:
-#   --texlive    Install TeX Live instead
-#   --uninstall  Remove TeX Live, Tectonic, and related files
-#   -h, --help   Show help
-#
 
-set -e  # Exit on any error
+set -euo pipefail
 
 usage() {
     echo "Usage: $0 [--texlive | --uninstall]"
@@ -34,7 +29,7 @@ uninstall_tex() {
     sudo apt-get autoremove -y
     sudo apt-get clean
 
-    echo "> Uninstallation complete."
+    echo "> Uninstalled."
     exit 0
 }
 
@@ -43,31 +38,21 @@ UNINSTALL=false
 
 for arg in "$@"; do
     case "$arg" in
-        --help|-h)
-            usage
-            ;;
-        --texlive)
-            INSTALL_TEXLIVE=true
-            ;;
-        --uninstall)
-            UNINSTALL=true
-            ;;
-        *)
-            echo "Unknown option: $arg"
-            usage
-            ;;
+        --help|-h) usage ;;
+        --texlive) INSTALL_TEXLIVE=true ;;
+        --uninstall) UNINSTALL=true ;;
+        *) echo "Unknown option: $arg"; usage ;;
     esac
 done
 
-# Handle uninstall first
-if [ "$UNINSTALL" = true ]; then
+if $UNINSTALL; then
     uninstall_tex
 fi
 
-if [ "$INSTALL_TEXLIVE" = true ]; then
-    echo "> Installing TeX Live (manual option)..."
+if $INSTALL_TEXLIVE; then
+    echo "> Installing TeX Live..."
 
-    echo "> Removing any existing TeX Live or Tectonic installation..."
+    echo "> Removing any existing installations..."
     sudo apt-get remove --purge -y texlive* tex-common tectonic || true
     sudo rm -rf ~/.texlive* ~/.cache/Tectonic ~/.local/share/tectonic ~/.config/tectonic
 
@@ -85,7 +70,7 @@ if [ "$INSTALL_TEXLIVE" = true ]; then
         latexmk \
         python3-pygments
 
-    echo "> Verifying TeX Live installation..."
+    echo "> Verifying installation..."
     tex --version || true
     pdflatex --version || true
     latexmk --version || true
@@ -94,7 +79,7 @@ if [ "$INSTALL_TEXLIVE" = true ]; then
 
     echo "> TeX Live setup complete."
 else
-    echo "> Installing Tectonic (default option)..."
+    echo "> Installing Tectonic..."
 
     echo "> Removing any existing TeX Live installation..."
     sudo apt-get remove --purge -y texlive* tex-common || true
@@ -109,7 +94,7 @@ else
     echo "> Installing Tectonic via official script..."
     curl --proto '=https' --tlsv1.2 -sSf https://tectonic.dev/install.sh | sh
 
-    echo "> Verifying Tectonic installation..."
+    echo "> Verifying installation..."
     tectonic --version || true
     latexmk --version || true
     pygmentize -V || true
