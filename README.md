@@ -25,14 +25,14 @@ Other helpful files in `dot-config -> .config` and `dot-home -> ~/*`.
 
 ## ⚙️ Setup
 
+There are helper scripts in [`/scripts`](./scripts/) for all systems such as for installing programs.
+
+
 ### ⭐ Recommended: `trovl` for symlinks
 
 Use [trovl](https://github.com/sneha-afk/trovl) (my project :>) for simple, declarative symlink management across all platforms:
 
 ```bash
-# Install trovl (using Go)
-go install github.com/sneha-afk/trovl@latest
-
 # Apply manifest: must be run from the root of this repo
 # Can add --overwrite and/or --backup
 trovl apply trovl-manifest.json

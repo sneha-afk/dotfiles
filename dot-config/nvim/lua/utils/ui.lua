@@ -104,8 +104,10 @@ function M.icons_supported()
   end
 
   local term = os.getenv("TERM") or ""
-  local colorterm = os.getenv("COLORTERM") or ""
-  if term:match("xterm") or term:match("kitty") or colorterm:match("truecolor") then
+  local term_program = os.getenv("TERM_PROGRAM") or ""
+  if term_program == "WezTerm" or term_program == "kitty"
+  or term:match("kitty") or term:match("wezterm") or term:match("ghostty")
+  then
     return true
   end
 

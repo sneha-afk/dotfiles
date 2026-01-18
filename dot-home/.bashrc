@@ -217,7 +217,7 @@ __set_prompt() {
 
     [[ -n "${VIRTUAL_ENV:-}" ]] && indicators+=" ${PS1_YELLOW}(${VIRTUAL_ENV##*/})${PS1_RESET}"
     indicators+="$(__git_info)"
-    [[ -n "$SSH_CONNECTION" ]] && indicators+=" ${PS1_CYAN}[SSH]${PS1_RESET}"
+    [[ -n "{$SSH_CONNECTION:-}" ]] && indicators+=" ${PS1_CYAN}[SSH]${PS1_RESET}"
 
     if [[ $last_status -ne 0 ]]; then
         indicators+=" ${PS1_RED}[exited: $last_status]${PS1_RESET}"

@@ -12,8 +12,12 @@ return {
   ---@type conform.setupOpts
   opts = {
     formatters_by_ft = {
-      sh = { "shfmt" },
-      lua = { "stylua", "lua_ls", stop_after_first = true },
+      sh     = { "shfmt" },
+      bash   = { "shfmt" },
+      zsh    = { "shfmt" },
+      lua    = { "stylua" },
+      go     = { "goimports", "gofmt", stop_after_first = false },
+      python = { "ruff_format" },
     },
     formatters = {
       shfmt = {
@@ -21,6 +25,7 @@ return {
       },
     },
     default_format_opts = {
+      stop_after_first = true,
       lsp_format = "fallback",
     },
     format_on_save = function(bufnr)

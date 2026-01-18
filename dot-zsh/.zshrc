@@ -165,7 +165,7 @@ __set_prompt() {
 
     [[ -n "${VIRTUAL_ENV:-}" ]] && indicators+=" %F{yellow}(${VIRTUAL_ENV:t})%f"
     [[ -n "$vcs_info_msg_0_" ]] && indicators+="%F{magenta}${vcs_info_msg_0_}%f"
-    [[ -n "$SSH_CONNECTION" ]] && indicators+=" %F{cyan}[SSH]%f"
+    [[ -n "${SSH_CONNECTION:-}" ]] && indicators+=" %F{cyan}[SSH]%f"
 
     local status_line="%F{green}+%f"
     if [[ $last_status -ne 0 ]]; then

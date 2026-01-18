@@ -1,5 +1,4 @@
 -- ~/.wezterm.lua
--- sneha's wezterm configuration
 
 local wezterm = require "wezterm"
 local action = wezterm.action
@@ -7,167 +6,106 @@ local action = wezterm.action
 local config = wezterm.config_builder()
 
 --==============================================================================
--- [1] ENV DETECTION
+-- [1] GLOBAL STATE CACHE
 --==============================================================================
-local is_windows = wezterm.target_triple:find("windows") ~= nil
-
---- Check if an executable exists in the system PATH
----@param executable string Name of the executable
----@return boolean True if the executable exists
-local function exe_exists(executable)
-  local cmd = is_windows and { "where.exe", "/Q", executable } or { "bash", "-c", "command -v " .. executable }
-  local success, _, _ = wezterm.run_child_process(cmd)
-  return success == true
-end
-
-local HAS_PWSH      = is_windows and exe_exists("pwsh")
-local HAS_WSL       = is_windows and exe_exists("wsl")
-
---==============================================================================
--- [2] THEME
---==============================================================================
-config.color_scheme = "iceberg-dark"
-local bg            = "#161821"
-local fg            = "#d2d4de"
-local accent        = "#e98989"
-
---- adjust_brightness color brightness by percentage (-100 to 100)
----@param hex string Hex color code
----@param percent number Percentage adjust_brightnessment (-100 to 100)
----@return string adjust_brightnessed hex color
-local function adjust_brightness(hex, percent)
-  local r, g, b = hex:match("#?(%x%x)(%x%x)(%x%x)")
-  local factor = 1 + (percent / 100)
-  local function clamp(val) return math.floor(math.max(0, math.min(255, tonumber(val, 16) * factor))) end
-  return string.format("#%02x%02x%02x", clamp(r), clamp(g), clamp(b))
-end
-
---- Check if a color is dark based on relative luminance
----@param hex string Hex color code
----@return boolean True if color is dark
-local function is_dark_theme(hex)
-  local r, g, b = hex:match("#?(%x%x)(%x%x)(%x%x)")
-  if not r then return true end
-  local lum = (tonumber(r, 16) * 0.299 + tonumber(g, 16) * 0.587 + tonumber(b, 16) * 0.114) / 255
-  return lum < 0.5
-end
-
-local is_dark = is_dark_theme(bg)
-
-local PALETTE = {
-  bg                = bg,
-  fg                = fg,
-  accent            = accent,
-  active_titlebar   = adjust_brightness(bg, is_dark and 30 or -30),
-  inactive_titlebar = adjust_brightness(bg, is_dark and 50 or -50),
-  tab_active_bg     = adjust_brightness(bg, is_dark and 75 or 10),
-  tab_inactive_bg   = adjust_brightness(bg, is_dark and -30 or 30),
-  tab_inactive_fg   = adjust_brightness(fg, is_dark and -15 or 15),
-  hover_bg          = adjust_brightness(bg, is_dark and 15 or -15),
+local STATE = {
+  env = {},
+  colors = {},
+  icon_cache = {},
+  status_cache = { domain = "", leader = false },
 }
 
-config.colors = {
-  tab_bar = {
-    active_tab         = { bg_color = PALETTE.tab_active_bg, fg_color = PALETTE.fg },
-    inactive_tab       = { bg_color = PALETTE.tab_inactive_bg, fg_color = PALETTE.tab_inactive_fg },
-    inactive_tab_hover = { bg_color = PALETTE.hover_bg, fg_color = PALETTE.fg },
-    new_tab            = { bg_color = PALETTE.hover_bg, fg_color = PALETTE.fg },
-  },
-  split = PALETTE.fg,
-}
+-- Refresh expensive computations only on config reload or window launch
+local function refresh_state()
+  local is_windows = wezterm.target_triple:find("windows") ~= nil
+  local is_linux = wezterm.target_triple:find("linux") ~= nil
+  local is_mac = wezterm.target_triple:find("darwin") ~= nil
 
---==============================================================================
--- [3] ICON HELPERS
---==============================================================================
-
-local ICON_MAP = {
-  ["local"]      = " ",
-  ["nvim"]       = " ",
-  ["git"]        = " ",
-  ["ubuntu"]     = " ",
-  ["debian"]     = " ",
-  ["arch"]       = " ",
-  ["fedora"]     = " ",
-  ["wsl"]        = " ",
-  ["bash"]       = " ",
-  ["zsh"]        = " ",
-  ["pwsh"]       = " ",
-  ["powershell"] = "󰨊 ",
-  ["cmd"]        = " ",
-  ["wezterm"]    = " ",
-  ["ssh"]        = "󰣀 ",
-}
-
-local ICON_CACHE = {}
-
----Bundled with Wezterm: https://www.nerdfonts.com/cheat-sheet
----@param text string Search against for an icon
----@return string Icon for the text
-local function get_icon(text)
-  if not text or text == "" then return " " end
-  if ICON_CACHE[text] then return ICON_CACHE[text] end
-
-  local p = text:lower()
-  for key, icon in pairs(ICON_MAP) do
-    if p:find(key) then
-      ICON_CACHE[text] = icon
-      return icon
-    end
+  local function check_exe(executable)
+    local cmd = is_windows and { "where.exe", "/Q", executable } or { "bash", "-c", "command -v " .. executable }
+    local success, _, _ = wezterm.run_child_process(cmd)
+    return success == true
   end
 
-  ICON_CACHE[text] = " "
-  return " "
+  local default_shell = nil
+  if is_windows then
+    local has_pwsh = check_exe("pwsh")
+    default_shell = { has_pwsh and "pwsh.exe" or "powershell.exe", "-NoLogo" }
+  elseif is_linux then
+    default_shell = { "bash", "-l" }
+  elseif is_mac then
+    local has_zsh = check_exe("zsh")
+    default_shell = has_zsh and { "zsh", "-l" } or { "bash", "-l" }
+  end
+
+  STATE.env = {
+    is_windows = is_windows,
+    is_linux = is_linux,
+    is_mac = is_mac,
+    has_wsl = is_windows and check_exe("wsl"),
+    default_shell = default_shell,
+  }
+
+  local base_bg = "#161821"
+  local base_fg = "#d2d4de"
+  local base_accent = "#e98989"
+
+  local function adjust(hex, percent)
+    local r, g, b = hex:match("#?(%x%x)(%x%x)(%x%x)")
+    local factor = 1 + (percent / 100)
+    local function clamp(val)
+      return math.floor(math.max(0, math.min(255, tonumber(val, 16) * factor)))
+    end
+    return string.format("#%02x%02x%02x", clamp(r), clamp(g), clamp(b))
+  end
+
+  local function is_dark(hex)
+    local r, g, b = hex:match("#?(%x%x)(%x%x)(%x%x)")
+    if not r then return true end
+    local lum = (tonumber(r, 16) * 0.299 + tonumber(g, 16) * 0.587 + tonumber(b, 16) * 0.114) / 255
+    return lum < 0.5
+  end
+
+  local dark = is_dark(base_bg)
+
+  STATE.colors = {
+    bg = base_bg,
+    fg = base_fg,
+    accent = base_accent,
+    active_titlebar = adjust(base_bg, dark and 30 or -30),
+    inactive_titlebar = adjust(base_bg, dark and 50 or -50),
+    tab_active_bg = adjust(base_bg, dark and 75 or 10),
+    tab_inactive_bg = adjust(base_bg, dark and -30 or 30),
+    tab_inactive_fg = adjust(base_fg, dark and -15 or 15),
+    hover_bg = adjust(base_bg, dark and 15 or -15),
+  }
 end
 
---==============================================================================
--- [4] CORE TERMINAL SETTINGS
---==============================================================================
+-- Initialize on startup
+refresh_state()
 
+-- Refresh only on config reload
+wezterm.on("window-config-reloaded", function()
+  refresh_state()
+end)
+
+--==============================================================================
+-- [2] CORE TERMINAL SETTINGS
+--==============================================================================
 config.front_end = "WebGpu"
-config.max_fps   = 60
+config.max_fps = 60
 
-if is_windows then
-  config.default_prog = { HAS_PWSH and "pwsh.exe" or "powershell.exe", "-NoLogo" }
-end
+if STATE.env.default_shell then config.default_prog = STATE.env.default_shell end
 
--- WezTerm comes with JetBrains Mono, symbols, and emojis; but added after this list,
--- so keep JetBrains Mono above the emoji set (always put fonts above emojis)
-config.font               = wezterm.font_with_fallback({
-  "Geist Mono",
-  "JetBrains Mono",
-  "Symbols Nerd Font Mono",
-  "Segoe UI Emoji",
-})
-config.font_size          = 10
-config.harfbuzz_features  = { "calt=1", "clig=0", "liga=0" }
-
-config.initial_cols       = 128
-config.initial_rows       = 32
-config.scrollback_lines   = 5000
-
-config.window_decorations = "RESIZE"
-config.window_padding     = {
-  left = "0.75cell",
-  right = "0.5cell",
-  top = "0.5cell",
-  bottom = "0.25cell",
-}
-config.window_frame       = {
-  active_titlebar_bg = PALETTE.active_titlebar,
-  inactive_titlebar_bg = PALETTE.inactive_titlebar,
-  font = wezterm.font_with_fallback({
-    { family = "Inter",  weight = "Medium" },
-    { family = "Geist",  weight = "Medium" },
-    { family = "Roboto", weight = "Bold" }, -- default
-  }),
-}
+config.initial_cols = 128
+config.initial_rows = 32
 
 --==============================================================================
--- [5] KEYBINDINGS
+-- [3] KEYBINDINGS
 --==============================================================================
--- https:/wezterm.org/config/default-keys.html
-config.leader             = { key = ",", mods = "CTRL", timeout_milliseconds = 2000 }
-config.keys               = {
+config.leader = { key = ",", mods = "CTRL", timeout_milliseconds = 2000 }
+config.keys = {
+  -- global actions
   { key = "l", mods = "ALT",          action = action.ShowLauncher },
   { key = "p", mods = "CTRL|SHIFT",   action = action.ActivateCommandPalette },
   { key = "q", mods = "CTRL|SHIFT",   action = action.QuitApplication },
@@ -215,48 +153,141 @@ config.keys               = {
   },
   { key = "v", mods = "CTRL",       action = action.PasteFrom("Clipboard") },
 
-  -- Linux variations of copy-paste
+  -- Linux-style copy-paste
   { key = "c", mods = "CTRL|SHIFT", action = action.CopyTo("Clipboard") },
   { key = "v", mods = "CTRL|SHIFT", action = action.PasteFrom("Clipboard") },
 }
 
-if is_windows and HAS_WSL then
-  table.insert(config.keys, { key = "w", mods = "LEADER|ALT", action = action.SpawnTab { DomainName = "WSL:Ubuntu" } })
+-- WSL launcher (conditional)
+if STATE.env.has_wsl then
+  table.insert(config.keys, {
+    key = "w",
+    mods = "LEADER|ALT",
+    action = action.SpawnTab { DomainName = "WSL:Ubuntu" },
+  })
 end
 
 --==============================================================================
--- [6] RENDER EVENTS
+-- [4] APPEARANCE
+--==============================================================================
+local ICONS = {
+  ["local"]      = " ",
+  ["nvim"]       = " ",
+  ["git"]        = " ",
+  ["ubuntu"]     = " ",
+  ["debian"]     = " ",
+  ["arch"]       = " ",
+  ["fedora"]     = " ",
+  ["wsl"]        = " ",
+  ["bash"]       = " ",
+  ["zsh"]        = " ",
+  ["pwsh"]       = " ",
+  ["powershell"] = "󰨊 ",
+  ["cmd"]        = " ",
+  ["wezterm"]    = " ",
+  ["ssh"]        = "󰣀 ",
+}
+
+local function get_icon(text)
+  if not text or text == "" then return " " end
+  if STATE.icon_cache[text] then return STATE.icon_cache[text] end
+
+  local lower = text:lower()
+
+  -- Fast path: exact match
+  if ICONS[lower] then
+    STATE.icon_cache[text] = ICONS[lower]
+    return ICONS[lower]
+  end
+
+  -- Slow path: substring match
+  for key, icon in pairs(ICONS) do
+    if lower:find(key, 1, true) then
+      STATE.icon_cache[text] = icon
+      return icon
+    end
+  end
+
+  STATE.icon_cache[text] = " "
+  return " "
+end
+
+config.color_scheme = "iceberg-dark"
+config.colors = {
+  tab_bar = {
+    active_tab = { bg_color = STATE.colors.tab_active_bg, fg_color = STATE.colors.fg },
+    inactive_tab = { bg_color = STATE.colors.tab_inactive_bg, fg_color = STATE.colors.tab_inactive_fg },
+    inactive_tab_hover = { bg_color = STATE.colors.hover_bg, fg_color = STATE.colors.fg },
+    new_tab = { bg_color = STATE.colors.hover_bg, fg_color = STATE.colors.fg },
+  },
+  split = STATE.colors.fg,
+}
+
+-- WezTerm comes with JetBrains Mono, symbols, and emojis; but added after this list,
+-- so keep JetBrains Mono above the emoji set (always put fonts above emojis)
+config.font = wezterm.font_with_fallback({
+  "Geist Mono",
+  "JetBrains Mono",
+  "Symbols Nerd Font Mono",
+  "Segoe UI Emoji",
+})
+config.font_size = 10
+config.harfbuzz_features = { "calt=1", "clig=0", "liga=0" }
+
+config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
+config.window_padding = {
+  left = "0.75cell",
+  right = "0.5cell",
+  top = "0.5cell",
+  bottom = "0.25cell",
+}
+config.window_frame = {
+  active_titlebar_bg = STATE.colors.active_titlebar,
+  inactive_titlebar_bg = STATE.colors.inactive_titlebar,
+  font = wezterm.font_with_fallback({
+    { family = "Inter",  weight = "Bold" },
+    { family = "Roboto", weight = "Bold" }, -- ships with WezTerm
+  }),
+}
+
+--==============================================================================
+-- [5] APPEARANCE - UI CALLBACKS
 --==============================================================================
 
--- TAB TITLE: Strip path and .exe, add icons and admin indicator
+config.adjust_window_size_when_changing_font_size = false
+
 wezterm.on("format-tab-title", function(tab)
-  local raw_title = tab.active_pane.title
+  local title = tab.active_pane.title
+  local clean = title:gsub(".*[\\/]", ""):gsub("%.exe$", "")
 
-  local clean_title = raw_title:gsub(".*[\\/]", ""):gsub("%.exe$", "")
-  if clean_title:find("wsl") then clean_title = "wsl" end
+  if clean:find("wsl") then clean = "wsl" end
 
-  local icon = get_icon(clean_title)
-  local is_admin = raw_title:find("Administrator:") or raw_title:find("root") or raw_title:find("#")
+  local icon = get_icon(clean)
+  local admin = title:find("Administrator:") or title:find("root") or title:find("#")
 
-  return string.format(" %s%s %d: %s ", is_admin and "󰒙 " or "", icon, tab.tab_index + 1, clean_title)
+  return string.format(" %s%s %d: %s ", admin and "󰒙 " or "", icon, tab.tab_index + 1, clean)
 end)
 
--- STATUS BAR: Show time, domain icon, and leader status
 wezterm.on("update-right-status", function(window, pane)
   local is_leader = window:leader_is_active()
-  local time = wezterm.strftime("%I:%M %p")
   local domain = pane:get_domain_name():lower()
 
+  -- Skip redraw if nothing changed
+  if STATE.status_cache.leader == is_leader and STATE.status_cache.domain == domain then
+    return
+  end
+
+  STATE.status_cache.leader = is_leader
+  STATE.status_cache.domain = domain
+
   window:set_right_status(wezterm.format({
-    { Background = { Color = is_leader and PALETTE.accent or PALETTE.bg } },
-    { Foreground = { Color = is_leader and PALETTE.bg or PALETTE.fg } },
+    { Background = { Color = is_leader and STATE.colors.accent or STATE.colors.bg } },
+    { Foreground = { Color = is_leader and STATE.colors.bg or STATE.colors.fg } },
     { Text = is_leader and "  󱐋 LEADER  " or "" },
-    { Background = { Color = PALETTE.bg } },
-    { Foreground = { Color = PALETTE.fg } },
-    { Text = string.format(" ┊  %s ┊ %s ┊", get_icon(domain), time) },
+    { Background = { Color = STATE.colors.bg } },
+    { Foreground = { Color = STATE.colors.fg } },
+    { Text = string.format(" ┊  %s ┊ ", get_icon(domain)) },
   }))
 end)
-
-config.adjust_window_size_when_changing_font_size = false
 
 return config

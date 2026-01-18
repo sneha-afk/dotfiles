@@ -73,6 +73,7 @@ return {
       { "<leader>g", group = "Git" },
       { "<leader>s", group = "Search" },
       { "<leader>t", group = "Tabs" },
+      { "<leader>T", group = "Test" },
       { "<leader>u", group = "UI" },
       { "<leader>W", group = "Workspace" },
       { "<leader>l", group = "LSP" },
