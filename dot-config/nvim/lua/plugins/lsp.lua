@@ -1,14 +1,36 @@
 -- .config/nvim/lua/lsp/init.lua
 
-local lsp_utils = require("utils.lsp_utils")
+-- Setup specific keymaps for servers
+local server_maps = {
+  basedpyright = {
+    { "<leader>oi", "<cmd>PyrightOrganizeImports<cr>", desc = "Python: [O]rganize [I]mports" },
+  },
+  clangd = {
+    { "<leader>si", "<cmd>ClangdSymbolInfo<cr>",         desc = "C: [S]ymbol [I]nfo" },
+    { "<leader>sh", "<cmd>ClangdSwitchSourceHeader<cr>", desc = "C: switch [S]ource/[H]eader" },
+  },
+  ts_ls = {
+    { "<leader>cas", "<cmd>LspTypescriptSourceAction<cr>",         desc = "JS/TS: [CA]ctions, [S]ource" },
+    { "gsd",         "<cmd>LspTypescriptGoToSourceDefinition<cr>", desc = "JS/TS: [G]oto [S]ource [D]efinition" },
+  },
+}
+server_maps.pyright = server_maps.basedpyright
 
 return {
   {
     "j-hui/fidget.nvim",
     event = "LspAttach",
-    config = true,
+    opts = {
+      notification = {
+        view = {
+          reflow = "hyphenate",
+        },
+        window = {
+          max_width = 0.4,
+        },
+      },
+    },
   },
-  -- Lazy-loads plugin completions
   {
     "folke/lazydev.nvim",
     ft = "lua",
@@ -28,7 +50,6 @@ return {
       },
     },
   },
-
   -- Mason configuration (LSP installer)
   -- Installed to "$HOME/.local/share/nvim/mason/bin"
   --              "%USERPROFILE%\AppData\Local\nvim-data\mason\bin"
@@ -50,7 +71,6 @@ return {
       },
     },
   },
-
   -- LSP configurations: both externally installed and from Mason
   {
     "neovim/nvim-lspconfig",
@@ -72,24 +92,7 @@ return {
       },
     },
     config = function()
-      -- LSP-specific keymaps that should be attached once the client is known
-      local lsp_keymap_config = require("plugins.lsp.lsp_keymaps")
-
-      vim.api.nvim_create_autocmd("LspAttach", {
-        callback = function(args)
-          local bufnr = args.buf
-          local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
-          local filetype = vim.bo[bufnr].filetype
-
-          lsp_keymap_config(client)
-
-          -- From Neovim docs: prefer LSP folding if available
-          if client:supports_method("textDocument/foldingRange") then
-            vim.opt_local.foldmethod = "expr"
-            vim.opt_local.foldexpr = "v:lua.vim.lsp.foldexpr()"
-          end
-        end,
-      })
+      local lsp_utils = require("utils.lsp_utils")
 
       -- Shared configurations + capabilities
       ---@type vim.lsp.Config
@@ -102,8 +105,33 @@ return {
       }
       vim.lsp.config("*", global_configs)
 
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function(args)
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if not client then return end
+          local bufnr = args.buf
+
+          local server_specific_maps = server_maps[client.name]
+          if server_specific_maps then
+            for _, mapping in ipairs(server_specific_maps) do
+              vim.keymap.set("n", mapping[1], mapping[2], { mapping[3] })
+            end
+          end
+
+          -- From Neovim docs: prefer LSP folding if available
+          if client:supports_method("textDocument/foldingRange") then
+            vim.opt_local.foldmethod = "expr"
+            vim.opt_local.foldexpr = "v:lua.vim.lsp.foldexpr()"
+          end
+
+          if client:supports_method("textDocument/inlayHint") then
+            vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+          end
+        end,
+      })
+
       -- To have server-specific configurations, either create a file in
-      --   .config/nvim/lsp/server_name.lua (preferred), or set up using vim.lsp.config.
+      --   .config/nvim/after/lsp/server_name.lua (preferred), or set up using vim.lsp.config.
       -- Using the former prevents timing issues with lazy loading configurations.
 
       -- Enable LSPs to attach when their respective filetypes are opened
@@ -117,8 +145,6 @@ return {
         "ts_ls",
         "bashls",
       })
-
-      vim.lsp.inlay_hint.enable()
     end,
   },
 }

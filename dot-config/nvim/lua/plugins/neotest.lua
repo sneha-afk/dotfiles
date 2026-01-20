@@ -1,4 +1,5 @@
 -- .config/lua/plugins/neotest.lua
+---@diagnostic disable: missing-fields
 
 local neotest_icons = vim.g.use_icons and {
   child_indent       = "│",

@@ -1,8 +1,6 @@
 -- ./config/nvim/lua/plugins/helpers.lua
 -- Helpful utilities
 
-local colorizer_fts = { "css", "scss", "sass", "less", "html" }
-
 return {
   {
     "nvim-mini/mini.surround",
@@ -28,7 +26,7 @@ return {
   {
     "norcalli/nvim-colorizer.lua",
     cmd = { "ColorizerAttachToBuffer", "ColorizerToggle" },
-    ft = colorizer_fts,
+    ft = { "css", "scss", "sass", "less", "html" },
     opts = {
       "*", -- Highlight all filetypes with default opts
       css = { rgb_fn = true },

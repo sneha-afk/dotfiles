@@ -71,8 +71,8 @@
       "platforms": ["windows"]
     },
     {
-      "target": "./windows/profile/Modules/helpers/helpers.psm1",
-      "link": "$PROFILE/../Modules/helpers/helpers.psm1",
+      "target": "./windows/profile/Modules/helpers/",
+      "link": "$PROFILE/../Modules/helpers/",
       "platforms": ["windows"]
     }
   ]

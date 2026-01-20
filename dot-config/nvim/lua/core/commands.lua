@@ -28,7 +28,7 @@ vim.api.nvim_create_user_command("VSCodeRepo", function()
   if repo then
     vim.fn.jobstart({ "code", repo }, { detach = true })
   else
-    print("Not inside a git repository!")
+    vim.notify("Not inside a git repository!", vim.log.levels.WARN)
   end
 end, { desc = "Open Git repo root in VSCode" })
 
@@ -37,7 +37,7 @@ vim.api.nvim_create_user_command("IntelliJRepo", function()
   if repo then
     vim.fn.jobstart({ "idea", repo }, { detach = true })
   else
-    print("Not inside a git repository!")
+    vim.notify("Not inside a git repository!", vim.log.levels.WARN)
   end
 end, { desc = "Open Git repo root in IntelliJ" })
 
@@ -86,12 +86,9 @@ vim.api.nvim_create_user_command("CrToLf", function()
     local view = vim.fn.winsaveview()
 
     -- Save file, remove the trailing CR (^M), set fileformat to Unix, then write
-    vim.cmd([[
-      update
-      silent! %s/\r$//e
-      set fileformat=unix
-      noautocmd write
-    ]])
+    vim.cmd([[silent! %s/\r$//e]])
+    vim.bo.fileformat = "unix"
+    vim.cmd.write()
 
     vim.fn.winrestview(view)
     vim.notify("Converted CRLF to LF line endings", vim.log.levels.INFO)
@@ -117,11 +114,7 @@ vim.api.nvim_create_user_command("Serve", function()
     { title = "npx serve" }
   )
 
-  vim.system(
-    { "npx", "serve" },
-    { detach = true },
-    function() end
-  )
+  vim.fn.jobstart({ "npx", "serve" }, { detach = true })
 end, {
   desc = "Start local static server using npx serve",
 })
@@ -146,6 +139,8 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   group = augroup("remove_whitespace"),
   desc = "Remove trailing whitespace and extra newlines at EOF upon saves",
   callback = function()
+    if vim.b.no_strip_whitespace then return end
+
     local filetype = vim.bo.filetype
     local buftype = vim.bo.buftype
 
@@ -161,10 +156,8 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
     local view = vim.fn.winsaveview()
 
-    pcall(function()
-      vim.cmd([[keeppatterns %s/\s\+$//e]])   -- Remove trailing whitespace
-      vim.cmd([[silent! %s/\%(\n\+\%$\)//e]]) -- Remove extra newlines at EOF
-    end)
+    vim.cmd([[keeppatterns %s/\s\+$//e]])      -- Remove trailing whitespace
+    vim.cmd([[silent! %s#\($\n\s*\)\+\%$##e]]) -- Leave exactly one newline at EOF
 
     vim.fn.winrestview(view)
   end,

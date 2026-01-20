@@ -12,29 +12,6 @@ if ($env:PSModulePath -notlike "*$global:ProfileModulesDir*") {
     $env:PSModulePath = "$global:ProfileModulesDir;$env:PSModulePath"
 }
 
-# Load modules on idle to speed up initial shell launch
-Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
-    if ($global:__PROFILE_HELPERS_LOADED) { return }
-    $global:__PROFILE_HELPERS_LOADED = $true
-    if (-not (Test-Path $global:ProfileModulesDir)) { return }
-
-    # Folder modules and .psm1 files
-    Get-ChildItem $global:ProfileModulesDir -EA Silent | Where-Object {
-        $_.PSIsContainer -or $_.Extension -eq '.psm1'
-    } | ForEach-Object {
-        try { Import-Module $_.FullName -DisableNameChecking -EA Stop }
-        catch { Write-Host "Failed to load $($_.Name): $_" -ForegroundColor Red }
-    }
-}
-
-Register-EngineEvent PowerShell.OnIdle -SupportEvent -Action {
-    if (Test-Path variable:__GIT_AVAILABLE) { return }
-    $ExecutionContext.SessionState.PSVariable.Set(
-        '__GIT_AVAILABLE',
-        [bool](Get-Command git -EA Silent)
-    )
-}
-
 # Launch elevated shell (admin/sudo)
 function Admin {
     param([string[]]$Command)

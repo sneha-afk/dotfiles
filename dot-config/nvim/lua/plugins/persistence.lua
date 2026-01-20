@@ -34,9 +34,6 @@ return {
         if git_root and git_root ~= "" then
           vim.fn.chdir(git_root)
         end
-
-        -- barbar command to save buffer positions
-        vim.api.nvim_exec_autocmds("User", { pattern = "SessionSavePre" })
       end,
     })
 

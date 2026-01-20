@@ -119,7 +119,7 @@ map("n", "<leader>]b", "<cmd>bnext<cr>",   { desc = "Next buffer" })
 map("n", "<leader>[b", "<cmd>bprev<cr>",   { desc = "Previous buffer" })
 map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "[B]uffer: [D]elete current" })
 map("n", "<leader>bD", "<cmd>bd!<cr>",     { desc = "[B]uffer: [D]elete current (force)" })
-map("n", "<leader>bc", function()
+map("n", "<leader>bC", function()
   local current = vim.api.nvim_get_current_buf()
   local buffers = vim.api.nvim_list_bufs()
   local num_deleted = 0
@@ -134,6 +134,7 @@ map("n", "<leader>bc", function()
   end
   vim.notify("Deleted other open buffers (total: " .. num_deleted .. ")", vim.log.levels.INFO)
 end, { desc = "[B]uffer: [C]lose all others" })
+map("n", "<leader><leader>", "<cmd>b#<cr>", { desc = "Jump to last buffer" })
 
 -- ============================================================================
 -- TAB OPERATIONS

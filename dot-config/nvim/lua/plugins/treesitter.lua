@@ -5,31 +5,6 @@
 --   * `tree-sitter` CLI (required on `main` branch)
 --   * `nodejs` (for some languages)
 
--- "ensure_installed" languages
-local langs = {
-  "lua",
-  "vim",
-  "vimdoc",
-  "markdown",
-  "markdown_inline",
-  "regex",
-  "comment",
-  "c",
-  "python",
-  "go",
-  "ruby",
-  "java",
-  "yaml",
-  "json",
-  "toml",
-  "bash",
-  "html",
-  "css",
-  "javascript",
-  "typescript",
-  "tsx",
-}
-
 return {
   {
     "nvim-treesitter/nvim-treesitter",
@@ -49,7 +24,23 @@ return {
     config = function(_, opts)
       local treesitter = require("nvim-treesitter")
       treesitter.setup(opts)
-      treesitter.install(langs)
+      treesitter.install({ -- "ensure_installed" languages
+        "lua", "luadoc",
+        "vim", "vimdoc",
+        "markdown", "markdown_inline",
+        "git_config", "gitcommit", "diff",
+        "regex", "comment",
+        "c", "cpp", "make",
+        "python",
+        "go",
+        "ruby",
+        "java",
+        "yaml", "json", "toml", "ini",
+        "bash",
+        "html", "css",
+        "javascript", "typescript", "tsx",
+        "sql", "graphql", "proto",
+      })
 
       vim.api.nvim_create_autocmd("FileType", {
         pattern = treesitter.get_installed(),
