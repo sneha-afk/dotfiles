@@ -1,23 +1,20 @@
 -- .config/nvim/lua/plugins/vimtex.lua
 
----@return string|nil Returns nil if no compiler is found
-local function detect_compiler()
+local compiler = (function()
   if vim.fn.executable("tectonic") == 1 then
     return "tectonic"
   elseif vim.fn.executable("latexmk") == 1 then
     return "latexmk"
   elseif vim.fn.executable("pdflatex") == 1 then
     return "pdflatex"
-  else
-    return nil
   end
-end
+end)()
 
 local fts = { "tex", "latex", "bib" }
 
 return {
   "lervag/vimtex",
-  enabled = detect_compiler() ~= nil,
+  enabled = compiler ~= nil,
   cmd = { "VimtexCompile", "VimtexInverseSearch" },
   ft = fts,
   dependencies = {
@@ -44,7 +41,7 @@ return {
     end
 
     local out_dir = "./build"
-    vim.g.vimtex_compiler_method = detect_compiler()
+    vim.g.vimtex_compiler_method = compiler
 
     if vim.g.vimtex_compiler_method == "tectonic" then
       vim.g.vimtex_compiler_tectonic = {

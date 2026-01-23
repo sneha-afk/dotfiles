@@ -1,9 +1,6 @@
 -- .config/nvim/lua/core/commands.lua
 -- Set user commands, autocommands, etc.
 
-local buf_utils = require("utils.buffers_and_windows")
-local file_utils = require("utils.fileops")
-
 -- ============================================================================
 -- HELPER FUNCTIONS
 -- ============================================================================
@@ -20,11 +17,12 @@ end
 -- USER COMMANDS
 -- ============================================================================
 
-vim.api.nvim_create_user_command("VSCodeFile",   "!code -g %:p",     { nargs = 0, desc = "Open current file in VSCode" })
-vim.api.nvim_create_user_command("IntelliJFile", "!idea %:p --line", { nargs = 0, desc = "Open current file in IntelliJ" })
+vim.api.nvim_create_user_command("VSCodeFile", "!code -g %:p", { nargs = 0, desc = "Open current file in VSCode" })
+vim.api.nvim_create_user_command("IntelliJFile", "!idea %:p --line",
+  { nargs = 0, desc = "Open current file in IntelliJ" })
 
 vim.api.nvim_create_user_command("VSCodeRepo", function()
-  local repo = file_utils.get_git_root()
+  local repo = require("utils.paths").get_git_root()
   if repo then
     vim.fn.jobstart({ "code", repo }, { detach = true })
   else
@@ -33,7 +31,7 @@ vim.api.nvim_create_user_command("VSCodeRepo", function()
 end, { desc = "Open Git repo root in VSCode" })
 
 vim.api.nvim_create_user_command("IntelliJRepo", function()
-  local repo = file_utils.get_git_root()
+  local repo = require("utils.paths").get_git_root()
   if repo then
     vim.fn.jobstart({ "idea", repo }, { detach = true })
   else
@@ -42,33 +40,34 @@ vim.api.nvim_create_user_command("IntelliJRepo", function()
 end, { desc = "Open Git repo root in IntelliJ" })
 
 vim.api.nvim_create_user_command("EnvVariables", function()
+  local buf_utils = require("utils.buffers_and_windows")
   local env_vars = vim.fn.environ()
+  local separator = vim.g.is_windows and ";" or ":"
+
   local lines = { "# PATH VARIABLES", "" }
   local other_vars = {}
 
   -- Separate PATH-like variables from others
   for k, v in pairs(env_vars) do
     if k:match("PATH$") then
-      table.insert(lines, string.format("## %s", k))
+      table.insert(lines, ("## %s"):format(k))
 
       if type(v) == "string" and v ~= "" then
-        local separator = vim.fn.has("win32") == 1 and ";" or ":"
         for path in v:gmatch("[^" .. separator .. "]+") do
-          if path ~= "" then table.insert(lines, string.format("  - %s", path)) end
+          table.insert(lines, "  - " .. path)
         end
       else
         table.insert(lines, "  (empty)")
       end
+
       table.insert(lines, "")
     else
-      table.insert(other_vars, string.format("%-20s = %s", k, v))
+      table.insert(other_vars, ("% -20s = %s"):format(k, v))
     end
   end
 
   table.insert(lines, "# ENV VARIABLES")
-  for _, v in ipairs(other_vars) do
-    table.insert(lines, v)
-  end
+  vim.list_extend(lines, other_vars)
 
   local buf = buf_utils.create_scratch_buf(lines)
   vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
@@ -135,6 +134,13 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   end,
 })
 
+local strip_excluded_filetypes = {
+  diff = true,
+  gitcommit = true,
+  text = true,
+  markdown = true,
+}
+
 vim.api.nvim_create_autocmd("BufWritePre", {
   group = augroup("remove_whitespace"),
   desc = "Remove trailing whitespace and extra newlines at EOF upon saves",
@@ -146,13 +152,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 
     -- Skip special buffers and certain filetypes
     if buftype ~= "" then return end
-    local excluded_filetypes = {
-      diff = true,
-      gitcommit = true,
-      text = true,
-      markdown = true,
-    }
-    if excluded_filetypes[filetype] then return end
+    if strip_excluded_filetypes[filetype] then return end
 
     local view = vim.fn.winsaveview()
 
@@ -169,15 +169,15 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function() vim.hl.on_yank({ higroup = "Visual", timeout = 500 }) end,
 })
 
-vim.api.nvim_create_autocmd("VimEnter", {
+vim.api.nvim_create_autocmd("LspAttach", {
   group = augroup("clear_lsp_logs"),
   desc = "Auto-clear LSP logs past 10 MB",
   callback = function()
     local log_path = vim.lsp.log.get_filename()
     local max_size = 10 * 1024 * 1024
 
-    local ok, stats = pcall(vim.uv.fs_stat, log_path)
-    if ok and stats and stats.size > max_size then
+    local stats = vim.uv.fs_stat(log_path)
+    if stats and stats.size > max_size then
       local file = io.open(log_path, "w")
       if file then
         file:close()

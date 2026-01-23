@@ -40,7 +40,12 @@ vim.g.picker_source = "folke/snacks.nvim"
 vim.g.use_icons_manual = true
 
 -- Fallbacks to manual setting above
-vim.g.use_icons = require("utils.ui").icons_supported()
+vim.g.use_icons = vim.g.is_wezterm or vim.g.neovide or vim.fn.has("gui_running") == 1
+    or (function()
+      local term = os.getenv("TERM") or ""
+      return term:find("kitty") or term:find("ghostty")
+    end)()
+    or vim.g.use_icons_manual
 
 -- Taken from folke: override vim.keymap.set
 -- Default to silent, non-recursive keymaps

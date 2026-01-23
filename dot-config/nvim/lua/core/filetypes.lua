@@ -70,21 +70,34 @@ local ft_profiles = {
   tsx        = { "tabs_2" },
 }
 
+local ft_cache = {}
+
 vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("FiletypeLocalOpts", { clear = true }),
+  pattern = vim.tbl_keys(ft_profiles),
   callback = function(ev)
-    local profiles_for_ft = ft_profiles[ev.match]
-    if not profiles_for_ft then
-      return
-    end
+    local ft = ev.match
 
-    for _, profile_name in ipairs(profiles_for_ft) do
-      local opts = profiles[profile_name]
-      if opts then
-        for opt, val in pairs(opts) do
-          vim.opt_local[opt] = val
+    if ft_cache[ft] == nil then
+      local profile_names = ft_profiles[ft]
+
+      -- No options to apply
+      if not profile_names then
+        ft_cache[ft] = false
+        return
+      end
+
+      local merged = {}
+      for _, profile_name in ipairs(profile_names) do
+        for opt, val in pairs(profiles[profile_name]) do
+          merged[opt] = val
         end
       end
+      ft_cache[ft] = merged
     end
+
+    if not ft_cache[ft] then return end
+
+    for opt, val in pairs(ft_cache[ft]) do vim.opt_local[opt] = val end
   end,
 })

@@ -30,7 +30,7 @@ return {
       callback = function()
         original_cwd = vim.fn.getcwd()
 
-        local git_root = require("utils.fileops").start_search_path()
+        local git_root = require("utils.paths").start_search_path()
         if git_root and git_root ~= "" then
           vim.fn.chdir(git_root)
         end

@@ -94,27 +94,6 @@ M.neovim_logo = [[
 ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
 ]]
 
---- Check if icons can be used in the current UI/terminal
---- Set once into vim.g.use_icons for global use, recommended to use that variable
----@return boolean Use icons throughout nvim?
-function M.icons_supported()
-  -- Neovide and WezTerm provide support for icons
-  if vim.g.wezterm or vim.fn.has("gui_running") == 1 or vim.g.neovide or vim.g.goneovim or vim.g.gtk or vim.g.GuiLoaded then
-    return true
-  end
-
-  local term = os.getenv("TERM") or ""
-  local term_program = os.getenv("TERM_PROGRAM") or ""
-  if term_program == "WezTerm" or term_program == "kitty"
-  or term:match("kitty") or term:match("wezterm") or term:match("ghostty")
-  then
-    return true
-  end
-
-  -- Fallback to user manual setting
-  return vim.g.use_icons_manual
-end
-
 -- {} assuming icon set installed elsewhere, i.e an empty merge
 function M.get_icon_set()
   return vim.g.use_icons and {} or M.ascii_icons

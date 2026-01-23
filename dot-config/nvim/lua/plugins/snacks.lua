@@ -1,7 +1,8 @@
 -- .config/nvim/lua/plugins/snacks.lua
 
-local fileopts = require("utils.fileops")
 local ui_utils = require("utils.ui")
+local paths_utils = require("utils.paths")
+local globs_utils = require("utils.globs")
 
 local prompt_icon = vim.g.use_icons and " " or "> "
 
@@ -177,13 +178,13 @@ return {
       },
       sources = {
         files = {
-          dirs = { fileopts.start_search_path() },
-          exclude = fileopts.exclude_globs,
+          dirs = { paths_utils.start_search_path() },
+          exclude = globs_utils.get_exclude_globs(),
           hidden = true,
           ignore = false,
         },
         grep = {
-          dirs = { fileopts.start_search_path() },
+          dirs = { paths_utils.start_search_path() },
           hidden = true,
           ignore = false,
         },
