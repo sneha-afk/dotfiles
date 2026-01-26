@@ -1,9 +1,5 @@
 -- .config/nvim/lua/plugins/snacks.lua
 
-local ui_utils = require("utils.ui")
-local paths_utils = require("utils.paths")
-local globs_utils = require("utils.globs")
-
 local prompt_icon = vim.g.use_icons and " " or "> "
 
 local function get_greeting()
@@ -25,7 +21,7 @@ end
 local function get_footer()
   local version = vim.version()
   local nvim_version = string.format("NVIM v%d.%d.%d", version.major, version.minor, version.patch)
-  local cwd = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+  local cwd = vim.fn.fnamemodify(vim.uv.cwd(), ":~")
 
   return string.format("%s • %s\n%s", os.date("%A, %B %d %Y • %I:%M %p"), nvim_version, cwd)
 end
@@ -42,7 +38,6 @@ end
 
 local explorer_fullscreen = function()
   Snacks.explorer({
-    layout = { preset = "default", layout = { width = 0.95 } },
     cwd = Snacks.git.get_root() or vim.uv.cwd(),
   })
 end
@@ -146,10 +141,10 @@ return {
           vertical      = "│",
           arrow         = "⟩",
         },
-        hl = ui_utils.color_cycle,
+        hl = require("utils.ui").color_cycle,
       },
       scope = {
-        hl = ui_utils.color_cycle,
+        hl = require("utils.ui").color_cycle,
       },
     },
     input = {
@@ -168,7 +163,7 @@ return {
       enabled = true,
       prompt = prompt_icon,
       icons = {
-        kinds = ui_utils.get_icon_set(),
+        kinds = require("utils.ui").get_icon_set(),
       },
       layout = {
         layout = {
@@ -178,13 +173,13 @@ return {
       },
       sources = {
         files = {
-          dirs = { paths_utils.start_search_path() },
-          exclude = globs_utils.get_exclude_globs(),
+          dirs = { require("utils.paths").start_search_path() },
+          exclude = require("utils.globs").get_exclude_globs(),
           hidden = true,
           ignore = false,
         },
         grep = {
-          dirs = { paths_utils.start_search_path() },
+          dirs = { require("utils.paths").start_search_path() },
           hidden = true,
           ignore = false,
         },
@@ -236,9 +231,6 @@ return {
     statuscolumn = {
       enabled = true,
       fold = { open = true },
-    },
-    terminal = {
-      enabled = true,
     },
     toggle = {
       enabled = true,
@@ -303,7 +295,7 @@ return {
           { icon = "⚙️", key = "c", desc = "Edit Config", action = ":lua Snacks.explorer({cwd = vim.fn.stdpath('config')})" },
           { icon = "🚪", key = "q", desc = "Quit", action = ":qa" },
         },
-        header = ui_utils.neovim_logo .. "\n" .. get_greeting() .. ", "
+        header = require("utils.ui").neovim_logo .. "\n" .. get_greeting() .. ", "
             .. (os.getenv("USER") or os.getenv("USERNAME") or "User") .. ".",
       },
       sections = {

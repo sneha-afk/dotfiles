@@ -28,7 +28,7 @@ return {
     vim.api.nvim_create_autocmd("User", {
       pattern = "PersistenceSavePre",
       callback = function()
-        original_cwd = vim.fn.getcwd()
+        original_cwd = vim.uv.cwd() or vim.fn.getcwd()
 
         local git_root = require("utils.paths").start_search_path()
         if git_root and git_root ~= "" then
@@ -91,10 +91,7 @@ return {
       if not sessions then return end
 
       local session_names = vim.tbl_map(format_session_path, sessions)
-      vim.ui.select(session_names,
-        {
-          prompt = "Select session to delete:",
-        },
+      vim.ui.select(session_names, { prompt = "Select session to delete:" },
         function(choice, idx)
           if choice and idx then delete_session(sessions[idx]) end
         end

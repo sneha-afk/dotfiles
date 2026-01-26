@@ -91,11 +91,11 @@ require("core.keymaps")
 require("core.lazy")
 require("core.filetypes")
 require("core.commands")
-require("core.terminal")
 
 -- Hack to work to launch in any environment that may load the UI later (e.g. WSL starts a server)
 vim.api.nvim_create_autocmd("UIEnter", {
   desc = "Load GUI specific options (e.g. Neovide)",
+  once = true,
   callback = function()
     if vim.g.neovide then
       require("core.neovide")

@@ -68,7 +68,7 @@ within `init.lua`. This ensures many icons are replaced with ASCII/Unicode equiv
 ├── README.md
 ├── init.lua
 ├── lazy-lock.json
-├── lsp
+├── after/lsp
 │   └── (server-specific configs)
 ├── lua
 │   ├── core
@@ -77,17 +77,17 @@ within `init.lua`. This ensures many icons are replaced with ASCII/Unicode equiv
 │   │   ├── keymaps.lua
 │   │   ├── lazy.lua
 │   │   ├── neovide.lua
-│   │   ├── options.lua
-│   │   └── terminal.lua
+│   │   └── options.lua
 │   ├── plugins
 │   │   ├── colorscheme.lua
 │   │   ├── completions.lua
+│   │   ├── debugger.lua
 │   │   ├── extras.lua
 │   │   ├── formatter.lua
 │   │   ├── helpers.lua
-│   │   ├── lsp
-│   │   │   ├── init.lua
-│   │   │   └── lsp_keymaps.lua
+│   │   ├── lsp.lua
+│   │   ├── neotest.lua
+│   │   ├── persistence.lua
 │   │   ├── snacks.lua
 │   │   ├── statusline.lua
 │   │   ├── treesitter.lua
@@ -97,6 +97,9 @@ within `init.lua`. This ensures many icons are replaced with ASCII/Unicode equiv
 │   └── utils
 │       ├── buffers_and_windows.lua
 │       ├── fileops.lua
+│       ├── globs.lua
+│       ├── lsp_utils.lua
+│       ├── paths.lua
 │       └── ui.lua
 ├── snippets
 │   └── (snippets per language)

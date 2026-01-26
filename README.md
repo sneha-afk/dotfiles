@@ -1,12 +1,14 @@
 # dotfiles
 ## 📁 structure
-| Area           | Location / Notes                                           |
-| -------------- | ---------------------------------------------------------- |
-| **Shells**     | `dot-bash/`, `pswh`   |
-| **PowerShell** | `windows\profile\Microsoft.PowerShell_profile.ps1`         |
-| **Neovim**     | `dot-config/nvim` — see its [README.md](./dot-config/nvim/) |
-| **WSL**        | `windows\.wslconfig`, `dot-home/.wsl_env`                  |
-| **Terminals**  | [WezTerm](https://wezterm.org/)          |
+
+| Category | Details |
+|---------|---------|
+| **Shells** | bash: `dot-home/.profile -> dot-home/.bashrc` |
+| | pwsh: `windows/profile/Microsoft.PowerShell_profile.ps1` |
+| **Editors** | Neovim: `dot-config/nvim` -> see its [README.md](./dot-config/nvim/) |
+| **WSL** | Config: `windows\.wslconfig` |
+| | Environment: `dot-home/.wsl_env` |
+| **Terminal** | [WezTerm](https://wezterm.org/) |
 | **Fonts**      | [Geist Mono](https://vercel.com/font), Segoe UI Emoji (built-in), optional [Symbols Nerd Font Mono](https://www.nerdfonts.com/font-downloads) |
 
 Other helpful files in `dot-config -> .config` and `dot-home -> ~/*`.
@@ -20,13 +22,11 @@ Other helpful files in `dot-config -> .config` and `dot-home -> ~/*`.
 - **OS**: Windows 11 Pro with WSL2 (Ubuntu)
 - **Monitor**: Dell U2723QE
 
----
 </details>
 
 ## ⚙️ Setup
 
 There are helper scripts in [`/scripts`](./scripts/) for all systems such as for installing programs.
-
 
 ### ⭐ Recommended: `trovl` for symlinks
 
@@ -44,6 +44,19 @@ trovl apply trovl-manifest.json --dry-run
 Also see [manual installation methods](https://github.com/sneha-afk/trovl/blob/main/docs/install.md).
 
 The manifest file (`trovl-manifest.json`) is located at the root of this repo.
+
+### Shell prompt customization
+
+Set these **before** sourcing the prompt script in `.bashrc`/`.zshrc`/PowerShell profile:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `_PROMPT_USE_CUSTOM` | `true` | Use custom prompt |
+| `_PROMPT_SHOW_GIT_STATUS` | `true` | Show git diff indicators (`+` staged, `*` unstaged) |
+| `_PROMPT_USE_GIT_PROMPT_SCRIPT` | `true` | (Bash only) Use git-prompt script vs basic status |
+| `_PROMPT_PREPEND` | `""` | Custom prefix text |
+
+> **Note**: To prevent terminal lag, the prompt only reads the branch name from `.git/HEAD` by default. If `_PROMPT_SHOW_GIT_STATUS` is enabled, it performs the extra I/O required to show staged (`+`) or unstaged (`*`) indicators. Turn this off as needed.
 
 ---
 
@@ -77,21 +90,6 @@ ln -sf "$(pwd)/dot-vim/.vimrc" "$HOME/.vimrc"
 ln -sf "$(pwd)/dot-bash/.bashrc" "$HOME/.bashrc"
 ```
 </details>
-
-#### shell prompt customization
-
-The shell environment files have some customization options.
-
-Set these in the `.bashrc` or `.zshrc` **before** the prompt script is sourced:
-
-| Variable | Default | Description |
-| --- | --- | --- |
-| `_PROMPT_USE_CUSTOM` | `true` | Set to `false` to revert to the default system prompt. |
-| `_PROMPT_SHOW_GIT_STATUS` | `true` | Set to `false` to skip heavy `git diff` checks (Branch name only). |
-| (`.bashrc`) `_PROMPT_USE_GIT_PROMPT_SCRIPT` | `true` | Set to `false` to fallback to the basic status |
-| `_PROMPT_PREPEND` | `""` | Optional text/prefix to add to the start of the prompt. |
-
-To prevent terminal lag, the prompt only reads the branch name from `.git/HEAD` by default. If `_PROMPT_SHOW_GIT_STATUS` is enabled, it performs the extra I/O required to show staged (`+`) or unstaged (`*`) indicators. Turn this off as needed.
 
 ---
 
@@ -140,10 +138,6 @@ New-Item -ItemType SymbolicLink `
   -Force
 ```
 </details>
-
-#### shell prompt customization
-
-The **same options shown [above](#shell-prompt-customization)** also exist for the PowerShell prompt.
 
 #### ⚠️ On `$PROFILE`
 

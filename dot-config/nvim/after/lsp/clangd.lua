@@ -3,11 +3,9 @@
 ---Find the nearest directory containing a compile_commands.json file
 ---@return string Path to directory containing compile_commands.json
 local function find_compile_commands_dir()
-  local candidates = { "build", "out", "compile_commands" }
-
-  for _, dir in ipairs(candidates) do
-    local full = vim.fs.normalize(dir .. "/compile_commands.json")
-    if vim.fn.filereadable(full) == 1 then
+  for _, dir in ipairs({ "build", "out", "compile_commands" }) do
+    local path = dir .. "/compile_commands.json"
+    if vim.uv.fs_stat(path) then
       return dir
     end
   end

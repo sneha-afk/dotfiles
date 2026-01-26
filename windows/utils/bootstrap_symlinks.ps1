@@ -20,11 +20,13 @@ param(
 
 #region Configuration
 
-$RepoRoot = Split-Path -Parent $PSScriptRoot
+$RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $DotHomeDir = Join-Path $RepoRoot "dot-home"
 $DotConfigDir = Join-Path $RepoRoot "dot-config"
 $WindowsDir = Join-Path $RepoRoot "windows"
 $ProfileDir = Split-Path $PROFILE -Parent
+
+$ProfileSourceDir = Join-Path $WindowsDir "profile"
 
 #endregion
 
@@ -37,24 +39,14 @@ $Symlinks = @(
     @{ Path = "$HOME\.gitconfig"; Target = "$DotHomeDir\.gitconfig" }
     @{ Path = "$HOME\.wezterm.lua"; Target = "$DotHomeDir\.wezterm.lua" }
     @{ Path = "$HOME\.ripgreprc"; Target = "$DotHomeDir\.ripgreprc" }
+    @{ Path = "$PROFILE"; Target = "$ProfileSourceDir\Microsoft.PowerShell_profile.ps1" }
 
     # Folders
     @{ Path = "$env:LOCALAPPDATA\nvim"; Target = "$DotConfigDir\nvim" }
-    @{ Path = "$HOME\scripts"; Target = "$WindowsDir\scripts" }
+    @{ Path = "$HOME\scripts"; Target = "$RepoRoot\scripts" }
     @{ Path = "$HOME\.config\fastfetch"; Target = "$DotConfigDir\fastfetch" }
+    @{ Path = "$ProfileDir\Modules\helpers"; Target = "$ProfileSourceDir\Modules\helpers" }
 )
-
-# Add PowerShell profile files
-$ProfileSourceDir = Join-Path $WindowsDir "profile"
-if (Test-Path $ProfileSourceDir) {
-    Get-ChildItem -Path $ProfileSourceDir -Recurse -File | ForEach-Object {
-        $relativePath = $_.FullName.Substring($ProfileSourceDir.Length + 1)
-        $Symlinks += @{
-            Path   = Join-Path $ProfileDir $relativePath
-            Target = $_.FullName
-        }
-    }
-}
 
 #endregion
 
