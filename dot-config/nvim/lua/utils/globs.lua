@@ -2,7 +2,6 @@
 
 local M = {}
 
-local compiled_patterns
 local exclude_globs
 
 M.ignores = {

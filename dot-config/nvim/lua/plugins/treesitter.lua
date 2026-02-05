@@ -150,6 +150,8 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     ---@module "treesitter-context"
     ---@type TSContext.UserConfig
-    opts = {},
+    opts = {
+      max_lines = 10,
+    },
   },
 }

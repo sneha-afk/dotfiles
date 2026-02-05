@@ -31,12 +31,6 @@ return {
         ["<Left>"] = false,
         ["<Right>"] = false,
       },
-      disabled_filetypes = {
-        ["dropbar_menu"] = true,
-        ["dropbar_menu_fzf"] = true,
-        ["dropbar_preview"] = true,
-      },
-
       hints = {
         ["ggVG:"] = {
           message = function() return "Use :% instead of ggVG: to operate on the entire document" end,
@@ -49,6 +43,18 @@ return {
         ["[dcyvV][ia][%{%}]"] = {
           message = function(keys) return "Use " .. keys:sub(1, 2) .. "B instead of " .. keys end,
           length = 3,
+        },
+        ["wwww"] = {
+          message = function() return "Use f{char} or t{char} to jump to character" end,
+          length = 4,
+        },
+        ["0w"] = {
+          message = function() return "Use ^ to jump to first non-blank character" end,
+          length = 2,
+        },
+        ["%^i"] = {
+          message = function() return "Use I to insert at the beginning of the line" end,
+          length = 2,
         },
       },
     },

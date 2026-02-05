@@ -1,9 +1,9 @@
 -- ~/.wezterm.lua
 
-local wezterm = require "wezterm"
+local wezterm = require "wezterm" ---@type Wezterm
 local action = wezterm.action
 
-local config = wezterm.config_builder()
+local config = wezterm.config_builder() ---@type Config
 
 --==============================================================================
 -- [1] GLOBAL STATE CACHE
