@@ -65,12 +65,6 @@ return {
         reduced_blue = true,
         swap_backgrounds = true,
         ts_context = { dark_background = false },
-        on_highlight = function(highlights, palette)
-          -- Distinguish cursorline from Visual
-          highlights.Visual = {
-            bg = palette.gray1,
-          }
-        end,
       })
       vim.cmd.colorscheme("nordic")
     end,

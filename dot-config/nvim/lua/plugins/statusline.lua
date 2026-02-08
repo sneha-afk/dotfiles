@@ -9,7 +9,7 @@ return {
       theme                = "auto",
       icons_enabled        = vim.g.use_icons,
       section_separators   = { left = "", right = "" },
-      component_separators = { left = "", right = "" },
+      component_separators = { left = "│", right = "│" },
       disabled_filetypes   = {
         "starter",
         "ministarter",
@@ -66,35 +66,20 @@ return {
           },
         },
         "filetype",
+        "progress",
       },
-      lualine_z = { "progress", "location" },
+      lualine_z = { "location" },
     },
     inactive_sections = {
       lualine_a = {},
       lualine_b = {},
       lualine_c = {},
-      lualine_x = { "filename" },
-      lualine_y = { "location" },
-      lualine_z = {},
+      lualine_x = {
+        { "filename", path = 1 },
+      },
+      lualine_y = { "progress" },
+      lualine_z = { "location" },
     },
-    tabline = {
-      -- lualine_a = {
-      --   {
-      --     "tabs",
-      --     tab_max_length = 60,
-      --     max_length = vim.o.columns,
-      --     mode = 2, -- Tab number and name
-      --     path = 1, -- Relative path
-      --   },
-      -- },
-    },
-    winbar = {
-      -- lualine_z = { "filename" },
-    },
-    inactive_winbar = {
-      -- lualine_z = { "filename" },
-    },
-
   },
   config = function(_, opts)
     require("lualine").setup(opts)

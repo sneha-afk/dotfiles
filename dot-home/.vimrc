@@ -1,6 +1,13 @@
 " ============================================================================
 " .VIMRC
 " ============================================================================
+let g:loaded_gzip = 1
+let g:loaded_tarPlugin = 1
+let g:loaded_zipPlugin = 1
+let g:loaded_vimballPlugin = 1
+let g:loaded_tohtml = 1
+let g:loaded_getscriptPlugin = 1
+
 " Set g:have_plugins to 1 to enable vim-plug and the plugins defined
 " If left at 0, a vanilla config is used (look at the keymaps!)
 let g:have_plugins = 0
@@ -52,10 +59,10 @@ set list                         " Show invisible characters
 set listchars=tab:▸\ ,trail:·,nbsp:␣ " Symbols for tab, trailing space, non-breaking space
 set fillchars=foldopen:▾,foldsep:│,foldclose:▸ " Characters for fold display
 
-set guifont=Geist_Mono:h10,Consolas:h10,Segoe_UI_Emoji:h10
-set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr-o:hor20
-
-set termguicolors
+if has('gui_running')
+    set guifont=Geist_Mono:h10,Consolas:h10,Segoe_UI_Emoji:h10
+    set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr-o:hor20
+endif
 
 " ============================================================================
 " WINDOWS & SPLITS
@@ -171,21 +178,24 @@ endif
 " ============================================================================
 " COLOR SCHEME
 " ============================================================================
-syntax on                        " Enable syntax highlighting
+if exists('+termguicolors')
+  set termguicolors
+endif
+
+syntax enable
 set background=dark              " Use dark color scheme variant
 
-let s:schemes = ['tokyonight', 'sorbet', 'slate', 'default']
-for s:scheme in s:schemes
+try
+  let g:tokyonight_style = 'night'
+  let g:tokyonight_enable_italic = 1
+  colorscheme tokyonight
+catch
   try
-    if s:scheme ==# 'tokyonight'
-      let g:tokyonight_style = 'night'
-      let g:tokyonight_enable_italic = 1
-    endif
-    execute 'colorscheme ' . s:scheme
-    break
+    colorscheme sorbet
   catch
+    colorscheme slate
   endtry
-endfor
+endtry
 
 " ============================================================================
 " PLUGIN CONFIGURATION
@@ -388,13 +398,13 @@ inoremap <A-k> <Esc>:move .-2<CR>==gi
 vnoremap <A-j> :move '>+1<CR>gv=gv
 vnoremap <A-k> :move '<-2<CR>gv=gv
 
-function! ShowMessages()
+function! Messages()
   let l:view = winsaveview()  " Save current view
   silent! redraw!             " Clear screen so messages are readable
   messages
   call winrestview(l:view)
 endfunction
-nnoremap <leader>sm :call ShowMessages()<CR>
+nnoremap <leader>hm :call Messages()<CR>
 
 " ============================================================================
 " AUTO-COMPLETION (Fallback)
@@ -427,12 +437,8 @@ augroup END
 " Remove trailing whitespace on save
 augroup remove_whitespace
   autocmd!
-  autocmd BufWritePre * if &buftype == '' && index(['diff','gitcommit','markdown','text'], &filetype) < 0 |
-        \ let view = winsaveview() |
-        \ silent! keeppatterns %s/\s\+$//e |
-        \ silent! %s/\%(\n\+\%$\)//e |
-        \ call winrestview(view) |
-        \ endif
+  autocmd BufWritePre * if &bt == '' && &ft !~# 'diff\|git\|markdown' |
+      \ keepp %s/\s\+$//e | keepp %s/\n\+\%$//e | endif
 augroup END
 
 " Restore cursor position

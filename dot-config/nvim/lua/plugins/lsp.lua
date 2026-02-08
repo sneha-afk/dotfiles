@@ -55,7 +55,7 @@ return {
   --              "%USERPROFILE%\AppData\Local\nvim-data\mason\bin"
   {
     "mason-org/mason.nvim",
-    lazy = true,
+    cmd = "Mason",
     build = ":MasonUpdate",
     keys = {
       { "<leader>lm", "<cmd>Mason<cr>", desc = "Open [L]SP [M]anager" },
@@ -114,7 +114,8 @@ return {
           local server_specific_maps = server_maps[client.name]
           if server_specific_maps then
             for _, mapping in ipairs(server_specific_maps) do
-              vim.keymap.set("n", mapping[1], mapping[2], { mapping[3] })
+              local opts = vim.tbl_extend("force", { buffer = bufnr }, mapping[3] or {})
+              vim.keymap.set("n", mapping[1], mapping[2], opts)
             end
           end
 
@@ -143,6 +144,7 @@ return {
         "basedpyright",
         "pyright",
         "ts_ls",
+        "eslint",
         "bashls",
       })
     end,

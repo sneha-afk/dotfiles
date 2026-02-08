@@ -1,68 +1,59 @@
 -- ~/.wezterm.lua
 
-local wezterm = require "wezterm" ---@type Wezterm
-local action = wezterm.action
-
-local config = wezterm.config_builder() ---@type Config
+local wezterm    = require "wezterm" ---@type Wezterm
+local config     = wezterm.config_builder() ---@type Config
+local action     = wezterm.action
 
 --==============================================================================
 -- [1] GLOBAL STATE CACHE
 --==============================================================================
-local STATE = {
-  env = {},
+
+local IS_WINDOWS = wezterm.target_triple:find("windows", 1, true) ~= nil
+local IS_LINUX   = wezterm.target_triple:find("linux", 1, true) ~= nil
+local IS_MAC     = wezterm.target_triple:find("darwin", 1, true) ~= nil
+
+local STATE      = {
   colors = {},
   icon_cache = {},
-  status_cache = { domain = "", leader = false },
+  status_cache = { leader = false },
 }
+
+local function check_exe(executable)
+  local cmd = IS_WINDOWS
+      and { "where.exe", "/Q", executable }
+      or { "sh", "-c", "command -v " .. executable .. " >/dev/null 2>&1" }
+  local success = wezterm.run_child_process(cmd)
+  return success == true
+end
+
+local HAS_WSL = IS_WINDOWS and check_exe("wsl")
 
 -- Refresh expensive computations only on config reload or window launch
 local function refresh_state()
-  local is_windows = wezterm.target_triple:find("windows") ~= nil
-  local is_linux = wezterm.target_triple:find("linux") ~= nil
-  local is_mac = wezterm.target_triple:find("darwin") ~= nil
-
-  local function check_exe(executable)
-    local cmd = is_windows and { "where.exe", "/Q", executable } or { "bash", "-c", "command -v " .. executable }
-    local success, _, _ = wezterm.run_child_process(cmd)
-    return success == true
-  end
-
-  local default_shell = nil
-  if is_windows then
-    local has_pwsh = check_exe("pwsh")
-    default_shell = { has_pwsh and "pwsh.exe" or "powershell.exe", "-NoLogo" }
-  elseif is_linux then
-    default_shell = { "bash", "-l" }
-  elseif is_mac then
-    local has_zsh = check_exe("zsh")
-    default_shell = has_zsh and { "zsh", "-l" } or { "bash", "-l" }
-  end
-
-  STATE.env = {
-    is_windows = is_windows,
-    is_linux = is_linux,
-    is_mac = is_mac,
-    has_wsl = is_windows and check_exe("wsl"),
-    default_shell = default_shell,
-  }
-
   local base_bg = "#161821"
   local base_fg = "#d2d4de"
   local base_accent = "#e98989"
 
   local function adjust(hex, percent)
-    local r, g, b = hex:match("#?(%x%x)(%x%x)(%x%x)")
+    local r = tonumber(hex:sub(2, 3), 16)
+    local g = tonumber(hex:sub(4, 5), 16)
+    local b = tonumber(hex:sub(6, 7), 16)
     local factor = 1 + (percent / 100)
+
     local function clamp(val)
-      return math.floor(math.max(0, math.min(255, tonumber(val, 16) * factor)))
+      return math.floor(math.min(255, math.max(0, val * factor)))
     end
+
     return string.format("#%02x%02x%02x", clamp(r), clamp(g), clamp(b))
   end
 
   local function is_dark(hex)
-    local r, g, b = hex:match("#?(%x%x)(%x%x)(%x%x)")
+    local r = tonumber(hex:sub(2, 3), 16)
+    local g = tonumber(hex:sub(4, 5), 16)
+    local b = tonumber(hex:sub(6, 7), 16)
     if not r then return true end
-    local lum = (tonumber(r, 16) * 0.299 + tonumber(g, 16) * 0.587 + tonumber(b, 16) * 0.114) / 255
+
+    local lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255
     return lum < 0.5
   end
 
@@ -79,6 +70,9 @@ local function refresh_state()
     tab_inactive_fg = adjust(base_fg, dark and -15 or 15),
     hover_bg = adjust(base_bg, dark and 15 or -15),
   }
+
+  STATE.icon_cache = {}
+  STATE.status_cache.leader = nil
 end
 
 -- Initialize on startup
@@ -95,7 +89,13 @@ end)
 config.front_end = "WebGpu"
 config.max_fps = 60
 
-if STATE.env.default_shell then config.default_prog = STATE.env.default_shell end
+if IS_WINDOWS then
+  config.default_prog = { check_exe("pwsh") and "pwsh.exe" or "powershell.exe", "-NoLogo" }
+elseif IS_LINUX then
+  config.default_prog = { "bash", "-l" }
+elseif IS_MAC then
+  config.default_prog = { check_exe("zsh") and "zsh" or "bash", "-l" }
+end
 
 config.initial_cols = 128
 config.initial_rows = 32
@@ -159,7 +159,7 @@ config.keys = {
 }
 
 -- WSL launcher (conditional)
-if STATE.env.has_wsl then
+if HAS_WSL then
   table.insert(config.keys, {
     key = "w",
     mods = "LEADER|ALT",
@@ -171,44 +171,51 @@ end
 -- [4] APPEARANCE
 --==============================================================================
 local ICONS = {
-  ["local"]      = " ",
-  ["nvim"]       = " ",
-  ["git"]        = " ",
-  ["ubuntu"]     = " ",
-  ["debian"]     = " ",
-  ["arch"]       = " ",
-  ["fedora"]     = " ",
-  ["wsl"]        = " ",
-  ["bash"]       = " ",
-  ["zsh"]        = " ",
-  ["pwsh"]       = " ",
-  ["powershell"] = "󰨊 ",
-  ["cmd"]        = " ",
-  ["wezterm"]    = " ",
-  ["ssh"]        = "󰣀 ",
+  ["local"]  = " ",
+  ssh        = "󰣀 ",
+  nvim       = " ",
+  git        = " ",
+  ubuntu     = " ",
+  debian     = " ",
+  arch       = " ",
+  fedora     = " ",
+  wsl        = " ",
+  bash       = " ",
+  zsh        = " ",
+  pwsh       = " ",
+  powershell = "󰨊 ",
+  cmd        = " ",
+  wezterm    = " ",
+}
+
+local ICONS_FUZZY_KEYS = { -- for composite titles/domains (e.g. "WSL:Ubuntu", "ssh user@host")
+  "ubuntu", "debian", "arch", "fedora",
+  "wsl", "ssh",
 }
 
 local function get_icon(text)
   if not text or text == "" then return " " end
-  if STATE.icon_cache[text] then return STATE.icon_cache[text] end
 
   local lower = text:lower()
+  local cached = STATE.icon_cache[lower]
+  if cached then return cached end
 
-  -- Fast path: exact match
-  if ICONS[lower] then
-    STATE.icon_cache[text] = ICONS[lower]
-    return ICONS[lower]
+  local icon = ICONS[lower]
+  if icon then
+    STATE.icon_cache[lower] = icon
+    return icon
   end
 
-  -- Slow path: substring match
-  for key, icon in pairs(ICONS) do
-    if lower:find(key, 1, true) then
-      STATE.icon_cache[text] = icon
-      return icon
+  for i = 1, #ICONS_FUZZY_KEYS do
+    local k = ICONS_FUZZY_KEYS[i]
+    if lower:find(k, 1, true) then
+      local ic = ICONS[k]
+      STATE.icon_cache[lower] = ic
+      return ic
     end
   end
 
-  STATE.icon_cache[text] = " "
+  STATE.icon_cache[lower] = " "
   return " "
 end
 
@@ -231,12 +238,13 @@ config.font = wezterm.font_with_fallback({
   "Symbols Nerd Font Mono",
   "Segoe UI Emoji",
 })
-config.font_size = 10
+config.font_size = 9.5
 config.harfbuzz_features = { "calt=1", "clig=0", "liga=0" }
+config.line_height = 1.1
 
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 config.window_padding = {
-  left = "0.75cell",
+  left = "1cell",
   right = "0.5cell",
   top = "0.5cell",
   bottom = "0.25cell",
@@ -258,35 +266,30 @@ config.adjust_window_size_when_changing_font_size = false
 
 wezterm.on("format-tab-title", function(tab)
   local title = tab.active_pane.title
-  local clean = title:gsub(".*[\\/]", ""):gsub("%.exe$", "")
-
-  if clean:find("wsl") then clean = "wsl" end
+  local clean = title:gsub(".*[\\/]", ""):gsub("%.exe$", ""):gsub(".*wsl.*", "wsl")
 
   local icon = get_icon(clean)
-  local admin = title:find("Administrator:") or title:find("root") or title:find("#")
+  local admin = title:find("Administrator:", 1, true) or title:find("root", 1, true) or title:find("#", 1, true)
 
   return string.format(" %s%s %d: %s ", admin and "󰒙 " or "", icon, tab.tab_index + 1, clean)
 end)
 
-wezterm.on("update-right-status", function(window, pane)
+wezterm.on("update-right-status", function(window, _)
   local is_leader = window:leader_is_active()
-  local domain = pane:get_domain_name():lower()
+  if STATE.status_cache.leader == is_leader then return end
+  STATE.status_cache.leader = is_leader
 
-  -- Skip redraw if nothing changed
-  if STATE.status_cache.leader == is_leader and STATE.status_cache.domain == domain then
+  if not is_leader then
+    window:set_right_status("")
     return
   end
 
-  STATE.status_cache.leader = is_leader
-  STATE.status_cache.domain = domain
-
   window:set_right_status(wezterm.format({
-    { Background = { Color = is_leader and STATE.colors.accent or STATE.colors.bg } },
-    { Foreground = { Color = is_leader and STATE.colors.bg or STATE.colors.fg } },
-    { Text = is_leader and "  󱐋 LEADER  " or "" },
-    { Background = { Color = STATE.colors.bg } },
-    { Foreground = { Color = STATE.colors.fg } },
-    { Text = string.format(" ┊  %s ┊ ", get_icon(domain)) },
+    { Background = { Color = STATE.colors.accent } },
+    { Foreground = { Color = STATE.colors.bg } },
+    { Text = "  󱐋 LEADER  " },
+    -- { Background = { Color = STATE.colors.bg } },
+    -- { Foreground = { Color = STATE.colors.fg } },
   }))
 end)
 
