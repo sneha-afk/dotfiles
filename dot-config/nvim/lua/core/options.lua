@@ -18,6 +18,10 @@ vim.opt.spelllang   = { "en_us" }
 vim.opt.clipboard   = ""
 vim.schedule(function()
   vim.opt.clipboard = "unnamedplus"
+
+  if os.getenv("SSH_CLIENT") or os.getenv("SSH_TTY") then
+    vim.g.clipboard = "osc52"
+  end
 end)
 
 -- ============================================================================

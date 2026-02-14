@@ -94,7 +94,6 @@ require("lazy").setup({
         "rplugin",     -- Legacy remote plugin system
         "matchit",     -- Extended % matching (replaced by treesitter)
         "matchparen",
-        "osc52",
       },
     },
   },

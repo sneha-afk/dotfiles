@@ -307,29 +307,6 @@ return {
     },
   },
   {
-    "ojroques/nvim-osc52",
-    enabled = function()
-      return vim.env.SSH_CONNECTION ~= nil or vim.env.SSH_CLIENT ~= nil
-    end,
-    event = "VeryLazy",
-    config = function()
-      -- https://github.com/ojroques/nvim-osc52?tab=readme-ov-file#using-nvim-osc52-as-clipboard-provider
-      local function copy(lines, _)
-        require("osc52").copy(table.concat(lines, "\n"))
-      end
-
-      local function paste()
-        return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") }
-      end
-
-      vim.g.clipboard = {
-        name = "osc52",
-        copy = { ["+"] = copy, ["*"] = copy },
-        paste = { ["+"] = paste, ["*"] = paste },
-      }
-    end,
-  },
-  {
     "folke/ts-comments.nvim",
     event = "VeryLazy",
     opts = {},
