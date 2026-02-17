@@ -10,10 +10,6 @@
 
 # vim: set ft=sh ts=4 sts=4 sw=4 et:
 
-# ========================================================
-# Environment Variables
-# ========================================================
-
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
@@ -86,9 +82,6 @@ export PATH
 
 unset -f path_prepend path_append
 
-# ========================================================
-# Editor Configuration
-# ========================================================
 if [ -z "$EDITOR" ]; then
     for editor in nvim vim vi nano; do
         if command -v "$editor" > /dev/null 2>&1; then

@@ -127,6 +127,16 @@ return {
 
           if client:supports_method("textDocument/inlayHint") then
             vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+            vim.keymap.set("n", "<leader>uh",
+              function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
+              { desc = "[U]I: toggle inlay [H]int" })
+          end
+
+          if client.name == "eslint" then
+            vim.api.nvim_create_autocmd("BufWritePre", {
+              buffer = bufnr,
+              command = "LspEslintFixAll",
+            })
           end
         end,
       })

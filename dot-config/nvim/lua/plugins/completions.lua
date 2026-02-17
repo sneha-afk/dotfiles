@@ -36,19 +36,19 @@ return {
     -- C-n/C-p or Up/Down: Select next/previous item
     -- C-e: Hide menu
     -- C-k: Toggle signature help (if signature.enabled = true)
+    -- Tab, S-Tab to navigate forward/backwards through snippets
     keymap = {
       preset = "default",
       ["<C-f>"] = { "show", "show_documentation", "hide_documentation" }, -- Duplicate C-space in case of terminal issues
       -- ["<C-n>"] = { "show", "show_documentation", "hide_documentation" }, -- Default on Vim
       ["<Enter>"] = { "accept", "fallback" },                             -- Both <C-y> and Enter will accept
-      ["<C-j>"] = { "scroll_documentation_down", "fallback" },
-      ["<C-k>"] = { "scroll_documentation_up", "fallback" },
       ["<C-h>"] = { "snippet_backward", "fallback" },
       ["<C-l>"] = { "snippet_forward", "fallback" },
+      ["<C-u>"] = { "scroll_documentation_up", "fallback" },
+      ["<C-d>"] = { "scroll_documentation_down", "fallback" },
     },
     sources = {
-      default = vim.g.enable_avante and { "avante", "lsp", "snippets", "path", "buffer" }
-          or { "lsp", "snippets", "path", "buffer" },
+      default = { "lsp", "snippets", "path", "buffer" },
       per_filetype = {
         tex = { "snippets", "latex", "omni", "buffer" },
         lua = { inherit_defaults = true, "lazydev" },
@@ -66,13 +66,6 @@ return {
           module = "blink-cmp-latex",
           opts = { -- True: insert the LaTeX command instead of the symbol
             insert_command = true,
-          },
-        },
-        avante = {
-          enabled = function() return vim.g.enable_avante end,
-          module = "blink-cmp-avante",
-          name = "Avante",
-          opts = {
           },
         },
       },

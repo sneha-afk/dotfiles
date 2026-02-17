@@ -1,8 +1,6 @@
 -- .config/nvim/lua/core/keymaps.lua
 -- Globally available keymaps
 
-local buf_utils = require("utils.buffers_and_windows")
-
 local map = vim.keymap.set
 local lsp = vim.lsp
 local diagnostic = vim.diagnostic
@@ -17,22 +15,23 @@ local float_ui = {
 -- ============================================================================
 -- EDITOR UTILITIES
 -- ============================================================================
+map("v", "p",          '"_dP',                { desc = "Paste without overwriting register in Visual" })
+map("n", "n",          "nzzzv",               { desc = "Next search result (centered)" })
+map("n", "N",          "Nzzzv",               { desc = "Prev search result (centered)" })
+
 map("n", "<leader>cs", "<cmd>nohl<cr>",       { desc = "[C]lear [S]earch highlights" })
 map("n", "<leader>un", "<cmd>set nu!<cr>",    { desc = "[U]I: toggle line [N]umbers" })
 map("n", "<leader>ur", "<cmd>set rnu!<cr>",   { desc = "[U]I: toggle [R]elative line nums" })
 map("n", "<leader>uw", "<cmd>set wrap!<cr>",  { desc = "[U]I: toggle line [W]rap" })
 map("n", "<leader>us", "<cmd>set spell!<cr>", { desc = "[U]I: toggle [S]pell check" })
-map("n", "<leader>uh", function() lsp.inlay_hint.enable(not lsp.inlay_hint.is_enabled()) end,
-  { desc = "[U]I: toggle inlay [H]int" })
 
 -- Scratch buffers
-map("n", "<leader>.", function() vim.api.nvim_set_current_buf(buf_utils.create_scratch_buf()) end,
+map("n", "<leader>.",
+  function() vim.api.nvim_set_current_buf(require("utils.buffers_and_windows").create_scratch_buf()) end,
   { desc = "Toggle scratch buffer" }) -- would be overwritten by snacks
 map("n", "<leader>hm", function()
-  local buf = buf_utils.create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
-  vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
-  vim.keymap.set("n", "<Esc>", "<cmd>q<cr>", { buffer = buf })
-  buf_utils.open_float_win(buf, " Messages ")
+  local buf = require("utils.buffers_and_windows").create_scratch_buf(vim.split(vim.fn.execute("messages"), "\n"))
+  require("utils.buffers_and_windows").open_float_win(buf, " Messages ")
 end, { desc = "[H]istory: [M]essages" })
 
 -- Taken from ThePrimeagen, changed to gc to default to confirmation
@@ -63,8 +62,6 @@ map("v", ">", ">gv", { desc = "Increase Indent" })
 -- NAVIGATION SHORTCUTS
 -- ============================================================================
 -- Moving around easier on QWERTY
-map("n", "<C-a>", "^",       { desc = "Start of line (first non-blank)" })
-map("n", "<C-e>", "$",       { desc = "End of line" })
 map("i", "<C-a>", "<ESC>^i", { desc = "Start of line (first non-blank)" })
 map("i", "<C-e>", "<ESC>$a", { desc = "End of line" })
 
@@ -115,8 +112,8 @@ map("n", "<leader>u=", "<C-w>=",       { desc = "[U]I: Balance windows" })
 -- ============================================================================
 -- BUFFER OPERATIONS
 -- ============================================================================
-map("n", "<leader>]b", "<cmd>bnext<cr>",   { desc = "Next buffer" })
-map("n", "<leader>[b", "<cmd>bprev<cr>",   { desc = "Previous buffer" })
+map("n", "[b",         "<cmd>bprev<cr>",   { desc = "Prev buffer" }) -- nicer labelling
+map("n", "]b",         "<cmd>bnext<cr>",   { desc = "Next buffer" })
 map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "[B]uffer: [D]elete current" })
 map("n", "<leader>bD", "<cmd>bd!<cr>",     { desc = "[B]uffer: [D]elete current (force)" })
 map("n", "<leader>bC", function()
@@ -197,7 +194,7 @@ map("n", "<leader>Wl", function() vim.print(lsp.buf.list_workspace_folders()) en
   { desc = "[W]orkspace: [L]ist Folders" })
 
 --  CODE ACTIONS
-map("n", "<leader>rn", lsp.buf.rename,                                  { desc = "[R]e[n]ame Symbol" })
+map("n", "<leader>lr", lsp.buf.rename,                                  { desc = "[L]SP: [R]ename" })
 map("n", "<leader>cl", lsp.codelens.run,                                { desc = "Run [C]ode[L]ens" })
 map("n", "<leader>cf", function() lsp.buf.format({ async = true }) end, { desc = "[C]ode [F]ormat" })
 map("n", "<leader>ca", lsp.buf.code_action,                             { desc = "[C]ode [A]ctions" })

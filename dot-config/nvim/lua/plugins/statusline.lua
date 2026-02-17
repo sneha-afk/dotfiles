@@ -35,12 +35,7 @@ return {
     -- A, B, C are left; X, Y, Z are right
     sections = {
       lualine_a = { "mode" },
-      lualine_b = {
-        {
-          "filename",
-          path = 4, -- Parent directory + current file
-        },
-      },
+      lualine_b = { "filename" },
       lualine_c = { "branch", "diff",
         {
           "diagnostics",

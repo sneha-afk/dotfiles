@@ -6,25 +6,26 @@
 # Early exit for non-interactive shells
 [[ -o interactive ]] || return
 
-# ========================================================
-# Options
-# ========================================================
-setopt autolist
-setopt auto_cd
-setopt hist_ignore_dups hist_ignore_space share_history
+# Set if not already
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 
-# ========================================================
-# History
-# ========================================================
+: ${XDG_CACHE_HOME:=$HOME/.cache}
+[[ -d "$XDG_CACHE_HOME/zsh" ]] || mkdir -p "$XDG_CACHE_HOME/zsh"
+
+# Fallback PATH
+[[ -z $PATH ]] && export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+setopt autolist
+setopt hist_ignore_dups hist_ignore_space
+
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
 
-# ========================================================
-# Colors
-# ========================================================
 autoload -U colors && colors
-
 if [ -x /usr/bin/dircolors ]; then
     alias ls='ls --color=auto'
     alias dir='dir --color=auto'
@@ -34,43 +35,26 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-# ========================================================
-# Completion system
-# ========================================================
 autoload -Uz compinit
-ZSH_COMPDUMP=$HOME/.zcompdump
+ZSH_COMPDUMP="$XDG_CACHE_HOME/zsh/zcompdump"
 
 # Rebuild completion dump if zshrc changes
-if [[ ! -f $ZSH_COMPDUMP || $ZSH_COMPDUMP -ot ~/.zshrc ]]; then
-    compinit
+if [[ -f "$ZSH_COMPDUMP" && "$ZSH_COMPDUMP" -nt "$HOME/.zshrc" ]]; then
+    compinit -C -d "$ZSH_COMPDUMP"
 else
-    compinit -C
+    compinit -d "$ZSH_COMPDUMP"
 fi
 
 zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-z}'
 zstyle ':completion:*' rehash true
 zstyle ':completion:*' verbose false
-zstyle ':completion:*' list-colors '=(#b) #([a-z]*|[0-9]*)=36'
-
-# ========================================================
-# PATH safety fallback
-# ========================================================
-
-[[ -z $PATH ]] && export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-# Set if not already
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
-export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/zcompcache"
 
 export NVM_DIR="${NVM_DIR:-$HOME/.config/nvm}"
 [ -f "$HOME/.ripgreprc" ] && export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
-
-# ========================================================
-# Environment loaders
-# ========================================================
 
 [[ -f $HOME/.shell_helpers ]] && source $HOME/.shell_helpers
 [[ -f $HOME/.bash_aliases ]] && source $HOME/.bash_aliases
@@ -86,18 +70,13 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-if command -v uv >/dev/null 2>&1; then
-    eval "$(uv generate-shell-completion zsh)"
-fi
+(( $+commands[uv] )) && eval "$(uv generate-shell-completion zsh)"
+(( $+commands[fzf] )) && source <(fzf --zsh)
 
 if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 fi
-
-# ========================================================
-# Aliases
-# ========================================================
 
 # Listing
 alias ll='ls -alF'
@@ -122,14 +101,11 @@ alias mkdir='nocorrect mkdir -pv'
 alias df='df -h' # Human-readable sizes
 alias du='du -h' # Human-readable sizes
 
-# ========================================================
-# Key Bindings (Emacs mode)
-# ========================================================
 bindkey -e  # Emacs-style shortcuts (Ctrl+A, Ctrl+E, etc.)
 bindkey '^[[3~' delete-char  # Fix Delete key
 
 # ========================================================
-# Prompt
+# PROMPT
 # ========================================================
 # Configuration variables (set before sourcing to customize):
 #   _PROMPT_USE_CUSTOM=true              - Enable/disable custom prompt entirely
@@ -147,31 +123,25 @@ _PROMPT_SHOW_GIT_STATUS=${_PROMPT_SHOW_GIT_STATUS:-true}
 setopt PROMPT_SUBST
 
 autoload -Uz vcs_info
-zstyle ':vcs_info:git:*' stagedstr='+'
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:git:*' check-for-changes "$_PROMPT_SHOW_GIT_STATUS"
+zstyle ':vcs_info:git:*' stagedstr '+'
 zstyle ':vcs_info:git:*' unstagedstr '*'
-
-if [[ "$_PROMPT_SHOW_GIT_STATUS" == "true" ]]; then
-    zstyle ':vcs_info:git:*' check-for-changes true
-else
-    zstyle ':vcs_info:git:*' check-for-changes false
-fi
-
 zstyle ':vcs_info:git:*' formats ' [%b%u%c]'
 zstyle ':vcs_info:git:*' actionformats ' [%b|%a%u%c]'
 
 __set_prompt() {
-    local last_status=$?
-    local indicators=""
+    local last_status=$? indicators=""
 
     [[ -n "${VIRTUAL_ENV:-}" ]] && indicators+=" %F{yellow}(${VIRTUAL_ENV:t})%f"
     [[ -n "$vcs_info_msg_0_" ]] && indicators+="%F{magenta}${vcs_info_msg_0_}%f"
     [[ -n "${SSH_CONNECTION:-}" ]] && indicators+=" %F{cyan}[SSH]%f"
 
     local status_line="%F{green}+%f"
-    if [[ $last_status -ne 0 ]]; then
+    (( last_status != 0 )) && {
         indicators+=" %F{red}[exited: $last_status]%f"
         status_line="%F{red}-%f"
-    fi
+    }
 
     PROMPT="${_PROMPT_PREPEND:-}%F{green}%n@%m%f:%F{blue}%~%f${indicators}"$'\n'"${status_line} "
 }

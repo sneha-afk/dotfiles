@@ -45,7 +45,8 @@ function M.start_search_path()
   if cache.start_path then return cache.start_path end
 
   -- Default to home if not in a directory
-  if vim.fn.isdirectory(cwd) == 0 then
+  local stat = vim.uv.fs_stat(cwd)
+  if not stat or stat.type ~= "directory" then
     cache.start_path = vim.fn.expand("~")
     return cache.start_path
   end

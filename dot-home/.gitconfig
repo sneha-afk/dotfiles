@@ -19,6 +19,9 @@
 [push]
     autoSetupRemote = true
 
+[fetch]
+    prune = true
+
 [merge]
     tool = nvimdiff
 [mergetool]
@@ -40,10 +43,8 @@
     ca  = commit --amend --no-edit
     fix = commit --amend --no-edit
     co  = checkout
-    p    = pull
+    p   = pull
     pr  = pull --rebase
-    P    = push
-    Pf   = push --force-with-lease
     l  = log --graph --pretty=format:'%C(auto)%h %s %C(magenta)%cr%C(auto)%d' -n 15
     lo = log --oneline -n 10
     lg = log --graph --pretty=format:'%C(auto)%h %s %C(bold blue)<%an>%C(auto) %C(magenta)%cr%d' --abbrev-commit --all

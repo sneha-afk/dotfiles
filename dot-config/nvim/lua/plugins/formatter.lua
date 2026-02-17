@@ -6,7 +6,7 @@ return {
   event = { "BufWritePre" },
   cmd = { "ConformInfo" },
   keys = {
-    { "<leader>cf", function() vim.lsp.buf.format({ async = true }) end, desc = "[C]ode [F]ormat" },
+    { "<leader>cf", function() require("conform").format({ async = true }) end, desc = "[C]ode [F]ormat" },
   },
   ---@module "conform"
   ---@type conform.setupOpts
@@ -18,10 +18,12 @@ return {
       lua    = { "stylua" },
       go     = { "goimports", "gofmt", stop_after_first = false },
       python = { "ruff_format" },
+      bzl    = { "buildifier" },
+      ruby   = { lsp_format = "prefer" },
     },
     formatters = {
       shfmt = {
-        prepend_args = { "-i", "4", "-ci", "-sr" },
+        prepend_args = { "-i", "4", "-ci", "-sr", "-kp" },
       },
     },
     default_format_opts = {
@@ -46,6 +48,9 @@ return {
         lsp_format = "fallback",
       }
     end,
+    format_after_save = {
+      lsp_format = "fallback",
+    },
   },
   config = function(_, opts)
     for _, ft in ipairs({

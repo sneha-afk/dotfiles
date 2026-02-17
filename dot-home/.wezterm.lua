@@ -2,7 +2,7 @@
 
 local wezterm    = require "wezterm" ---@type Wezterm
 local config     = wezterm.config_builder() ---@type Config
-local action     = wezterm.action
+local action     = wezterm.action ---@type Action
 
 --==============================================================================
 -- [1] GLOBAL STATE CACHE
@@ -60,15 +60,16 @@ local function refresh_state()
   local dark = is_dark(base_bg)
 
   STATE.colors = {
-    bg = base_bg,
-    fg = base_fg,
-    accent = base_accent,
-    active_titlebar = adjust(base_bg, dark and 30 or -30),
-    inactive_titlebar = adjust(base_bg, dark and 50 or -50),
-    tab_active_bg = adjust(base_bg, dark and 75 or 10),
-    tab_inactive_bg = adjust(base_bg, dark and -30 or 30),
-    tab_inactive_fg = adjust(base_fg, dark and -15 or 15),
-    hover_bg = adjust(base_bg, dark and 15 or -15),
+    bg                = base_bg,
+    fg                = base_fg,
+    accent            = base_accent,
+    active_titlebar   = adjust(base_bg, dark and 20 or -20),
+    inactive_titlebar = base_bg,
+    tab_active_bg     = adjust(base_bg, dark and 80 or -50),
+    tab_active_fg     = base_fg,
+    tab_inactive_bg   = adjust(base_bg, dark and -25 or 25),
+    tab_inactive_fg   = adjust(base_fg, dark and -50 or 50),
+    hover_bg          = adjust(base_bg, dark and 40 or -40),
   }
 
   STATE.icon_cache = {}

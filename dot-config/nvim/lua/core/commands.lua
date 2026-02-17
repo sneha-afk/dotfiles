@@ -1,13 +1,18 @@
 -- .config/nvim/lua/core/commands.lua
 
+---Create an autocommand group with the given name
+---@param name string Group name
+---@return integer AutocmdGroup id
+local function augroup(name)
+  return vim.api.nvim_create_augroup("Autocmds_" .. name, { clear = true })
+end
+
 -- ============================================================================
 -- TERMINAL
 -- ============================================================================
 
-local term_types = { "term://*", "toggleterm", "snacks_terminal" }
-
 vim.api.nvim_create_autocmd("TermOpen", {
-  pattern = term_types,
+  group = augroup("terminal_cmds"),
   callback = function()
     local opt = vim.opt_local
     opt.number = false         -- Disable line numbers
@@ -22,23 +27,11 @@ vim.api.nvim_create_autocmd("TermOpen", {
   desc = "Setup terminal buffer options and keymaps",
 })
 
-vim.api.nvim_create_autocmd("BufEnter", {
-  pattern = term_types,
+vim.api.nvim_create_autocmd("TermEnter", {
+  group = augroup("terminal_cmds"),
   callback = function() vim.cmd("startinsert") end,
   desc = "Auto-enter insert mode when focusing terminal",
 })
-
--- ============================================================================
--- HELPER FUNCTIONS
--- ============================================================================
-
----Taken from LazyVim
----Create an autocommand group with the given name
----@param name string Group name
----@return integer AutocmdGroup id
-local function augroup(name)
-  return vim.api.nvim_create_augroup("Autocmds_" .. name, { clear = true })
-end
 
 -- ============================================================================
 -- USER COMMANDS
@@ -67,44 +60,48 @@ vim.api.nvim_create_user_command("IntelliJRepo", function()
 end, { desc = "Open Git repo root in IntelliJ" })
 
 vim.api.nvim_create_user_command("EnvVariables", function()
-  local buf_utils = require("utils.buffers_and_windows")
-  local env_vars = vim.fn.environ()
-  local separator = vim.g.is_windows and ";" or ":"
+  local sep = vim.g.is_windows and ";" or ":"
+  local env = vim.fn.environ()
+  local keys = vim.tbl_keys(env)
+  table.sort(keys)
 
-  local lines = { "# PATH VARIABLES", "" }
-  local other_vars = {}
+  local user_lines = { "# USER VARIABLES", "" }
+  local system_lines = { "", "# SYSTEM VARIABLES", "" }
 
-  -- Separate PATH-like variables from others
-  for k, v in pairs(env_vars) do
-    if k:match("PATH$") then
-      table.insert(lines, ("## %s"):format(k))
+  local function is_sensitive(name)
+    name = name:lower()
+    return name:find("api", 1, true)
+        or name:find("key", 1, true)
+        or name:find("token", 1, true)
+        or name:find("secret", 1, true)
+        or name:find("pass", 1, true)
+  end
 
-      if type(v) == "string" and v ~= "" then
-        for path in v:gmatch("[^" .. separator .. "]+") do
-          table.insert(lines, "  - " .. path)
-        end
-      else
-        table.insert(lines, "  (empty)")
+  local function mask_value(value)
+    if not value or value == "" then return "" end
+    return ("*"):rep(math.min(#value, 12)) .. " (hidden)"
+  end
+
+  for _, k in ipairs(keys) do
+    local v = env[k] or ""
+    if is_sensitive(k) then v = mask_value(v) end
+
+    if k:match("PATH$") or k:match("DIRS$") then
+      table.insert(user_lines, "## " .. k)
+      for path in v:gmatch("[^" .. sep .. "]+") do
+        table.insert(user_lines, "  - " .. path)
       end
-
-      table.insert(lines, "")
+      table.insert(user_lines, "")
     else
-      table.insert(other_vars, ("% -20s = %s"):format(k, v))
+      table.insert(system_lines, ("%-25s │ %s"):format(k, v))
     end
   end
 
-  table.insert(lines, "# ENV VARIABLES")
-  vim.list_extend(lines, other_vars)
+  vim.list_extend(user_lines, system_lines)
 
-  local buf = buf_utils.create_scratch_buf(lines)
-  vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
-  vim.keymap.set("n", "<Esc>", "<cmd>q<cr>", { buffer = buf })
-  local h = math.floor(vim.o.lines / 1.5)
-  local r = (vim.o.lines - h) / 2
-  buf_utils.open_float_win(buf, " Environment Variables ", {
-    height = h,
-    row = r,
-  })
+  local buf_utils = require("utils.buffers_and_windows")
+  local buf = buf_utils.create_scratch_buf(user_lines, "markdown", false)
+  buf_utils.open_float_win(buf, "Environment Variables")
 end, { desc = "View system environment variables" })
 
 vim.api.nvim_create_user_command("CrToLf", function()
@@ -140,10 +137,8 @@ vim.api.nvim_create_user_command("Serve", function()
     { title = "npx serve" }
   )
 
-  vim.fn.jobstart({ "npx", "serve" }, { detach = true })
-end, {
-  desc = "Start local static server using npx serve",
-})
+  vim.fn.jobstart({ "npx", "serve", ".", "-l", "3000" }, { detach = true })
+end, { desc = "Start local static server using npx serve" })
 
 -- ============================================================================
 -- AUTO COMMANDS
@@ -198,17 +193,17 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 vim.api.nvim_create_autocmd("LspAttach", {
   group = augroup("clear_lsp_logs"),
-  desc = "Auto-clear LSP logs past 10 MB",
+  desc = "Auto-clear LSP logs past a size",
   callback = function()
     local log_path = vim.lsp.log.get_filename()
-    local max_size = 10 * 1024 * 1024
+    local max_size = 25 * 1024 * 1024
 
     local stats = vim.uv.fs_stat(log_path)
     if stats and stats.size > max_size then
       local file = io.open(log_path, "w")
       if file then
         file:close()
-        vim.notify("Cleared LSP log (>10MB)", vim.log.levels.INFO)
+        vim.notify("Cleared LSP log (>25MB)", vim.log.levels.INFO)
       end
     end
   end,

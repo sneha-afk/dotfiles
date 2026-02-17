@@ -43,7 +43,7 @@ vim.g.use_icons_manual = true
 vim.g.use_icons = vim.g.is_wezterm or vim.g.neovide or vim.fn.has("gui_running") == 1
     or (function()
       local term = os.getenv("TERM") or ""
-      return term:find("kitty") or term:find("ghostty")
+      return term:find("kitty", 1, true) or term:find("ghostty", 1, true)
     end)()
     or vim.g.use_icons_manual
 
@@ -97,8 +97,6 @@ vim.api.nvim_create_autocmd("UIEnter", {
   desc = "Load GUI specific options (e.g. Neovide)",
   once = true,
   callback = function()
-    if vim.g.neovide then
-      require("core.neovide")
-    end
+    if vim.g.neovide then require("core.neovide") end
   end,
 })

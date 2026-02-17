@@ -13,17 +13,13 @@ esac
 HISTCONTROL=ignoreboth # Ignore duplicate lines and lines starting with space
 HISTSIZE=10000         # Increase number of commands to remember
 HISTFILESIZE=20000     # Increase maximum size of history file
+HISTIGNORE="ls:cd:cd -:exit:pwd:clear:history:ls -l:la:ll"
 
 # Set shell options:
 # histappend      - Append to history file instead of overwriting
 # cmdhist         - Save multi-line commands as single history entry
 # checkwinsize    - Update LINES/COLUMNS after each command
-# autocd          - Type directory name to cd into it
-# cdspell         - Auto-correct minor typos in cd commands
-# globstar        - Enable ** for recursive globbing (e.g., **/*.txt)
-# nocaseglob      - Case-insensitive glob matching
-# dotglob         - Include dotfiles in pathname expansion (use carefully)
-shopt -s histappend cmdhist checkwinsize autocd cdspell globstar nocaseglob
+shopt -s histappend cmdhist checkwinsize
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -50,9 +46,6 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-# ========================================================
-# Default Aliases
-# ========================================================
 # Listing aliases
 alias ll='ls -alF' # Long format, show all except .
 alias la='ls -A'   # Show all except . and ..
@@ -82,7 +75,11 @@ if ! shopt -oq posix; then
     fi
 fi
 
-# -----------------------------------------------------------------------------
+# -------------------------- additions
+
+bind 'set completion-ignore-case on'
+bind '"\t": menu-complete'
+bind '"\e[Z": menu-complete-backward'
 
 # Fallback PATH if no .profile for extended setup
 [[ -z "$PATH" ]] && export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -105,11 +102,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-[ -f "$HOME/.ripgreprc" ] && export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
-
-# ========================================================
-# Aliases
-# ========================================================
 # Confirm destructive actions
 alias cp='cp -iv'
 alias mv='mv -iv'
@@ -122,11 +114,9 @@ alias du='du -h' # Human-readable sizes
 
 alias home='cd ~'
 
-# ========================================================
-# Completions
-# ========================================================
-
-command -v uv >/dev/null 2>&1 && eval "$(uv generate-shell-completion bash)"
+command -v uv >/dev/null && eval "$(uv generate-shell-completion bash)"
+command -v fzf >/dev/null && eval "$(fzf --bash)"
+[ -f "$HOME/.ripgreprc" ] && export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
 if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -134,7 +124,7 @@ if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then
 fi
 
 # ========================================================
-# Prompt Customization
+# PROMPT
 # ========================================================
 # Configuration variables (set before sourcing to customize):
 #   _PROMPT_USE_CUSTOM=true              - Enable/disable custom prompt entirely
@@ -177,41 +167,39 @@ if [[ "$_PROMPT_USE_GIT_PROMPT_SCRIPT" == "true" ]] && ! declare -F __git_ps1 &>
                 /usr/local/etc/bash_completion.d/git-prompt.sh; do
         [[ -f "$path" ]] && . "$path" && break
     done
+    declare -F __git_ps1 &>/dev/null || _PROMPT_USE_GIT_PROMPT_SCRIPT="false"
 fi
 
 # Configure git prompt features
-export GIT_PS1_SHOWDIRTYSTATE=1     # * for unstaged, + for staged
-export GIT_PS1_SHOWSTASHSTATE=1     # $ for stashed changes
-export GIT_PS1_SHOWUNTRACKEDFILES=1 # % for untracked files
-export GIT_PS1_SHOWUPSTREAM="auto"  # < > = for behind/ahead/diverged
-export GIT_PS1_SHOWCONFLICTSTATE="yes" # |CONFLICT when in conflict state
-export GIT_PS1_SHOWCOLORHINTS=1
+if [[ "$_PROMPT_USE_GIT_PROMPT_SCRIPT" == "true" ]]; then
+    export GIT_PS1_SHOWDIRTYSTATE=1     # * for unstaged, + for staged
+    export GIT_PS1_SHOWSTASHSTATE=1     # $ for stashed changes
+    export GIT_PS1_SHOWUNTRACKEDFILES=1 # % for untracked files
+    export GIT_PS1_SHOWUPSTREAM="auto"  # < > = for behind/ahead/diverged
+    export GIT_PS1_SHOWCONFLICTSTATE="yes" # |CONFLICT when in conflict state
+    export GIT_PS1_SHOWCOLORHINTS=1
+fi
 
 __git_info() {
-    command -v git &>/dev/null || return
     git rev-parse --is-inside-work-tree &>/dev/null || return
 
-    if type -t __git_ps1 > /dev/null; then
+    if [[ "$_PROMPT_USE_GIT_PROMPT_SCRIPT" == "true" ]]; then
         __git_ps1 " [%s]"
         return
     fi
 
-    local branch
+    local branch status=""
     branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null) || return
 
-    local status=""
-    if [[ "$_PROMPT_SHOW_GIT_STATUS" == "true" ]]; then
-        if [[ -n $(git status --porcelain --untracked-files=no --ignore-submodules=dirty 2>/dev/null) ]]; then
-            status="*"
-        fi
-    fi
+    [[ "$_PROMPT_SHOW_GIT_STATUS" == "true" ]] && \
+        [[ -n $(git status --porcelain --untracked-files=no --ignore-submodules=dirty 2>/dev/null) ]] && \
+        status="*"
 
     printf " %s" "${PS1_MAGENTA}[$branch$status]${PS1_RESET}"
 }
 
 __set_prompt() {
-    local last_status=$?
-    local indicators=""
+    local last_status=$? indicators=""
     # Green + for no error on last command, else red -
     local status_line="${PS1_GREEN}+${PS1_RESET}"
 
@@ -219,7 +207,7 @@ __set_prompt() {
     indicators+="$(__git_info)"
     [[ -n "{$SSH_CONNECTION:-}" ]] && indicators+=" ${PS1_CYAN}[SSH]${PS1_RESET}"
 
-    if [[ $last_status -ne 0 ]]; then
+    if (( last_status != 0 )); then
         indicators+=" ${PS1_RED}[exited: $last_status]${PS1_RESET}"
         status_line="${PS1_RED}-${PS1_RESET}"
     fi

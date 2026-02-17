@@ -311,4 +311,13 @@ return {
     event = "VeryLazy",
     opts = {},
   },
+  {
+    "windwp/nvim-ts-autotag",
+    ft = {
+      "javascript", "javascriptreact",
+      "typescript", "typescriptreact",
+      "html", "xml",
+    },
+    opts = {},
+  },
 }

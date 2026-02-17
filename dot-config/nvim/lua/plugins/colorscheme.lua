@@ -57,15 +57,15 @@ return {
     "AlexvZyl/nordic.nvim",
     lazy = true,
     priority = 1000,
-    config = function()
-      local nordic = require("nordic")
-      nordic.setup({
-        bold_keywords = true,
-        italic_comments = true,
-        reduced_blue = true,
-        swap_backgrounds = true,
-        ts_context = { dark_background = false },
-      })
+    opts = {
+      bold_keywords = true,
+      italic_comments = true,
+      reduced_blue = true,
+      swap_backgrounds = true,
+      ts_context = { dark_background = false },
+    },
+    config = function(_, opts)
+      require("nordic").setup(opts)
       vim.cmd.colorscheme("nordic")
     end,
   },
