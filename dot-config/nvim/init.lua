@@ -11,6 +11,7 @@ vim.g.maplocalleader = "\\"
 vim.uv = vim.uv or vim.loop
 
 vim.g.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+vim.g.is_ssh = os.getenv("SSH_CLIENT") or os.getenv("SSH_TTY")
 
 if vim.g.is_windows then
   local shell = vim.fn.executable("pwsh") == 1 and "pwsh"

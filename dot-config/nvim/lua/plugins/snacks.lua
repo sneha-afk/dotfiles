@@ -123,7 +123,35 @@ return {
   ---@module "snacks"
   ---@type snacks.Config
   opts = {
-    bigfile = { enabled = true },
+    bigfile = {
+      enabled = true,
+      notify = true,
+      size = 1 * 1024 * 1024, -- 1MB
+      line_length = 1000,
+      ---@param ctx {buf: number, ft:string}
+      setup = function(ctx)
+        if vim.fn.exists(":NoMatchParen") ~= 0 then
+          vim.cmd([[NoMatchParen]])
+        end
+        Snacks.util.wo(0, { foldmethod = "manual", statuscolumn = "", conceallevel = 0 })
+        vim.b.completion = false
+        vim.b.minianimate_disable = true
+        vim.b.minihipatterns_disable = true
+        vim.opt_local.spell = false
+        vim.opt_local.swapfile = false
+        vim.opt_local.undofile = false
+        vim.opt_local.breakindent = false
+        vim.opt_local.statuscolumn = ""
+        vim.opt_local.signcolumn = "no"
+        vim.opt_local.foldcolumn = "0"
+        vim.opt_local.winbar = ""
+        vim.schedule(function()
+          if vim.api.nvim_buf_is_valid(ctx.buf) then
+            vim.bo[ctx.buf].syntax = ctx.ft
+          end
+        end)
+      end,
+    },
     explorer = {
       replace_netrw = true, -- Replace netrw with the snacks explorer
       trash = true,         -- Use the system trash when deleting files

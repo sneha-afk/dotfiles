@@ -19,8 +19,28 @@ vim.opt.clipboard   = ""
 vim.schedule(function()
   vim.opt.clipboard = "unnamedplus"
 
-  if os.getenv("SSH_CLIENT") or os.getenv("SSH_TTY") then
-    vim.g.clipboard = "osc52"
+  if vim.g.is_ssh then
+    -- Use OSC52 for copy only, and use local registers to do paste reads
+    -- Paste reads through OSC52 should be avoided as it exposes clipboard contents to any process
+    -- Use system shortcuts for pasting over SSH (e.g. Ctrl+Shift+v)
+    local function paste()
+      return {
+        vim.fn.split(vim.fn.getreg(""), "\n"),
+        vim.fn.getregtype(""),
+      }
+    end
+
+    vim.g.clipboard = {
+      name = "OSC 52",
+      copy = {
+        ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+        ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+      },
+      paste = {
+        ["+"] = paste,
+        ["*"] = paste,
+      },
+    }
   end
 end)
 
@@ -104,27 +124,29 @@ end
 -- ============================================================================
 vim.opt.foldmethod     = "manual"
 vim.opt.foldlevel      = 99
-vim.opt.foldlevelstart = 10
+vim.opt.foldlevelstart = 15
 vim.opt.foldnestmax    = 4
 
 -- ============================================================================
 -- SESSIONS
 -- ============================================================================
 vim.opt.sessionoptions = {
-  "buffers",  -- Save all buffers (not just visible ones)
-  "curdir",   -- Save current directory
-  "tabpages", -- Save tab layout
-  "winsize",  -- Save window sizes
-  "help",     -- Save help windows
-  "globals",  -- Save global variables (needed by many plugins)
-  "skiprtp",  -- Don't save runtime path (prevents path conflicts)
-  "folds",    -- Save fold state
+  "buffers", -- Save all buffers (not just visible ones)
+  "curdir",
+  "tabpages",
+  "winsize",
+  "globals", -- Global variables
+  "skiprtp", -- Don't save runtime path (prevents path conflicts)
+  "folds",
 }
 
 -- ============================================================================
 -- PERFORMANCE
 -- ============================================================================
-vim.opt.updatetime     = 250    -- Faster CursorHold (LSP, diagnostics)
-vim.opt.timeoutlen     = 300    -- Faster keymap timeout
-vim.opt.synmaxcol      = 300    -- Limit syntax highlighting column
-vim.opt.jumpoptions    = "view" -- Restore view when jumping
+vim.opt.updatetime     = vim.g.is_ssh and 750 or 250 -- CursorHold/swap write interval (ms)
+vim.opt.timeoutlen     = vim.g.is_ssh and 500 or 150 -- Key sequence timeout (ms)
+vim.opt.synmaxcol      = 180                         -- How many columns to highlight
+vim.opt.jumpoptions    = "view"                      -- Restore view when jumping
+
+-- Use swap files over SSH connections that could disconnect
+vim.opt.swapfile       = vim.g.is_ssh
