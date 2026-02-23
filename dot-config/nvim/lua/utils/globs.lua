@@ -9,28 +9,48 @@ local static_ignores = { -- O(1)
   [".hg"] = true,
   ["CVS"] = true,
 
+  [".cache"] = true,
+  [".direnv"] = true,
+  [".envrc"] = true,
+  [".DS_Store"] = true,
+  ["Thumbs.db"] = true,
+  [".history"] = true,
+
+  ["bazel-bin"] = true,
+  ["bazel-out"] = true,
+  ["bazel-testlogs"] = true,
+  ["bazel-external"] = true,
+  ["bazel-cache"] = true,
+
+  [".gradle"] = true,
+  ["target"] = true,
+  ["build"] = true,
+  ["out"] = true,
+  [".classpath"] = true,
+  [".project"] = true,
+  [".factorypath"] = true,
+  [".mvn"] = true,
+
   ["node_modules"] = true,
-  ["vendor"] = true,
-  [".bundle"] = true,
-  ["venv"] = true,
-  [".venv"] = true,
+  [".next"] = true,
+  [".prettierd"] = true,
+  [".webpack"] = true,
 
   ["__pycache__"] = true,
   [".pytest_cache"] = true,
   [".mypy_cache"] = true,
   [".ruff_cache"] = true,
   [".tox"] = true,
+  [".venv"] = true,
+  ["venv"] = true,
+  ["pip-wheel-metadata"] = true,
+  ["htmlcov"] = true,
+  [".ipynb_checkpoints"] = true,
 
-  ["dist"] = true,
-  ["build"] = true,
-  ["out"] = true,
-  ["target"] = true,
-  [".next"] = true,
+  ["tmp"] = true,
+  [".bundle"] = true,
 
-  [".cache"] = true,
-  [".turbo"] = true,
-  [".parcel-cache"] = true,
-  [".webpack"] = true,
+  [".cargo"] = true,
 
   ["package-lock.json"] = true,
   ["yarn.lock"] = true,
@@ -43,9 +63,10 @@ local static_ignores = { -- O(1)
 
 local suffix_ignores = { -- O(n), no regex
   ".tmp", ".bak", ".orig", ".rej", "~", ".swp", ".swo", ".swn",
-  ".o", ".obj", ".class", ".pyc", ".pyo", ".so", ".dll", ".dylib", ".exe", ".a",
-  ".gch", ".pch",
-  ".jar", ".war", ".ear",
+  ".o", ".obj", ".class", ".pyc", ".pyo", ".pyd",
+  ".so", ".dll", ".dylib", ".lib", ".exe", ".a",
+  ".gch", ".pch", ".iml", ".ipr", ".iws", ".rbc",
+  ".jar", ".war", ".ear", ".d.ts.map",
 }
 
 local pattern_ignores = {
@@ -54,22 +75,41 @@ local pattern_ignores = {
 }
 
 local exclude_globs = vim.tbl_keys(static_ignores)
-vim.list_extend(exclude_globs, vim.tbl_map(function(ext) return "*" .. ext end, suffix_ignores))
+for i = 1, #suffix_ignores do
+  exclude_globs[#exclude_globs + 1] = "*" .. suffix_ignores[i]
+end
 
 ---Returns true if a file by `name` should be ignored
 ---@param name string
 ---@return boolean Ignore `name`?
 function M.ignore(name)
-  if static_ignores[name] then return true end
+  -- fast dir short-circuit
+  if name:find("node_modules/", 1, true)
+  or name:find(".git/", 1, true)
+  or name:find("bazel-", 1, true)
+  or name:find("target/", 1, true)
+  or name:find("dist/", 1, true)
+  or name:find("build/", 1, true)
+  or name:find("__pycache__/", 1, true)
+  or name:find(".venv/", 1, true)
+  or name:find("venv/", 1, true)
+  then
+    return true
+  end
+
+  local basename = name:match("[^/]+$") or name
+
+  if static_ignores[basename] then return true end
 
   for i = 1, #suffix_ignores do
-    if vim.endswith(name, suffix_ignores[i]) then
+    local ext = suffix_ignores[i]
+    if basename:sub(- #ext) == ext then
       return true
     end
   end
 
   for i = 1, #pattern_ignores do
-    if name:find(pattern_ignores[i]) then
+    if basename:find(pattern_ignores[i]) then
       return true
     end
   end

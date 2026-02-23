@@ -4,23 +4,15 @@ local wezterm    = require "wezterm" ---@type Wezterm
 local config     = wezterm.config_builder() ---@type Config
 local action     = wezterm.action ---@type Action
 
---==============================================================================
--- [1] GLOBAL STATE CACHE
---==============================================================================
-
 local IS_WINDOWS = wezterm.target_triple:find("windows", 1, true) ~= nil
 local IS_LINUX   = wezterm.target_triple:find("linux", 1, true) ~= nil
 local IS_MAC     = wezterm.target_triple:find("darwin", 1, true) ~= nil
 
-local STATE      = {
-  colors = {},
-  icon_cache = {},
-  status_cache = { leader = false },
-}
-
+--- Checks whether an executable is resolvable on PATH.
+--- @param executable string
+--- @return boolean
 local function check_exe(executable)
-  local cmd = IS_WINDOWS
-      and { "where.exe", "/Q", executable }
+  local cmd = IS_WINDOWS and { "where.exe", "/Q", executable }
       or { "sh", "-c", "command -v " .. executable .. " >/dev/null 2>&1" }
   local success = wezterm.run_child_process(cmd)
   return success == true
@@ -28,64 +20,65 @@ end
 
 local HAS_WSL = IS_WINDOWS and check_exe("wsl")
 
--- Refresh expensive computations only on config reload or window launch
-local function refresh_state()
-  local base_bg = "#161821"
-  local base_fg = "#d2d4de"
-  local base_accent = "#e98989"
+--- Adjusts a hex color by a percentage factor.
+--- @param hex string  Hex color string in `#rrggbb` format.
+--- @param percent number  Adjustment factor; negative darkens, positive lightens.
+--- @return string
+local function adjust(hex, percent)
+  local r = tonumber(hex:sub(2, 3), 16)
+  local g = tonumber(hex:sub(4, 5), 16)
+  local b = tonumber(hex:sub(6, 7), 16)
+  local factor = 1 + (percent / 100)
 
-  local function adjust(hex, percent)
-    local r = tonumber(hex:sub(2, 3), 16)
-    local g = tonumber(hex:sub(4, 5), 16)
-    local b = tonumber(hex:sub(6, 7), 16)
-    local factor = 1 + (percent / 100)
-
-    local function clamp(val)
-      return math.floor(math.min(255, math.max(0, val * factor)))
-    end
-
-    return string.format("#%02x%02x%02x", clamp(r), clamp(g), clamp(b))
+  local function clamp(val)
+    return math.floor(math.min(255, math.max(0, val * factor)))
   end
 
-  local function is_dark(hex)
-    local r = tonumber(hex:sub(2, 3), 16)
-    local g = tonumber(hex:sub(4, 5), 16)
-    local b = tonumber(hex:sub(6, 7), 16)
-    if not r then return true end
-
-    local lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255
-    return lum < 0.5
-  end
-
-  local dark = is_dark(base_bg)
-
-  STATE.colors = {
-    bg                = base_bg,
-    fg                = base_fg,
-    accent            = base_accent,
-    active_titlebar   = adjust(base_bg, dark and 20 or -20),
-    inactive_titlebar = base_bg,
-    tab_active_bg     = adjust(base_bg, dark and 80 or -50),
-    tab_active_fg     = base_fg,
-    tab_inactive_bg   = adjust(base_bg, dark and -25 or 25),
-    tab_inactive_fg   = adjust(base_fg, dark and -50 or 50),
-    hover_bg          = adjust(base_bg, dark and 40 or -40),
-  }
-
-  STATE.icon_cache = {}
-  STATE.status_cache.leader = nil
+  return string.format("#%02x%02x%02x", clamp(r), clamp(g), clamp(b))
 end
 
--- Initialize on startup
-refresh_state()
+--- Returns true if the given hex color has a perceived luminance below 0.5 (ITU-R BT.601).
+--- @param hex string  Hex color string in `#rrggbb` format.
+--- @return boolean
+local function is_dark(hex)
+  local r = tonumber(hex:sub(2, 3), 16)
+  local g = tonumber(hex:sub(4, 5), 16)
+  local b = tonumber(hex:sub(6, 7), 16)
+  if not r then return true end
 
--- Refresh only on config reload
-wezterm.on("window-config-reloaded", function()
-  refresh_state()
-end)
+  local lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255
+  return lum < 0.5
+end
 
---==============================================================================
--- [2] CORE TERMINAL SETTINGS
+local base_bg     = "#161821"
+local base_fg     = "#d2d4de"
+local base_accent = "#e98989"
+local dark        = is_dark(base_bg)
+local COLORS      = {
+  bg                = base_bg,
+  fg                = base_fg,
+  accent            = base_accent,
+  active_titlebar   = adjust(base_bg, dark and 20 or -20),
+  inactive_titlebar = base_bg,
+  tab_active_bg     = adjust(base_bg, dark and 80 or -50),
+  tab_active_fg     = base_fg,
+  tab_inactive_bg   = adjust(base_bg, dark and -25 or 25),
+  tab_inactive_fg   = adjust(base_fg, dark and -50 or 50),
+  hover_bg          = adjust(base_bg, dark and 40 or -40),
+}
+
+local STATE       = {
+  icon_cache   = {},
+  status_cache = { leader = false },
+}
+
+-- Refresh expensive computations only on config reload or window launch
+local function refresh_state()
+  STATE.icon_cache          = {}
+  STATE.status_cache.leader = nil
+end
+wezterm.on("window-config-reloaded", refresh_state)
+
 --==============================================================================
 config.front_end = "WebGpu"
 config.max_fps = 60
@@ -101,9 +94,6 @@ end
 config.initial_cols = 128
 config.initial_rows = 32
 
---==============================================================================
--- [3] KEYBINDINGS
---==============================================================================
 config.leader = { key = ",", mods = "CTRL", timeout_milliseconds = 2000 }
 config.keys = {
   -- global actions
@@ -159,17 +149,10 @@ config.keys = {
   { key = "v", mods = "CTRL|SHIFT", action = action.PasteFrom("Clipboard") },
 }
 
--- WSL launcher (conditional)
 if HAS_WSL then
-  table.insert(config.keys, {
-    key = "w",
-    mods = "LEADER|ALT",
-    action = action.SpawnTab { DomainName = "WSL:Ubuntu" },
-  })
+  table.insert(config.keys, { key = "w", mods = "LEADER|ALT", action = action.SpawnTab { DomainName = "WSL:Ubuntu" } })
 end
 
---==============================================================================
--- [4] APPEARANCE
 --==============================================================================
 local ICONS = {
   ["local"]  = " ",
@@ -194,6 +177,10 @@ local ICONS_FUZZY_KEYS = { -- for composite titles/domains (e.g. "WSL:Ubuntu", "
   "wsl", "ssh",
 }
 
+--- Returns the Nerd Font icon glyph for a process or domain name, with memoization.
+--- Falls back to a space glyph if no match is found.
+--- @param text string
+--- @return string
 local function get_icon(text)
   if not text or text == "" then return " " end
 
@@ -223,12 +210,12 @@ end
 config.color_scheme = "iceberg-dark"
 config.colors = {
   tab_bar = {
-    active_tab = { bg_color = STATE.colors.tab_active_bg, fg_color = STATE.colors.fg },
-    inactive_tab = { bg_color = STATE.colors.tab_inactive_bg, fg_color = STATE.colors.tab_inactive_fg },
-    inactive_tab_hover = { bg_color = STATE.colors.hover_bg, fg_color = STATE.colors.fg },
-    new_tab = { bg_color = STATE.colors.hover_bg, fg_color = STATE.colors.fg },
+    active_tab         = { bg_color = COLORS.tab_active_bg, fg_color = COLORS.fg },
+    inactive_tab       = { bg_color = COLORS.tab_inactive_bg, fg_color = COLORS.tab_inactive_fg },
+    inactive_tab_hover = { bg_color = COLORS.hover_bg, fg_color = COLORS.fg },
+    new_tab            = { bg_color = COLORS.hover_bg, fg_color = COLORS.fg },
   },
-  split = STATE.colors.fg,
+  split = COLORS.fg,
 }
 
 -- WezTerm comes with JetBrains Mono, symbols, and emojis; but added after this list,
@@ -245,29 +232,34 @@ config.line_height = 1.1
 
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 config.window_padding = {
-  left = "1cell",
-  right = "0.5cell",
-  top = "0.5cell",
+  left   = "1cell",
+  right  = "0.5cell",
+  top    = "0.5cell",
   bottom = "0.25cell",
 }
 config.window_frame = {
-  active_titlebar_bg = STATE.colors.active_titlebar,
-  inactive_titlebar_bg = STATE.colors.inactive_titlebar,
+  active_titlebar_bg = COLORS.active_titlebar,
+  inactive_titlebar_bg = COLORS.inactive_titlebar,
   font = wezterm.font_with_fallback({
     { family = "Inter",  weight = "Bold" },
     { family = "Roboto", weight = "Bold" }, -- ships with WezTerm
   }),
 }
 
---==============================================================================
--- [5] APPEARANCE - UI CALLBACKS
---==============================================================================
-
 config.adjust_window_size_when_changing_font_size = false
+
+--- @param title string
+--- @return string
+local function clean_title(title)
+  title = title:gsub(".*[\\/]", "")
+  title = title:gsub("%.exe$", "")
+  if title:find("wsl", 1, true) then return "wsl" end
+  return title
+end
 
 wezterm.on("format-tab-title", function(tab)
   local title = tab.active_pane.title
-  local clean = title:gsub(".*[\\/]", ""):gsub("%.exe$", ""):gsub(".*wsl.*", "wsl")
+  local clean = clean_title(title)
 
   local icon = get_icon(clean)
   local admin = title:find("Administrator:", 1, true) or title:find("root", 1, true) or title:find("#", 1, true)
@@ -286,11 +278,9 @@ wezterm.on("update-right-status", function(window, _)
   end
 
   window:set_right_status(wezterm.format({
-    { Background = { Color = STATE.colors.accent } },
-    { Foreground = { Color = STATE.colors.bg } },
+    { Background = { Color = COLORS.accent } }, { Foreground = { Color = COLORS.bg } },
     { Text = "  󱐋 LEADER  " },
-    -- { Background = { Color = STATE.colors.bg } },
-    -- { Foreground = { Color = STATE.colors.fg } },
+    -- { Background = { Color = COLORS.bg } }, { Foreground = { Color = COLORS.fg } },
   }))
 end)
 

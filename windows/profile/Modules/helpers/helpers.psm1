@@ -101,9 +101,10 @@ function Remove-NvimShada {
     [CmdletBinding(SupportsShouldProcess)]
     param()
 
-    if ($PSCmdlet.ShouldProcess($script:NvimPaths.Shada, "Clear shada files")) {
-        Remove-Item -Path "$($script:NvimPaths.Shada)\*" -Recurse -Force -ErrorAction SilentlyContinue
-        Write-Host "Neovim shada files cleared." -ForegroundColor Green
+    $tmpFiles = Join-Path $script:NvimPaths.Shada "*.shada.tmp.*"
+    if ($PSCmdlet.ShouldProcess($tmpFiles, "Remove stale Neovim shada temp files")) {
+        Remove-Item -Path $tmpFiles -Force -ErrorAction SilentlyContinue
+        Write-Host "Neovim shada temp files removed." -ForegroundColor Green
     }
 }
 

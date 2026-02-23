@@ -118,13 +118,6 @@ return {
         },
       },
     },
-    fuzzy = {
-      sorts = {
-        -- "exact",
-        "score",
-        "sort_text",
-      },
-    },
   },
   opts_extend = { "sources.default" },
 }

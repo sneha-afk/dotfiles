@@ -149,4 +149,4 @@ vim.opt.synmaxcol      = 180                         -- How many columns to high
 vim.opt.jumpoptions    = "view"                      -- Restore view when jumping
 
 -- Use swap files over SSH connections that could disconnect
-vim.opt.swapfile       = vim.g.is_ssh
+vim.opt.swapfile       = vim.g.is_ssh and true or false

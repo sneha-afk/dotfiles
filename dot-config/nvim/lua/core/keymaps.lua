@@ -1,5 +1,4 @@
 -- .config/nvim/lua/core/keymaps.lua
--- Globally available keymaps
 
 local map = vim.keymap.set
 local lsp = vim.lsp
@@ -58,9 +57,6 @@ map("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", {
 map("v", "<", "<gv", { desc = "Decrease Indent" })
 map("v", ">", ">gv", { desc = "Increase Indent" })
 
--- ============================================================================
--- NAVIGATION SHORTCUTS
--- ============================================================================
 -- Moving around easier on QWERTY
 map("i", "<C-a>", "<ESC>^i", { desc = "Start of line (first non-blank)" })
 map("i", "<C-e>", "<ESC>$a", { desc = "End of line" })
@@ -83,10 +79,11 @@ map("t", "<C-k>",      "<C-\\><C-n><C-u>",        { desc = "Half page up" })
 -- ============================================================================
 -- FILE OPERATIONS
 -- ============================================================================
-map("n", "<leader>w", "<cmd>w<cr>",  { desc = "Save file" })
-map("n", "<leader>q", "<cmd>q<cr>",  { desc = "Quit window" })
-map("n", "<leader>x", "<cmd>wq<cr>", { desc = "Save & quit" })
-map("n", "<leader>Q", "<cmd>qa<cr>", { desc = "Quit all windows" })
+-- Update only writes if the file was modified
+map("n", "<leader>w", "<cmd>update<cr>", { desc = "Save file" })
+map("n", "<leader>q", "<cmd>q<cr>",      { desc = "Quit window" })
+map("n", "<leader>x", "<cmd>x<cr>",      { desc = "Save & quit" })
+map("n", "<leader>Q", "<cmd>qa<cr>",     { desc = "Quit all windows" })
 
 -- ============================================================================
 -- WINDOW MANAGEMENT
@@ -166,6 +163,10 @@ map("n", "<leader>da", function() diagnostic.setqflist({ open = true }) end,
   { desc = "[D]iagnostics: [A]ll project-wide" })
 map("n", "<leader>[d", function() diagnostic.jump({ count = -1, float = true }) end, { desc = "Previous diagnostic" })
 map("n", "<leader>]d", function() diagnostic.jump({ count = 1, float = true }) end,  { desc = "Next diagnostic" })
+map("n", "[e", function() diagnostic.jump({ count = -1, float = true, severity = vim.diagnostic.severity.ERROR }) end,
+  { desc = "Previous error" })
+map("n", "]e", function() diagnostic.jump({ count = 1, float = true, severity = vim.diagnostic.severity.ERROR }) end,
+  { desc = "Next error" })
 map("n", "<leader>dv",
   function() diagnostic.config({ virtual_text = not diagnostic.config().virtual_text }) end,
   { desc = "[D]iagnostics: toggle [V]irtual text" })
