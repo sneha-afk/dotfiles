@@ -8,6 +8,7 @@
 --hidden
 --follow
 --line-number
+--max-columns=180
 
 # Version control
 --glob=!.git/
@@ -30,7 +31,6 @@
 --glob=!bower_components/
 --glob=!.cargo/
 --glob=!target/
---glob=!Cargo.lock
 --glob=!__pycache__/
 --glob=!*.pyc
 --glob=!venv/
@@ -39,6 +39,14 @@
 --glob=!packages/
 --glob=!bin/
 --glob=!obj/
+
+--glob=!Cargo.lock
+--glob=!package-lock.json
+--glob=!yarn.lock
+--glob=!pnpm-lock.yaml
+--glob=!poetry.lock
+--glob=!Gemfile.lock
+--glob=!go.sum
 
 # Environment
 --glob=!.env
@@ -52,6 +60,9 @@
 --glob=!temp/
 --glob=!*.tmp
 --glob=!*.log
+--glob=!*.min.js
+--glob=!*.min.css
+--glob=!*.bundle.js
 
 # OS files
 --glob=!Thumbs.db

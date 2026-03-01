@@ -1,5 +1,6 @@
 " ============================================================================
 " .VIMRC
+" vim: set tabstop=4 shiftwidth=4 softtabstop=4 expandtab:
 " ============================================================================
 let g:loaded_gzip = 1
 let g:loaded_tarPlugin = 1
@@ -29,16 +30,18 @@ set spelllang=en_us
 set laststatus=2
 
 if has('persistent_undo')
-  set undofile                   " Save undo history to file
-  let &undodir = has('nvim') ? stdpath('data').'/undo' : expand(g:vim_home . '/undo')
-  call mkdir(&undodir, 'p', 0700)
+    set undofile
+    let &undodir = has('nvim') ? stdpath('data').'/undo' : expand(g:vim_home . '/undo')
+    if !isdirectory(&undodir)
+        call mkdir(&undodir, 'p', 0700)
+    endif
 endif
 
 " Clipboard integration: use system clipboard for yank/paste
 set clipboard+=unnamedplus
 
 " ============================================================================
-" UI & VISUAL FEEDBACK
+" UI
 " ============================================================================
 set number                       " Show line numbers
 set cursorline                   " Highlight current line
@@ -64,17 +67,11 @@ if has('gui_running')
     set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr-o:hor20
 endif
 
-" ============================================================================
-" WINDOWS & SPLITS
-" ============================================================================
 set splitright          " Default split rightwards
 set splitbelow          " Default split downwards
 set winwidth=30         " Minimum window width
 set winminwidth=10      " Minimum inactive window width
 
-" ============================================================================
-" INDENTATION
-" ============================================================================
 filetype indent plugin on        " Enable filetype-specific indentation
 set tabstop=4                    " Tab width: 4 spaces
 set shiftwidth=4                 " Indentation width: 4 spaces
@@ -117,8 +114,7 @@ set completeopt=menu,menuone,noselect
 " ============================================================================
 " PERFORMANCE
 " ============================================================================
-set lazyredraw
-set synmaxcol=300
+set synmaxcol=180
 
 " Faster CursorHold events
 if has('updatetime')
@@ -161,7 +157,6 @@ if g:have_plugins
   endif
 
   call plug#begin(s:plugged_dir)
-    Plug 'ghifarit53/tokyonight-vim', { 'as': 'tokyonight' }
     Plug 'itchyny/lightline.vim', { 'as': 'lightline' }
     Plug 'jiangmiao/auto-pairs'
     Plug 'tpope/vim-commentary'
@@ -178,24 +173,20 @@ endif
 " ============================================================================
 " COLOR SCHEME
 " ============================================================================
-if exists('+termguicolors')
-  set termguicolors
+syntax enable
+set background=dark
+
+if $TERM_PROGRAM ==# 'WezTerm'  " See https://github.com/wezterm/wezterm/issues/6634#issuecomment-2652077850
+    set notermguicolors
+    set nocursorline
+elseif exists('+termguicolors')
+    set termguicolors
 endif
 
-syntax enable
-set background=dark              " Use dark color scheme variant
-
-try
-  let g:tokyonight_style = 'night'
-  let g:tokyonight_enable_italic = 1
-  colorscheme tokyonight
-catch
-  try
-    colorscheme sorbet
-  catch
-    colorscheme slate
-  endtry
-endtry
+let s:colorschemes = ['catppuccin', 'sorbet', 'slate']
+for scheme in s:colorschemes
+  try | execute 'colorscheme ' . scheme | break | catch | endtry
+endfor
 
 " ============================================================================
 " PLUGIN CONFIGURATION
@@ -211,7 +202,10 @@ if IsPluginAvailable('lightline')
         \             [ 'filename', 'readonly', 'modified' ] ],
         \   'right': [ [ 'lineinfo' ],
         \              [ 'percent' ],
-        \              [ 'filetype' ] ]
+        \              [ 'fileformat', 'filetype' ] ]
+        \ },
+        \ 'component': {
+        \   'fileformat': '%{&ff=="unix"?"LF":&ff=="dos"?"CRLF":"CR"}'
         \ }
         \ }
 
@@ -219,18 +213,15 @@ if IsPluginAvailable('lightline')
     let g:lightline.colorscheme = tolower(g:colors_name)
   endif
 else
-    set statusline+=\ %{toupper(mode())}         " Mode initial
-    set statusline+=\ │\                         " Separator bar
-    set statusline+=\ %f                         " Filename (relative path)
-    set statusline+=%r                           " [RO] if readonly
-    set statusline+=%m                           " [+] if modified
-
-    set statusline+=%=                           " Separator (right align)
-
-    set statusline+=Ln\ %l/%L                    " Current line / Total lines
-    set statusline+=,\ Col\ %c                   " Column
-    set statusline+=\ │\ %p%%                    " Percent through file
-    set statusline+=\ │\ %y                      " Filetype
+    set statusline=\ %{toupper(mode())}
+    set statusline+=\ │\ %f
+    set statusline+=%r
+    set statusline+=%m
+    set statusline+=%=
+    set statusline+=Ln\ %l/%L,\ Col\ %c
+    set statusline+=\ │\ %p%%
+    set statusline+=\ │\ %{&ff==\"unix\"?\"LF\":&ff==\"dos\"?\"CRLF\":\"CR\"}
+    set statusline+=\ │\ %y
 endif
 
 " NERDTree
@@ -400,7 +391,6 @@ vnoremap <A-k> :move '<-2<CR>gv=gv
 
 function! Messages()
   let l:view = winsaveview()  " Save current view
-  silent! redraw!             " Clear screen so messages are readable
   messages
   call winrestview(l:view)
 endfunction

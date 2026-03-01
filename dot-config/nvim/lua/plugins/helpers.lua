@@ -76,7 +76,6 @@ return {
     "folke/todo-comments.nvim",
     event = { "BufReadPost", "BufNewFile" },
     keys = {
-      { "<leader>ft", function() Snacks.picker.todo_comments() end, desc = "[F]ind: ToDos" },
       {
         "<leader>fT",
         function()
@@ -84,7 +83,7 @@ return {
             keywords = { "TODO", "FIX", "FIXME", "HACK" },
           })
         end,
-        desc = "[F]ind: ToDos/Fix",
+        desc = "[F]ind: ToDos",
       },
     },
     dependencies = {

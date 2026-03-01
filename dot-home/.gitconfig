@@ -38,21 +38,25 @@
     sb  = status -sb
     a   = add
     aa  = add --all
+    unstage = reset HEAD --
+
     c   = commit
     cm  = commit -m
     ca  = commit --amend --no-edit
     fix = commit --amend --no-edit
-    co  = checkout
-    p   = pull
-    pr  = pull --rebase
-    l  = log --graph --pretty=format:'%C(auto)%h %s %C(magenta)%cr%C(auto)%d' -n 15
-    lo = log --oneline -n 10
-    lg = log --graph --pretty=format:'%C(auto)%h %s %C(bold blue)<%an>%C(auto) %C(magenta)%cr%d' --abbrev-commit --all
-    last = log -1 HEAD --stat
-    dt  = difftool
-    mt  = mergetool
-    standup = "!git log --all --author=\"$(git config user.name)\" --since='1 day ago' --oneline"
-    root = rev-parse --show-toplevel
-    unstage = reset HEAD --
     undo = reset --soft HEAD~1
     hard-undo = reset --hard HEAD~1
+
+    co  = checkout
+
+    p   = pull
+    pr  = pull --rebase
+
+    l   = log --graph --pretty=format:'%C(auto)%h %s %C(magenta)%cr%C(auto)%d' -n 15
+    lg  = log --graph --pretty=format:'%C(auto)%h %s %C(bold blue)<%an>%C(auto) %C(magenta)%cr%d' --abbrev-commit --all
+    last = log -1 HEAD --stat
+    standup = "!git log --all --author=\"$(git config user.name)\" --since='1 day ago' --oneline"
+
+    dt  = difftool
+    mt  = mergetool
+    root = rev-parse --show-toplevel

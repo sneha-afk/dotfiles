@@ -4,18 +4,11 @@ local prompt_icon = vim.g.use_icons and " " or "> "
 
 local function get_greeting()
   local hour = tonumber(os.date("%H"))
-  local greetings = {
-    { max = 5, msg = "Sleep well", emoji = "🌙" },
-    { max = 12, msg = "Good morning", emoji = "🌅" },
-    { max = 18, msg = "Good afternoon", emoji = "🌞" },
-    { max = 22, msg = "Good evening", emoji = "🌆" },
-    { max = 24, msg = "Good night", emoji = "✨" },
-  }
-
-  for _, greeting in ipairs(greetings) do
-    if hour < greeting.max then return greeting.emoji .. " " .. greeting.msg end
-  end
-  return "Hello"
+  if hour < 5 then return vim.g.use_icons and "🌙 Sleep well" or "Sleep well" end
+  if hour < 12 then return vim.g.use_icons and "🌅 Good morning" or "Good morning" end
+  if hour < 18 then return vim.g.use_icons and "🌞 Good afternoon" or "Good afternoon" end
+  if hour < 22 then return vim.g.use_icons and "🌆 Good evening" or "Good evening" end
+  return vim.g.use_icons and "✨ Good night" or "Good night"
 end
 
 local function get_footer()
@@ -39,6 +32,27 @@ end
 local explorer_fullscreen = function()
   Snacks.explorer({
     cwd = Snacks.git.get_root() or vim.uv.cwd(),
+  })
+end
+
+local related_test_files = function()
+  local name = vim.fn.expand("%:t:r")
+  local ext = vim.fn.expand("%:e")
+
+  local patterns = {
+    go = name .. "_test.go",
+    rb = name .. "_spec.rb",
+    java = name .. "Test.java",
+    js = name .. ".test.js",
+    ts = name .. ".test.ts",
+    jsx = name .. ".test.jsx",
+    tsx = name .. ".test.tsx",
+  }
+
+  Snacks.picker.files({
+    title = "Tests: Find Test",
+    search = patterns[ext] or (name .. "_test"),
+    layout = { preset = "select" },
   })
 end
 
@@ -70,6 +84,7 @@ return {
     { "<leader>fr", function() Snacks.picker.recent() end,                desc = "[F]ind: [R]ecent files" },
     { "<leader>fR", function() Snacks.explorer.reveal() end,              desc = "[F]ile: [R]eveal" },
     { "<leader>fs", function() Snacks.picker.smart() end,                 desc = "[F]ind: [S]mart" },
+    { "<leader>ft", related_test_files,                                   desc = "[F]ind: [T]est files" },
 
     -- Search operations: system-wide, less used
     { "<leader>sc", function() Snacks.picker.commands() end,              desc = "[S]earch: [C]ommands" },
@@ -260,15 +275,9 @@ return {
       enabled = true,
       fold = { open = true },
     },
-    toggle = {
-      enabled = true,
-    },
-    words = {
-      enabled = true,
-    },
-    zen = {
-      enabled = true,
-    },
+    toggle = { enabled = true },
+    words = { enabled = true },
+    zen = { enabled = true },
     notifier = {
       timeout = 3000, -- in ms
       icons = {

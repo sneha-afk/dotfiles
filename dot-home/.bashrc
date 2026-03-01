@@ -181,8 +181,6 @@ if [[ "$_PROMPT_USE_GIT_PROMPT_SCRIPT" == "true" ]]; then
 fi
 
 __git_info() {
-    git rev-parse --is-inside-work-tree &>/dev/null || return
-
     if [[ "$_PROMPT_USE_GIT_PROMPT_SCRIPT" == "true" ]]; then
         __git_ps1 " [%s]"
         return
@@ -205,7 +203,7 @@ __set_prompt() {
 
     [[ -n "${VIRTUAL_ENV:-}" ]] && indicators+=" ${PS1_YELLOW}(${VIRTUAL_ENV##*/})${PS1_RESET}"
     indicators+="$(__git_info)"
-    [[ -n "{$SSH_CONNECTION:-}" ]] && indicators+=" ${PS1_CYAN}[SSH]${PS1_RESET}"
+    [[ -n "${SSH_CONNECTION:-}" ]] && indicators+=" ${PS1_CYAN}[SSH]${PS1_RESET}"
 
     if (( last_status != 0 )); then
         indicators+=" ${PS1_RED}[exited: $last_status]${PS1_RESET}"

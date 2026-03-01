@@ -50,11 +50,11 @@ local function is_dark(hex)
   return lum < 0.5
 end
 
-local base_bg     = "#161821"
-local base_fg     = "#d2d4de"
-local base_accent = "#e98989"
-local dark        = is_dark(base_bg)
-local COLORS      = {
+local base_bg       = "#161821"
+local base_fg       = "#d2d4de"
+local base_accent   = "#e98989"
+local dark          = is_dark(base_bg)
+local COLORS        = {
   bg                = base_bg,
   fg                = base_fg,
   accent            = base_accent,
@@ -67,10 +67,16 @@ local COLORS      = {
   hover_bg          = adjust(base_bg, dark and 40 or -40),
 }
 
-local STATE       = {
+local STATE         = {
   icon_cache   = {},
   status_cache = { leader = false },
 }
+
+local LEADER_STATUS = wezterm.format({
+  { Background = { Color = COLORS.accent } }, { Foreground = { Color = COLORS.bg } },
+  { Text = "  󱐋 LEADER  " },
+  -- { Background = { Color = COLORS.bg } }, { Foreground = { Color = COLORS.fg } },
+})
 
 -- Refresh expensive computations only on config reload or window launch
 local function refresh_state()
@@ -218,13 +224,12 @@ config.colors = {
   split = COLORS.fg,
 }
 
--- WezTerm comes with JetBrains Mono, symbols, and emojis; but added after this list,
--- so keep JetBrains Mono above the emoji set (always put fonts above emojis)
+-- WezTerm automatically appends built-in fonts after this list:
+-- JetBrains Mono, Noto Color Emoji, and Symbols Nerd Font Mono (always last)
 config.font = wezterm.font_with_fallback({
   "Geist Mono",
   "JetBrains Mono",
-  "Symbols Nerd Font Mono",
-  "Segoe UI Emoji",
+  IS_WINDOWS and "Segoe UI Emoji" or nil,
 })
 config.font_size = 9.5
 config.harfbuzz_features = { "calt=1", "clig=0", "liga=0" }
@@ -277,11 +282,7 @@ wezterm.on("update-right-status", function(window, _)
     return
   end
 
-  window:set_right_status(wezterm.format({
-    { Background = { Color = COLORS.accent } }, { Foreground = { Color = COLORS.bg } },
-    { Text = "  󱐋 LEADER  " },
-    -- { Background = { Color = COLORS.bg } }, { Foreground = { Color = COLORS.fg } },
-  }))
+  window:set_right_status(LEADER_STATUS)
 end)
 
 return config
