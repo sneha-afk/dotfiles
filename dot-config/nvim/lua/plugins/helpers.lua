@@ -119,9 +119,12 @@ return {
     "lewis6991/gitsigns.nvim",
     event = "VeryLazy",
     keys = {
-      { "<leader>gd", "<cmd>Gitsigns toggle_linehl<cr>", desc = "[G]it: toggle [D]iff Overlay" },
+      { "<leader>gd", "<cmd>Gitsigns diffthis<cr>",                  desc = "[G]it: toggle [D]iff Overlay" },
+      { "<leader>gb", "<cmd>Gitsigns toggle_current_line_blame<cr>", desc = "[G]it: toggle inline [B]lame" },
     },
+    ---@module 'gitsigns'
     opts = {
+      update_debounce = vim.g.is_ssh and 1000 or 100,
       signs = {
         add          = { text = "┃" },
         change       = { text = "┇" },
@@ -221,12 +224,11 @@ return {
     "MeanderingProgrammer/render-markdown.nvim",
     lazy = true,
     enabled = vim.g.use_icons,
-    ft = { "markdown", "Avante" },
+    ft = { "markdown" },
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-mini/mini.icons" },
     ---@module "render-markdown"
     ---@type render.md.UserConfig
     opts = {
-      file_types = { "markdown", "Avante" },
       heading = {
         icons = { "# ", "## ", "### ", "#### ", "##### ", "###### " },
       },

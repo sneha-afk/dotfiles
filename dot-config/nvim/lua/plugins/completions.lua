@@ -14,7 +14,10 @@ return {
         -- Could be nil before explicitly set to a boolean
         if vim.b.completion == nil then vim.b.completion = true end
         vim.b.completion = not vim.b.completion
-        vim.notify("Completion toggled to: " .. (vim.b.completion and "enabled" or "disabled"), vim.log.levels.INFO)
+        vim.notify("Completion toggled to: " .. (vim.b.completion and "enabled" or "disabled"),
+          vim.log.levels.INFO,
+          { title = "blink.cmp" }
+        )
       end,
       desc = "[C]ompletion: [t]oggle",
     },
@@ -78,7 +81,7 @@ return {
     },
     completion = {
       documentation = {
-        auto_show = true,
+        auto_show = false, -- <C-f/space> twice
         window = {
           border = "rounded",
         },
@@ -96,7 +99,7 @@ return {
             kind_icon = {
               text = function(ctx)
                 local menu_icon = {
-                  path = "🖫",
+                  path = "",
                   lsp = "✦",
                   latex = "✒",
                   buffer = "⚇",

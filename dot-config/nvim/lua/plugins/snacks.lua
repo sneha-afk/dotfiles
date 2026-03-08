@@ -134,6 +134,22 @@ return {
         Snacks.toggle.zen():map("<leader>uz")
       end,
     })
+
+    vim.api.nvim_create_user_command("FindAll", function()
+      Snacks.picker.files({
+        hidden = true,
+        ignore = true,
+        exclude = {},
+      })
+    end, { desc = "Find files (+ hidden and ignored)" })
+
+    vim.api.nvim_create_user_command("GrepAll", function(opts)
+      Snacks.picker.grep({
+        hidden = true,
+        ignore = true,
+        search = opts.args ~= "" and opts.args or nil,
+      })
+    end, { nargs = "?", desc = "Grep (+ hidden and ignored)" })
   end,
   ---@module "snacks"
   ---@type snacks.Config
@@ -276,7 +292,7 @@ return {
       fold = { open = true },
     },
     toggle = { enabled = true },
-    words = { enabled = true },
+    words = { enabled = not vim.g.is_ssh },
     zen = { enabled = true },
     notifier = {
       timeout = 3000, -- in ms

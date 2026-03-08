@@ -17,7 +17,6 @@
         'Remove-NvimSwap'
         'Remove-NvimShada'
         'Start-NvimServer'
-        'Start-Leetcode'
         'Reset-Nvim'
         'Get-NvimSize'
         'Search'
@@ -32,9 +31,7 @@
     AliasesToExport   = @(
         'wslr'
         'wslk'
-        'vim'
         'nvide'
         'extract'
-        'unzip'
     )
 }

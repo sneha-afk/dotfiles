@@ -19,7 +19,6 @@ return {
     ---@module "nvim-treesitter.config"
     ---@type TSConfig
     opts = {
-      install_dir = vim.fn.stdpath("data") .. "/site",
     },
     config = function(_, opts)
       local treesitter = require("nvim-treesitter")
@@ -93,6 +92,12 @@ return {
         end, { desc = desc })
       end
 
+      local function map_swap(lhs, fn, query, desc)
+        map("n", lhs, function()
+          fn(query)
+        end, { desc = desc })
+      end
+
       local selections = {
         ["af"] = { "@function.outer", "Select outer function" },
         ["if"] = { "@function.inner", "Select inner function" },
@@ -119,6 +124,7 @@ return {
 
       local movements = {
         -- Next start
+        ["<leader>]a"] = { move.goto_next_start, "@assignment.outer", "Next assignment" },
         ["]m"] = { move.goto_next_start, "@function.outer", "Next function start" },
         ["]]"] = { move.goto_next_start, "@class.outer", "Next class start" },
         ["]o"] = { move.goto_next_start, { "@loop.inner", "@loop.outer" }, "Next loop start" },
@@ -131,6 +137,7 @@ return {
         ["]["] = { move.goto_next_end, "@class.outer", "Next class end" },
 
         -- Previous start
+        ["<leader>[a"] = { move.goto_previous_start, "@assignment.outer", "Prev assignment" },
         ["[m"] = { move.goto_previous_start, "@function.outer", "Prev function start" },
         ["[["] = { move.goto_previous_start, "@class.outer", "Prev class start" },
         ["[d"] = { move.goto_previous, "@conditional.outer", "Prev conditional" },
@@ -141,6 +148,17 @@ return {
       }
       for lhs, spec in pairs(movements) do
         map_move(lhs, spec[1], spec[2], spec[3])
+      end
+
+      local swaps = {
+        ["<leader>]p"] = { swap.swap_next, "@parameter.inner", "Swap next parameter" },
+        ["<leader>[p"] = { swap.swap_previous, "@parameter.inner", "Swap prev parameter" },
+
+        ["<leader>]f"] = { swap.swap_next, "@function.outer", "Swap next function" },
+        ["<leader>[f"] = { swap.swap_previous, "@function.outer", "Swap prev function" },
+      }
+      for lhs, spec in pairs(swaps) do
+        map_swap(lhs, spec[1], spec[2], spec[3])
       end
     end,
   },

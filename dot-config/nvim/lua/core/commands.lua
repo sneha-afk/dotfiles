@@ -140,6 +140,13 @@ vim.api.nvim_create_user_command("Serve", function()
   vim.fn.jobstart({ "npx", "serve", ".", "-l", "3000" }, { detach = true })
 end, { desc = "Start local static server using npx serve" })
 
+vim.api.nvim_create_user_command("CopyFilePath", function()
+  -- Command: :let @+ = expand('%:p')
+  local filepath = vim.fn.expand("%:p")
+  vim.fn.setreg("+", filepath)
+  vim.notify("Copied current (absolute) filepath to clipboard", vim.log.levels.INFO)
+end, { desc = "Copies current file path to clipboard" })
+
 -- ============================================================================
 -- AUTO COMMANDS
 -- ============================================================================

@@ -116,6 +116,8 @@ config.keys = {
   { key = "s", mods = "LEADER",       action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
   { key = "v", mods = "LEADER",       action = action.SplitVertical({ domain = "CurrentPaneDomain" }) },
 
+  { key = "f", mods = "LEADER|SHIFT", action = action.ToggleFullScreen },
+
   -- fuzzy launchers
   { key = "t", mods = "LEADER|SHIFT", action = action.ShowLauncherArgs { flags = "TABS" } },
   { key = "p", mods = "LEADER|SHIFT", action = action.ShowLauncherArgs { flags = "COMMANDS" } },
@@ -176,6 +178,7 @@ local ICONS = {
   powershell = "󰨊 ",
   cmd        = " ",
   wezterm    = " ",
+  fzf        = " ",
 }
 
 local ICONS_FUZZY_KEYS = { -- for composite titles/domains (e.g. "WSL:Ubuntu", "ssh user@host")

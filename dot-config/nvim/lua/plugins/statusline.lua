@@ -23,14 +23,16 @@ return {
       always_show_tabline  = false,
     },
     refresh = {
-      refresh_time = 32,
+      refresh_time = vim.g.is_ssh and 64 or 32,
+      statusline = vim.g.is_ssh and 2000 or 1000,
+      tabline = vim.g.is_ssh and 2000 or 1000,
+      winbar = vim.g.is_ssh and 2000 or 1000,
     },
     extensions = {
       "quickfix",
       "toggleterm",
       "overseer",
       "nvim-dap-ui",
-      vim.g.enable_avante and "avante" or nil,
     },
     -- A, B, C are left; X, Y, Z are right
     sections = {

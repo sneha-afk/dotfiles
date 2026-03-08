@@ -80,12 +80,9 @@ $script:NvimPaths.Cache = Join-Path $script:NvimPaths.Data "cache"
 $script:NvimPaths.Swap = Join-Path $script:NvimPaths.Data "swap"
 $script:NvimPaths.Shada = Join-Path $script:NvimPaths.Data "shada"
 
-Set-Alias vim nvim
 Set-Alias nvide neovide
 
-function Enter-NvimConfig {
-    Set-Location $script:NvimPaths.Config
-}
+function Enter-NvimConfig { Set-Location $script:NvimPaths.Config }
 
 function Remove-NvimSwap {
     [CmdletBinding(SupportsShouldProcess)]
@@ -108,9 +105,7 @@ function Remove-NvimShada {
     }
 }
 
-function Start-NvimServer {
-    nvim --headless --listen localhost:6666
-}
+function Start-NvimServer { nvim --headless --listen localhost:6666 }
 
 function Reset-Nvim {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
@@ -138,11 +133,11 @@ function Get-NvimSize {
     }
 
     $sizes = @{
-        'Config Files' = Get-FolderSize $script:NvimPaths.Config
-        'Plugins'      = Get-FolderSize $script:NvimPaths.Lazy
-        'LSPs'         = Get-FolderSize $script:NvimPaths.Mason
-        'Treesitters'  = Get-FolderSize $script:NvimPaths.TreeSitter
-        'Cache'        = Get-FolderSize $script:NvimPaths.Cache
+        'config'     = Get-FolderSize $script:NvimPaths.Config
+        'plugins'    = Get-FolderSize $script:NvimPaths.Lazy
+        'lsp'        = Get-FolderSize $script:NvimPaths.Mason
+        'treesitter' = Get-FolderSize $script:NvimPaths.TreeSitter
+        'cache'      = Get-FolderSize $script:NvimPaths.Cache
     }
 
     $total = ($sizes.Values | Measure-Object -Sum).Sum
@@ -167,15 +162,14 @@ function Search {
         [string[]]$Files
     )
 
-    $rgAvailable = Get-Command rg -ErrorAction SilentlyContinue
-
-    if ($rgAvailable) {
-        $args = @($Pattern) + $Files
-        & rg @args
+    if (Get-Command rg -ErrorAction SilentlyContinue) {
+        $rgArgs = @($Pattern)
+        if ($Files) { $rgArgs += $Files }
+        & rg @rgArgs
     }
     else {
         $searchPath = if ($Files) { $Files } else { "." }
-        Get-ChildItem -Path $searchPath -Recurse -File | Select-String -Pattern $Pattern
+        Get-ChildItem -Path $searchPath -Recurse -File -ErrorAction SilentlyContinue | Select-String -Pattern $Pattern
     }
 }
 
@@ -232,24 +226,18 @@ function Expand-Archive {
 }
 
 Set-Alias extract Expand-Archive
-Set-Alias unzip Expand-Archive
 
 function Enter-Repo {
-    $repoPath = Join-Path $HOME "Repositories"
+    if (-not (Get-Command fzf -ErrorAction SilentlyContinue)) { return }
 
+    $repoPath = Join-Path $HOME "Repositories"
     if (-not (Test-Path $repoPath)) {
         Write-Warning "Repository directory not found: $repoPath"
         return
     }
 
-    $repos = Get-ChildItem -Path $repoPath -Directory
-    if (-not $repos) {
-        Write-Warning "No repositories found in $repoPath"
-        return
-    }
-
-    $selection = $repos | fzf --prompt "Repo> "
-    if ($selection) { Set-Location $selection.FullName }
+    $selection = Get-ChildItem $repoPath -Directory -Name | fzf --prompt "Repo> " --height 60%
+    if ($selection) { Set-Location (Join-Path $repoPath $selection) }
 }
 
 #endregion
@@ -259,10 +247,10 @@ function Enter-Repo {
 Export-ModuleMember -Function @(
     'Require-Admin'
     'Neovide-WSL', 'To-WSLPath', 'WSL-Restart', 'WSL-Kill'
-    'Enter-NvimConfig', 'Remove-NvimSwap', 'Remove-NvimShada', 'Start-NvimServer', 'Start-Leetcode', 'Reset-Nvim', 'Get-NvimSize'
+    'Enter-NvimConfig', 'Remove-NvimSwap', 'Remove-NvimShada', 'Start-NvimServer', 'Reset-Nvim', 'Get-NvimSize'
     'Search', 'Update-All', 'Expand-Archive', 'Enter-Repo'
 ) -Alias @(
-    'wslr', 'wslk', 'vim', 'nvide', 'extract', 'unzip'
+    'wslr', 'wslk', 'nvide', 'extract'
 )
 
 #endregion

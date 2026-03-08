@@ -111,6 +111,11 @@ if (-not $env:EDITOR -or [string]::IsNullOrWhiteSpace($env:EDITOR)) {
         }
     }
 }
+
+if ($env:EDITOR -and $env:EDITOR -eq 'nvim') {
+    Set-Alias vi nvim
+    Set-Alias vim nvim
+}
 #endregion
 
 #endregion
@@ -130,15 +135,14 @@ function Color($name, $text) {
         'Green' { "$($fg.Green)$text$($PSStyle.Reset)" }
         'Yellow' { "$($fg.Yellow)$text$($PSStyle.Reset)" }
         'Blue' { "$($fg.Blue)$text$($PSStyle.Reset)" }
+        'Magenta' { "$($fg.Magenta)$text$($PSStyle.Reset)" }
+        'Cyan' { "$($fg.Cyan)$text$($PSStyle.Reset)" }
         default { $text }
     }
 }
 
 function Get-GitInfo {
     try {
-        git rev-parse --is-inside-work-tree *> $null
-        if (-not $?) { return $null }
-
         $branch = git symbolic-ref --quiet --short HEAD 2>$null
         if (-not $?) {
             $branch = git rev-parse --short HEAD 2>$null
@@ -148,7 +152,7 @@ function Get-GitInfo {
         $dirty = $false
         if ($global:PROMPT_SHOW_GIT_STATUS) {
             $output = git status --porcelain --untracked-files=no --ignore-submodules=dirty 2>$null
-            if (-not [string]::IsNullOrEmpty($output)) { $dirty = $true }
+            $dirty = -not [string]::IsNullOrEmpty($output)
         }
 
         @{
@@ -163,21 +167,25 @@ function Get-GitInfo {
 
 function global:prompt {
     $ok = $?
-    $status = if ($ok) { Color Green '+' } else { Color Red '-' }
+    $statusLine = if ($ok) { Color Green '+' } else { Color Red '-' }
 
     $hostStr = "$env:USERNAME@$env:COMPUTERNAME"
     if ($script:IsWSL) { $hostStr += " (wsl)" }
 
-    $cwd = $PWD.ProviderPath
-    if ($cwd.StartsWith($HOME)) { $cwd = '~' + $cwd.Substring($HOME.Length) }
+    $cwd = $PWD.Path.Replace($HOME, '~')
 
-    $gitSeg = ""
+    $indicators = ""
+
     $git = Get-GitInfo
     if ($git) {
         $dirtyFlag = if ($git.Dirty) { " $(Color Red '*')" } else { "" }
-        $gitSeg = " | $(Color Yellow $git.Branch)$dirtyFlag "
+        $indicators += " | $(Color Yellow $git.Branch)$dirtyFlag "
     }
 
-    "$(Color Blue $hostStr) [$(Color Green $cwd)]$gitSeg`nPS $status "
+    if ($env:SSH_CONNECTION -or $env:SSH_CLIENT -or $env:SSH_TTY) {
+        $indicators += " | $(Color Cyan '[SSH]')"
+    }
+
+    "$global:PROMPT_PREPEND$(Color Blue $hostStr):$(Color Green $cwd)$indicators`nPS $statusLine "
 }
 #endregion

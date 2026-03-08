@@ -10,8 +10,6 @@ vim.opt.mouse       = "a"
 vim.opt.virtualedit = "block" -- Allow cursor past EOL in visual block mode
 vim.opt.autoread    = true    -- Auto-reload externally changed files
 vim.opt.confirm     = true    -- Prompt to save instead of error on :q
-vim.opt.undofile    = true    -- Persistent undo between sessions
-vim.opt.undodir     = vim.fn.stdpath("data") .. "/undo"
 vim.opt.spelllang   = { "en_us" }
 
 -- Clipboard (deferred to avoid startup slowdown)
@@ -135,7 +133,6 @@ vim.opt.sessionoptions = {
   "curdir",
   "tabpages",
   "winsize",
-  "globals", -- Global variables
   "skiprtp", -- Don't save runtime path (prevents path conflicts)
   "folds",
 }
@@ -143,10 +140,25 @@ vim.opt.sessionoptions = {
 -- ============================================================================
 -- PERFORMANCE
 -- ============================================================================
-vim.opt.updatetime     = vim.g.is_ssh and 750 or 250 -- CursorHold/swap write interval (ms)
-vim.opt.timeoutlen     = vim.g.is_ssh and 500 or 150 -- Key sequence timeout (ms)
-vim.opt.synmaxcol      = 180                         -- How many columns to highlight
-vim.opt.jumpoptions    = "view"                      -- Restore view when jumping
+vim.opt.updatetime     = vim.g.is_ssh and 2000 or 250 -- CursorHold/swap write interval (ms)
+vim.opt.timeoutlen     = vim.g.is_ssh and 500 or 150  -- Key sequence timeout (ms)
+vim.opt.synmaxcol      = 180                          -- How many columns to highlight
+vim.opt.jumpoptions    = "view"                       -- Restore view when jumping
 
--- Use swap files over SSH connections that could disconnect
-vim.opt.swapfile       = vim.g.is_ssh and true or false
+-- ============================================================================
+-- BACKUPS
+-- ============================================================================
+vim.opt.undofile       = true -- Persistent undo between sessions
+vim.opt.undodir        = vim.fn.stdpath("data") .. "/undo"
+
+if vim.g.is_ssh then
+  vim.opt.autoread = false
+
+  -- Use swap files over SSH connections that could disconnect
+  vim.opt.swapfile = true
+  local swap_root = vim.fn.stdpath("state") .. "/swap"
+  if vim.fn.isdirectory(swap_root) == 0 then vim.fn.mkdir(swap_root, "p") end
+  vim.opt.directory = swap_root .. "//"
+else
+  vim.opt.swapfile = false
+end
