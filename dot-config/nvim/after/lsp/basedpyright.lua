@@ -3,6 +3,8 @@
 
 ---@type vim.lsp.Config
 return {
+  ---@module "lspconfig"
+  ---@type lspconfig.settings.basedpyright
   settings = {
     basedpyright = {
       disableOrganizeImports = false,
@@ -16,7 +18,7 @@ return {
           reportUnknownMemberType    = "none",
           reportUnknownParameterType = "none",
           reportUnknownVariableType  = "none",
-          reportMissingTypeStubs     = "info",
+          reportMissingTypeStubs     = "information",
         },
       },
     },

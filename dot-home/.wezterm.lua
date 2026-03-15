@@ -108,13 +108,15 @@ config.keys = {
   { key = "q", mods = "CTRL|SHIFT",   action = action.QuitApplication },
 
   { key = "t", mods = "LEADER",       action = action.SpawnTab("CurrentPaneDomain") },
-  { key = "x", mods = "LEADER",       action = action.CloseCurrentTab { confirm = true } },
-  { key = "q", mods = "LEADER",       action = action.CloseCurrentPane { confirm = true } },
   { key = "r", mods = "LEADER",       action = action.ReloadConfiguration },
   { key = "f", mods = "LEADER",       action = action.Search("CurrentSelectionOrEmptyString") },
-  { key = "z", mods = "LEADER",       action = action.TogglePaneZoomState },
-  { key = "s", mods = "LEADER",       action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+
+  { key = "d", mods = "LEADER",       action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+  { key = "h", mods = "LEADER",       action = action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
   { key = "v", mods = "LEADER",       action = action.SplitVertical({ domain = "CurrentPaneDomain" }) },
+  { key = "q", mods = "LEADER",       action = action.CloseCurrentPane { confirm = true } },
+  { key = "w", mods = "LEADER",       action = action.CloseCurrentPane { confirm = true } },
+  { key = "z", mods = "LEADER",       action = action.TogglePaneZoomState },
 
   { key = "f", mods = "LEADER|SHIFT", action = action.ToggleFullScreen },
 

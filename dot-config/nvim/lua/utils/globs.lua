@@ -81,23 +81,30 @@ end
 
 ---Returns true if a file by `name` should be ignored
 ---@param name string
+---@param bufnr? integer optional buffer number (oil passes this, others don't)
 ---@return boolean Ignore `name`?
-function M.ignore(name)
-  -- fast dir short-circuit
-  if name:find("node_modules/", 1, true)
-  or name:find(".git/", 1, true)
-  or name:find("bazel-", 1, true)
-  or name:find("target/", 1, true)
-  or name:find("dist/", 1, true)
-  or name:find("build/", 1, true)
-  or name:find("__pycache__/", 1, true)
-  or name:find(".venv/", 1, true)
-  or name:find("venv/", 1, true)
-  then
-    return true
+function M.ignore(name, bufnr)
+  -- Oil provides bufnr and passes in basename only
+  -- Else, check for path separators to handle both cases
+  local is_basename = bufnr ~= nil or not name:find("/", 1, true)
+
+  if not is_basename then
+    -- fast dir short-circuit
+    if name:find("node_modules/", 1, true)
+    or name:find(".git/", 1, true)
+    or name:find("bazel-", 1, true)
+    or name:find("target/", 1, true)
+    or name:find("dist/", 1, true)
+    or name:find("build/", 1, true)
+    or name:find("__pycache__/", 1, true)
+    or name:find(".venv/", 1, true)
+    or name:find("venv/", 1, true)
+    then
+      return true
+    end
   end
 
-  local basename = name:match("[^/]+$") or name
+  local basename = is_basename and name or (name:match("[^/]+$") or name)
 
   if static_ignores[basename] then return true end
 

@@ -38,7 +38,7 @@ if has('persistent_undo')
 endif
 
 " Clipboard integration: use system clipboard for yank/paste
-set clipboard+=unnamedplus
+set clipboard=unnamed,unnamedplus
 
 " ============================================================================
 " UI
@@ -48,7 +48,6 @@ set cursorline                   " Highlight current line
 set showmode                     " Show current mode in command line
 set colorcolumn=120              " Show column marker
 set scrolloff=5                  " Keep n lines visible above/below cursor
-set shortmess+=I                 " Don't show intro message on startup
 " set signcolumn=yes
 
 set wrap
@@ -82,14 +81,28 @@ set autoindent                   " Auto indentation
 set smartindent                  " Smart indentation for C-like languages
 set shiftround                   " Shift to the next round tab stop
 
+set noshowmode
+let &statusline =
+      \ ' %{toupper(mode())} ' .
+      \ '│ %<%f%r%m ' .
+      \ '%{exists("*FugitiveHead") && FugitiveHead() != "" ? "│ ".FugitiveHead()." " : ""}' .
+      \ '%=' .
+      \ '%y │ ' .
+      \ '%{&ff=="unix"?"LF":&ff=="dos"?"CRLF":"CR"} │ ' .
+      \ '%3p%% │ ' .
+      \ '%4l:%-3c '
+
 " ============================================================================
 " SEARCH
 " ============================================================================
-set ignorecase          " Case-insensitive search
 set smartcase           " Case-sensitive if uppercase
 set hlsearch            " Highlight matches
 set incsearch           " Incremental search
 set wrapscan            " Wrap around when searching
+
+set path+=**
+set wildignore+=**/node_modules/**,**/.git/**,**/dist/**,**/build/**
+set wildignore+=*.pyc,*.o,*.obj,*.swp,*.class
 
 " Live substitution preview
 if has('nvim') || has('inccommand')
@@ -115,6 +128,7 @@ set completeopt=menu,menuone,noselect
 " PERFORMANCE
 " ============================================================================
 set synmaxcol=180
+set ttyfast
 
 " Faster CursorHold events
 if has('updatetime')
@@ -157,11 +171,12 @@ if g:have_plugins
   endif
 
   call plug#begin(s:plugged_dir)
-    Plug 'itchyny/lightline.vim', { 'as': 'lightline' }
     Plug 'jiangmiao/auto-pairs'
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-surround'
     Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTreeCWD'] }
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
   call plug#end()
 
     " Run PlugInstall if there are missing plugins
@@ -191,38 +206,6 @@ endfor
 " ============================================================================
 " PLUGIN CONFIGURATION
 " ============================================================================
-
-" Lightline
-if IsPluginAvailable('lightline')
-  set noshowmode
-  let g:lightline = {
-        \ 'colorscheme': 'one',
-        \ 'active': {
-        \   'left': [ [ 'mode', 'paste' ],
-        \             [ 'filename', 'readonly', 'modified' ] ],
-        \   'right': [ [ 'lineinfo' ],
-        \              [ 'percent' ],
-        \              [ 'fileformat', 'filetype' ] ]
-        \ },
-        \ 'component': {
-        \   'fileformat': '%{&ff=="unix"?"LF":&ff=="dos"?"CRLF":"CR"}'
-        \ }
-        \ }
-
-  if exists('g:colors_name') && !empty(globpath(&rtp, 'autoload/lightline/colorscheme/' . tolower(g:colors_name) . '.vim'))
-    let g:lightline.colorscheme = tolower(g:colors_name)
-  endif
-else
-    set statusline=\ %{toupper(mode())}
-    set statusline+=\ │\ %f
-    set statusline+=%r
-    set statusline+=%m
-    set statusline+=%=
-    set statusline+=Ln\ %l/%L,\ Col\ %c
-    set statusline+=\ │\ %p%%
-    set statusline+=\ │\ %{&ff==\"unix\"?\"LF\":&ff==\"dos\"?\"CRLF\":\"CR\"}
-    set statusline+=\ │\ %y
-endif
 
 " NERDTree
 if IsPluginAvailable('nerdtree')
@@ -267,7 +250,6 @@ if has('nvim') || has('patch-8.2.0000')
 endif
 
 " Buffer operations
-nnoremap <leader>bl :ls<CR>:buffer<Space> " List and select buffer
 nnoremap ]b :bnext<CR>                     " Next buffer
 nnoremap [b :bprevious<CR>                 " Previous buffer
 nnoremap <leader>bd :bdelete<CR>           " Delete current buffer
@@ -301,21 +283,58 @@ tnoremap <C-k> <C-\><C-n><C-u>            " Scroll up half page
 
 " File explorer
 if IsPluginAvailable('nerdtree')
-  nnoremap <leader>e :NERDTreeToggle<CR>
-  nnoremap - :NERDTreeToggle<CR>
-  nnoremap <leader>E :NERDTreeFind<CR>
-  nnoremap <leader>. :NERDTreeCWD<CR>
+    nnoremap <leader>fe :NERDTreeToggle<CR>
+    nnoremap <leader>fE :NERDTreeFind<CR>
+    nnoremap - :NERDTreeToggle<CR>
+    nnoremap <leader>. :NERDTreeCWD<CR>
 else
-  nnoremap <leader>e :Lexplore<CR>
-  nnoremap - :Lexplore<CR>
-  nnoremap <leader>E :Lexplore %:p:h<CR>
-  nnoremap <leader>. :Explore ..<CR>
+    nnoremap <leader>fe :Lexplore<CR>
+    nnoremap <leader>fE :Lexplore %:p:h<CR>
+endif
+
+" Finders
+nnoremap <leader>ff :find **/*
+nnoremap <leader>fb :ls<CR>:buffer<Space>
+nnoremap <leader>fr :browse oldfiles<CR>
+
+if IsPluginAvailable('fzf.vim')
+  nnoremap <leader>ff :Files<CR>
+  nnoremap <leader>fb :Buffers<CR>
+  nnoremap <leader>fr :History<CR>
+  nnoremap <leader>fg :Rg<Space>
+  nnoremap <leader>fl :Lines<CR>
+  nnoremap <leader>fh :Helptags<CR>
+  let g:fzf_action = {
+        \ 'ctrl-t': 'tab split',
+        \ 'ctrl-x': 'split',
+        \ 'ctrl-v': 'vsplit' }
+  autocmd! FileType fzf tnoremap <buffer> <Esc> <C-c>
+elseif executable('rg') || executable('fd')
+  if executable('rg')
+    set grepprg=rg\ --vimgrep\ --smart-case\ --hidden
+    set grepformat=%f:%l:%c:%m
+    command! -nargs=+ Rg execute 'silent grep! <args>' | copen
+    nnoremap <leader>fg :Rg<Space>
+  endif
+
+  if executable('fd')
+    command! -nargs=+ Fd call s:fd_to_qf(<q-args>)
+    function! s:fd_to_qf(pattern)
+      let results = systemlist('fd --type f --hidden --follow --exclude .git ' . shellescape(a:pattern))
+      if empty(results)
+        echo 'No matches found'
+        return
+      endif
+      call setqflist([], 'r', {'title': 'fd: ' . a:pattern, 'items': map(results, '{"filename": v:val}')})
+      copen
+    endfunction
+    nnoremap <leader>ff :Fd<Space>
+  endif
 endif
 
 " Commenting
 if IsPluginAvailable('vim-commentary')
   nnoremap <leader>cc :Commentary<CR>
-  nnoremap <leader>// :Commentary<CR>
   vnoremap <leader>c :Commentary<CR>
   nnoremap <leader>C :<C-u>Commentary<C-Left><C-Left>
 else
@@ -373,11 +392,8 @@ else
 
   nnoremap <leader>cc :call CommentToggle()<CR>
   vnoremap <leader>cc :call CommentToggle()<CR>
-  nnoremap <leader>// :call CommentToggle()<CR>
-  vnoremap <leader>// :call CommentToggle()<CR>
 endif
 
-" Visual mode enhancements
 vnoremap < <gv
 vnoremap > >gv
 
@@ -389,12 +405,7 @@ inoremap <A-k> <Esc>:move .-2<CR>==gi
 vnoremap <A-j> :move '>+1<CR>gv=gv
 vnoremap <A-k> :move '<-2<CR>gv=gv
 
-function! Messages()
-  let l:view = winsaveview()  " Save current view
-  messages
-  call winrestview(l:view)
-endfunction
-nnoremap <leader>hm :call Messages()<CR>
+nnoremap <leader>hm :messages<CR>
 
 " ============================================================================
 " AUTO-COMPLETION (Fallback)

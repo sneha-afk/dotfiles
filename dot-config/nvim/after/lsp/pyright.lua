@@ -2,6 +2,8 @@
 
 ---@type vim.lsp.Config
 return {
+  ---@module "lspconfig"
+  ---@type lspconfig.settings.pyright
   settings = {
     pyright = {
       disableOrganizeImports = false,

@@ -26,12 +26,14 @@ local explorer_sidebar = function()
     layout = right_sidebar,
     cwd = Snacks.git.get_root() or vim.uv.cwd(),
     auto_close = false,
+    git_status = vim.g.show_git_status_in_tree ~= false, -- defaults to true if unset
   })
 end
 
 local explorer_fullscreen = function()
   Snacks.explorer({
     cwd = Snacks.git.get_root() or vim.uv.cwd(),
+    git_status = vim.g.show_git_status_in_tree ~= false,
   })
 end
 
@@ -354,7 +356,7 @@ return {
       sections = {
         { section = "header" },
         { section = "keys", padding = 1 },
-        { section = "recent_files", padding = 1, indent = 2, limit = 5, title = "Recent files", icon = "🕘" },
+        { section = "recent_files", padding = 1, indent = 2, limit = 8, title = "Recent files", icon = "🕘" },
         { section = "projects", padding = 1, indent = 2, limit = 5, title = "Recent projects", icon = "🗃️" },
         { section = "startup" },
         {

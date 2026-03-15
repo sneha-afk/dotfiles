@@ -28,6 +28,23 @@ Tested to work cross-platform, with platform-specifics guarded around constants 
 
 Leader key set to `,` and localleader set to `/` in `.config/nvim/init.lua`.
 
+
+| File | Purpose |
+|------|---------|
+| `core/filetypes.lua` | Settings for groups of related filetypes |
+| `core/keymaps.lua`   | Global keybindings and mappings |
+| `core/options.lua`   | Basic Neovim settings (tabs, line numbers, etc.) |
+
+### globals
+
+Various global variables are set to gauge the current environment or to dynamically configure, especially when another config is extending from this.
+- `vim.g.is_windows`
+- `vim.g.is_wezterm`
+- `vim.g.is_ssh`
+- `vim.g.show_git_status_in_tree`: used in explorer/file tree
+
+#### `use_icons_manual`
+
 If your terminal does not support Nerd Font Symbols, or a relevant font set is not installed, you should set
 ```lua
 vim.g.use_icons_manual = false
@@ -35,12 +52,7 @@ vim.g.use_icons_manual = false
 
 within `init.lua`. This ensures many icons are replaced with ASCII/Unicode equivalents.
 
-
-| File | Purpose |
-|------|---------|
-| `core/filetypes.lua` | Settings for groups of related filetypes |
-| `core/keymaps.lua`   | Global keybindings and mappings |
-| `core/options.lua`   | Basic Neovim settings (tabs, line numbers, etc.) |
+Note that terminal detection is done to override this setting when supported (i.e WezTerm)
 
 ### LSP Configuration
 

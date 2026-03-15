@@ -22,6 +22,8 @@ return {
       includePackageJsonAutoImports = "auto",
     },
   },
+  ---@module "lspconfig"
+  ---@type lspconfig.settings.ts_ls
   settings = {
     diagnostics = {
       -- https://github.com/microsoft/TypeScript/blob/main/src/compiler/diagnosticMessages.json

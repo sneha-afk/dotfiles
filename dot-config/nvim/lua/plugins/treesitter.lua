@@ -11,7 +11,7 @@ return {
     lazy = false,
     enabled = function()
       if vim.fn.executable("tree-sitter") == 1 then return true end
-      vim.notify("nvim-treesitter: 'tree-sitter' CLI not found; disabling plugin", vim.log.levels.WARN)
+      vim.notify("'tree-sitter' CLI not found; disabling plugin", vim.log.levels.WARN, { title = "nvim-treesitter" })
       return false
     end,
     branch = "main",
@@ -27,7 +27,8 @@ return {
         "lua", "luadoc",
         "vim", "vimdoc",
         "markdown", "markdown_inline",
-        "git_config", "gitcommit", "diff",
+        "git_config", "git_rebase", "gitcommit", "gitignore", "gitattributes",
+        "diff",
         "regex", "comment",
         "c", "cpp", "make",
         "python",
@@ -42,7 +43,7 @@ return {
       })
 
       vim.api.nvim_create_autocmd("FileType", {
-        pattern = treesitter.get_installed(),
+        pattern = "*",
         group = vim.api.nvim_create_augroup("Treesitter_Custom", { clear = true }),
         callback = function(args)
           local buf = args.buf

@@ -11,14 +11,10 @@ return {
   opts = {
     default_file_explorer = false,
 
-    delete_to_trash = true,
-    skip_confirm_for_simple_edits = true,
-    prompt_save_on_select_new_entry = false,
-    cleanup_delay_ms = 2000,
-    constrain_cursor = "name",
+    delete_to_trash = not vim.g.is_ssh,
     view_options = {
       show_hidden = false,
-      is_always_hidden = require("utils.fileops").ignore,
+      is_always_hidden = require("utils.globs").ignore,
     },
     columns = {
       -- "icon",
@@ -32,10 +28,6 @@ return {
         format = "%Y-%m-%d %H:%M",
         highlight = "Comment",
       },
-    },
-    buf_options = {
-      buflisted = false,
-      bufhidden = "hide",
     },
     win_options = {
       cursorline = true,
@@ -51,5 +43,21 @@ return {
       ["<localleader>."] = "actions.toggle_hidden",
       ["q"] = { "actions.close", mode = "n" }, -- C-c or q to close
     },
+    keymaps_help = {
+      border = "rounded",
+    },
   },
+  config = function(_, opts)
+    require("oil").setup(opts)
+
+    -- https://github.com/folke/snacks.nvim/blob/main/docs/rename.md#oilnvim
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "OilActionsPost",
+      callback = function(event)
+        if event.data.actions[1].type == "move" then
+          Snacks.rename.on_rename_file(event.data.actions[1].src_url, event.data.actions[1].dest_url)
+        end
+      end,
+    })
+  end,
 }
