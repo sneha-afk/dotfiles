@@ -15,9 +15,10 @@ let g:have_plugins = 0
 
 let g:is_windows = has('win32') || has('win64')
 let g:vim_home = g:is_windows ? expand('$HOME/vimfiles') : expand('~/.vim')
+let s:is_nvim = has('nvim')
 
 " ============================================================================
-" EDITING BEHAVIOR
+" CORE
 " ============================================================================
 set encoding=utf-8               " Default character encoding
 set fileformats=unix,dos         " Preferred line ending formats
@@ -31,14 +32,24 @@ set laststatus=2
 
 if has('persistent_undo')
     set undofile
-    let &undodir = has('nvim') ? stdpath('data').'/undo' : expand(g:vim_home . '/undo')
-    if !isdirectory(&undodir)
-        call mkdir(&undodir, 'p', 0700)
-    endif
+    let &undodir = s:is_nvim ? stdpath('data').'/undo' : expand(g:vim_home . '/undo')
+    if !isdirectory(&undodir) | call mkdir(&undodir, 'p', 0700) | endif
 endif
 
 " Clipboard integration: use system clipboard for yank/paste
 set clipboard=unnamed,unnamedplus
+
+set wildmenu
+set wildmode=list:longest,full
+set wildignore+=**/node_modules/**,**/.git/**,**/dist/**,**/build/**
+set wildignore+=*.pyc,*.o,*.obj,*.swp,*.class
+set path+=**
+set completeopt=menu,menuone,noselect
+
+set foldmethod=manual
+set foldlevel=99
+set foldlevelstart=10
+set foldnestmax=4
 
 " ============================================================================
 " UI
@@ -57,9 +68,9 @@ set breakindent                  " Indent wrapped lines to match start
 set breakindentopt=shift:4       " Additional indent for wrapped lines
 
 " Whitespace visualization
-set list                         " Show invisible characters
-set listchars=tab:▸\ ,trail:·,nbsp:␣ " Symbols for tab, trailing space, non-breaking space
-set fillchars=foldopen:▾,foldsep:│,foldclose:▸ " Characters for fold display
+set list
+set listchars=tab:▸\ ,trail:·,nbsp:␣
+set fillchars=foldopen:▾,foldsep:│,foldclose:▸
 
 if has('gui_running')
     set guifont=Geist_Mono:h10,Consolas:h10,Segoe_UI_Emoji:h10
@@ -83,111 +94,15 @@ set shiftround                   " Shift to the next round tab stop
 
 set noshowmode
 let &statusline =
-      \ ' %{toupper(mode())} ' .
-      \ '│ %<%f%r%m ' .
-      \ '%{exists("*FugitiveHead") && FugitiveHead() != "" ? "│ ".FugitiveHead()." " : ""}' .
-      \ '%=' .
-      \ '%y │ ' .
-      \ '%{&ff=="unix"?"LF":&ff=="dos"?"CRLF":"CR"} │ ' .
-      \ '%3p%% │ ' .
-      \ '%4l:%-3c '
+            \ ' %{toupper(mode())} ' .
+            \ '│ %<%f%r%m ' .
+            \ '%{exists("*FugitiveHead") && FugitiveHead() != "" ? "│ ".FugitiveHead()." " : ""}' .
+            \ '%=' .
+            \ '%y │ ' .
+            \ '%{&ff=="unix"?"LF":&ff=="dos"?"CRLF":"CR"} │ ' .
+            \ '%3p%% │ ' .
+            \ '%4l:%-3c '
 
-" ============================================================================
-" SEARCH
-" ============================================================================
-set smartcase           " Case-sensitive if uppercase
-set hlsearch            " Highlight matches
-set incsearch           " Incremental search
-set wrapscan            " Wrap around when searching
-
-set path+=**
-set wildignore+=**/node_modules/**,**/.git/**,**/dist/**,**/build/**
-set wildignore+=*.pyc,*.o,*.obj,*.swp,*.class
-
-" Live substitution preview
-if has('nvim') || has('inccommand')
-  set inccommand=nosplit
-endif
-
-" ============================================================================
-" FOLDING
-" ============================================================================
-set foldmethod=manual
-set foldlevel=99
-set foldlevelstart=10
-set foldnestmax=4
-
-" ============================================================================
-" COMPLETION & COMMAND LINE
-" ============================================================================
-set wildmenu
-set wildmode=list:longest,full
-set completeopt=menu,menuone,noselect
-
-" ============================================================================
-" PERFORMANCE
-" ============================================================================
-set synmaxcol=180
-set ttyfast
-
-" Faster CursorHold events
-if has('updatetime')
-  set updatetime=250
-endif
-
-" Faster keymap timeout
-if has('timeoutlen')
-  set timeoutlen=300
-endif
-
-" ============================================================================
-" PLUGIN MANAGEMENT: https://github.com/junegunn/vim-plug
-" ============================================================================
-function! IsPluginAvailable(plugin) abort
-  return exists('g:plugs') && has_key(g:plugs, a:plugin)
-endfunction
-
-if g:have_plugins
-  let s:autoload_dir = expand(g:vim_home . '/autoload')
-  let s:plugged_dir = expand(g:vim_home . '/plugged')
-  let s:plug_file = expand(s:autoload_dir . '/plug.vim')
-
-  " Bootstrap vim-plug if missing
-  if empty(glob(s:plug_file))
-    call mkdir(s:autoload_dir, 'p')
-
-    if g:is_windows
-      silent execute '!powershell -Command "'
-            \ . 'iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim '
-            \ . '-OutFile ' . shellescape(s:plug_file)
-            \ . '"'
-    else
-      silent execute '!curl -fLo ' . shellescape(s:plug_file)
-            \ . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim '
-    endif
-
-    echo 'vim-plug installed — restart Vim'
-    finish
-  endif
-
-  call plug#begin(s:plugged_dir)
-    Plug 'jiangmiao/auto-pairs'
-    Plug 'tpope/vim-commentary'
-    Plug 'tpope/vim-surround'
-    Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTreeCWD'] }
-    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-    Plug 'junegunn/fzf.vim'
-  call plug#end()
-
-    " Run PlugInstall if there are missing plugins
-  autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
-        \| PlugInstall --sync
-        \| endif
-endif
-
-" ============================================================================
-" COLOR SCHEME
-" ============================================================================
 syntax enable
 set background=dark
 
@@ -200,24 +115,106 @@ endif
 
 let s:colorschemes = ['catppuccin', 'sorbet', 'slate']
 for scheme in s:colorschemes
-  try | execute 'colorscheme ' . scheme | break | catch | endtry
+    try | execute 'colorscheme ' . scheme | break | catch | endtry
 endfor
+
+" ============================================================================
+" SEARCH
+" ============================================================================
+set smartcase           " Case-sensitive if uppercase
+set hlsearch            " Highlight matches
+set incsearch           " Incremental search
+set wrapscan            " Wrap around when searching
+
+" Live substitution preview
+if has('inccommand') || s:is_nvim
+    set inccommand=nosplit
+endif
+
+" ============================================================================
+" PERFORMANCE
+" ============================================================================
+set synmaxcol=180
+set ttyfast
+
+" Faster CursorHold events
+if has('updatetime')
+    set updatetime=250
+endif
+
+" Faster keymap timeout
+if has('timeoutlen')
+    set timeoutlen=200
+endif
+
+" ============================================================================
+" PLUGIN MANAGEMENT: https://github.com/junegunn/vim-plug
+" ============================================================================
+function! IsPluginAvailable(plugin) abort
+    return exists('g:plugs') && has_key(g:plugs, a:plugin)
+endfunction
+
+if g:have_plugins
+    let s:autoload_dir = expand(g:vim_home . '/autoload')
+    let s:plugged_dir = expand(g:vim_home . '/plugged')
+    let s:plug_file = expand(s:autoload_dir . '/plug.vim')
+
+    " Bootstrap vim-plug if missing
+    if empty(glob(s:plug_file))
+        call mkdir(s:autoload_dir, 'p')
+
+        if g:is_windows
+            silent execute '!powershell -Command "'
+                        \ . 'iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim '
+                        \ . '-OutFile ' . shellescape(s:plug_file)
+                        \ . '"'
+        else
+            silent execute '!curl -fLo ' . shellescape(s:plug_file)
+                        \ . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim '
+        endif
+
+        echo 'vim-plug installed — restart Vim'
+        finish
+    endif
+
+    call plug#begin(s:plugged_dir)
+    Plug 'jiangmiao/auto-pairs'
+    Plug 'tpope/vim-commentary'
+    Plug 'tpope/vim-surround'
+    Plug 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind', 'NERDTreeCWD'] }
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
+    call plug#end()
+
+    " Run PlugInstall if there are missing plugins
+    augroup PlugBootstrap
+        autocmd!
+        autocmd VimEnter *
+                    \ if len(filter(values(g:plugs), '!isdirectory(v:val.dir)')) |
+                    \ PlugInstall --sync |
+                    \ endif
+    augroup END
+endif
+
 
 " ============================================================================
 " PLUGIN CONFIGURATION
 " ============================================================================
 
-" NERDTree
 if IsPluginAvailable('nerdtree')
-  let g:loaded_netrw = 1
-  let g:loaded_netrwPlugin = 1
-  let NERDTreeShowHidden = 1
-  let NERDTreeIgnore = ['\.pyc$', '\.swp$', '\.git$']
-  let NERDTreeWinSize = 35
+    let g:loaded_netrw = 1
+    let g:loaded_netrwPlugin = 1
+    let NERDTreeShowHidden = 1
+    let NERDTreeIgnore = ['\.pyc$', '\.swp$', '\.git$']
+    let NERDTreeWinSize = 35
 else
-  let g:netrw_winsize = 35
-  let g:netrw_liststyle = 3
-  let g:netrw_keepdir = 0
+    let g:netrw_winsize = 35
+    let g:netrw_liststyle = 3
+    let g:netrw_keepdir = 0
+endif
+
+if IsPluginAvailable('fzf.vim')
+    let g:fzf_action = { 'ctrl-t': 'tab split', 'ctrl-x': 'split', 'ctrl-v': 'vsplit' }
 endif
 
 " ============================================================================
@@ -226,10 +223,13 @@ endif
 let mapleader = ","
 
 " File operations
-nnoremap <leader>w :w<CR>        " Save file
+nnoremap <leader>w :update<CR>   " Save file
 nnoremap <leader>q :q<CR>        " Quit window
-nnoremap <leader>x :wq<CR>       " Save and quit
+nnoremap <leader>x :x<CR>        " Save and quit
 nnoremap <leader>Q :qa<CR>       " Quit all windows
+
+command! Reindent normal! gg=G
+nnoremap <leader>= :Reindent<CR>
 
 nnoremap <leader>cs :nohl<CR>    " Clear search highlighting
 
@@ -242,11 +242,11 @@ nnoremap <leader>vs :vsplit<CR>  " Vertical split
 nnoremap <leader>hs :split<CR>   " Horizontal split
 
 " Window resizing (Vim 8.2+)
-if has('nvim') || has('patch-8.2.0000')
-  nnoremap <C-Up> :resize +2<CR>            " Increase height
-  nnoremap <C-Down> :resize -2<CR>          " Decrease height
-  nnoremap <C-Left> :vertical resize -2<CR> " Decrease width
-  nnoremap <C-Right> :vertical resize +2<CR>" Increase width
+if s:is_nvim || has('patch-8.2.0000')
+    nnoremap <C-Up> :resize +2<CR>
+    nnoremap <C-Down> :resize -2<CR>
+    nnoremap <C-Left> :vertical resize -2<CR>
+    nnoremap <C-Right> :vertical resize +2<CR>
 endif
 
 " Buffer operations
@@ -265,21 +265,23 @@ nnoremap <leader>tl :tablast<CR>     " Go to last tab
 
 " Quick access to buffers/tabs 1-3
 for i in range(1, 3)
-  execute 'nnoremap <leader>b' . i . ' :' . i . 'b<CR>'
-  execute 'nnoremap <leader>t' . i . ' ' . i . 'gt'
+    execute 'nnoremap <leader>b' . i . ' :' . i . 'b<CR>'
+    execute 'nnoremap <leader>t' . i . ' ' . i . 'gt'
 endfor
 
+" Terminal
 nnoremap <leader>ht :terminal<CR>
 nnoremap <leader>vt :vertical terminal<CR>
-
-tnoremap <Esc> <C-\><C-n>                 " Exit terminal mode to normal
-tnoremap <C-w>h <C-\><C-n><C-w>h          " Move left from terminal
-tnoremap <C-w>j <C-\><C-n><C-w>j          " Move down from terminal
-tnoremap <C-w>k <C-\><C-n><C-w>k          " Move up from terminal
-tnoremap <C-w>l <C-\><C-n><C-w>l          " Move right from terminal
-tnoremap <C-w>q <C-\><C-n>:bd!<CR>        " Close terminal buffer
-tnoremap <C-j> <C-\><C-n><C-d>            " Scroll down half page
-tnoremap <C-k> <C-\><C-n><C-u>            " Scroll up half page
+if s:is_nvim
+    tnoremap <Esc> <C-\><C-n>                 " Exit terminal mode to normal
+    tnoremap <C-w>h <C-\><C-n><C-w>h          " Move left from terminal
+    tnoremap <C-w>j <C-\><C-n><C-w>j          " Move down from terminal
+    tnoremap <C-w>k <C-\><C-n><C-w>k          " Move up from terminal
+    tnoremap <C-w>l <C-\><C-n><C-w>l          " Move right from terminal
+    tnoremap <C-w>q <C-\><C-n>:bd!<CR>        " Close terminal buffer
+    tnoremap <C-j> <C-\><C-n><C-d>            " Scroll down half page
+    tnoremap <C-k> <C-\><C-n><C-u>            " Scroll up half page
+endif
 
 " File explorer
 if IsPluginAvailable('nerdtree')
@@ -293,105 +295,101 @@ else
 endif
 
 " Finders
-nnoremap <leader>ff :find **/*
-nnoremap <leader>fb :ls<CR>:buffer<Space>
-nnoremap <leader>fr :browse oldfiles<CR>
-
 if IsPluginAvailable('fzf.vim')
-  nnoremap <leader>ff :Files<CR>
-  nnoremap <leader>fb :Buffers<CR>
-  nnoremap <leader>fr :History<CR>
-  nnoremap <leader>fg :Rg<Space>
-  nnoremap <leader>fl :Lines<CR>
-  nnoremap <leader>fh :Helptags<CR>
-  let g:fzf_action = {
-        \ 'ctrl-t': 'tab split',
-        \ 'ctrl-x': 'split',
-        \ 'ctrl-v': 'vsplit' }
-  autocmd! FileType fzf tnoremap <buffer> <Esc> <C-c>
-elseif executable('rg') || executable('fd')
-  if executable('rg')
-    set grepprg=rg\ --vimgrep\ --smart-case\ --hidden
-    set grepformat=%f:%l:%c:%m
-    command! -nargs=+ Rg execute 'silent grep! <args>' | copen
+    nnoremap <leader>ff :Files<CR>
+    nnoremap <leader>fb :Buffers<CR>
+    nnoremap <leader>fr :History<CR>
     nnoremap <leader>fg :Rg<Space>
-  endif
+    nnoremap <leader>fl :Lines<CR>
+    nnoremap <leader>fh :Helptags<CR>
+    autocmd! FileType fzf tnoremap <buffer> <Esc> <C-c>
+elseif executable('rg') || executable('fd')
+    if executable('rg')
+        set grepprg=rg\ --vimgrep\ --smart-case\ --hidden
+        set grepformat=%f:%l:%c:%m
+        command! -nargs=+ Rg execute 'silent grep! <args>' | copen
+        nnoremap <leader>fg :Rg<Space>
+    endif
 
-  if executable('fd')
-    command! -nargs=+ Fd call s:fd_to_qf(<q-args>)
-    function! s:fd_to_qf(pattern)
-      let results = systemlist('fd --type f --hidden --follow --exclude .git ' . shellescape(a:pattern))
-      if empty(results)
-        echo 'No matches found'
-        return
-      endif
-      call setqflist([], 'r', {'title': 'fd: ' . a:pattern, 'items': map(results, '{"filename": v:val}')})
-      copen
-    endfunction
-    nnoremap <leader>ff :Fd<Space>
-  endif
+    if executable('fd')
+        command! -nargs=+ Fd call s:fd_to_qf(<q-args>)
+        function! s:fd_to_qf(pattern)
+            let results = systemlist('fd --type f --hidden --follow --exclude .git ' . shellescape(a:pattern))
+            if empty(results)
+                echo 'No matches found'
+                return
+            endif
+            call setqflist([], 'r', {'title': 'fd: ' . a:pattern, 'items': map(results, '{"filename": v:val}')})
+            copen
+        endfunction
+        nnoremap <leader>ff :Fd<Space>
+    endif
+else
+    nnoremap <leader>ff :find **/*
+    nnoremap <leader>fb :ls<CR>:buffer<Space>
+    nnoremap <leader>fr :browse oldfiles<CR>
 endif
 
 " Commenting
 if IsPluginAvailable('vim-commentary')
-  nnoremap <leader>cc :Commentary<CR>
-  vnoremap <leader>c :Commentary<CR>
-  nnoremap <leader>C :<C-u>Commentary<C-Left><C-Left>
+    nnoremap <leader>cc :Commentary<CR>
+    vnoremap <leader>c :Commentary<CR>
+    nnoremap <leader>C :<C-u>Commentary<C-Left><C-Left>
 else
-  " Fallback comment function
-  function! CommentToggle() range
-    let comment_chars = {
-          \ 'vim': '"',
-          \ 'python': '#', 'sh': '#', 'bash': '#', 'ruby': '#', 'perl': '#',
-          \ 'c': '//', 'cpp': '//', 'java': '//', 'javascript': '//', 'js': '//',
-          \ 'go': '//', 'php': '//', 'typescript': '//', 'rust': '//',
-          \ 'html': '<!--', 'xml': '<!--', 'css': '/*', 'scss': '/*', 'less': '/*',
-          \ 'lua': '--'
-          \ }
+    " Fallback comment function
+    function! CommentToggle() range
+        let comment_chars = {
+                    \ 'vim': '"',
+                    \ 'python': '#', 'sh': '#', 'bash': '#', 'ruby': '#', 'perl': '#',
+                    \ 'c': '//', 'cpp': '//', 'java': '//', 'javascript': '//', 'js': '//',
+                    \ 'go': '//', 'php': '//', 'typescript': '//', 'rust': '//',
+                    \ 'html': '<!--', 'xml': '<!--', 'css': '/*', 'scss': '/*', 'less': '/*',
+                    \ 'lua': '--'
+                    \ }
 
-    let comment_ends = {
-          \ 'html': '-->', 'xml': '-->',
-          \ 'css': '*/', 'scss': '*/', 'less': '*/'
-          \ }
+        let comment_ends = {
+                    \ 'html': '-->', 'xml': '-->',
+                    \ 'css': '*/', 'scss': '*/', 'less': '*/'
+                    \ }
 
-    let ft = &filetype
-    if !has_key(comment_chars, ft)
-      echo "No comment syntax for filetype: " . ft
-      return
-    endif
-
-    let [cstart, cend] = [comment_chars[ft], get(comment_ends, ft, '')]
-    let escaped_cstart = escape(cstart, '/*')
-
-    for lnum in range(a:firstline, a:lastline)
-      let line = getline(lnum)
-      let is_commented = 0
-
-      if line =~ '^\s*' . escaped_cstart . '\s\?'
-        let is_commented = 1
-        if cend != '' && line !~ escape(cend, '/*') . '\s*$'
-          let is_commented = 0
+        let ft = &filetype
+        if !has_key(comment_chars, ft)
+            echo "No comment syntax for filetype: " . ft
+            return
         endif
-      endif
 
-      if is_commented
-        let line = substitute(line, '^\(\s*\)' . escaped_cstart . '\s\?', '\1', '')
-        if cend != ''
-          let line = substitute(line, '\s\?' . escape(cend, '/*') . '\s*$', '', '')
-        endif
-      else
-        let line = substitute(line, '^\(\s*\)', '\1' . cstart . ' ', '')
-        if cend != ''
-          let line = substitute(line, '\s*$', ' ' . cend, '')
-        endif
-      endif
+        let [cstart, cend] = [comment_chars[ft], get(comment_ends, ft, '')]
+        let escaped_cstart = escape(cstart, '/*')
 
-      call setline(lnum, line)
-    endfor
-  endfunction
+        for lnum in range(a:firstline, a:lastline)
+            let line = getline(lnum)
+            let is_commented = 0
 
-  nnoremap <leader>cc :call CommentToggle()<CR>
-  vnoremap <leader>cc :call CommentToggle()<CR>
+            if line =~ '^\s*' . escaped_cstart . '\s\?'
+                let is_commented = 1
+                if cend != '' && line !~ escape(cend, '/*') . '\s*$'
+                    let is_commented = 0
+                endif
+            endif
+
+            if is_commented
+                let line = substitute(line, '^\(\s*\)' . escaped_cstart . '\s\?', '\1', '')
+                if cend != ''
+                    let line = substitute(line, '\s\?' . escape(cend, '/*') . '\s*$', '', '')
+                endif
+            else
+                let line = substitute(line, '^\(\s*\)', '\1' . cstart . ' ', '')
+                if cend != ''
+                    let line = substitute(line, '\s*$', ' ' . cend, '')
+                endif
+            endif
+
+            call setline(lnum, line)
+        endfor
+    endfunction
+
+    nnoremap <leader>cc :call CommentToggle()<CR>
+    vnoremap <leader>cc :call CommentToggle()<CR>
 endif
 
 vnoremap < <gv
@@ -407,45 +405,35 @@ vnoremap <A-k> :move '<-2<CR>gv=gv
 
 nnoremap <leader>hm :messages<CR>
 
-" ============================================================================
-" AUTO-COMPLETION (Fallback)
-" ============================================================================
 if !IsPluginAvailable('auto-pairs')
-  inoremap { {}<Esc>ha
-  inoremap ( ()<Esc>ha
-  inoremap [ []<Esc>ha
-  inoremap " ""<Esc>ha
-  inoremap ' ''<Esc>ha
-  inoremap ` ``<Esc>ha
+    inoremap { {}<Esc>ha
+    inoremap ( ()<Esc>ha
+    inoremap [ []<Esc>ha
+    inoremap " ""<Esc>ha
+    inoremap ' ''<Esc>ha
+    inoremap ` ``<Esc>ha
 endif
-
-" ============================================================================
-" FILETYPE SPECIFIC SETTINGS
-" ============================================================================
-augroup FileTypeSpecific
-  autocmd!
-  autocmd FileType c,h,cpp,hpp setlocal cindent
-  autocmd FileType make,go setlocal noexpandtab
-  autocmd FileType markdown,tex,text,plaintex setlocal spell wrap linebreak
-  autocmd FileType lua,json,html,css,javascript,typescript setlocal tabstop=2 shiftwidth=2 softtabstop=2
-  autocmd FileType python setlocal tabstop=4 shiftwidth=4
-augroup END
 
 " ============================================================================
 " AUTOCOMMANDS
 " ============================================================================
-
-" Remove trailing whitespace on save
-augroup remove_whitespace
-  autocmd!
-  autocmd BufWritePre * if &bt == '' && &ft !~# 'diff\|git\|markdown' |
-      \ keepp %s/\s\+$//e | keepp %s/\n\+\%$//e | endif
+augroup FileTypeSpecific
+    autocmd!
+    autocmd FileType c,h,cpp,hpp setlocal cindent
+    autocmd FileType make,go setlocal noexpandtab
+    autocmd FileType markdown,tex,text,plaintex setlocal spell wrap linebreak
+    autocmd FileType lua,json,html,css,javascript,typescript setlocal tabstop=2 shiftwidth=2 softtabstop=2
+    autocmd FileType python setlocal tabstop=4 shiftwidth=4
 augroup END
 
-" Restore cursor position
-augroup restore_cursor
-  autocmd!
-  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") |
-        \ execute "normal! g`\"zz" |
-        \ endif
+augroup VimrcMisc
+    autocmd!
+
+    " Remove trailing whitespace on save
+    autocmd BufWritePre * if &bt == '' && &ft !~# 'diff\|git\|markdown' |
+                \ keepp %s/\s\+$//e | keepp %s/\n\+\%$//e | endif
+
+    " Restore cursor position
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") |
+                \ execute "normal! g`\"zz" | endif
 augroup END

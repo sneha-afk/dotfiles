@@ -47,7 +47,17 @@ return {
     "fredrikaverpil/neotest-golang",
   },
   keys = {
-    { "<leader>Tn", function() require("neotest").run.run() end,                     desc = "[T]est: run [N]earest" },
+    {
+      "<leader>Tn",
+      function()
+        local neotest = require("neotest")
+        local file = vim.api.nvim_buf_get_name(0)
+
+        local ok = pcall(neotest.run.run) -- try nearest first, else run file
+        if not ok then neotest.run.run(file) end
+      end,
+      desc = "[T]est: run [N]earest",
+    },
     { "<leader>Ta", function() require("neotest").run.attach() end,                  desc = "[T]est: [A]ttach" },
     { "<leader>TA", function() require("neotest").run.run(vim.uv.cwd()) end,         desc = "[T]est: run [A]ll" },
     { "<leader>Td", function() require("neotest").run.run({ strategy = "dap" }) end, desc = "[T]est: run with [D]AP" },
@@ -58,9 +68,7 @@ return {
     },
     {
       "<leader>TF",
-      function()
-        require("neotest").output.open({ enter = true, last_run = true })
-      end,
+      function() require("neotest").output.open({ enter = true, last_run = true }) end,
       desc = "[T]est: open last [F]ailure",
     },
     { "<leader>Ts", function() require("neotest").run.run({ suite = true }) end,     desc = "[T]est: run [S]uite" },
@@ -71,9 +79,7 @@ return {
     { "<leader>TL", function() require("neotest").run.run_last() end,                desc = "[T]est: run [L]ast" },
     {
       "<leader>Tw",
-      function()
-        require("neotest").watch.toggle(vim.api.nvim_buf_get_name(0))
-      end,
+      function() require("neotest").watch.toggle(vim.api.nvim_buf_get_name(0)) end,
       desc = "[T]est: [W]atch file",
     },
   },

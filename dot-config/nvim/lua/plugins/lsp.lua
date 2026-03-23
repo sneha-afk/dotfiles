@@ -43,9 +43,13 @@ return {
         enabled = vim.fn.has("wsl") == 0 and (vim.g.is_wezterm or vim.fn.executable("wezterm") == 1),
       },
     },
+    ---@module "lazydev"
+    ---@type lazydev.Config
     opts = {
       library = {
         { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+        { path = "snacks.nvim",        words = { "Snacks" } },
+        { path = "nvim-lspconfig",     words = { "lspconfig.settings" } },
         { path = "wezterm-types",      mods = { "wezterm" } },
       },
     },
@@ -60,6 +64,8 @@ return {
     keys = {
       { "<leader>lm", "<cmd>Mason<cr>", desc = "Open [L]SP [M]anager" },
     },
+    ---@module "mason"
+    ---@type MasonSettings
     opts = {
       ui = {
         border = "rounded",
@@ -84,6 +90,8 @@ return {
         -- Mason-LSPConfig bridge
         "mason-org/mason-lspconfig.nvim",
         dependencies = { "mason-org/mason.nvim" },
+        ---@module "mason-lspconfig"
+        ---@type MasonLspconfigSettings
         opts = {
           -- Calls vim.lsp.enable for every installed LSP
           automatic_enable = true,

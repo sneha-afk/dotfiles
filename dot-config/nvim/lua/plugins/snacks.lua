@@ -14,11 +14,12 @@ end
 local function get_footer()
   local version = vim.version()
   local nvim_version = string.format("NVIM v%d.%d.%d", version.major, version.minor, version.patch)
-  local cwd = vim.fn.fnamemodify(vim.uv.cwd(), ":~")
+  local cwd = vim.fn.fnamemodify(vim.uv.cwd() or "", ":~")
 
   return string.format("%s • %s\n%s", os.date("%A, %B %d %Y • %I:%M %p"), nvim_version, cwd)
 end
 
+---@type snacks.picker.layout.Config
 local right_sidebar = { preset = "sidebar", layout = { position = "right", width = 0.25 } }
 
 local explorer_sidebar = function()

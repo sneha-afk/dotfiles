@@ -38,7 +38,10 @@ return {
     "brianhuster/live-preview.nvim",
     cmd = { "LivePreview", "LivePreviewPortChange" },
     dependencies = { vim.g.picker_source },
+    ---@module "livepreview"
+    ---@type LivePreviewConfig
     opts = {
+      picker = "vim.ui.select",
       port = 5500,
     },
     config = function(_, opts)
@@ -90,6 +93,8 @@ return {
       -- "nvim-lua/plenary.nvim", -- not needed if using a picker?
       vim.g.picker_source,
     },
+    ---@module "todo-comments"
+    ---@type TodoConfig
     opts = {
       keywords = {
         FIX = { icon = "F " },
@@ -105,6 +110,7 @@ return {
   {
     "folke/flash.nvim",
     event = "VeryLazy",
+    ---@module "flash"
     ---@type Flash.Config
     opts = {},
     keys = {
@@ -123,6 +129,7 @@ return {
       { "<leader>gb", "<cmd>Gitsigns toggle_current_line_blame<cr>", desc = "[G]it: toggle inline [B]lame" },
     },
     ---@module 'gitsigns'
+    ---@type Gitsigns.config
     opts = {
       update_debounce = vim.g.is_ssh and 1000 or 100,
       signs = {

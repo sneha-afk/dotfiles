@@ -7,6 +7,7 @@ return {
     lazy = false,
     priority = 1000,
     build = ":CatppuccinCompile",
+    ---@module "catppuccin"
     ---@type CatppuccinOptions
     opts = {
       auto_integrations = true,
