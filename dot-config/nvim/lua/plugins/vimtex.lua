@@ -34,7 +34,7 @@ return {
       vim.g.vimtex_view_general_viewer = "SumatraPDF"
       vim.g.vimtex_view_general_options = "-reuse-instance -forward-search @tex @line @pdf"
     elseif vim.fn.has("wsl") == 1 then
-      vim.g.vimtex_view_general_viewer = os.getenv("PDF_READER_EXE") or "xdg-open"
+      vim.g.vimtex_view_general_viewer = vim.env.PDF_READER_EXE or "xdg-open"
     else
       vim.g.vimtex_view_general_viewer = "xdg-open"
       vim.g.vimtex_view_general_options = ""

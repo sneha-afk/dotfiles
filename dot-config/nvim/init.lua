@@ -11,7 +11,25 @@ vim.g.maplocalleader = "\\"
 vim.uv = vim.uv or vim.loop
 
 vim.g.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
-vim.g.is_ssh = os.getenv("SSH_CLIENT") or os.getenv("SSH_TTY")
+vim.g.is_ssh = vim.env.SSH_CLIENT or vim.env.SSH_TTY
+
+vim.g.is_wezterm = vim.env.TERM_PROGRAM == "WezTerm"
+vim.g.is_ghostty = vim.env.TERM_PROGRAM == "ghostty"
+
+-- Should (non-essential) icons be used?
+-- Set to false explicitly to override auto-detection (i.e. keep as true if patched font/symbols are installed)
+vim.g.use_icons_manual = true
+
+vim.g.use_icons = (vim.g.use_icons_manual ~= false) and (
+  vim.g.is_wezterm
+  or vim.g.is_ghostty
+  or vim.g.neovide
+  or vim.fn.has("gui_running") == 1
+  or (vim.env.TERM or ""):find("kitty", 1, true)
+)
+
+-- Picker to use in dependency tables
+vim.g.picker_source = "folke/snacks.nvim"
 
 if vim.g.is_windows then
   local shell = vim.fn.executable("pwsh") == 1 and "pwsh"
@@ -30,23 +48,6 @@ if vim.g.is_windows then
     vim.opt.shellcmdflag = "/s /c"
   end
 end
-
-vim.g.is_wezterm = vim.fn.getenv("TERM_PROGRAM") == "WezTerm"
-
--- Swap out pickers and any plugins using them
-vim.g.picker_source = "folke/snacks.nvim"
-
--- Should (non-essential) icons be used?
--- Manually set to true/false to override auto-detection (e.g. installed patched font)
-vim.g.use_icons_manual = true
-
--- Fallbacks to manual setting above
-vim.g.use_icons = vim.g.is_wezterm or vim.g.neovide or vim.fn.has("gui_running") == 1
-    or (function()
-      local term = os.getenv("TERM") or ""
-      return term:find("kitty", 1, true) or term:find("ghostty", 1, true)
-    end)()
-    or vim.g.use_icons_manual
 
 -- Taken from folke: override vim.keymap.set
 -- Default to silent, non-recursive keymaps
@@ -72,7 +73,7 @@ vim.g.loaded_node_provider = 0
 
 ---@type vim.diagnostic.Opts
 local diagnostic_opts = {
-  update_in_insert = true,
+  update_in_insert = false,
   virtual_text = {
     spacing = 2,
     source = "if_many",
@@ -89,7 +90,6 @@ vim.diagnostic.config(diagnostic_opts)
 
 require("core.options")
 require("core.keymaps")
-require("core.lazy")
 require("core.filetypes")
 require("core.commands")
 
@@ -101,3 +101,5 @@ vim.api.nvim_create_autocmd("UIEnter", {
     if vim.g.neovide then require("core.neovide") end
   end,
 })
+
+require("core.lazy")

@@ -351,8 +351,8 @@ return {
           { icon = "⚙️", key = "c", desc = "Edit Config", action = ":lua Snacks.explorer({cwd = vim.fn.stdpath('config')})" },
           { icon = "🚪", key = "q", desc = "Quit", action = ":qa" },
         },
-        header = require("utils.ui").neovim_logo .. "\n" .. get_greeting() .. ", "
-            .. (os.getenv("USER") or os.getenv("USERNAME") or "User") .. ".",
+        header = require("utils.ui").neovim_logo ..
+            "\n" .. get_greeting() .. ", " .. (vim.env.USER or vim.env.USERNAME or "User") .. ".",
       },
       sections = {
         { section = "header" },
