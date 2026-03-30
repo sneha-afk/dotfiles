@@ -12,7 +12,7 @@ vim.opt.autoread    = true    -- Auto-reload externally changed files
 vim.opt.confirm     = true    -- Prompt to save instead of error on :q
 vim.opt.spelllang   = { "en_us" }
 
--- Clipboard (deferred to avoid startup slowdown)
+-- Defer system clipboard integration to avoid startup slowdown
 vim.opt.clipboard   = ""
 vim.schedule(function()
   vim.opt.clipboard = "unnamedplus"
@@ -51,11 +51,10 @@ vim.opt.cursorline    = true
 vim.opt.showmode      = true
 vim.opt.signcolumn    = "yes"
 vim.opt.colorcolumn   = "120"
-vim.opt.scrolloff     = 10    -- Keep context when scrolling
-vim.opt.shortmess:append("I") -- Disable intro message
+vim.opt.scrolloff     = 10 -- Keep context when scrolling
 
-vim.o.guifont       = "Geist_Mono,Consolas,Segoe_UI_Emoji,Symbols_Nerd_Font_Mono:h10"
-vim.opt.guicursor   =
+vim.o.guifont         = "Geist_Mono,Consolas,Segoe_UI_Emoji,Symbols_Nerd_Font_Mono:h10"
+vim.opt.guicursor     =
     "a:blinkon0," ..    -- disable cursor blinking in all modes
     "n-v-c:block," ..   -- normal/visual/command: solid block
     "i-ci-ve:ver25," .. -- insert modes: vertical bar (25% width)
@@ -63,52 +62,52 @@ vim.opt.guicursor   =
     "o:hor50"           -- operator-pending: thicker underline
 
 -- Wrapping
-vim.opt.wrap        = true
-vim.opt.linebreak   = true
-vim.opt.showbreak   = "↳ "
-vim.opt.breakindent = true
+vim.opt.wrap          = true
+vim.opt.linebreak     = true
+vim.opt.showbreak     = "↳ "
+vim.opt.breakindent   = true
 
 -- Whitespace characters
-vim.opt.list        = true
-vim.opt.listchars   = { tab = "▸ ", trail = "·", nbsp = "␣" }
-vim.opt.fillchars   = { foldopen = "▾", foldsep = "│", foldclose = "▸" }
+vim.opt.list          = true
+vim.opt.listchars     = { tab = "▸ ", trail = "·", nbsp = "␣" }
+vim.opt.fillchars     = { foldopen = "▾", foldsep = "│", foldclose = "▸" }
 
 -- ============================================================================
 -- WINDOWS & SPLITS
 -- ============================================================================
-vim.opt.splitright  = true
-vim.opt.splitbelow  = true
-vim.opt.winwidth    = 30
-vim.opt.winminwidth = 10
+vim.opt.splitright    = true
+vim.opt.splitbelow    = true
+vim.opt.winwidth      = 30
+vim.opt.winminwidth   = 10
 
 -- ============================================================================
 -- POPUPS & MENUS
 -- ============================================================================
-vim.opt.pumheight   = 15
-vim.opt.pumblend    = 10
-vim.opt.wildmenu    = true
-vim.opt.wildmode    = "list:longest,full"
-vim.opt.completeopt = { "menu", "menuone", "noselect" }
+vim.opt.pumheight     = 15
+vim.opt.pumblend      = 10
+vim.opt.wildmenu      = true
+vim.opt.wildmode      = "list:longest,full"
+vim.opt.completeopt   = { "menu", "menuone", "noselect" }
 
 -- ============================================================================
 -- INDENTATION
 -- ============================================================================
-vim.opt.tabstop     = 4
-vim.opt.shiftwidth  = 4
-vim.opt.softtabstop = 4
-vim.opt.expandtab   = true
-vim.opt.smartindent = true
-vim.opt.shiftround  = true
+vim.opt.tabstop       = 4
+vim.opt.shiftwidth    = 4
+vim.opt.softtabstop   = 4
+vim.opt.expandtab     = true
+vim.opt.smartindent   = true
+vim.opt.shiftround    = true
 -- vim.opt.formatoptions:remove("cro") -- Disable auto-comment continuation
 
 -- ============================================================================
 -- SEARCH
 -- ============================================================================
-vim.opt.ignorecase  = true
-vim.opt.smartcase   = true
-vim.opt.hlsearch    = true
-vim.opt.incsearch   = true
-vim.opt.inccommand  = "nosplit"
+vim.opt.ignorecase    = true
+vim.opt.smartcase     = true
+vim.opt.hlsearch      = true
+vim.opt.incsearch     = true
+vim.opt.inccommand    = "nosplit"
 
 if vim.fn.executable("rg") == 1 then
   vim.opt.grepprg = "rg --vimgrep --smart-case --hidden --follow " ..

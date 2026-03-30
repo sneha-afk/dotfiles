@@ -103,11 +103,11 @@ return {
     { "<leader>su", function() Snacks.picker.undo() end,                  desc = "[S]earch: [U]ndo history" },
 
     -- LSP operations
-    { "gd",         function() Snacks.picker.lsp_definitions() end,       desc = "Goto Definition" },
-    { "gD",         function() Snacks.picker.lsp_declarations() end,      desc = "Goto Declaration" },
-    { "gR",         function() Snacks.picker.lsp_references() end,        desc = "Goto references",                  nowait = true },
-    { "gi",         function() Snacks.picker.lsp_implementations() end,   desc = "Goto Implementation" },
-    { "gy",         function() Snacks.picker.lsp_type_definitions() end,  desc = "Goto T[y]pe Definition" },
+    { "gd",         function() Snacks.picker.lsp_definitions() end,       desc = "Goto definition" },
+    { "gD",         function() Snacks.picker.lsp_declarations() end,      desc = "Goto declaration" },
+    { "grr",        function() Snacks.picker.lsp_references() end,        desc = "Goto references",                  nowait = true },
+    { "gri",        function() Snacks.picker.lsp_implementations() end,   desc = "Goto implementation" },
+    { "grt",        function() Snacks.picker.lsp_type_definitions() end,  desc = "Goto type Definition" },
     { "gI",         function() Snacks.picker.lsp_incoming_calls() end,    desc = "Goto [I]ncoming Calls" },
     { "gO",         function() Snacks.picker.lsp_outgoing_calls() end,    desc = "Goto [O]utgoing Calls" },
     { "<leader>lc", function() Snacks.picker.lsp_config() end,            desc = "[L]SP: [C]onfig" },

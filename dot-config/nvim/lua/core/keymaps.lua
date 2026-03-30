@@ -4,6 +4,7 @@ local map = vim.keymap.set
 local lsp = vim.lsp
 local diagnostic = vim.diagnostic
 
+---@type vim.lsp.buf.hover.Opts | vim.lsp.buf.signature_help.Opts
 local float_ui = {
   border = "rounded",
   max_width = 120,
@@ -171,13 +172,10 @@ map("n", "<leader>dv",
   function() diagnostic.config({ virtual_text = not diagnostic.config().virtual_text }) end,
   { desc = "[D]iagnostics: toggle [V]irtual text" })
 
---  LSP NAVIGATION
--- map("n", "gd", lsp.buf.definition, { desc = "[G]oto [d]efinition" })
-map("n", "gD", lsp.buf.declaration, { desc = "[G]oto [D]eclaration" })
--- map("n", "gi", lsp.buf.implementation, { desc = "[G]oto [I]mplementation" })
--- map("n", "gy", lsp.buf.type_definition, { desc = "[G]oto t[y]pe definition" })
+--  LSP NAVIGATION (these are defaults with cleaner desc)
+map("n", "gd", lsp.buf.definition,    { desc = "[G]oto [d]efinition" })
+map("n", "gD", lsp.buf.declaration,   { desc = "[G]oto [D]eclaration" })
 map("n", "gY", lsp.buf.typehierarchy, { desc = "[G]oto t[Y]pe hierarchy" })
--- map("n", "gr", lsp.buf.references, { desc = "[G]oto [r]eferences" })
 -- map("n", "gI", lsp.buf.incoming_calls, { desc = "[G]oto [I]ncoming calls" })
 -- map("n", "gO", lsp.buf.outgoing_calls, { desc = "[G]oto [O]utgoing calls" })
 
@@ -195,16 +193,11 @@ map("n", "<leader>Wl", function() vim.print(lsp.buf.list_workspace_folders()) en
   { desc = "[W]orkspace: [L]ist Folders" })
 
 --  CODE ACTIONS
-map("n", "<leader>lr", lsp.buf.rename,                                  { desc = "[L]SP: [R]ename" })
-map("n", "<leader>cl", lsp.codelens.run,                                { desc = "Run [C]ode[L]ens" })
 map("n", "<leader>cf", function() lsp.buf.format({ async = true }) end, { desc = "[C]ode [F]ormat" })
-map("n", "<leader>ca", lsp.buf.code_action,                             { desc = "[C]ode [A]ctions" })
-map("v", "<leader>ca", function()
-  lsp.buf.code_action({
-    diagnostics = diagnostic.get(0),
-    only = { "quickfix", "refactor", "source" },
-  })
-end, { desc = "Range [C]ode [A]ctions" })
+
+if not vim.fn.has("nvim-0.12") then
+  map("n", "<leader>cl", lsp.codelens.run, { desc = "Run [C]ode[L]ens" }) -- grx
+end
 
 local organize_imports = function()
   lsp.buf.code_action({
