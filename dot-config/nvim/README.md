@@ -1,6 +1,6 @@
 # nvim
 
-**Minimum version required**: `v0.11.3`
+**Minimum version required**: `v0.12.0`
 
 Upon opening for the first time, you will be prompted on whether to install `lazy.nvim` as the package manager being used
 and the plugins listed in `plugins/`.

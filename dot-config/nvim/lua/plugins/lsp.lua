@@ -82,18 +82,8 @@ return {
     "neovim/nvim-lspconfig",
     event = "VeryLazy",
     keys = {
-      { "<leader>li", "<cmd>LspInfo<cr>", desc = "[L]SP: [I]nfo" },
-      {
-        "<leader>lr",
-        function()
-          if vim.fn.has("nvim-0.12") == 1 then
-            vim.cmd("lsp restart")
-          else
-            vim.cmd("LspRestart")
-          end
-        end,
-        desc = "[L]SP: [R]estart all active clients",
-      },
+      { "<leader>li", "<cmd>checkhealth vim.lsp<cr>", desc = "[L]SP: [I]nfo" },
+      { "<leader>lr", "<cmd>lsp restart<cr>",         desc = "[L]SP: [R]estart all active clients" },
     },
     dependencies = {
       {
