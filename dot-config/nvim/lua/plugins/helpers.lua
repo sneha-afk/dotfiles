@@ -114,8 +114,9 @@ return {
     "lewis6991/gitsigns.nvim",
     event = "VeryLazy",
     keys = {
-      { "<leader>gd", "<cmd>Gitsigns diffthis<cr>",                  desc = "[G]it: toggle [D]iff Overlay" },
-      { "<leader>gb", "<cmd>Gitsigns toggle_current_line_blame<cr>", desc = "[G]it: toggle inline [B]lame" },
+      { "<leader>gd", "<cmd>Gitsigns diffthis<cr>",     desc = "[G]it: toggle [D]iff Overlay" },
+      { "<leader>gb", "<cmd>Gitsigns blame<cr>",        desc = "[G]it: toggle [B]lame" },
+      { "<leader>gp", "<cmd>Gitsigns preview_hunk<cr>", desc = "[G]it: [P]review hunk" },
     },
     ---@module 'gitsigns'
     ---@type Gitsigns.config

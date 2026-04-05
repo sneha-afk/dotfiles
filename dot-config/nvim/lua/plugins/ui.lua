@@ -89,14 +89,18 @@ return {
                 name = "tests",
                 priority = 2,
                 matcher = function(buf)
-                  return buf.path:match("_test") or buf.path:match("_spec")
+                  local path = buf.path
+                  return path:find("_test", 1, true)
+                      or path:find(".test", 1, true)
+                      or path:find("_spec", 1, true)
                 end,
               },
               {
                 name = "docs",
                 auto_close = false,
                 matcher = function(buf)
-                  return buf.path:match("%.md$") or buf.path:match("%.txt$")
+                  local path = buf.path
+                  return path:sub(-3) == ".md" or path:sub(-4) == ".txt"
                 end,
               },
               groups.builtin.ungrouped,

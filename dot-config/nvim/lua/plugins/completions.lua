@@ -102,16 +102,19 @@ return {
                   path = "",
                   lsp = "✦",
                   latex = "✒",
-                  buffer = "⚇",
+                  buffer = "⚏",
                   omni = "⎉",
-                  snippets = "⌥",
+                  snippets = "🞲",
                   cmdline = "λ",
                   spell = "⌯",
                   lazydev = "💤",
                 }
                 return menu_icon[ctx.source_id] or "?"
               end,
-              highlight = "Constant",
+              width = { min = 2, max = 2 },
+            },
+            label_description = {
+              width = { max = 30 },
             },
           },
           columns = {

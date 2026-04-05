@@ -19,6 +19,7 @@ return {
         "leetcode.nvim",
         "snacks_picker_list",
         "snacks_dashboard",
+        "gitsigns-blame",
       },
       always_show_tabline  = false,
     },

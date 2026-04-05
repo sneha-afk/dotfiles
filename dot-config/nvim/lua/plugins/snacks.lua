@@ -344,11 +344,9 @@ return {
           { icon = "🔍", key = "/", desc = "Search", action = function() Snacks.picker.grep() end },
           { icon = "🧭", key = "b", desc = "Browse Files", action = explorer_fullscreen },
           { icon = "📁", key = "f", desc = "Find Files", action = function() Snacks.picker.files() end },
-          { icon = "✨", key = "m", desc = "Smart Find", action = function() Snacks.picker.smart() end },
           { icon = "📦", key = "p", desc = "Projects", action = function() Snacks.picker.projects() end },
           { icon = "⏮️", key = "s", desc = "Last session", action = "<leader>sL" },
           { icon = "💾", key = "S", desc = "Select session", action = "<leader>sl" },
-          { icon = "⚙️", key = "c", desc = "Edit Config", action = ":lua Snacks.explorer({cwd = vim.fn.stdpath('config')})" },
           { icon = "🚪", key = "q", desc = "Quit", action = ":qa" },
         },
         header = require("utils.ui").neovim_logo ..
@@ -358,7 +356,7 @@ return {
         { section = "header" },
         { section = "keys", padding = 1 },
         { section = "recent_files", padding = 1, indent = 2, limit = 8, title = "Recent files", icon = "🕘" },
-        { section = "projects", padding = 1, indent = 2, limit = 5, title = "Recent projects", icon = "🗃️" },
+        { section = "projects", padding = 1, indent = 2, limit = 4, title = "Recent projects", icon = "🗃️" },
         { section = "startup" },
         {
           padding = { 0, 2 },
