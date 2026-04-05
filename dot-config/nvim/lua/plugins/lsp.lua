@@ -140,6 +140,13 @@ return {
               { desc = "[U]I: toggle inlay [H]int" })
           end
 
+          if client:supports_method("textDocument/documentColor") then
+            vim.lsp.document_color.enable(true, { bufnr = bufnr }, { style = "virtual" })
+            vim.keymap.set("n", "<leader>uc", function()
+              vim.lsp.document_color.enable(not vim.lsp.document_color.is_enabled())
+            end, { desc = "[U]I: toggle [C]olor highlights" })
+          end
+
           if client.name == "eslint" then
             vim.api.nvim_create_autocmd("BufWritePre", {
               buffer = bufnr,

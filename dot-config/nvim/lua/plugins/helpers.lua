@@ -24,17 +24,6 @@ return {
     },
   },
   {
-    "norcalli/nvim-colorizer.lua",
-    cmd = { "ColorizerAttachToBuffer", "ColorizerToggle" },
-    ft = { "css", "scss", "sass", "less", "html" },
-    opts = {
-      "*", -- Highlight all filetypes with default opts
-      css = { rgb_fn = true },
-      scss = { rgb_fn = true },
-      sass = { rgb_fn = true },
-    },
-  },
-  {
     "brianhuster/live-preview.nvim",
     cmd = { "LivePreview", "LivePreviewPortChange" },
     dependencies = { vim.g.picker_source },
