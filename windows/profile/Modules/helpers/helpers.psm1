@@ -21,9 +21,13 @@ function Require-Admin {
         & $Action
     }
     else {
-        Write-Host "Restarting action as administrator..." -ForegroundColor Yellow
-        $encodedCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($Action.ToString()))
-        Start-Process wt -Verb RunAs -ArgumentList "$script:PreferredShell -NoProfile -NoExit -EncodedCommand $encodedCommand"
+        Write-Host "Elevating to administrator..." -ForegroundColor Yellow
+
+        # Encode scriptblock for safe passing across process boundary
+        $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($Action.ToString()))
+        $args = "$script:PreferredShell -NoProfile -NoExit -EncodedCommand $encoded"
+
+        Start-Process wt -Verb RunAs -ArgumentList $args
     }
 }
 
@@ -50,14 +54,21 @@ function Neovide-WSL {
     Start-Process neovide.exe --server localhost:6666
 }
 
-function To-WSLPath {
+function Convert-WSLPath {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory, ValueFromPipeline)]
-        [string]$WinPath
+        [string]$Path
     )
     process {
-        (wsl.exe wslpath -a "`"$WinPath`"").Trim()
+        # Windows paths: drive letters (C:\) or UNC WSL mounts (\\wsl$\)
+        if ($Path -match '^[A-Za-z]:\\|^\\\\wsl') {
+            # Convert Windows -> WSL (e.g., C:\Users\user -> /mnt/c/Users/user)
+            (wsl.exe wslpath -a "`"$Path`"").Trim()
+        } else {
+            # Assume POSIX path, convert WSL -> Windows
+            (wsl.exe wslpath -w "`"$Path`"").Trim()
+        }
     }
 }
 
@@ -69,16 +80,15 @@ Set-Alias -Name wslk -Value WSL-Kill
 #region Neovim
 
 $script:NvimPaths = @{
-    Config = Join-Path $env:LOCALAPPDATA "nvim"
-    Data   = Join-Path $env:LOCALAPPDATA "nvim-data"
+    Config     = Join-Path $env:LOCALAPPDATA "nvim"
+    Data       = Join-Path $env:LOCALAPPDATA "nvim-data"
+    Lazy       = Join-Path $env:LOCALAPPDATA "nvim-data\lazy"
+    Mason      = Join-Path $env:LOCALAPPDATA "nvim-data\mason"
+    TreeSitter = Join-Path $env:LOCALAPPDATA "nvim-data\site\parser"
+    Cache      = Join-Path $env:LOCALAPPDATA "nvim-data\cache"
+    Swap       = Join-Path $env:LOCALAPPDATA "nvim-data\swap"
+    Shada      = Join-Path $env:LOCALAPPDATA "nvim-data\shada"
 }
-
-$script:NvimPaths.Lazy = Join-Path $script:NvimPaths.Data "lazy"
-$script:NvimPaths.Mason = Join-Path $script:NvimPaths.Data "mason"
-$script:NvimPaths.TreeSitter = Join-Path $script:NvimPaths.Data "site\parser"
-$script:NvimPaths.Cache = Join-Path $script:NvimPaths.Data "cache"
-$script:NvimPaths.Swap = Join-Path $script:NvimPaths.Data "swap"
-$script:NvimPaths.Shada = Join-Path $script:NvimPaths.Data "shada"
 
 Set-Alias nvide neovide
 
@@ -118,12 +128,11 @@ function Reset-Nvim {
 }
 
 function Get-NvimSize {
+    # Disk usage breakdown for Neovim directories
     function Get-FolderSize($path) {
-        if (Test-Path $path) {
-            (Get-ChildItem -Path $path -Recurse -Force -File -ErrorAction SilentlyContinue |
+        if (-not (Test-Path $path)) { return 0 }
+        (Get-ChildItem -Path $path -Recurse -Force -File -ErrorAction SilentlyContinue |
             Measure-Object -Property Length -Sum).Sum
-        }
-        else { 0 }
     }
 
     function Format-Size($bytes) {
@@ -133,11 +142,11 @@ function Get-NvimSize {
     }
 
     $sizes = @{
-        'config'     = Get-FolderSize $script:NvimPaths.Config
-        'plugins'    = Get-FolderSize $script:NvimPaths.Lazy
-        'lsp'        = Get-FolderSize $script:NvimPaths.Mason
-        'treesitter' = Get-FolderSize $script:NvimPaths.TreeSitter
-        'cache'      = Get-FolderSize $script:NvimPaths.Cache
+        config     = Get-FolderSize $script:NvimPaths.Config
+        plugins    = Get-FolderSize $script:NvimPaths.Lazy
+        lsp        = Get-FolderSize $script:NvimPaths.Mason
+        treesitter = Get-FolderSize $script:NvimPaths.TreeSitter
+        cache      = Get-FolderSize $script:NvimPaths.Cache
     }
 
     $total = ($sizes.Values | Measure-Object -Sum).Sum
@@ -159,47 +168,34 @@ function Search {
         [string]$Pattern,
 
         [Parameter(Position = 1, ValueFromRemainingArguments)]
-        [string[]]$Files
+        [string[]]$Args
     )
 
     if (Get-Command rg -ErrorAction SilentlyContinue) {
-        $rgArgs = @($Pattern)
-        if ($Files) { $rgArgs += $Files }
-        & rg @rgArgs
+        & rg $Pattern @Args
     }
     else {
-        $searchPath = if ($Files) { $Files } else { "." }
-        Get-ChildItem -Path $searchPath -Recurse -File -ErrorAction SilentlyContinue | Select-String -Pattern $Pattern
+        $path = if ($Args) { $Args } else { "." }
+        Get-ChildItem -Path $path -Recurse -File -ErrorAction SilentlyContinue |
+            Select-String -Pattern $Pattern
     }
 }
 
 function Update-All {
-    $commands = @(
-        @{
-            Name    = 'Scoop'
-            Check   = 'scoop'
-            Command = { scoop update --all }
-        }
-        @{
-            Name    = 'Winget'
-            Check   = 'winget'
-            Command = { winget upgrade --all --accept-source-agreements --accept-package-agreements }
-        }
-        @{
-            Name    = 'uv'
-            Check   = 'uv'
-            Command = { uv self update }
-        }
+    $updaters = @(
+        @{ Name = 'scoop';  Cmd = 'scoop'; Args = 'update --all' }
+        @{ Name = 'winget'; Cmd = 'winget'; Args = 'upgrade --all --accept-source-agreements --accept-package-agreements' }
+        @{ Name = 'uv';     Cmd = 'uv'; Args = 'self update' }
     )
 
-    foreach ($cmd in $commands) {
-        if (Get-Command $cmd.Check -ErrorAction SilentlyContinue) {
-            Write-Host "Updating $($cmd.Name)..." -ForegroundColor Cyan
-            & $cmd.Command
+    foreach ($u in $updaters) {
+        if (-not (Get-Command $u.Cmd -ErrorAction SilentlyContinue)) {
+            Write-Host "$($u.Name) not installed, skipping" -ForegroundColor DarkGray
+            continue
         }
-        else {
-            Write-Host "$($cmd.Name) is not installed. Skipping." -ForegroundColor Yellow
-        }
+
+        Write-Host "Updating $($u.Name)..." -ForegroundColor Cyan
+        Invoke-Expression "$($u.Cmd) $($u.Args)"
     }
 }
 
@@ -208,19 +204,22 @@ function Expand-Archive {
     param(
         [Parameter(Mandatory, ValueFromPipeline)]
         [ValidateScript({ Test-Path $_ })]
-        [string]$Path
+
+        [string]$Path,
+        [string]$DestinationPath
     )
 
     process {
-        $extension = [IO.Path]::GetExtension($Path).ToLower()
-        $destination = Split-Path $Path -Parent
+        $dest = if ($DestinationPath) { $DestinationPath } else { Split-Path $Path -Parent }
 
         switch -Regex ($Path) {
-            '\.tar\.gz$' { tar -xzf $Path; break }
-            '\.zip$' { Microsoft.PowerShell.Archive\Expand-Archive $Path -DestinationPath $destination; break }
-            '\.tar$' { tar -xf $Path; break }
-            '\.7z$' { 7z x $Path; break }
-            default { Write-Warning "Unsupported archive type: $extension" }
+            '\.tar\.gz$|\.tgz$'         { tar -xzf $Path -C $dest; break }
+            '\.tar\.bz2$|\.tbz2?$'      { tar -xjf $Path -C $dest; break }
+            '\.tar\.xz$|\.txz$'         { tar -xJf $Path -C $dest; break }
+            '\.tar$'                    { tar -xf $Path -C $dest; break }
+            '\.zip$'                    { Microsoft.PowerShell.Archive\Expand-Archive $Path -DestinationPath $dest; break }
+            '\.7z$'                     { 7z x $Path -o "$dest"; break }
+            default                     { Write-Warning "Unsupported archive type: $([IO.Path]::GetExtension($Path))" }
         }
     }
 }
@@ -228,8 +227,6 @@ function Expand-Archive {
 Set-Alias extract Expand-Archive
 
 function Enter-Repo {
-    if (-not (Get-Command fzf -ErrorAction SilentlyContinue)) { return }
-
     $repoPath = Join-Path $HOME "Repositories"
     if (-not (Test-Path $repoPath)) {
         Write-Warning "Repository directory not found: $repoPath"

@@ -59,15 +59,25 @@ function Export($Assignment) {
     }
 }
 
-# Usage: Copy bash command -> Run 'cfb' -> Paste
+# Usage: Copy bash command -> Run 'cfb' -> Paste; or use Alt+V to insert directly
 function ConvertFrom-BashCommand {
+    param([switch]$Insert)
+
     $clip = Get-Clipboard -Raw
     $backtick = [char]96
-    $converted = $clip -replace '\\\s*[\r]?\n\s*', "$backtick "
-    $converted | Set-Clipboard
-    Write-Host "Converted bash line continuations to PowerShell backticks. Paste again." -ForegroundColor Green
+    $converted = $clip -replace '\\\s*[\r]?\n\s*', "$backtick`n  "
+
+    if ($Insert) {
+        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($converted)
+    }
+    else {
+        $converted | Set-Clipboard
+        Write-Host "Converted bash line continuations. Paste again." -ForegroundColor Green
+    }
 }
-Set-Alias -Name cfb -Value ConvertFrom-BashCommand
+
+Set-PSReadLineKeyHandler -Chord 'Alt+v' -ScriptBlock { ConvertFrom-BashCommand -Insert }
+Set-Alias cfb ConvertFrom-BashCommand
 
 # Usage: Alt+V to paste with automatic conversion
 # Converts \ to ` and preserves line breaks with indentation for readability
@@ -78,6 +88,19 @@ Set-PSReadLineKeyHandler -Chord 'Alt+v' -ScriptBlock {
     $converted = $clip -replace '\\\s*[\r]?\n\s*', "$backtick`n  "
     [Microsoft.PowerShell.PSConsoleReadLine]::Insert($converted)
 }
+
+# Ctrl+r as supported in other shells
+function Invoke-HistoryFuzzy {
+    $cmd = Get-Content (Get-PSReadLineOption).HistorySavePath -ErrorAction SilentlyContinue |
+        Select-Object -Unique |
+        fzf --prompt "History> " --height 60% --tac --no-sort
+
+    if ($cmd) {
+        [Microsoft.PowerShell.PSConsoleReadLine]::InvokePrompt()
+        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($cmd)
+    }
+}
+Set-PSReadLineKeyHandler -Chord 'Ctrl+r' -ScriptBlock { Invoke-HistoryFuzzy }
 
 #endregion
 
@@ -131,16 +154,17 @@ if (-not $PROMPT_USE_CUSTOM) { return }
 function Color($name, $text) {
     $fg = $PSStyle.Foreground
     switch ($name) {
-        'Red' { "$($fg.Red)$text$($PSStyle.Reset)" }
-        'Green' { "$($fg.Green)$text$($PSStyle.Reset)" }
-        'Yellow' { "$($fg.Yellow)$text$($PSStyle.Reset)" }
-        'Blue' { "$($fg.Blue)$text$($PSStyle.Reset)" }
+        'Red'     { "$($fg.Red)$text$($PSStyle.Reset)" }
+        'Green'   { "$($fg.Green)$text$($PSStyle.Reset)" }
+        'Yellow'  { "$($fg.Yellow)$text$($PSStyle.Reset)" }
+        'Blue'    { "$($fg.Blue)$text$($PSStyle.Reset)" }
         'Magenta' { "$($fg.Magenta)$text$($PSStyle.Reset)" }
-        'Cyan' { "$($fg.Cyan)$text$($PSStyle.Reset)" }
-        default { $text }
+        'Cyan'    { "$($fg.Cyan)$text$($PSStyle.Reset)" }
+        default   { $text }
     }
 }
 
+# Returns @{ Branch = 'main'; Dirty = $true } or $null
 function Get-GitInfo {
     try {
         $branch = git symbolic-ref --quiet --short HEAD 2>$null
@@ -166,8 +190,7 @@ function Get-GitInfo {
 }
 
 function global:prompt {
-    $ok = $?
-    $statusLine = if ($ok) { Color Green '+' } else { Color Red '-' }
+    $statusLine = if ($?) { Color Green '+' } else { Color Red '-' }
 
     $hostStr = "$env:USERNAME@$env:COMPUTERNAME"
     if ($script:IsWSL) { $hostStr += " (wsl)" }
@@ -179,7 +202,7 @@ function global:prompt {
     $git = Get-GitInfo
     if ($git) {
         $dirtyFlag = if ($git.Dirty) { " $(Color Red '*')" } else { "" }
-        $indicators += " | $(Color Yellow $git.Branch)$dirtyFlag "
+        $indicators += " | $(Color Yellow $git.Branch)$dirtyFlag"
     }
 
     if ($env:SSH_CONNECTION -or $env:SSH_CLIENT -or $env:SSH_TTY) {
