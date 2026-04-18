@@ -14,13 +14,18 @@
 
 # cheat sheet: https://gist.github.com/hensg/43bc71c21d1f79385892352a390aa2ca
 
+# Behavior
+wait-after-command = true
+scrollback-limit = 10000
+
 # Appearance: ghostty ships with JetBrains Mono and symbols
 font-family = "Geist Mono"
 font-family = "Symbols Nerd Font Mono"
-font-size = 14
-theme = "Iceberg Dark"
+font-size = 13
 
-wait-after-command = true
+theme = "Iceberg Dark"
+cursor-color = #c6c8d1
+adjust-cell-height = 5%
 
 # Keybindings
 # See: https://ghostty.org/docs/config/keybind
@@ -36,12 +41,21 @@ keybind = ctrl+shift+v=paste_from_clipboard
 # Command palette
 keybind = ctrl+shift+p=inspector:toggle
 
+# Pane management
+keybind = ctrl+shift+d=new_split:right
+keybind = ctrl+shift+minus=new_split:down
+keybind = ctrl+shift+w=close_surface
+
 # Pane navigation (Ctrl+Alt+hjkl)
 keybind = ctrl+alt+h=goto_split:left
 keybind = ctrl+alt+l=goto_split:right
 keybind = ctrl+alt+k=goto_split:top
 keybind = ctrl+alt+j=goto_split:bottom
 
+keybind = ctrl+shift+t=new_tab
 keybind = ctrl+shift+f=toggle_fullscreen
+
+# Ctrl+`
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
 
 # vim: set ft=conf ff=unix ts=2 sw=2 sts=2 et nowrap :
