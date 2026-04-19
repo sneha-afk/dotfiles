@@ -158,7 +158,7 @@ else
     PS1_MAGENTA=''
     PS1_CYAN=''
 fi
-unset color_prompt force_color_prompt
+unset color_prompt
 
 # Source git-prompt if requested and available
 if [[ "$_PROMPT_USE_GIT_PROMPT_SCRIPT" == "true" ]] && ! declare -F __git_ps1 &>/dev/null; then
@@ -172,11 +172,11 @@ fi
 
 # Configure git prompt features
 if [[ "$_PROMPT_USE_GIT_PROMPT_SCRIPT" == "true" ]]; then
-    export GIT_PS1_SHOWDIRTYSTATE=1     # * for unstaged, + for staged
-    export GIT_PS1_SHOWSTASHSTATE=1     # $ for stashed changes
-    export GIT_PS1_SHOWUNTRACKEDFILES=1 # % for untracked files
-    export GIT_PS1_SHOWUPSTREAM="auto"  # < > = for behind/ahead/diverged
-    export GIT_PS1_SHOWCONFLICTSTATE="yes" # |CONFLICT when in conflict state
+    export GIT_PS1_SHOWDIRTYSTATE=1         # * for unstaged, + for staged
+    export GIT_PS1_SHOWSTASHSTATE=1         # $ for stashed changes
+    export GIT_PS1_SHOWUNTRACKEDFILES=1     # % for untracked files
+    export GIT_PS1_SHOWUPSTREAM="auto"      # < > = for behind/ahead/diverged
+    export GIT_PS1_SHOWCONFLICTSTATE="yes"  # |CONFLICT when in conflict state
     export GIT_PS1_SHOWCOLORHINTS=1
 fi
 
