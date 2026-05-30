@@ -22,8 +22,6 @@ search() {
 # Get public IP
 alias myip='curl -fsS ifconfig.me; echo'
 
-mkcd() { mkdir -p -- "$1" && cd -- "$1"; }
-
 # Find files quickly
 ff() {
   [ $# -lt 1 ] && { echo "usage: ff <pattern> [path]" >&2; return 1; }

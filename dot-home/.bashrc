@@ -112,6 +112,7 @@ alias ...='cd ../..'
 alias df='df -h' # Human-readable sizes
 alias du='du -h' # Human-readable sizes
 
+mkcd() { mkdir -p -- "$1" && cd -- "$1"; }
 alias home='cd ~'
 
 command -v uv >/dev/null && eval "$(uv generate-shell-completion bash)"

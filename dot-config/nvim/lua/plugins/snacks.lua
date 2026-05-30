@@ -73,6 +73,10 @@ return {
     { "<leader>.",  function() Snacks.scratch() end,                      desc = "Toggle scratch buffer" },
     { "<leader>ss", function() Snacks.scratch.select() end,               desc = "[S]cratch: [S]elect" },
 
+    { "<leader>bC", function() Snacks.bufdelete.other() end,              desc = "[B]uffer: [C]lose all others" },
+    { "<leader>bd", function() Snacks.bufdelete.delete() end,             desc = "[B]uffer: [D]elete current" },
+    { "<leader>bi", function() Snacks.bufdelete.invisible() end,          desc = "[B]uffer: delete [i]nvisible" },
+
     -- Find/file: current work and context, heavily used
     { "<leader>fb", function() Snacks.picker.lines() end,                 desc = "[F]ind: within [B]uffer" },
     { "<leader>fB", function() Snacks.picker.buffers() end,               desc = "[F]ind: open [B]uffers" },
