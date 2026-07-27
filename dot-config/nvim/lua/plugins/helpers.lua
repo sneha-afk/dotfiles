@@ -235,6 +235,9 @@ return {
   {
     "stevearc/overseer.nvim",
     cmd = { "OverseerToggle", "OverseerRun", "OverseerShell" },
+    keys = {
+      { "<leader>os", "<cmd>OverseerShell<cr>", desc = "[O]verseer: [S]hell" },
+    },
     ---@module 'overseer'
     ---@type overseer.SetupOpts
     opts = {},
