@@ -97,6 +97,11 @@ elseif IS_MAC then
   config.default_prog = { check_exe("zsh") and "zsh" or "bash", "-l" }
 end
 
+local is_wayland = os.getenv("XDG_SESSION_TYPE") == "wayland"
+if not is_wayland then
+  config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
+end
+
 config.initial_cols = 128
 config.initial_rows = 32
 
@@ -240,7 +245,6 @@ config.font_size = 9.5
 config.harfbuzz_features = { "calt=1", "clig=0", "liga=0" }
 config.line_height = 1.1
 
-config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
 config.window_padding = {
   left   = "1cell",
   right  = "0.5cell",

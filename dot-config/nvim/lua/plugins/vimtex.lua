@@ -35,6 +35,9 @@ return {
       vim.g.vimtex_view_general_options = "-reuse-instance -forward-search @tex @line @pdf"
     elseif vim.fn.has("wsl") == 1 then
       vim.g.vimtex_view_general_viewer = vim.env.PDF_READER_EXE or "xdg-open"
+    elseif vim.fn.executable("okular") then
+      vim.g.vimtex_view_general_viewer = "okular"
+      vim.g.vimtex_view_general_options = "--unique file:@pdf\\#src:@line@tex"
     else
       vim.g.vimtex_view_general_viewer = "xdg-open"
       vim.g.vimtex_view_general_options = ""

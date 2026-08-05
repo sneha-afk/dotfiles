@@ -82,20 +82,18 @@ export PATH
 
 unset -f path_prepend path_append
 
-if [ -z "$EDITOR" ]; then
-    for editor in nvim vim vi nano; do
-        if command -v "$editor" > /dev/null 2>&1; then
-            export EDITOR="$editor" VISUAL="$editor"
+for editor in nvim vim vi nano; do
+    if command -v "$editor" > /dev/null 2>&1; then
+        export EDITOR="$editor" VISUAL="$editor"
 
-            case "$editor" in
-                nvim) export MANPAGER="nvim -c 'Man!' -o -" ;;
-                vim) export MANPAGER='vim -R +"set ft=man"' ;;
-            esac
+        case "$editor" in
+            nvim) export MANPAGER="nvim -c 'Man!' -o -" ;;
+            vim) export MANPAGER='vim -R +"set ft=man"' ;;
+    esac
 
-            break
-        fi
-    done
-fi
+        break
+    fi
+done
 
 # ---------------------------------------------------------------
 
