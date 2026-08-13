@@ -92,7 +92,10 @@ export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 [ -f "$HOME/.shell_helpers" ] && source "$HOME/.shell_helpers"
-[ -f "$HOME/.wsl_env" ] && source "$HOME/.wsl_env"
+
+if [ -f /proc/version ] && grep -qi microsoft /proc/version; then
+    [ -f "$HOME/.wsl_env" ] && . "$HOME/.wsl_env"
+fi
 
 # pnpm
 export PNPM_HOME="~/.local/share/pnpm"

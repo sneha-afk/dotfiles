@@ -4,19 +4,17 @@
 # ~/.wsl_env
 # Source from .profile, .bashrc, or .zshrc:
 #   [ -f "$HOME/.wsl_env" ] && source "$HOME/.wsl_env"
-
-# Fast exit if not inside WSL environment
-if [[ ! -f /proc/version ]] || ! grep -qi microsoft /proc/version; then
-    return
-fi
+# Invariant: caller must check for WSL environment before sourcing this file.
+# i.e check [ -f /proc/version ] && grep -qi microsoft /proc/version
 
 export WINDOWS_DRIVE="/mnt/c"
 export SYSTEM32_DIR="$WINDOWS_DRIVE/Windows/System32"
 export WINDOWS_PROG_FILES="$WINDOWS_DRIVE/Program Files"
+export CMD_EXE="$SYSTEM32_DIR/cmd.exe"
+
 if [[ -z "$WINDOWS_LOCALAPPDATA" ]]; then
     export WINDOWS_LOCALAPPDATA=$(wslpath -u "$("$CMD_EXE" /c "echo %LOCALAPPDATA%" 2>/dev/null | tr -d '\r')")
 fi
-export CMD_EXE="$SYSTEM32_DIR/cmd.exe"
 
 # Setting to explorer.exe opens the link twice
 export BROWSER="powershell.exe /C start"

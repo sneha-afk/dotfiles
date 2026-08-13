@@ -22,6 +22,11 @@
       "platforms": ["linux"]
     },
     {
+      "target": "./dot-home/.bash_profile",
+      "link": "~/.bash_profile",
+      "platforms": ["linux"]
+    },
+    {
       "target": "./dot-home/.bashrc",
       "link": "~/.bashrc",
       "platforms": ["linux"]

@@ -94,13 +94,3 @@ for editor in nvim vim vi nano; do
         break
     fi
 done
-
-# ---------------------------------------------------------------
-
-if [ -n "$ZSH_VERSION" ]; then
-    emulate -L zsh
-    [ -f "$HOME/.zshrc" ] && . "$HOME/.zshrc"
-    return 0
-fi
-
-[ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"

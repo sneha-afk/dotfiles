@@ -22,7 +22,9 @@ setopt hist_ignore_dups hist_ignore_space
 
 HISTSIZE=10000
 SAVEHIST=10000
-HISTFILE=~/.zsh_history
+
+export HISTFILE=~/.zsh_history
+export HISTORY_IGNORE="(ls|ll|la|cd|exit|history|pwd)"
 
 autoload -U colors && colors
 if [ -x /usr/bin/dircolors ]; then

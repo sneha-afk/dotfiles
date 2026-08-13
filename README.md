@@ -3,7 +3,8 @@
 
 | Category | Details |
 |---------|---------|
-| **Shells** | bash: `dot-home/.profile -> dot-home/.bashrc` |
+| **Shells** | bash: `dot-home/.bash_profile -> dot-home/.profile + dot-home/.bashrc` |
+| | zsh: `dot-home/.zprofile -> dot-home/.profile + dot-home/.zshrc` |
 | | pwsh: `windows/profile/Microsoft.PowerShell_profile.ps1` |
 | **Editors** | Neovim: `dot-config/nvim` -> see its [README.md](./dot-config/nvim/) |
 | **WSL** | Config: `windows\.wslconfig` |
@@ -19,7 +20,11 @@ Other helpful files in `dot-config -> .config` and `dot-home -> ~/*`.
 - **Laptop**: ThinkPad X1 Carbon Gen 10 (2022)
   - Intel Core i7-1260P (12th Gen)
   - Intel Iris Xe Graphics
-- **OS**: Windows 11 Pro with WSL2 (Ubuntu)
+  - **OS**: Windows 11 Pro with WSL2 (Ubuntu)
+- **Desktop**: Steam Machine 512 w/o Controller (2026)
+  - AMD Custom CPU 1772
+  - GPU: AMD Steam Machine (8GB VRAM)
+  - **OS**: Fedora Linux 44, KDE Plasma Desktop Edition, Wayland
 - **Monitor**: Dell U2723QE
 
 </details>
@@ -63,7 +68,7 @@ Set these **before** sourcing the prompt script in `.bashrc`/`.zshrc`/PowerShell
 ### 🐧 Linux
 
 ```bash
-sudo apt-get install git make curl tar
+sudo {apt-get, dnf} install git make curl tar
 make trovl       # Installs trovl and applies manifest
 make eget        # Installs binary tools (lazygit, tree-sitter, ripgrep, fd, nvim, etc.)
 ```
