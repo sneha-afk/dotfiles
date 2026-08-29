@@ -64,10 +64,10 @@ export NVM_DIR="${NVM_DIR:-$HOME/.config/nvm}"
 [[ -f $HOME/.cargo/env ]] && source $HOME/.cargo/env
 
 # pnpm
-export PNPM_HOME="~/.local/share/pnpm"
+export PNPM_HOME="$HOME/.local/share/pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
 esac
 # pnpm end
 

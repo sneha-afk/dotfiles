@@ -138,6 +138,11 @@
       "keyColor": "green"
     },
     {
+      "type": "swap",
+      "key": "├─Swap",
+      "keyColor": "green"
+    },
+    {
       "type": "memory",
       "key": "└─Memory",
       "keyColor": "green"

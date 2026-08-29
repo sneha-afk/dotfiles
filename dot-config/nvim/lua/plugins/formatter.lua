@@ -15,6 +15,7 @@ return {
       sh     = { "shfmt" },
       bash   = { "shfmt" },
       zsh    = { "shfmt" },
+      c      = { "clang-format" },
       lua    = { "stylua" },
       go     = { "goimports", "gofmt", stop_after_first = false },
       python = { "ruff_format" },
