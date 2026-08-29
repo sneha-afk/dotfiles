@@ -18,53 +18,20 @@ local function check_exe(executable)
   return success == true
 end
 
-local HAS_WSL = IS_WINDOWS and check_exe("wsl")
+local HAS_WSL       = IS_WINDOWS and check_exe("wsl")
 
---- Adjusts a hex color by a percentage factor.
---- @param hex string  Hex color string in `#rrggbb` format.
---- @param percent number  Adjustment factor; negative darkens, positive lightens.
---- @return string
-local function adjust(hex, percent)
-  local r = tonumber(hex:sub(2, 3), 16)
-  local g = tonumber(hex:sub(4, 5), 16)
-  local b = tonumber(hex:sub(6, 7), 16)
-  local factor = 1 + (percent / 100)
-
-  local function clamp(val)
-    return math.floor(math.min(255, math.max(0, val * factor)))
-  end
-
-  return string.format("#%02x%02x%02x", clamp(r), clamp(g), clamp(b))
-end
-
---- Returns true if the given hex color has a perceived luminance below 0.5 (ITU-R BT.601).
---- @param hex string  Hex color string in `#rrggbb` format.
---- @return boolean
-local function is_dark(hex)
-  local r = tonumber(hex:sub(2, 3), 16)
-  local g = tonumber(hex:sub(4, 5), 16)
-  local b = tonumber(hex:sub(6, 7), 16)
-  if not r then return true end
-
-  local lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255
-  return lum < 0.5
-end
-
-local base_bg       = "#161821"
-local base_fg       = "#d2d4de"
-local base_accent   = "#e98989"
-local dark          = is_dark(base_bg)
 local COLORS        = {
-  bg                = base_bg,
-  fg                = base_fg,
-  accent            = base_accent,
-  active_titlebar   = adjust(base_bg, dark and 20 or -20),
-  inactive_titlebar = base_bg,
-  tab_active_bg     = adjust(base_bg, dark and 80 or -50),
-  tab_active_fg     = base_fg,
-  tab_inactive_bg   = adjust(base_bg, dark and -25 or 25),
-  tab_inactive_fg   = adjust(base_fg, dark and -50 or 50),
-  hover_bg          = adjust(base_bg, dark and 40 or -40),
+  bg                = "#1a1b26",
+  fg                = "#a9b1d6",
+  accent            = "#7aa2f7",
+  active_titlebar   = "#101014",
+  inactive_titlebar = "#1a1b26",
+  tab_active_bg     = "#20232e",
+  tab_active_fg     = "#7aa2f7",
+  tab_inactive_bg   = "#1a1b26",
+  tab_inactive_fg   = "#565f89",
+  hover_bg          = "#333a52",
+  split             = "#333a52",
 }
 
 local STATE         = {
@@ -73,9 +40,9 @@ local STATE         = {
 }
 
 local LEADER_STATUS = wezterm.format({
-  { Background = { Color = COLORS.accent } }, { Foreground = { Color = COLORS.bg } },
+  { Background = { Color = COLORS.accent } },
+  { Foreground = { Color = COLORS.bg } },
   { Text = "  󱐋 LEADER  " },
-  -- { Background = { Color = COLORS.bg } }, { Foreground = { Color = COLORS.fg } },
 })
 
 -- Refresh expensive computations only on config reload or window launch
@@ -223,15 +190,16 @@ local function get_icon(text)
   return " "
 end
 
-config.color_scheme = "iceberg-dark"
+config.color_scheme = "Tokyo Night"
 config.colors = {
   tab_bar = {
-    active_tab         = { bg_color = COLORS.tab_active_bg, fg_color = COLORS.fg },
+    active_tab         = { bg_color = COLORS.tab_active_bg, fg_color = COLORS.tab_active_fg },
     inactive_tab       = { bg_color = COLORS.tab_inactive_bg, fg_color = COLORS.tab_inactive_fg },
     inactive_tab_hover = { bg_color = COLORS.hover_bg, fg_color = COLORS.fg },
-    new_tab            = { bg_color = COLORS.hover_bg, fg_color = COLORS.fg },
+    new_tab            = { bg_color = COLORS.tab_inactive_bg, fg_color = COLORS.tab_inactive_fg },
+    new_tab_hover      = { bg_color = COLORS.hover_bg, fg_color = COLORS.fg },
   },
-  split = COLORS.fg,
+  split = COLORS.split,
 }
 
 -- WezTerm automatically appends built-in fonts after this list:
@@ -255,9 +223,10 @@ config.window_frame = {
   active_titlebar_bg = COLORS.active_titlebar,
   inactive_titlebar_bg = COLORS.inactive_titlebar,
   font = wezterm.font_with_fallback({
-    { family = "Inter",  weight = "Bold" },
-    { family = "Roboto", weight = "Bold" }, -- ships with WezTerm
+    { family = "IBM Plex Sans", weight = "Bold" },
+    { family = "Roboto",        weight = "Bold" }, -- ships with WezTerm
   }),
+  font_size = 10,
 }
 
 config.adjust_window_size_when_changing_font_size = false
