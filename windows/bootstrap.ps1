@@ -5,9 +5,9 @@
     Bootstrap Windows development environment and essentials
 .DESCRIPTION
     Installs and configures:
-    - Scoop (CLI tools & Compilers)
-    - Winget (GUI & Desktop Apps)
-    - TROVL or Manual Symlinks (Dotfiles)
+    - scoop (CLI tools & Compilers)
+    - winget (GUI & Desktop Apps)
+    - trovl or Manual Symlinks (Dotfiles)
     - Astral UV (Python Management)
 .LINK
     Scoop: https://scoop.sh
@@ -42,6 +42,7 @@ $script:WindowsDir = $PSScriptRoot
 $script:RepoDir = Split-Path -Parent $script:WindowsDir
 $script:UtilsDir = Join-Path $script:WindowsDir "utils"
 $script:ScriptsDir = Join-Path $script:RepoDir "scripts"
+$script:LocalBin = Join-Path $env:USERPROFILE ".local\bin"
 
 $ErrorActionPreference = "Stop"
 
@@ -68,7 +69,7 @@ if ($PROFILE -like "*OneDrive*") {
 
 #endregion
 
-#region  Symlinks
+#region Symlinks
 if (-not $SkipSymlinks) {
     Write-Host "`n--- Setting up symlinks ---" -ForegroundColor Cyan
     if (!(Get-Command trovl -ErrorAction SilentlyContinue)) {
@@ -84,21 +85,29 @@ if (-not $SkipSymlinks) {
         if ($decision -eq 0) {
             Write-Host "--- Installing Trovl ---" -ForegroundColor Cyan
 
-            curl -LO https://github.com/sneha-afk/trovl/releases/latest/download/trovl_windows_amd64.zip
-            if (!(Test-Path "$env:USERPROFILE/.local/bin")) { mkdir $localBin -Force | Out-Null }
-            Expand-Archive trovl_windows_amd64.zip -Destination "$env:USERPROFILE\.local\bin\" -Force
+            curl.exe -LO https://github.com/sneha-afk/trovl/releases/latest/download/trovl_windows_amd64.zip
 
-            if ($env:PATH -notlike "*$localBin*") {
-                setx PATH "$env:PATH; $localBin"
-                $env:PATH += "; $localBin"
+            if (!(Test-Path $script:LocalBin)) { New-Item -ItemType Directory -Path $script:LocalBin -Force | Out-Null }
+            Expand-Archive trovl_windows_amd64.zip -Destination $script:LocalBin -Force
+
+            if ($env:PATH -notlike "*$($script:LocalBin)*") {
+                setx PATH "$env:PATH;$($script:LocalBin)"
+                $env:PATH += ";$($script:LocalBin)"
             }
-            Write-Host "Trovl installed to $env:USERPROFILE/.local/bin" -ForegroundColor Green
+            Write-Host "Trovl installed to $script:LocalBin" -ForegroundColor Green
 
             Remove-Item trovl_windows_amd64.zip -Force
         }
         else {
             Write-Host "--- Running Manual Symlinks ---" -ForegroundColor Cyan
-            & "$UtilsDir/install_symlinks.ps1"
+
+            $symlinkScript = Join-Path $script:UtilsDir "bootstrap_symlinks.ps1"
+            if (Test-Path $symlinkScript) {
+                & $symlinkScript
+            }
+            else {
+                Write-Host "Manual symlink script not found at $symlinkScript" -ForegroundColor Red
+            }
         }
     }
 
@@ -133,6 +142,30 @@ if (-not $SkipMisc) {
         powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
     }
 }
+
+<#
+ Don't want to download a ton of stuff just to get cl.exe, point the
+    environment variables to gcc/g++ instead. This is especially useful for
+    nvim-treesitter, which will otherwise try to use cl.exe if it's on PATH.
+#>
+function Set-GccEnvironment {
+    $gcc = Get-Command gcc -ErrorAction SilentlyContinue
+    $gxx = Get-Command g++ -ErrorAction SilentlyContinue
+
+    if (-not ($gcc -and $gxx)) {
+        Write-Host "gcc/g++ not found on PATH, skipping CC/CXX setup" -ForegroundColor Yellow
+        return
+    }
+
+    [Environment]::SetEnvironmentVariable('CC', 'gcc', 'User')
+    [Environment]::SetEnvironmentVariable('CXX', 'g++', 'User')
+    $env:CC = 'gcc'
+    $env:CXX = 'g++'
+
+    Write-Host "CC/CXX set to gcc/g++" -ForegroundColor Green
+}
+
+Set-GccEnvironment
 #endregion
 
 #region Summary
@@ -140,7 +173,7 @@ Write-Host "`n=== Bootstrap Summary ===" -ForegroundColor Cyan
 $tools = @(
     @{ Name = "git"; Cmd = { Get-Command "git" -ErrorAction SilentlyContinue } }
     @{ Name = "nvim"; Cmd = { Get-Command "nvim" -ErrorAction SilentlyContinue } }
-    @{ Name = "sccop"; Cmd = { Get-Command "scoop" -ErrorAction SilentlyContinue } }
+    @{ Name = "scoop"; Cmd = { Get-Command "scoop" -ErrorAction SilentlyContinue } }
     @{ Name = "gcc"; Cmd = { Get-Command "gcc" -ErrorAction SilentlyContinue } }
     @{ Name = "make"; Cmd = { Get-Command "make" -ErrorAction SilentlyContinue } }
     @{ Name = "trovl"; Cmd = { Get-Command "trovl" -ErrorAction SilentlyContinue } }

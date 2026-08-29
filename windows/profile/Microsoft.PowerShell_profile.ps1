@@ -31,7 +31,10 @@ function mkcd($Path) { New-Item -Type Directory $Path -EA Silent | Out-Null; Set
 
 # Unix-like commands (only if not already present)
 if (-not (Get-Command wc -EA Silent)) {
-    function wc { ($args ? (Get-Content @args) : $input) | Measure-Object -Line -Word -Character }
+    function wc {
+        $content = if ($args) { Get-Content @args } else { $input }
+        $content | Measure-Object -Line -Word -Character
+    }
 }
 if (-not (Get-Command touch -EA Silent)) {
     function touch($path) { New-Item -Type File $path -Force | Out-Null }
@@ -151,16 +154,22 @@ if (-not (Test-Path variable:PROMPT_PREPEND)) { $global:PROMPT_PREPEND = "" }
 
 if (-not $PROMPT_USE_CUSTOM) { return }
 
+# Raw codes to work in both PS5 and PS7; PS7 has built-in color support but PS5 does not
 function Color($name, $text) {
-    $fg = $PSStyle.Foreground
-    switch ($name) {
-        'Red'     { "$($fg.Red)$text$($PSStyle.Reset)" }
-        'Green'   { "$($fg.Green)$text$($PSStyle.Reset)" }
-        'Yellow'  { "$($fg.Yellow)$text$($PSStyle.Reset)" }
-        'Blue'    { "$($fg.Blue)$text$($PSStyle.Reset)" }
-        'Magenta' { "$($fg.Magenta)$text$($PSStyle.Reset)" }
-        'Cyan'    { "$($fg.Cyan)$text$($PSStyle.Reset)" }
-        default   { $text }
+    $codes = @{
+        Red     = "31"
+        Green   = "32"
+        Yellow  = "33"
+        Blue    = "34"
+        Magenta = "35"
+        Cyan    = "36"
+    }
+    $esc = [char]27
+    if ($codes.ContainsKey($name)) {
+        "$esc[$($codes[$name])m$text$esc[0m"
+    }
+    else {
+        $text
     }
 }
 
