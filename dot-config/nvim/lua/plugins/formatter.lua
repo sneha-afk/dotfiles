@@ -21,6 +21,7 @@ return {
       python = { "ruff_format" },
       bzl    = { "buildifier" },
       ruby   = { lsp_format = "prefer" },
+      java   = { "jdtls" },
     },
     formatters = {
       shfmt = {

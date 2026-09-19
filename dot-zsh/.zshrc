@@ -73,6 +73,7 @@ esac
 
 (( $+commands[uv] )) && eval "$(uv generate-shell-completion zsh)"
 (( $+commands[fzf] )) && source <(fzf --zsh)
+[ -x "$HOME/.local/bin/mise" ] && eval "$($HOME/.local/bin/mise activate zsh)"
 
 if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"

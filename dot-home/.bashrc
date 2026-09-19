@@ -120,6 +120,8 @@ alias home='cd ~'
 
 command -v uv >/dev/null && eval "$(uv generate-shell-completion bash)"
 command -v fzf >/dev/null && eval "$(fzf --bash)"
+[ -x "$HOME/.local/bin/mise" ] && eval "$($HOME/.local/bin/mise activate bash)"
+
 [ -f "$HOME/.ripgreprc" ] && export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
 if [[ -n "${NVM_DIR:-}" && -d "$NVM_DIR" ]]; then

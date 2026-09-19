@@ -8,7 +8,6 @@ vim.loader.enable()
 
 vim.g.mapleader = ","
 vim.g.maplocalleader = "\\"
-vim.uv = vim.uv or vim.loop
 
 vim.g.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 vim.g.is_ssh = vim.env.SSH_CLIENT or vim.env.SSH_TTY
